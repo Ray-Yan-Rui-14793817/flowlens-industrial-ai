@@ -6,7 +6,14 @@ from pydantic import SecretStr, ValidationError
 from flowlens.config import Settings
 
 
-def test_settings_can_be_constructed() -> None:
+def test_settings_can_be_constructed(monkeypatch: pytest.MonkeyPatch) -> None:
+    for variable in (
+        "FLOWLENS_SERVICE_NAME",
+        "FLOWLENS_APP_ENVIRONMENT",
+        "FLOWLENS_LOG_LEVEL",
+    ):
+        monkeypatch.delenv(variable, raising=False)
+
     settings = Settings(
         database_url=SecretStr(
             "postgresql+psycopg://flowlens:flowlens@localhost:5432/flowlens"

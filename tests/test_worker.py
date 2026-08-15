@@ -18,7 +18,9 @@ def _settings() -> Settings:
 
 def test_worker_starts_and_stops_without_business_jobs(
     caplog: pytest.LogCaptureFixture,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    monkeypatch.delenv("FLOWLENS_APP_ENVIRONMENT", raising=False)
     stop_event = Event()
     stop_event.set()
 
