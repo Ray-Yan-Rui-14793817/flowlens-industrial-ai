@@ -164,6 +164,8 @@ Week 1 不得实现：
 - Vector search
 - LLM API calls
 - Agents
+- LangChain
+- LangGraph
 - Prompt engineering
 - ERP / MES integration
 - Predictive maintenance
@@ -185,6 +187,8 @@ Do not implement the following during Week 1:
 - Vector search
 - LLM API calls
 - Agents
+- LangChain
+- LangGraph
 - Prompt engineering
 - ERP / MES integration
 - Predictive maintenance

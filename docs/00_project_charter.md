@@ -247,16 +247,85 @@ Build the industrial data foundation, canonical metric layer, deterministic manu
 
 ### Month 2 — PREDICT
 **中文**
-建立 Del…6573 tokens truncated…orchestration framework。
+建立 Delivery Risk 特征流水线、基线模型、Calibration、Threshold 和 Explainability，对单张生产订单输出延期概率和风险信号。
+
+**English**
+Build the delivery-risk feature pipeline, baseline models, calibration, thresholds, and explainability to produce delay probability and risk signals for individual production orders.
+
+### Month 3 — INVESTIGATE
+**中文**
+建立 Industrial RAG、Evidence Layer 和受控 LLM Orchestrator，把 Analytics、ML 和 SOP 连接成调查工作流。
+
+**English**
+Build Industrial RAG, the Evidence Layer, and a controlled LLM Orchestrator that combines analytics, ML, and SOPs into an investigation workflow.
+
+### Month 4 — TRANSFORM
+**中文**
+建立流程瓶颈分析、Technology Fit、AI Opportunity、ROI、Human-in-the-loop 和可部署 Release。
+
+**English**
+Build process-bottleneck analysis, technology fit, AI opportunities, ROI, human-in-the-loop approval, and a deployable release.
+
+---
+
+## 10. 项目成功标准 / Project Success Criteria
+
+**中文**
+
+项目成功不以功能数量为标准，而以是否形成一条完整纵向闭环为标准。
+
+必须满足：
+
+- 从工业数据到 Dashboard 的分析链路可复现；
+- Delivery Risk 模型无明显数据泄漏；
+- 关键业务数字由 SQL/Python 计算；
+- Observed Fact、Hypothesis、Unknown、Recommendation 分离；
+- 重要结论能够通过 Evidence ID 追踪来源；
+- LLM 工具失败时不得伪造结果；
+- 最终 Demo 能稳定从“发现异常”走到“调查、转型、审批”。
 
 **English**
 
-Create an ADR for changes such as:
+Success is not measured by feature count but by whether one complete vertical loop is achieved.
 
-- introducing a major new framework;
-- changing the primary database;
-- moving from a modular monolith to multiple services;
-- introducing a queue/broker;
-- changing data-contract principles;
-- changing the evidence architecture;
-- introducing a new LLM orchestration framework.
+The project must ensure:
+
+- reproducible industrial data-to-dashboard analytics;
+- no obvious data leakage in delivery-risk modeling;
+- important business numbers are calculated with SQL/Python;
+- observed facts, hypotheses, unknowns, and recommendations are separated;
+- important claims are traceable through evidence IDs;
+- LLM tool failures do not result in fabricated outputs;
+- the final demo can reliably move from anomaly detection to investigation, transformation, and approval.
+
+---
+
+## 11. Week 1 目标 / Week 1 Goal
+
+**中文**
+
+Week 1 不实现制造业务功能。目标是冻结项目边界，并建立可一键启动、持续测试、可被后续 Sprint 复用的工程基础。
+
+Week 1 完成后，任何后续 Codex 任务都不应该再需要自行猜测：
+
+- FlowLens 是什么产品；
+- 首个业务问题是什么；
+- 谁是核心用户；
+- 当前允许做什么；
+- 当前禁止做什么；
+- 架构边界是什么；
+- 完成任务需要提供哪些验证证据。
+
+**English**
+
+Week 1 does not implement manufacturing business functionality. Its goal is to freeze project boundaries and establish a one-command, continuously testable engineering foundation reusable by later sprints.
+
+After Week 1, future Codex tasks should not need to guess:
+
+- what FlowLens is;
+- what the first business problem is;
+- who the primary user is;
+- what is currently allowed;
+- what is currently prohibited;
+- what the architecture boundary is;
+- what evidence is required to claim task completion.
