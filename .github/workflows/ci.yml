@@ -1,0 +1,89 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - feat/w01-project-foundation
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Quality gate
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.6-pg17-bookworm
+        env:
+          POSTGRES_DB: flowlens_test
+          POSTGRES_USER: flowlens_ci
+          POSTGRES_PASSWORD: flowlens_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowlens_ci -d flowlens_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_DB: flowlens_test
+      POSTGRES_USER: flowlens_ci
+      POSTGRES_PASSWORD: flowlens_ci
+      FLOWLENS_SERVICE_NAME: flowlens-api
+      FLOWLENS_APP_ENVIRONMENT: test
+      FLOWLENS_LOG_LEVEL: INFO
+      FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate Docker Compose configuration
+        run: docker compose config --quiet
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Verify PostgreSQL readiness
+        run: >-
+          uv run python -c "from flowlens.config import get_settings;
+          from flowlens.db import check_database_connectivity, create_database_engine;
+          engine = create_database_engine(get_settings());
+          assert check_database_connectivity(engine); engine.dispose()"
+
+      - name: Apply database migrations
+        run: uv run alembic upgrade head
+
+      - name: Verify dependency lock
+        run: uv lock --check
+
+      - name: Run database integration tests
+        run: uv run pytest -m integration
+
+      - name: Run complete test suite
+        run: uv run pytest
+
+      - name: Run Ruff
+        run: uv run ruff check .
+
+      - name: Run mypy
+        run: uv run mypy .
