@@ -31,24 +31,36 @@ uv run mypy .
 Copy `.env.example` to `.env` for local configuration. Never commit `.env` or real
 credentials.
 
-## PostgreSQL foundation
+## Week 1 local runtime
 
-W01-C02 provides one local PostgreSQL 17 service with pgvector available. Docker with
-Compose support is required. The container variables and `FLOWLENS_DATABASE_URL` in
-`.env` must describe the same local database.
+The local runtime uses PostgreSQL 17 with pgvector, the FastAPI service, and a minimal
+worker placeholder. Docker with Compose support is required. The API and worker use the
+Compose service name `postgres` internally; host-side Python commands use the
+`localhost` URL in `.env.example`.
 
-The example URL uses `localhost` for commands run from the development host. A future
-Compose-managed application container would instead use the service DNS name `postgres`;
-that application-container setup is not implemented in C02.
-
-Validate and start the database service:
+Validate, build, and start the complete development stack:
 
 ```bash
 docker compose config
-docker compose pull
-docker compose up -d postgres
+docker compose up --build -d
 docker compose ps
 ```
+
+The expected services are `postgres` (healthy), `api` (running), and `worker` (running).
+The API is published only to localhost by default. Verify its database-backed health:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+A healthy database returns HTTP 200 and:
+
+```json
+{"status":"ok","service":"flowlens-api","database":"ok"}
+```
+
+If PostgreSQL becomes unavailable after startup, the API remains reachable and returns
+HTTP 503 with `database` set to `unavailable`.
 
 Apply the infrastructure-only Alembic baseline, which enables the `vector` extension:
 
@@ -66,3 +78,12 @@ uv run pytest -m integration
 
 The default test command remains safe without PostgreSQL; database integration tests are
 reported as skipped when `FLOWLENS_DATABASE_URL` is not configured.
+
+Stop the development containers without deleting the persistent PostgreSQL volume:
+
+```bash
+docker compose stop
+```
+
+Week 1 contains infrastructure only. It does not include manufacturing schemas, business
+analytics, ML, RAG, LLM, or agent functionality.
