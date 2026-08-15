@@ -1,10 +1,13 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-08-14  
-**Planned Sprint / 计划 Sprint:** Week 1 — Project Foundation  
-**Current Project Phase / 当前阶段:** PRE-KICKOFF / Definition of Ready  
-**Implementation Status / 工程实现状态:** NOT YET VERIFIED
+**Last Updated / 最后更新:** 2026-08-15
 
-> Important / 重要：本文件当前记录的是 ChatGPT 控制端已冻结的 Week 1 计划状态。尚不能声称 Codex 工程实现、Docker 启动、测试或 CI 已经通过。只有实际执行并验证后才能更新为 PASS。
+**Sprint / Sprint:** Week 1 — Project Foundation
+
+**Current Project Phase / 当前阶段:** WEEK 1 ACCEPTED
+
+**Implementation Status / 工程实现状态:** VERIFIED
+
+> Important / 重要：Week 1 工程基础已通过本地端到端验证和独立的 GitHub-hosted Linux CI 验证。本状态仅覆盖 Week 1 基础设施，不表示 Week 2 或后续业务能力已经实现。
 
 ---
 
@@ -52,13 +55,15 @@ These files define Week 1 business goals, scope, architecture boundaries, and en
 
 ---
 
-## 3. Week 1 计划工程目标 / Planned Week 1 Engineering Goal
+## 3. Week 1 已验证工程基础 / Verified Week 1 Engineering Foundation
 
 **中文**
 
-建立：
+已建立并验证：
 
 - Git / Python project baseline
+- canonical environment-backed Settings
+- locked dependencies
 - FastAPI skeleton
 - PostgreSQL + pgvector
 - SQLAlchemy
@@ -72,13 +77,15 @@ These files define Week 1 business goals, scope, architecture boundaries, and en
 - `.env.example`
 - basic CI
 
-目标是实现“一条命令启动 + 可重复质量检查”。
+已验证“一条命令启动 + 可重复质量检查”。
 
 **English**
 
-Establish:
+Established and verified:
 
 - Git / Python project baseline;
+- canonical environment-backed Settings;
+- locked dependencies;
 - FastAPI skeleton;
 - PostgreSQL + pgvector;
 - SQLAlchemy;
@@ -92,15 +99,15 @@ Establish:
 - `.env.example`;
 - basic CI.
 
-The goal is one-command startup plus repeatable quality checks.
+One-command startup and repeatable quality checks are verified.
 
 ---
 
-## 4. 当前禁止实现 / Currently Prohibited
+## 4. Week 1 未实现范围 / Not Implemented in Week 1
 
 **中文**
 
-在 Week 1 通过前，不应实现：
+Week 1 未实现以下后续能力：
 
 - Manufacturing synthetic dataset
 - Manufacturing domain schema
@@ -113,7 +120,7 @@ The goal is one-command startup plus repeatable quality checks.
 
 **English**
 
-Before Week 1 is accepted, do not implement:
+Week 1 did not implement these later capabilities:
 
 - manufacturing synthetic dataset;
 - manufacturing domain schema;
@@ -135,13 +142,26 @@ Before Week 1 is accepted, do not implement:
 | Architecture v0.1 frozen / 架构冻结 | READY | `docs/02_architecture.md` |
 | W01 Sprint Spec frozen / W01 Spec 冻结 | READY | `docs/sprints/W01_project_foundation.md` |
 | AGENTS rules frozen / AGENTS 规则冻结 | READY | `AGENTS.md` |
-| FastAPI implementation / FastAPI 实现 | NOT VERIFIED | Codex result required |
-| PostgreSQL + pgvector / 数据库基础 | NOT VERIFIED | Codex result required |
-| Docker Compose startup / Docker 启动 | NOT VERIFIED | Command result required |
-| pytest / 测试 | NOT VERIFIED | Test output required |
-| lint | NOT VERIFIED | Command output required |
-| type checking | NOT VERIFIED | Command output required |
-| basic CI | NOT VERIFIED | CI result required |
+| Python / Settings / locked dependencies | PASS | Python 3.12; uv 0.12.5; `uv sync --frozen`; `uv lock --check` |
+| FastAPI implementation / FastAPI 实现 | PASS | API starts; database-aware `/health` verified |
+| PostgreSQL + pgvector / 数据库基础 | PASS | PostgreSQL healthy; pgvector available and enabled |
+| SQLAlchemy + Alembic | PASS | Connectivity verified; migration head `0001_enable_pgvector` applied |
+| Worker placeholder / Worker 占位服务 | PASS | Worker starts and remains running without broker or business jobs |
+| Docker Compose startup / Docker 启动 | PASS | `docker compose config --quiet`; `docker compose up -d`; three services running |
+| pytest / 测试 | PASS | 4 integration tests and 18 full-suite tests passed locally and remotely |
+| lint | PASS | Ruff passed locally and remotely |
+| type checking | PASS | Strict mypy passed locally and remotely |
+| basic CI | PASS | GitHub Actions `CI` Run #1, ID `31882676666`, exact SHA `626019857798694e50156b8f0f143308f9f071e5` |
+
+**LOCAL CI-EQUIVALENT STATUS:** `PASS`
+
+**REMOTE GITHUB ACTIONS STATUS:** `PASS`
+
+### Known Limitations / 已知限制
+
+- MINOR: FastAPI TestClient currently emits a third-party Starlette/httpx deprecation warning; test correctness is unaffected.
+- INFORMATIONAL: In the Codex Windows host, Docker Compose Build/Bake can emit a session-header warning when the workspace path contains non-ASCII characters. Compose configuration and startup are verified, and the same repository quality gate passed independently on GitHub-hosted Ubuntu.
+- INFORMATIONAL: The Codex sandbox could not write its local pytest cache; tests still executed and passed.
 
 ---
 
@@ -149,38 +169,23 @@ Before Week 1 is accepted, do not implement:
 
 **中文**
 
-将 `W01_project_foundation.md` 交给 Codex，并要求 Codex：
-
-1. 读取 `AGENTS.md` 和全部 Week 1 控制文档；
-2. 只实现 Week 1 工程基础；
-3. 运行 Docker、pytest、lint 和 type checking；
-4. 返回 files changed、commands run、test results、known limitations；
-5. 测试通过后更新本文件；
-6. 不得自行开始 Week 2。
+由 Product Owner 审查本次状态更新，并通过单独授权创建 Week 1 验收文档提交。Week 2 必须在其控制契约和任务获得批准后才能开始。
 
 **English**
 
-Hand `W01_project_foundation.md` to Codex and require Codex to:
-
-1. read `AGENTS.md` and all Week 1 control documents;
-2. implement only the Week 1 engineering foundation;
-3. run Docker, pytest, lint, and type checking;
-4. return files changed, commands run, test results, and known limitations;
-5. update this file only after checks pass;
-6. not start Week 2 automatically.
+Have the Product Owner review this state update, then create the Week 1 acceptance-documentation commit through a separately authorized task. Week 2 must not begin until its control contract and task are approved.
 
 ---
 
 ## 7. Gate 状态 / Gate Status
 
 **Current Gate:** Week 1 Engineering Foundation  
-**Status:** `READY FOR CODEX IMPLEMENTATION`  
-**Not Yet:** `ACCEPTED`
+**Status:** `ACCEPTED`
 
 **中文**
 
-ChatGPT 控制端已达到 Definition of Ready。工程侧尚未达到 Definition of Done。
+Week 1 控制契约、工程实现、本地质量门和远程 CI 均已通过，工程侧已达到 Week 1 Definition of Done。
 
 **English**
 
-The ChatGPT control side has reached Definition of Ready. The engineering side has not yet reached Definition of Done.
+The Week 1 control contract, engineering implementation, local quality gates, and remote CI have passed. The engineering foundation has reached the Week 1 Definition of Done.
