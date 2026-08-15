@@ -9,5 +9,5 @@ class HealthResponse(BaseModel):
     """Database-aware service health response."""
 
     status: Literal["ok", "degraded"]
-    service: str
+    service: Literal["flowlens-api"] = "flowlens-api"
     database: Literal["ok", "unavailable"]

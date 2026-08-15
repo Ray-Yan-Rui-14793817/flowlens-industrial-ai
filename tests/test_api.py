@@ -96,3 +96,38 @@ def test_health_returns_safe_degraded_response(monkeypatch: pytest.MonkeyPatch) 
         "traceback",
     ):
         assert unsafe_value not in response_body
+
+
+@pytest.mark.parametrize(
+    ("database_available", "expected_status_code", "expected_response"),
+    [
+        (True, 200, HEALTHY_RESPONSE),
+        (False, 503, DEGRADED_RESPONSE),
+    ],
+)
+def test_health_service_identity_ignores_environment_override(
+    monkeypatch: pytest.MonkeyPatch,
+    database_available: bool,
+    expected_status_code: int,
+    expected_response: dict[str, str],
+) -> None:
+    monkeypatch.setenv("FLOWLENS_SERVICE_NAME", "unexpected-service")
+    settings = Settings(database_url=SecretStr(DATABASE_URL), _env_file=None)
+    assert settings.service_name == "unexpected-service"
+
+    def check_connectivity(engine: Engine) -> bool:
+        assert isinstance(engine, Engine)
+        if not database_available:
+            raise DatabaseUnavailableError("Database connectivity check failed")
+        return True
+
+    monkeypatch.setattr(
+        "flowlens.api.health.check_database_connectivity",
+        check_connectivity,
+    )
+
+    with TestClient(create_app(settings)) as client:
+        response = client.get("/health")
+
+    assert response.status_code == expected_status_code
+    assert response.json() == expected_response

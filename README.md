@@ -69,11 +69,14 @@ uv run alembic heads
 uv run alembic upgrade head
 ```
 
-Run the real database integration checks after PostgreSQL is healthy and `.env` is
-configured:
+Run the real database integration checks only against a dedicated test database. The
+safety gate requires `FLOWLENS_APP_ENVIRONMENT=test` and a database name ending in
+`_test`; it refuses other targets before applying Alembic migrations:
 
 ```bash
-uv run pytest -m integration
+FLOWLENS_APP_ENVIRONMENT=test \
+FLOWLENS_DATABASE_URL=postgresql+psycopg://flowlens:flowlens@localhost:5432/flowlens_test \
+  uv run pytest -m integration
 ```
 
 The default test command remains safe without PostgreSQL; database integration tests are
