@@ -3,11 +3,15 @@
 
 **Sprint / Sprint:** Week 1 — Project Foundation
 
-**Current Project Phase / 当前阶段:** WEEK 1 ACCEPTED
+**Current Project Phase / 当前阶段:** WEEK 1 CLOSED
 
-**Implementation Status / 工程实现状态:** VERIFIED
+**Implementation Status / 工程实现状态:** COMPLETE
 
-> Important / 重要：Week 1 工程基础已通过本地端到端验证和独立的 GitHub-hosted Linux CI 验证。本状态仅覆盖 Week 1 基础设施，不表示 Week 2 或后续业务能力已经实现。
+**Implementation PR Status / 实现 PR 状态:** MERGED
+
+**Post-Merge Verification / 合并后验证:** PASS
+
+> Important / 重要：Week 1 工程基础已完成、合并并通过合并后 GitHub-hosted Linux CI 验证。本状态仅覆盖 Week 1 基础设施；Week 2 尚未开始，也不表示后续业务能力已经实现。
 
 ---
 
@@ -55,137 +59,141 @@ These files define Week 1 business goals, scope, architecture boundaries, and en
 
 ---
 
-## 3. Week 1 已验证工程基础 / Verified Week 1 Engineering Foundation
+## 3. 历史实现里程碑 / Historical Implementation Milestones
 
-**中文**
+Week 1 was delivered through seven reviewed, linear checkpoints:
 
-已建立并验证：
+1. `8a762c1` — Python engineering baseline
+2. `1bb9980` — PostgreSQL, pgvector, SQLAlchemy, and Alembic foundation
+3. `7eb6c06` — FastAPI runtime, database-aware health endpoint, and worker placeholder
+4. `6260198` — GitHub Actions quality gate
+5. `337e0b2` — Week 1 acceptance record
+6. `13a9de1` — pre-merge health, migration-safety, and Compose corrections
+7. `5f06774` — CI environment-isolation correction
 
-- Git / Python project baseline
+---
+
+## 4. 最终验收能力 / Final Accepted Week 1 Capabilities
+
+- Python 3.12 project foundation
+- uv dependency locking
 - canonical environment-backed Settings
-- locked dependencies
-- FastAPI skeleton
-- PostgreSQL + pgvector
-- SQLAlchemy
-- Alembic
-- Docker Compose
-- Worker placeholder
-- `/health`
-- pytest
-- lint
-- type checking
-- `.env.example`
-- basic CI
-
-已验证“一条命令启动 + 可重复质量检查”。
-
-**English**
-
-Established and verified:
-
-- Git / Python project baseline;
-- canonical environment-backed Settings;
-- locked dependencies;
-- FastAPI skeleton;
-- PostgreSQL + pgvector;
-- SQLAlchemy;
-- Alembic;
-- Docker Compose;
-- worker placeholder;
-- `/health`;
-- pytest;
-- lint;
-- type checking;
-- `.env.example`;
-- basic CI.
+- PostgreSQL 17 infrastructure
+- pgvector availability and extension enablement
+- SQLAlchemy engine, session, and connectivity foundation
+- Alembic migration foundation
+- FastAPI application runtime
+- database-aware `/health` contract
+- brokerless long-running worker placeholder
+- Docker Compose development runtime
+- unit testing
+- real PostgreSQL integration testing
+- Ruff
+- strict mypy
+- GitHub Actions quality gate
 
 One-command startup and repeatable quality checks are verified.
 
 ---
 
-## 4. Week 1 未实现范围 / Not Implemented in Week 1
+## 5. Week 1 未实现能力 / Week 1 Non-Capabilities
 
-**中文**
+Week 1 does **not** include:
 
-Week 1 未实现以下后续能力：
+- manufacturing domain schemas
+- manufacturing business entities
+- synthetic industrial data
+- manufacturing metrics
+- analytics
+- dashboards
+- feature engineering
+- machine learning
+- embeddings
+- vector search
+- semantic retrieval
+- RAG
+- LLM integration
+- prompts
+- agents
+- LangChain
+- LangGraph
+- Redis
+- Celery
+- Kafka
+- RabbitMQ
+- ERP integration
+- MES integration
+- production deployment
+- continuous deployment
 
-- Manufacturing synthetic dataset
-- Manufacturing domain schema
-- Manufacturing metrics
-- Business dashboard functionality
-- ML / feature engineering
-- RAG / embeddings / retrieval
-- LLM
-- Agent orchestration
-
-**English**
-
-Week 1 did not implement these later capabilities:
-
-- manufacturing synthetic dataset;
-- manufacturing domain schema;
-- manufacturing metrics;
-- business dashboard functionality;
-- ML / feature engineering;
-- RAG / embeddings / retrieval;
-- LLM;
-- agent orchestration.
-
----
-
-## 5. 验收状态 / Acceptance Status
-
-| Item / 项目 | Status / 状态 | Evidence / 证据 |
-|---|---|---|
-| Project Charter frozen / 项目章程冻结 | READY | `docs/00_project_charter.md` |
-| Scope frozen / 范围冻结 | READY | `docs/01_scope.md` |
-| Architecture v0.1 frozen / 架构冻结 | READY | `docs/02_architecture.md` |
-| W01 Sprint Spec frozen / W01 Spec 冻结 | READY | `docs/sprints/W01_project_foundation.md` |
-| AGENTS rules frozen / AGENTS 规则冻结 | READY | `AGENTS.md` |
-| Python / Settings / locked dependencies | PASS | Python 3.12; uv 0.12.5; `uv sync --frozen`; `uv lock --check` |
-| FastAPI implementation / FastAPI 实现 | PASS | API starts; database-aware `/health` verified |
-| PostgreSQL + pgvector / 数据库基础 | PASS | PostgreSQL healthy; pgvector available and enabled |
-| SQLAlchemy + Alembic | PASS | Connectivity verified; migration head `0001_enable_pgvector` applied |
-| Worker placeholder / Worker 占位服务 | PASS | Worker starts and remains running without broker or business jobs |
-| Docker Compose startup / Docker 启动 | PASS | `docker compose config --quiet`; `docker compose up -d`; three services running |
-| pytest / 测试 | PASS | 4 integration tests and 18 full-suite tests passed locally and remotely |
-| lint | PASS | Ruff passed locally and remotely |
-| type checking | PASS | Strict mypy passed locally and remotely |
-| basic CI | PASS | GitHub Actions `CI` Run #1, ID `31882676666`, exact SHA `626019857798694e50156b8f0f143308f9f071e5` |
-
-**LOCAL CI-EQUIVALENT STATUS:** `PASS`
-
-**REMOTE GITHUB ACTIONS STATUS:** `PASS`
-
-### Known Limitations / 已知限制
-
-- MINOR: FastAPI TestClient currently emits a third-party Starlette/httpx deprecation warning; test correctness is unaffected.
-- INFORMATIONAL: In the Codex Windows host, Docker Compose Build/Bake can emit a session-header warning when the workspace path contains non-ASCII characters. Compose configuration and startup are verified, and the same repository quality gate passed independently on GitHub-hosted Ubuntu.
-- INFORMATIONAL: The Codex sandbox could not write its local pytest cache; tests still executed and passed.
+pgvector is infrastructure-only. Its presence does **not** mean that embedding,
+vector-search, semantic-search, retrieval, or RAG functionality exists.
 
 ---
 
-## 6. 下一步 / Next Step
+## 6. 最终验收与合并证据 / Final Acceptance and Merge Evidence
 
-**中文**
+### Implementation Merge / 实现合并
 
-由 Product Owner 审查本次状态更新，并通过单独授权创建 Week 1 验收文档提交。Week 2 必须在其控制契约和任务获得批准后才能开始。
+- Implementation PR: `#2`
+- PR status: `MERGED`
+- Final reviewed feature SHA: `5f06774c67e691ed5838f81d6d949818470e2b83`
+- Final exact-SHA PR CI: workflow `CI`, run `31889122831`, run #7, `success`
+- Week 1 implementation merge commit: `254c713dda8e921deed9b27cb6d17555ca4ddf8c`
+- Post-merge main CI: workflow `CI`, run `31889922557`, run #8, `success`
 
-**English**
+### Final Quality State / 最终质量状态
 
-Have the Product Owner review this state update, then create the Week 1 acceptance-documentation commit through a separately authorized task. Week 2 must not begin until its control contract and task are approved.
+| Quality gate / 质量门 | Result / 结果 |
+|---|---|
+| Docker Compose configuration validation | PASS |
+| PostgreSQL 17 runtime | PASS |
+| pgvector availability and enablement | PASS |
+| Online Alembic migration | PASS |
+| Integration pytest | PASS — 4 passed, 0 failed, 0 skipped |
+| Full pytest | PASS — 23 passed, 0 failed |
+| Ruff | PASS |
+| Strict mypy | PASS |
+| uv lock verification | PASS |
+| Final exact-SHA PR CI | PASS |
+| Post-merge main CI | PASS |
+
+**WEEK 1 STATUS:** `CLOSED`
+
+**IMPLEMENTATION STATUS:** `COMPLETE`
+
+**POST-MERGE VERIFICATION:** `PASS`
 
 ---
 
-## 7. Gate 状态 / Gate Status
+## 7. Known Limitations / 已知限制
+
+- MINOR: FastAPI TestClient currently emits a third-party Starlette/httpx
+  deprecation warning; test correctness is unaffected.
+- INFORMATIONAL: In the Codex Windows host, Docker Compose Build/Bake can emit
+  a session-header warning when the workspace path contains non-ASCII
+  characters. Compose configuration and startup are verified, and the same
+  repository quality gate passed independently on GitHub-hosted Ubuntu.
+- INFORMATIONAL: The Codex sandbox could not write its local pytest cache;
+  tests still executed and passed.
+
+---
+
+## 8. Week 2 Boundary / 第二周边界
+
+**WEEK 2 STATUS:** `NOT STARTED`
+
+Week 2 work must begin only through a separately authorized task created from
+the final closed `main` baseline. This closeout does not authorize or implement
+any Week 2 capability.
+
+---
+
+## 9. Gate 状态 / Gate Status
 
 **Current Gate:** Week 1 Engineering Foundation  
-**Status:** `ACCEPTED`
+**Status:** `CLOSED`
 
-**中文**
-
-Week 1 控制契约、工程实现、本地质量门和远程 CI 均已通过，工程侧已达到 Week 1 Definition of Done。
-
-**English**
-
-The Week 1 control contract, engineering implementation, local quality gates, and remote CI have passed. The engineering foundation has reached the Week 1 Definition of Done.
+Week 1 control contracts, engineering implementation, local quality gates,
+exact-SHA pull-request CI, merge verification, and post-merge main CI have all
+passed. The Week 1 engineering foundation is closed.
