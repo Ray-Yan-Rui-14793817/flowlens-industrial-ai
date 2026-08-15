@@ -365,6 +365,8 @@ README.md
 .gitignore
 docker-compose.yml
 pyproject.toml
+uv.lock
+.github/workflows/ci.yml
 
 apps/
 src/
@@ -414,6 +416,8 @@ Week 1 must not implement:
 - Vector search
 - LLM API calls
 - Agents
+- LangChain
+- LangGraph
 - Prompt engineering
 - ERP integration
 - MES integration
