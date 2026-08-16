@@ -181,7 +181,7 @@ vector-search, semantic-search, retrieval, or RAG functionality exists.
 
 ## 8. W01-H01 Compose CI Hardening / Compose CI 硬化
 
-**Status:** `PENDING REMOTE PR CI`
+**Status:** `PASS`
 
 A dedicated GitHub Actions job now performs a full Docker Compose smoke gate:
 it validates Compose configuration, builds the API and Worker images, starts
@@ -192,9 +192,11 @@ volumes.
 
 The same path passed locally against an isolated Compose project, including
 pgvector enablement, online Alembic migration, database integration tests, the
-full pytest suite, Ruff, strict mypy, and uv lock verification. Final remote
-evidence remains pending until the W01-H01 pull-request workflow completes.
-No Week 2 business or AI capability is introduced by this hardening task.
+full pytest suite, Ruff, strict mypy, and uv lock verification. GitHub Actions
+CI run `31931161755` (run #11) passed both `Quality gate` and
+`Docker Compose smoke` for implementation commit
+`0fba880f20daba160140885b87fe344e8544efc0`. No Week 2 business or AI
+capability is introduced by this hardening task.
 
 ---
 
