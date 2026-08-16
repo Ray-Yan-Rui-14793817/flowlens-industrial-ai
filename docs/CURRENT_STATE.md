@@ -1,17 +1,17 @@
 # FlowLens Industrial AI — Current State / 当前状态
 **Last Updated / 最后更新:** 2026-08-16
 
-**Sprint / Sprint:** Week 1 — Project Foundation
+**Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
-**Current Project Phase / 当前阶段:** WEEK 1 CLOSED
+**Current Project Phase / 当前阶段:** WEEK 2 CONTROL CONTRACTS FROZEN
 
-**Implementation Status / 工程实现状态:** COMPLETE
+**Implementation Status / 工程实现状态:** NOT STARTED
 
-**Implementation PR Status / 实现 PR 状态:** MERGED
+**Codex Readiness / Codex 开发就绪:** READY FOR IMPLEMENTATION
 
-**Post-Merge Verification / 合并后验证:** PASS
+**Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 工程基础已完成、合并并通过合并后 GitHub-hosted Linux CI 验证。本状态仅覆盖 Week 1 基础设施；Week 2 尚未开始，也不表示后续业务能力已经实现。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED. The Week 2 Data Contract and Sprint Spec are frozen. This change performs only the Week 1 → Week 2 control-state transition; no Week 2 manufacturing schema, synthetic data, scenario injection, or data-quality engineering implementation exists yet. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED。Week 2 Data Contract 与 Sprint Spec 已冻结。本次变更仅执行 Week 1 → Week 2 控制状态切换；尚不存在 Week 2 制造 Schema、合成数据、场景注入或数据质量工程实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -46,16 +46,21 @@ Current control documents:
 - `docs/00_project_charter.md`
 - `docs/01_scope.md`
 - `docs/02_architecture.md`
-- `docs/sprints/W01_project_foundation.md`
+- `docs/03_data_contracts.md`
+- `docs/sprints/W02_industrial_data_foundation.md`
 - `AGENTS.md`
+
+Historical closed sprint specification:
+
+- `docs/sprints/W01_project_foundation.md`
 
 **中文**
 
-这些文件定义 Week 1 的业务目标、范围、架构边界和工程执行规则。Codex 不得为了实现方便静默修改这些约束。
+当前控制文档冻结 Week 2 的业务目标、数据契约、范围、架构边界和工程执行规则。Week 1 Sprint Spec 作为已关闭 Sprint 的历史证据保留。Codex 不得为了实现方便静默修改这些约束。
 
 **English**
 
-These files define Week 1 business goals, scope, architecture boundaries, and engineering execution rules. Codex must not silently alter them for implementation convenience.
+The current control documents freeze the Week 2 business goal, data contract, scope, architecture boundaries, and engineering execution rules. The Week 1 Sprint Spec remains as historical evidence for the closed sprint. Codex must not silently alter these constraints for implementation convenience.
 
 ---
 
@@ -200,21 +205,50 @@ capability is introduced by this hardening task.
 
 ---
 
-## 9. Week 2 Boundary / 第二周边界
+## 9. Week 2 Control-State Transition / 第二周控制状态切换
 
-**WEEK 2 STATUS:** `NOT STARTED`
+**WEEK 2 STATUS:** `CONTROL CONTRACTS FROZEN`
 
-Week 2 work must begin only through a separately authorized task created from
-the final closed `main` baseline. This closeout does not authorize or implement
-any Week 2 capability.
+**IMPLEMENTATION STATUS:** `NOT STARTED`
+
+**CODEX READINESS:** `READY FOR IMPLEMENTATION`
+
+**WEEK 1 BASELINE:** `CLOSED / VERIFIED`
+
+Frozen contracts:
+
+- `docs/03_data_contracts.md`
+- `docs/sprints/W02_industrial_data_foundation.md`
+
+The next authorized engineering work is Week 2 Industrial Data Foundation implementation under those frozen contracts.
+
+Authorized future Week 2 work includes:
+
+- SQLAlchemy manufacturing metadata/models;
+- Alembic manufacturing schema;
+- deterministic synthetic-data generation;
+- dataset profiles/versioning;
+- three approved scenario injectors;
+- Hidden Ground Truth isolation;
+- data-quality validation;
+- Week 2 tests and CI validation.
+
+No Week 2 implementation capability is claimed by this control-state transition itself.
+
+Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, accepted, and closed.
 
 ---
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** Week 1 Engineering Foundation  
-**Status:** `CLOSED`
+**Current Gate:** W02-G0 — Contract Freeze Gate
+**Status:** `PASS`
 
-Week 1 control contracts, engineering implementation, local quality gates,
-exact-SHA pull-request CI, merge verification, and post-merge main CI have all
-passed. The Week 1 engineering foundation is closed.
+The Week 2 data contract, Sprint Spec, scope boundaries, scenario definitions,
+Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
+
+**Next Authorized Gate:** W02 Engineering Implementation
+
+**Repository State:** READY FOR THE FIRST SEPARATELY AUTHORIZED WEEK 2 CODEX ENGINEERING TASK
+
+Week 3 remains unauthorized.
