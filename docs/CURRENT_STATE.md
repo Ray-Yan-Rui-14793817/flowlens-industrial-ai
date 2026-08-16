@@ -1,5 +1,5 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-08-15
+**Last Updated / 最后更新:** 2026-08-16
 
 **Sprint / Sprint:** Week 1 — Project Foundation
 
@@ -179,7 +179,28 @@ vector-search, semantic-search, retrieval, or RAG functionality exists.
 
 ---
 
-## 8. Week 2 Boundary / 第二周边界
+## 8. W01-H01 Compose CI Hardening / Compose CI 硬化
+
+**Status:** `PASS`
+
+A dedicated GitHub Actions job now performs a full Docker Compose smoke gate:
+it validates Compose configuration, builds the API and Worker images, starts
+PostgreSQL/API/Worker, waits with bounded readiness checks, verifies the exact
+database-backed `/health` contract, confirms that the Worker remains running,
+captures service diagnostics on failure, and always tears down containers and
+volumes.
+
+The same path passed locally against an isolated Compose project, including
+pgvector enablement, online Alembic migration, database integration tests, the
+full pytest suite, Ruff, strict mypy, and uv lock verification. GitHub Actions
+CI run `31931161755` (run #11) passed both `Quality gate` and
+`Docker Compose smoke` for implementation commit
+`0fba880f20daba160140885b87fe344e8544efc0`. No Week 2 business or AI
+capability is introduced by this hardening task.
+
+---
+
+## 9. Week 2 Boundary / 第二周边界
 
 **WEEK 2 STATUS:** `NOT STARTED`
 
@@ -189,7 +210,7 @@ any Week 2 capability.
 
 ---
 
-## 9. Gate 状态 / Gate Status
+## 10. Gate 状态 / Gate Status
 
 **Current Gate:** Week 1 Engineering Foundation  
 **Status:** `CLOSED`
