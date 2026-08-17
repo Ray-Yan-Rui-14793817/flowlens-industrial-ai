@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR W02-C02 ENTRY GATE REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR W02-C03 ENTRY GATE REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01 is CLOSED / VERIFIED; W02-C02 is NOT STARTED. No Week 2 manufacturing schema, synthetic data, scenario injection, or data-quality engineering implementation exists yet. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01 已 CLOSED / VERIFIED；W02-C02 尚未开始。尚不存在 Week 2 制造 Schema、合成数据、场景注入或数据质量工程实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01 and W02-C02 are CLOSED / VERIFIED; W02-C03 is NOT STARTED. The canonical manufacturing schema now exists, but synthetic data generation, scenario injection, and data-quality engineering are not implemented yet. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01 与 W02-C02 已 CLOSED / VERIFIED；W02-C03 尚未开始。Canonical manufacturing schema 已建立，但合成数据生成、场景注入和数据质量工程尚未实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -241,17 +241,18 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-G0 — Contract Freeze Gate
-**Status:** `PASS`
+**Current Gate:** W02-C02 — Canonical Manufacturing Schema + Alembic
+**Status:** `CLOSED / VERIFIED`
 
 The Week 2 data contract, Sprint Spec, scope boundaries, scenario definitions,
 Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
-**Next Authorized Gate:** W02 Engineering Implementation
+**Next Authorized Gate:** W02-C03 Entry Gate Review
 
-**Repository State:** READY FOR THE FIRST SEPARATELY AUTHORIZED WEEK 2 CODEX ENGINEERING TASK
+**Repository State:** READY FOR W02-C03 ENTRY GATE REVIEW
 
-Week 3 remains unauthorized.
+W02-C03 implementation remains unauthorized until a separate ChatGPT entry-gate
+review and separate implementation authorization. Week 3 remains unauthorized.
 
 ---
 
@@ -279,8 +280,40 @@ Closeout evidence on 2026-08-17:
 - PostgreSQL integration pytest: `PASS — 4 passed`;
 - Ruff, strict mypy, uv lock, Docker Compose configuration, and Alembic checks: `PASS`.
 
-**W02-C02 Status:** `NOT STARTED`
+**W02-C02 Status:** `CLOSED / VERIFIED`
 
-**Next Authorized Engineering Checkpoint:** W02-C02 — Canonical Manufacturing Schema + Alembic
+**Next Engineering Checkpoint:** W02-C03 — Deterministic Baseline Generator
 
-Naming W02-C02 here does not start its implementation. W02-C02 requires a separate entry-gate review and implementation authorization.
+Naming W02-C03 here does not start or authorize its implementation. W02-C03
+requires a separate ChatGPT entry-gate review and separate implementation
+authorization.
+
+---
+
+## 12. W02-C02 Canonical Manufacturing Schema + Alembic / 制造 Schema 与 Alembic
+
+**Status:** `CLOSED / VERIFIED`
+
+W02-C02 established the frozen Week 2 physical-schema baseline:
+
+- 16 canonical tables;
+- 130 frozen columns;
+- 16 primary keys;
+- 34 foreign keys;
+- 3 explicit unique constraints;
+- 45 explicitly named check constraints;
+- one canonical SQLAlchemy `Base.metadata` shared with Alembic;
+- migration chain `0001_enable_pgvector` → `0002_industrial_data_foundation`;
+- verified upgrade, downgrade to Week 1, and re-upgrade behavior while preserving pgvector.
+
+C03 must populate this canonical schema rather than redesign it. Synthetic
+business schedules must use `Asia/Shanghai` with timezone-aware persistence.
+Cross-table temporal and quantity rules remain mandatory W02-C05 data-quality
+validation responsibilities.
+
+**W02-C03 Status:** `NOT STARTED`
+
+**Next Engineering Checkpoint:** W02-C03 — Deterministic Baseline Generator
+
+W02-C03 requires a separate ChatGPT entry-gate review and separate
+implementation authorization.

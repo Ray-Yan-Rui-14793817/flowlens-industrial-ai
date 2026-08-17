@@ -5,7 +5,9 @@ from sqlalchemy import create_engine, pool
 
 from flowlens.config import get_settings
 from flowlens.data import Base
+from flowlens.data.models import register_models
 
+register_models()
 target_metadata = Base.metadata
 
 

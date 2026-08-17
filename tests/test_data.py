@@ -14,9 +14,12 @@ from sqlalchemy import MetaData
 from flowlens.config import get_settings
 from flowlens.data import Base
 from flowlens.data.base import Base as ImplementationBase
+from flowlens.data.models import register_models
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_NAMING_KEYS = {"ix", "uq", "ck", "fk", "pk"}
+
+register_models()
 
 
 def test_canonical_base_is_exposed_from_data_boundary() -> None:
@@ -36,8 +39,8 @@ def test_canonical_metadata_has_complete_naming_convention() -> None:
     assert naming_convention["pk"]
 
 
-def test_canonical_metadata_has_no_manufacturing_models_yet() -> None:
-    assert not Base.metadata.tables
+def test_canonical_metadata_has_all_manufacturing_models() -> None:
+    assert len(Base.metadata.tables) == 16
 
 
 def test_data_boundary_import_has_no_database_side_effects() -> None:
@@ -59,8 +62,9 @@ sqlalchemy.MetaData.create_all = unexpected_side_effect
 sqlalchemy.orm.sessionmaker = unexpected_side_effect
 
 from flowlens.data import Base
+from flowlens.data import models as _models
 
-assert not Base.metadata.tables
+assert len(Base.metadata.tables) == 16
 """
 
     result = subprocess.run(

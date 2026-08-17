@@ -70,11 +70,11 @@ def test_pgvector_is_available_and_enabled(migrated_database_engine: Engine) -> 
 
 
 @pytest.mark.integration
-def test_alembic_baseline_is_applied(migrated_database_engine: Engine) -> None:
+def test_alembic_head_is_applied(migrated_database_engine: Engine) -> None:
     with migrated_database_engine.connect() as connection:
         revision = connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one()
 
-    assert revision == "0001_enable_pgvector"
+    assert revision == "0002_industrial_data_foundation"
 
 
 @pytest.mark.parametrize(
