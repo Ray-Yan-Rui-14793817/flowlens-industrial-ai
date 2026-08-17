@@ -1,17 +1,17 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-08-16
+**Last Updated / 最后更新:** 2026-08-17
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
-**Current Project Phase / 当前阶段:** WEEK 2 CONTROL CONTRACTS FROZEN
+**Current Project Phase / 当前阶段:** WEEK 2 IN PROGRESS
 
-**Implementation Status / 工程实现状态:** NOT STARTED
+**Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR IMPLEMENTATION
+**Codex Readiness / Codex 开发就绪:** READY FOR W02-C02 ENTRY GATE REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED. The Week 2 Data Contract and Sprint Spec are frozen. This change performs only the Week 1 → Week 2 control-state transition; no Week 2 manufacturing schema, synthetic data, scenario injection, or data-quality engineering implementation exists yet. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED。Week 2 Data Contract 与 Sprint Spec 已冻结。本次变更仅执行 Week 1 → Week 2 控制状态切换；尚不存在 Week 2 制造 Schema、合成数据、场景注入或数据质量工程实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01 is CLOSED / VERIFIED; W02-C02 is NOT STARTED. No Week 2 manufacturing schema, synthetic data, scenario injection, or data-quality engineering implementation exists yet. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01 已 CLOSED / VERIFIED；W02-C02 尚未开始。尚不存在 Week 2 制造 Schema、合成数据、场景注入或数据质量工程实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -252,3 +252,35 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 **Repository State:** READY FOR THE FIRST SEPARATELY AUTHORIZED WEEK 2 CODEX ENGINEERING TASK
 
 Week 3 remains unauthorized.
+
+---
+
+## 11. W02-C01 SQLAlchemy Domain Foundation / SQLAlchemy 领域基础
+
+**Status:** `CLOSED / VERIFIED`
+
+W02-C01 established and verified:
+
+- one canonical SQLAlchemy 2.x declarative `Base`;
+- one canonical `Base.metadata` object;
+- explicit Alembic-compatible naming rules for `ix`, `uq`, `ck`, `fk`, and `pk`;
+- the public `from flowlens.data import Base` capability boundary;
+- Alembic `target_metadata` identity with `Base.metadata`;
+- side-effect-free data-boundary import behavior;
+- preservation of the Week 1 `0001_enable_pgvector` migration as `head`;
+- an empty canonical metadata table collection pending W02-C02.
+
+Closeout evidence on 2026-08-17:
+
+- Codex implementation verification: `PASS`;
+- ChatGPT Contract / Scope / Architecture / Source Review: `PASS`;
+- human closeout authorization: `APPROVED`;
+- full pytest with PostgreSQL: `PASS — 28 passed, 0 failed, 0 skipped`;
+- PostgreSQL integration pytest: `PASS — 4 passed`;
+- Ruff, strict mypy, uv lock, Docker Compose configuration, and Alembic checks: `PASS`.
+
+**W02-C02 Status:** `NOT STARTED`
+
+**Next Authorized Engineering Checkpoint:** W02-C02 — Canonical Manufacturing Schema + Alembic
+
+Naming W02-C02 here does not start its implementation. W02-C02 requires a separate entry-gate review and implementation authorization.

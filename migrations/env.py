@@ -1,11 +1,12 @@
 """Alembic environment configured from the canonical FlowLens settings."""
 
 from alembic import context
-from sqlalchemy import MetaData, create_engine, pool
+from sqlalchemy import create_engine, pool
 
 from flowlens.config import get_settings
+from flowlens.data import Base
 
-target_metadata: MetaData | None = None
+target_metadata = Base.metadata
 
 
 def _database_url() -> str:
