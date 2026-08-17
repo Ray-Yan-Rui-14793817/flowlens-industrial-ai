@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR W02-C03 ENTRY GATE REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04 ENTRY-GATE REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01 and W02-C02 are CLOSED / VERIFIED; W02-C03 is NOT STARTED. The canonical manufacturing schema now exists, but synthetic data generation, scenario injection, and data-quality engineering are not implemented yet. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01 与 W02-C02 已 CLOSED / VERIFIED；W02-C03 尚未开始。Canonical manufacturing schema 已建立，但合成数据生成、场景注入和数据质量工程尚未实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. Deterministic baseline synthetic data generation now exists; scenario injection, Hidden Ground Truth, persistence, and data-quality engineering are not implemented yet. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。确定性基线合成数据生成已建立；场景注入、Hidden Ground Truth、持久化和数据质量工程尚未实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -241,18 +241,22 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C02 — Canonical Manufacturing Schema + Alembic
+**Current Gate:** W02-C03 — Deterministic Baseline Generator
 **Status:** `CLOSED / VERIFIED`
+
+**W02-G0:** `PASS`
 
 The Week 2 data contract, Sprint Spec, scope boundaries, scenario definitions,
 Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
-**Next Authorized Gate:** W02-C03 Entry Gate Review
+**Next Engineering Checkpoint:** W02-C04 — Scenario Injection + Hidden Ground Truth
 
-**Repository State:** READY FOR W02-C03 ENTRY GATE REVIEW
+**W02-C04 Status:** `NOT STARTED`
 
-W02-C03 implementation remains unauthorized until a separate ChatGPT entry-gate
-review and separate implementation authorization. Week 3 remains unauthorized.
+**Repository State:** READY FOR W02-C04 ENTRY-GATE REVIEW
+
+W02-C04 implementation remains unauthorized until a separate entry-gate review
+and explicit implementation authorization. Week 3 remains unauthorized.
 
 ---
 
@@ -282,11 +286,12 @@ Closeout evidence on 2026-08-17:
 
 **W02-C02 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C03 — Deterministic Baseline Generator
+**W02-C03 Status:** `CLOSED / VERIFIED`
 
-Naming W02-C03 here does not start or authorize its implementation. W02-C03
-requires a separate ChatGPT entry-gate review and separate implementation
-authorization.
+**Next Engineering Checkpoint:** W02-C04 — Scenario Injection + Hidden Ground Truth
+
+W02-C04 remains not started and requires a separate entry-gate review and
+explicit implementation authorization.
 
 ---
 
@@ -306,14 +311,54 @@ W02-C02 established the frozen Week 2 physical-schema baseline:
 - migration chain `0001_enable_pgvector` → `0002_industrial_data_foundation`;
 - verified upgrade, downgrade to Week 1, and re-upgrade behavior while preserving pgvector.
 
-C03 must populate this canonical schema rather than redesign it. Synthetic
+C03 populates this canonical schema rather than redesigning it. Synthetic
 business schedules must use `Asia/Shanghai` with timezone-aware persistence.
 Cross-table temporal and quantity rules remain mandatory W02-C05 data-quality
 validation responsibilities.
 
-**W02-C03 Status:** `NOT STARTED`
+**W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C03 — Deterministic Baseline Generator
+**Next Engineering Checkpoint:** W02-C04 — Scenario Injection + Hidden Ground Truth
 
-W02-C03 requires a separate ChatGPT entry-gate review and separate
-implementation authorization.
+**W02-C04 Status:** `NOT STARTED`
+
+**W02-C04 Readiness:** `READY FOR ENTRY-GATE REVIEW`
+
+W02-C04 requires a separate entry-gate review and explicit implementation
+authorization.
+
+---
+
+## 13. W02-C03 Deterministic Baseline Generator / 确定性基线生成器
+
+**Status:** `CLOSED / VERIFIED`
+
+W02-C03 established and verified:
+
+- deterministic in-memory baseline synthetic industrial data generation;
+- frozen `test`, `ci`, and `demo` profiles;
+- stable deterministic identifiers and row ordering;
+- deterministic business-row counting and canonical SHA-256 content hashing;
+- timezone-aware `Asia/Shanghai` business timestamps;
+- a coherent order-to-delivery manufacturing digital thread;
+- master-policy-based, time-causal initial inventory;
+- time-causal weekly-bucket procurement using only eligible known demand;
+- compatibility with the frozen C02 PostgreSQL schema and Alembic head
+  `0002_industrial_data_foundation`.
+
+W02-C03-R1 repaired and verified temporal causality for initial inventory and
+procurement. Focused generation tests, PostgreSQL compatibility, the full test
+suite, Ruff, strict mypy, dependency-lock verification, and Docker Compose
+configuration all passed during final closeout.
+
+Accepted non-blocking limitations:
+
+- `GeneratedDataset` contains mutable SQLAlchemy ORM rows, so caller mutation
+  after generation can stale the stored content hash;
+- no fixed cross-process golden hash fixture exists yet;
+- procurement remains a simplified deterministic weekly-bucket synthetic
+  baseline rather than full MRP or requirement-level PO allocation.
+
+**W02-C04 Status:** `NOT STARTED`
+
+**Next Engineering Checkpoint:** W02-C04 Entry-Gate Review
