@@ -1,5 +1,5 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-08-17
+**Last Updated / 最后更新:** 2026-08-18
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04 ENTRY-GATE REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04-B IMPLEMENTATION AUTHORIZATION
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. Deterministic baseline synthetic data generation now exists; scenario injection, Hidden Ground Truth, persistence, and data-quality engineering are not implemented yet. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。确定性基线合成数据生成已建立；场景注入、Hidden Ground Truth、持久化和数据质量工程尚未实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A has frozen the scenario contracts, but C04 scenario transformation and Hidden Ground Truth implementation have NOT started. Persistence and data-quality engineering also remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 已冻结场景契约，但 C04 场景转换与 Hidden Ground Truth 实现尚未开始。持久化和数据质量工程也尚未实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -241,22 +241,24 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C03 — Deterministic Baseline Generator
-**Status:** `CLOSED / VERIFIED`
+**Current Gate:** W02-C04-A — Scenario Contract Freeze and Entry-Gate Resolution
+**Status:** `CONTRACT FREEZE COMPLETE / VERIFIED`
 
 **W02-G0:** `PASS`
 
 The Week 2 data contract, Sprint Spec, scope boundaries, scenario definitions,
 Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
-**Next Engineering Checkpoint:** W02-C04 — Scenario Injection + Hidden Ground Truth
+**W02-C04 Entry Gate:** `REVIEWED`
 
-**W02-C04 Status:** `NOT STARTED`
+**W02-C04 Scenario Inventory:** `FROZEN — 3 FAMILIES`
 
-**Repository State:** READY FOR W02-C04 ENTRY-GATE REVIEW
+**W02-C04 Implementation Status:** `NOT STARTED`
 
-W02-C04 implementation remains unauthorized until a separate entry-gate review
-and explicit implementation authorization. Week 3 remains unauthorized.
+**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION
+
+W02-C04-B implementation remains unauthorized until a separate explicit
+implementation authorization. Week 3 remains unauthorized.
 
 ---
 
@@ -288,10 +290,10 @@ Closeout evidence on 2026-08-17:
 
 **W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04 — Scenario Injection + Hidden Ground Truth
+**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION
 
-W02-C04 remains not started and requires a separate entry-gate review and
-explicit implementation authorization.
+W02-C04 implementation remains not started and requires explicit W02-C04-B
+implementation authorization.
 
 ---
 
@@ -318,14 +320,13 @@ validation responsibilities.
 
 **W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04 — Scenario Injection + Hidden Ground Truth
+**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION
 
 **W02-C04 Status:** `NOT STARTED`
 
-**W02-C04 Readiness:** `READY FOR ENTRY-GATE REVIEW`
+**W02-C04 Readiness:** `CONTRACT FROZEN — READY FOR IMPLEMENTATION AUTHORIZATION`
 
-W02-C04 requires a separate entry-gate review and explicit implementation
-authorization.
+W02-C04 implementation requires separate explicit W02-C04-B authorization.
 
 ---
 
@@ -361,4 +362,45 @@ Accepted non-blocking limitations:
 
 **W02-C04 Status:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** W02-C04 Entry-Gate Review
+**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION
+
+---
+
+## 14. W02-C04-A Scenario Contract Freeze / 场景契约冻结
+
+**W02-C04 Entry Gate:** `REVIEWED`
+
+**Original Entry-Gate Result:** `CONDITIONAL — CONTRACT CLARIFICATION REQUIRED`
+
+**ChatGPT Contract Resolution:** `ACCEPTED`
+
+**Entry-Gate Contract Gaps:** `RESOLVED BY W02-C04-A`
+
+**W02-C04-A Status:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+
+W02-C04-A froze:
+
+- exactly three scenario families: supplier degradation, quality
+  deterioration, and capacity surge;
+- full detached baseline cloning and deterministic scenario identity;
+- canonical scenario re-finalization and hash recomputation;
+- aware `Asia/Shanghai` scenario windows and temporal-causality rules;
+- supplier, quality, and capacity downstream propagation semantics;
+- the HGT schema, deterministic identity/hash, protected serialization, and
+  label-leakage prohibitions;
+- the C04/C05 and Analytics/ML/RAG/LLM/Agent boundaries.
+
+Control decisions:
+
+```text
+C02 schema change: NO
+New Alembic migration: NO
+New Python dependency: NO
+Authorized scenario families: 3
+```
+
+No C04 Python implementation, tests, or HGT manifest exist at this checkpoint.
+
+**W02-C04 Implementation Status:** `NOT STARTED`
+
+**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION

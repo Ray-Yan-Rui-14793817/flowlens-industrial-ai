@@ -231,6 +231,54 @@ Requirements:
 - runtime Docker images must not copy hidden ground truth;
 - add isolation tests.
 
+### W02-C04-A — Contract Freeze and Entry-Gate Resolution
+
+**Status:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+
+The W02-C04 Entry-Gate review completed with an original result of
+`CONDITIONAL — CONTRACT CLARIFICATION REQUIRED`. W02-C04-A resolves those gaps
+and freezes:
+
+- exactly the three scenario families listed above;
+- an in-memory C03-baseline-to-C04-scenario transformation boundary;
+- full detached baseline cloning with no shared mutable ORM rows;
+- deterministic scenario dataset, scenario, and HGT identities;
+- reuse of the C03 canonical ordering and SHA-256 business hash convention;
+- aware `Asia/Shanghai` `[window_start, window_end)` scenario windows;
+- the supplier material/time shortage-overlap association rule;
+- the quality inspection/rework propagation rules;
+- capacity surge as additional sales-order arrival rows, not quantity scaling;
+- deterministic capacity queue pressure and complete added-order threads;
+- the separated HGT schema and dependency-free protected serialization;
+- label-leakage prohibitions and C04/C05/AI boundaries.
+
+Schema, migration, and dependency decisions:
+
+```text
+C02 schema change: NO
+New Alembic migration: NO
+New Python dependency: NO
+```
+
+Approved future sequence:
+
+1. C04-B — typed scenario configurations, HGT model, deterministic identity;
+2. C04-C — full detached cloning and scenario finalization;
+3. C04-D — supplier degradation;
+4. C04-E — quality deterioration;
+5. C04-F — capacity surge and complete added-order propagation;
+6. C04-G — HGT serialization/isolation and label-leakage guards;
+7. C04-H — PostgreSQL compatibility, directional-effect tests, C03
+   regression, and full quality gates.
+
+**W02-C04 implementation status:** `NOT STARTED`
+
+**ChatGPT contract resolution:** `ACCEPTED`
+
+**Entry-Gate contract gaps:** `RESOLVED BY W02-C04-A`
+
+**Next checkpoint:** `W02-C04-B IMPLEMENTATION AUTHORIZATION`
+
 ---
 
 ## W02-C05 — Persistence, CLI, Data Quality, Reports

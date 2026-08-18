@@ -826,6 +826,370 @@ Week 2 must include an implementation-level guard demonstrating that application
 
 ---
 
+# 15A. W02-C04 Deterministic Scenario Transformation Contract
+
+This section freezes the W02-C04 engineering contract. C04 is an in-memory,
+deterministic transformation layer with this dependency direction:
+
+```text
+C02 canonical schema
+        ↓
+C03 deterministic baseline
+        ↓
+C04 deterministic scenario transformation
+        ↓
+Scenario Dataset + separate Hidden Ground Truth
+```
+
+C04 scenario logic must remain separate from
+`src/flowlens/data/generation/generator.py`. Business-data persistence remains
+deferred to W02-C05.
+
+## 15A.1 Frozen scenario inventory
+
+C04 implements exactly these three scenario families:
+
+1. `SCN_SUPPLIER_DEGRADATION`
+2. `SCN_QUALITY_DETERIORATION`
+3. `SCN_CAPACITY_SURGE`
+
+No additional scenario family is authorized in C04.
+
+## 15A.2 Baseline immutability and scenario dataset identity
+
+C04 must never mutate or share mutable SQLAlchemy ORM row instances with the
+input C03 `GeneratedDataset`. It must:
+
+- fully detach/copy the complete business-row graph;
+- copy `DatasetVersion` metadata separately;
+- share neither ORM rows nor SQLAlchemy instrumentation state;
+- transform only the cloned graph;
+- finalize a new scenario dataset.
+
+The input baseline must remain canonical-content identical before and after
+`apply_scenario(...)`.
+
+A scenario output must not reuse the baseline `dataset_version_id`. Its
+scenario namespace is the lowercase SHA-256 digest of a canonical identity
+payload containing:
+
+```text
+baseline_dataset_version_id
+scenario_type
+scenario_version
+scenario_seed
+canonical scenario configuration
+```
+
+The scenario dataset identifier is:
+
+```text
+dsv_<first 32 lowercase hexadecimal characters of scenario namespace>
+```
+
+Every cloned business row references that new dataset identifier.
+Scenario-only rows use deterministic identifiers derived from the scenario
+namespace and stable ordinals or stable source identities. Comparable
+baseline-derived entity IDs may remain unchanged when no new entity is
+created. UUID4, wall-clock identity, system entropy, database defaults, and
+mutable global counters are prohibited.
+
+For the scenario `DatasetVersion`:
+
+- `dataset_version_id`: new deterministic scenario identifier;
+- `seed`: preserve the baseline generation seed;
+- `generator_version`: preserve the baseline generator version;
+- `profile`, `period_start`, `period_end`: preserve baseline values;
+- `generated_at`: technical provenance only and excluded from scenario
+  selection, scenario/HGT identity, business content, and hashes;
+- `content_hash`: recompute from finalized scenario business rows;
+- `row_count_total`: recompute from finalized scenario business rows.
+
+Scenario labels and HGT must not be stored by overloading C02 metadata columns.
+
+## 15A.3 Canonical finalization
+
+The mandatory finalization flow is:
+
+```text
+baseline
+→ full detached clone
+→ deterministic intervention
+→ required cross-table coherence propagation
+→ canonicalize_rows()
+→ recompute row_count_total
+→ canonical_content_hash()
+→ construct new DatasetVersion
+→ construct scenario GeneratedDataset-compatible result
+→ attach separate Hidden Ground Truth to ScenarioResult
+```
+
+C04 reuses the C03 canonicalization/hash convention. A transformed dataset may
+never retain the baseline `content_hash`.
+
+## 15A.4 Window, eligibility, determinism, and temporal causality
+
+Every scenario window is an aware `Asia/Shanghai` interval:
+
+```text
+[window_start, window_end)
+```
+
+`window_start` is inclusive, `window_end` is exclusive, and
+`window_start < window_end`. Both boundaries must lie inside the baseline
+business period. Invalid windows are rejected, not clamped.
+
+Scenario month N begins at `Asia/Shanghai` 00:00 on
+`add_calendar_months(period_start, N - 1)`. Default DEMO windows are:
+
+- supplier degradation: `[month_5_start, month_9_start)`;
+- quality deterioration: `[month_9_start, month_12_start)`;
+- capacity surge: `[month_13_start, month_16_start)`.
+
+Shorter profiles must receive an explicit valid window or reject the default.
+
+Primary eligibility timestamps are:
+
+- supplier: `purchase_order.ordered_at`;
+- quality: `quality_inspection.inspection_at`;
+- capacity: `sales_order.order_at`.
+
+Facts strictly before scenario eligibility remain unchanged. Opening inventory
+is unchanged by every scenario. Downstream consequences may extend beyond
+`window_end` when their source intervention became eligible inside the window.
+Later events must not alter earlier selection or outcomes through shared RNG
+consumption.
+
+Selection is independent from C03 RNG state:
+
+1. build semantically eligible candidates;
+2. sort by stable primary identifier;
+3. rank/select using SHA-256 over scenario identity plus entity/event identity;
+4. transform in stable order.
+
+Per-entity hash-derived values are preferred. A scenario-local RNG is allowed
+only when necessary, seeded from canonical scenario identity and consumed in
+stable order. C03 RNG state must never be continued or consumed.
+
+## 15A.5 Supplier degradation
+
+Frozen default configuration:
+
+```text
+affected_supplier_count = 2
+affected_critical_material_count = 5
+late_probability_delta = 0.25
+additional_delay_business_days_min = 3
+additional_delay_business_days_max = 8
+```
+
+Targets must have actual supplier/material/PO relationships. Delay applies
+only to eligible POs and must preserve C02 status, quantity, and timestamp
+constraints.
+
+There is intentionally no MaterialRequirement-to-PurchaseOrder FK. A material
+requirement is causally affected only when:
+
+```text
+material_requirement.material_id == purchase_order.material_id
+AND baseline_actual_receipt_at <= material_requirement.need_by_at
+AND scenario_actual_receipt_at > material_requirement.need_by_at
+```
+
+This is the frozen material/time shortage-overlap rule. If several delayed POs
+affect one work order, use the maximum required causal delay rather than
+summing duplicate shortage delays.
+
+Shift only the minimum necessary actual operational chain so affected work
+cannot occur before material availability. Propagation may include work-order
+actual windows, operation actual windows, inspection timing, existing rework
+timing, and delivery timing. Maintain operation ordering and all C02 temporal
+constraints. Do not alter opening inventory, master data, BOM, planned
+commitments, unrelated work orders, or pre-window history.
+
+## 15A.6 Quality deterioration
+
+Frozen default configuration:
+
+```text
+affected_product_count = 2
+affected_work_center_count = 1
+failure_probability_multiplier = 2.2
+rework_probability_delta = 0.30
+rework_duration_multiplier_min = 1.2
+rework_duration_multiplier_max = 1.5
+```
+
+Eligible inspections belong to the deterministically selected
+product/work-center graph and fall inside the scenario window. Raw changes may
+include inspection quantities/result/defect/severity, rework existence,
+quantity and duration, and delivery timing where required.
+
+Always preserve:
+
+```text
+passed_quantity + failed_quantity == inspected_quantity
+rework_quantity <= failed_quantity
+PASS/FAIL coherence
+valid rework ordering
+```
+
+Rework represents post-inspection production impact. Delivery must not occur
+before required scenario rework completes. Do not unnecessarily change planned
+quantities, product master, BOM, or unrelated operations. Root-cause labels
+must not appear in business rows.
+
+## 15A.7 Capacity surge
+
+Frozen default configuration:
+
+```text
+affected_work_center_count = 2
+arrival_volume_multiplier = 1.5
+queue_time_multiplier = 1.7
+```
+
+`arrival_volume_multiplier` increases the number of sales-order arrival rows;
+it does not multiply existing order quantities and must not apply both changes.
+For N eligible baseline arrivals related to the selected work-center graph:
+
+```text
+added_order_count = ceil(N * (arrival_volume_multiplier - 1))
+```
+
+Every added sales order requires a complete scenario-only digital thread:
+
+```text
+SalesOrder
+→ WorkOrder
+→ Operations
+→ MaterialRequirements
+→ time-causal supplemental procurement when required
+→ QualityInspection
+→ optional deterministic Rework
+→ Delivery
+```
+
+All scenario-only IDs are deterministic and all C02 FK/UQ/CK constraints must
+remain valid. Supplemental procurement may use only demand known by its
+decision time. Opening inventory remains unchanged.
+
+For affected operations at selected work centers:
+
+```text
+additional_queue_delay =
+    baseline_planned_operation_duration * (queue_time_multiplier - 1)
+```
+
+Apply the delay before or at the affected operation, then propagate it through
+later operations in the work order and through actual work-order completion,
+inspection, rework, and delivery chronology. Multiple constrained operations
+accumulate one sequential queue delay per affected operation. Do not alter
+pre-window facts or work-center master capacity fields.
+
+## 15A.8 Hidden Ground Truth schema, identity, and serialization
+
+HGT is not business data. It remains outside C02 tables/models, canonical
+business hashing, raw rows, public manifests, and all normal
+API/worker/analytics/ML/RAG/LLM runtime paths. The scenario business dataset
+must be analyzable without HGT.
+
+The minimum HGT schema is:
+
+```text
+schema_version
+scenario_id
+scenario_type
+scenario_version
+scenario_seed
+baseline_dataset_version_id
+scenario_dataset_version_id
+window_start
+window_end
+parameters
+target_entity_ids
+affected_entities_by_table
+causal_chain
+hgt_id
+hgt_hash
+```
+
+`schema_version` is an explicit immutable version string. `scenario_id` is the
+deterministic scenario identity. `target_entity_ids` is a stable sorted list.
+`affected_entities_by_table` maps business table names to stable sorted
+affected row IDs. `parameters` contains canonical scenario-specific
+configuration. `causal_chain` records deterministic evaluation truth about
+actual injected links.
+
+Scenario identity is:
+
+```text
+scenario_id = "scn_" + first 32 characters of scenario namespace
+```
+
+The canonical HGT base payload contains all HGT fields except `hgt_id` and
+`hgt_hash`. Then:
+
+```text
+hgt_hash = full lowercase SHA-256 hexadecimal digest of canonical HGT payload
+hgt_id = "hgt_" + first 32 characters of hgt_hash
+```
+
+`generated_at` participates in none of `scenario_id`, `hgt_id`, `hgt_hash`, or
+business `content_hash`.
+
+Normal `apply_scenario(...)` behavior is in-memory and never automatically
+writes the protected manifest. An explicitly requested evaluation path may
+materialize `data/hidden_ground_truth/scenario_manifest.yaml` as canonical
+UTF-8 JSON text, which is valid YAML 1.2. Serialization uses stable key/list
+ordering, LF endings, and no wall-clock timestamps. No PyYAML dependency is
+authorized.
+
+The following fields remain prohibited in normal C02 business rows:
+
+```text
+scenario_id
+scenario_name
+scenario_type
+root_cause
+true_root_cause
+is_affected
+is_anomaly
+injected_failure
+target_label
+expected_causal_chain
+affected entity lists
+HGT parameters or causal labels
+```
+
+## 15A.9 Scope boundaries and implementation sequence
+
+C04 may create legitimate raw operational facts but must not materialize
+derived delay, supplier, availability, quality, WIP, cycle-time, risk,
+prediction, diagnosis, or explanation fields.
+
+C04 remains business-data persistence-neutral. It adds no repository, loader,
+save/upsert/replace/duplicate policy, CLI, Data Quality engine, business report
+writer, analytics, ML, RAG, LLM, or Agent capability. PostgreSQL is used only
+for compatibility/integration testing. The protected HGT artifact is not C05
+business persistence.
+
+C02 schema change: **NO**. New migration: **NO**. New dependency: **NO**.
+
+Approved sequence:
+
+1. C04-A — contract freeze and Entry-Gate resolution;
+2. C04-B — typed configurations, HGT model, deterministic identity;
+3. C04-C — detached cloning and scenario finalization;
+4. C04-D — supplier degradation;
+5. C04-E — quality deterioration;
+6. C04-F — capacity surge and complete added-order propagation;
+7. C04-G — HGT serialization/isolation and label-leakage guards;
+8. C04-H — PostgreSQL compatibility, directional-effect tests, C03
+   regression, and full quality gates.
+
+---
+
 # 16. Data Quality Contract / 数据质量契约
 
 ## 16.1 Referential Integrity
