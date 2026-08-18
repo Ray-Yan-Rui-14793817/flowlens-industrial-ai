@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04-B IMPLEMENTATION AUTHORIZATION
+**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04-DE IMPLEMENTATION AUTHORIZATION
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A has frozen the scenario contracts, but C04 scenario transformation and Hidden Ground Truth implementation have NOT started. Persistence and data-quality engineering also remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 已冻结场景契约，但 C04 场景转换与 Hidden Ground Truth 实现尚未开始。持久化和数据质量工程也尚未实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A is CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-BC established and R1-hardened the verified scenario foundation; C04-D/E/F/G/H have NOT started. Persistence and data-quality engineering also remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-BC 已建立并完成 R1 加固及验证；C04-D/E/F/G/H 尚未开始。持久化和数据质量工程也尚未实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -241,24 +241,32 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-A — Scenario Contract Freeze and Entry-Gate Resolution
-**Status:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+**Current Gate:** W02-C04-BC — Integrated Scenario Foundation
+**Status:** `CLOSED / VERIFIED`
 
 **W02-G0:** `PASS`
 
 The Week 2 data contract, Sprint Spec, scope boundaries, scenario definitions,
 Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
-**W02-C04 Entry Gate:** `REVIEWED`
+**W02-C04-A:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-C04 Scenario Inventory:** `FROZEN — 3 FAMILIES`
 
-**W02-C04 Implementation Status:** `NOT STARTED`
+**W02-C04-BC:** `IMPLEMENTED / R1 HARDENED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION
+**W02-C04-BC-R1 Targeted ChatGPT Re-review:** `PASS`
 
-W02-C04-B implementation remains unauthorized until a separate explicit
-implementation authorization. Week 3 remains unauthorized.
+**W02-C04-BC Final Closeout:** `AUTHORIZED`
+
+**W02-C04-D/E/F/G/H:** `NOT STARTED`
+
+**Next Engineering Checkpoint:** W02-C04-DE — SUPPLIER + QUALITY SCENARIO IMPLEMENTATION
+
+**C04-DE Implementation:** `NOT STARTED`
+
+C04-DE requires separate explicit implementation authorization. Week 3
+remains unauthorized.
 
 ---
 
@@ -376,7 +384,7 @@ Accepted non-blocking limitations:
 
 **Entry-Gate Contract Gaps:** `RESOLVED BY W02-C04-A`
 
-**W02-C04-A Status:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+**W02-C04-A Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 W02-C04-A froze:
 
@@ -401,6 +409,47 @@ Authorized scenario families: 3
 
 No C04 Python implementation, tests, or HGT manifest exist at this checkpoint.
 
-**W02-C04 Implementation Status:** `NOT STARTED`
+**W02-C04 Foundation Status:** `SEE W02-C04-BC CLOSEOUT BELOW`
 
-**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION
+---
+
+## 15. W02-C04-BC Integrated Scenario Foundation / 集成场景基础
+
+**W02-C04-BC:** `IMPLEMENTED / R1 HARDENED / VERIFIED`
+
+**W02-C04-BC-R1 Targeted ChatGPT Re-review:** `PASS`
+
+**W02-C04-BC Final Closeout:** `AUTHORIZED`
+
+Verified foundation guarantees:
+
+- exactly three frozen scenario families;
+- typed immutable scenario configuration and aware `Asia/Shanghai` windows;
+- one canonical deterministic SHA-256 scenario identity contract;
+- HGT semantic and cryptographic binding to validated scenario configuration;
+- complete detached baseline cloning with independent ORM instrumentation;
+- canonical scenario reordering, recounting, rehashing, and new
+  `DatasetVersion` finalization;
+- full baseline immutability and `generated_at` identity/hash isolation;
+- unchanged C03 deterministic generation regression behavior.
+
+Implementation state:
+
+```text
+W02-C04-D: NOT STARTED
+W02-C04-E: NOT STARTED
+W02-C04-F: NOT STARTED
+W02-C04-G: NOT STARTED
+W02-C04-H: NOT STARTED
+```
+
+Accepted remaining limitations:
+
+- finalized `GeneratedDataset` instances contain mutable detached ORM rows, so
+  caller mutation after finalization can stale the stored content hash;
+- protected HGT file serialization remains deferred to W02-C04-G;
+- PostgreSQL scenario compatibility verification remains deferred to W02-C04-H.
+
+**Next Engineering Checkpoint:** W02-C04-DE — SUPPLIER + QUALITY SCENARIO IMPLEMENTATION
+
+**C04-DE Implementation:** `NOT STARTED`
