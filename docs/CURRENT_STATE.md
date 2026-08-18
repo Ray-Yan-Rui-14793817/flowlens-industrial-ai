@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04-DE IMPLEMENTATION AUTHORIZATION
+**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A is CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-BC established and R1-hardened the verified scenario foundation; C04-D/E/F/G/H have NOT started. Persistence and data-quality engineering also remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-BC 已建立并完成 R1 加固及验证；C04-D/E/F/G/H 尚未开始。持久化和数据质量工程也尚未实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A and W02-C04-BC are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-DE-A-R2 has completed the final Supplier/Quality materialization contract freeze after the earlier safe DE-A and R1 stops; C04-D/E/F/G/H have NOT started. Persistence and data-quality engineering also remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 与 W02-C04-BC 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。此前 DE-A 与 R1 安全停止后，W02-C04-DE-A-R2 已完成 Supplier/Quality 最终物化契约冻结；C04-D/E/F/G/H 尚未开始。持久化和数据质量工程也尚未实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-BC — Integrated Scenario Foundation
-**Status:** `CLOSED / VERIFIED`
+**Current Gate:** W02-C04-DE-A-R2 — Final Supplier + Quality Contract Freeze
+**Status:** `CONTRACT FREEZE COMPLETE / VERIFIED`
 
 **W02-G0:** `PASS`
 
@@ -253,15 +253,21 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04 Scenario Inventory:** `FROZEN — 3 FAMILIES`
 
-**W02-C04-BC:** `IMPLEMENTED / R1 HARDENED / VERIFIED`
+**W02-C04-BC:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-C04-BC-R1 Targeted ChatGPT Re-review:** `PASS`
 
 **W02-C04-BC Final Closeout:** `AUTHORIZED`
 
+**W02-C04-DE-A:** `SUPERSEDED AFTER SAFE CONTRACT STOP`
+
+**W02-C04-DE-A-R1:** `SUPERSEDED AFTER SAFE FINAL RESIDUAL AUDIT STOP`
+
+**W02-C04-DE-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+
 **W02-C04-D/E/F/G/H:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** W02-C04-DE — SUPPLIER + QUALITY SCENARIO IMPLEMENTATION
+**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
 
 **C04-DE Implementation:** `NOT STARTED`
 
@@ -298,9 +304,9 @@ Closeout evidence on 2026-08-17:
 
 **W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION
+**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
 
-W02-C04 implementation remains not started and requires explicit W02-C04-B
+W02-C04-D/E/F/G/H remain not started and require the applicable explicit
 implementation authorization.
 
 ---
@@ -328,13 +334,13 @@ validation responsibilities.
 
 **W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION
+**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
 
-**W02-C04 Status:** `NOT STARTED`
+**W02-C04 Status:** `FOUNDATION CLOSED — D/E/F/G/H NOT STARTED`
 
-**W02-C04 Readiness:** `CONTRACT FROZEN — READY FOR IMPLEMENTATION AUTHORIZATION`
+**W02-C04 Readiness:** `DE CONTRACT FROZEN — READY FOR IMPLEMENTATION RE-AUTHORIZATION`
 
-W02-C04 implementation requires separate explicit W02-C04-B authorization.
+W02-C04-D/E implementation requires separate explicit re-authorization.
 
 ---
 
@@ -368,9 +374,9 @@ Accepted non-blocking limitations:
 - procurement remains a simplified deterministic weekly-bucket synthetic
   baseline rather than full MRP or requirement-level PO allocation.
 
-**W02-C04 Status:** `NOT STARTED`
+**W02-C04 Status:** `FOUNDATION CLOSED — D/E/F/G/H NOT STARTED`
 
-**Next Engineering Checkpoint:** W02-C04-B IMPLEMENTATION AUTHORIZATION
+**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
 
 ---
 
@@ -415,7 +421,7 @@ No C04 Python implementation, tests, or HGT manifest exist at this checkpoint.
 
 ## 15. W02-C04-BC Integrated Scenario Foundation / 集成场景基础
 
-**W02-C04-BC:** `IMPLEMENTED / R1 HARDENED / VERIFIED`
+**W02-C04-BC:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-C04-BC-R1 Targeted ChatGPT Re-review:** `PASS`
 
@@ -450,6 +456,49 @@ Accepted remaining limitations:
 - protected HGT file serialization remains deferred to W02-C04-G;
 - PostgreSQL scenario compatibility verification remains deferred to W02-C04-H.
 
-**Next Engineering Checkpoint:** W02-C04-DE — SUPPLIER + QUALITY SCENARIO IMPLEMENTATION
+**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
 
 **C04-DE Implementation:** `NOT STARTED`
+
+---
+
+## 16. W02-C04-DE-A-R2 Final Materialization Contract Freeze
+
+**W02-C04-A:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**W02-C04-BC:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**W02-C04-DE-A:** `SUPERSEDED AFTER SAFE CONTRACT STOP`
+
+**W02-C04-DE-A-R1:** `SUPERSEDED AFTER SAFE FINAL RESIDUAL AUDIT STOP`
+
+**W02-C04-DE-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+
+DE-A-R2 consolidates the complete Supplier and Quality materialization
+semantics, the exact scenario-created Rework identity, and the canonical HGT
+causal-chain vocabulary/topology. The final implementation-readiness audit
+records:
+
+```text
+SUPPLIER IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+QUALITY IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+SCENARIO REWORK IDENTITY FULLY FROZEN: YES
+HGT CAUSAL CHAIN FULLY FROZEN: YES
+REMAINING BLOCKER: NONE
+```
+
+Implementation state remains:
+
+```text
+W02-C04-D: NOT STARTED
+W02-C04-E: NOT STARTED
+W02-C04-F: NOT STARTED
+W02-C04-G: NOT STARTED
+W02-C04-H: NOT STARTED
+```
+
+No Supplier or Quality Python behavior, test, migration, dependency, HGT
+manifest, persistence, analytics, ML, RAG, LLM, or Agent capability was added
+by this documentation-only contract checkpoint.
+
+**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION

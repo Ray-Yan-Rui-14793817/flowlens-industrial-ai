@@ -983,12 +983,110 @@ additional_delay_business_days_min = 3
 additional_delay_business_days_max = 8
 ```
 
-Targets must have actual supplier/material/PO relationships. Delay applies
-only to eligible POs and must preserve C02 status, quantity, and timestamp
-constraints.
 
-There is intentionally no MaterialRequirement-to-PurchaseOrder FK. A material
-requirement is causally affected only when:
+### 15A.5.1 Critical-material semantics and supplier-first target graph
+
+`Material.criticality` is the authoritative entity-level classification. A
+Supplier Degradation material is critical exactly when:
+
+```text
+Material.criticality IN ("HIGH", "CRITICAL")
+```
+
+`ProductMaterial.is_critical` is a BOM-edge consistency attribute, not a
+second material classification. A BOM edge used for downstream impact must
+agree with the authoritative classification; a contradiction rejects the
+affected candidate graph rather than being silently repaired.
+
+Build eligible supplier/material edges from baseline PurchaseOrders whose
+`ordered_at` is in `[window_start, window_end)`, whose supplier, material,
+`actual_receipt_at`, and `promised_receipt_at` exist, and whose material is
+authoritatively critical and participates in at least one real baseline
+BOM/material-requirement chain. An edge exists only when at least one such PO
+exists for that supplier/material pair.
+
+Selection is supplier first, material second:
+
+1. Rank candidate suppliers independently by the full canonical scenario
+   identity, purpose `supplier-target`, and `supplier_id`; sort by
+   `(hash, supplier_id)` and select exactly `affected_supplier_count`.
+2. From materials joined by actual eligible PO edges to a selected supplier,
+   rank independently with purpose `supplier-material-target` and
+   `material_id`; sort by `(hash, material_id)` and select exactly
+   `affected_critical_material_count`.
+3. The final graph contains every actual eligible PO edge whose supplier and
+   material endpoints are both selected. It is not a fabricated Cartesian
+   product.
+
+Every selected supplier and material must have at least one final edge. The
+relevant PO population is exactly the eligible PO rows on this final graph.
+Insufficient candidates or a disconnected selected node rejects the scenario.
+
+### 15A.5.2 Business-day arithmetic
+
+For `add_business_days(timestamp, N)`, `N` is a positive integer, the starting
+calendar day does not count, and counting begins on the next day. Monday
+through Friday count; Saturday and Sunday do not. Week 2 models no public
+holiday calendar, Chinese statutory holidays, or substitute working weekends.
+The calculation preserves aware `Asia/Shanghai` semantics and the original
+local wall-clock time. For example, Friday 18:00 plus one business day is
+Monday 18:00; plus three is Wednesday 18:00; Saturday 18:00 plus one is Monday
+18:00. No calendar dependency is authorized.
+
+### 15A.5.3 Late-rate materialization
+
+A relevant baseline PO is late exactly when:
+
+```text
+actual_receipt_at > promised_receipt_at
+```
+
+Status does not define lateness. Let `N` be the relevant final-graph PO count
+and `L0` its baseline-late count. Using exact `Decimal`-compatible arithmetic:
+
+```text
+p0 = L0 / N
+p1 = min(1, p0 + late_probability_delta)
+L1 = min(N, ceil(N * p1))
+K  = max(0, L1 - L0)
+```
+
+Existing late POs remain late. Create exactly `K` additional late outcomes.
+This observed baseline is authoritative; C03 private probability tuning,
+binary-float decisions, C03 RNG continuation, and wall-clock entropy are
+prohibited.
+
+### 15A.5.4 Late-event and delay selection
+
+Potential new-late candidates are relevant baseline non-late POs. A candidate
+is materializable only when at least one integer `D` in the configured
+inclusive delay range satisfies:
+
+```text
+add_business_days(baseline_actual_receipt_at, D) > promised_receipt_at
+```
+
+Rank candidates independently with purpose `supplier-late-event` and
+`purchase_order_id`; select exactly the first `K` by `(hash,
+purchase_order_id)`. For each selected PO, find the smallest configured
+`D_min_effective` that makes it late, derive a separate SHA-256 value with
+purpose `supplier-delay-days`, map it uniformly onto the inclusive integer
+interval `[D_min_effective, additional_delay_business_days_max]`, and set:
+
+```text
+scenario_actual_receipt_at =
+    add_business_days(baseline_actual_receipt_at, D)
+```
+
+Preserve quantities and status unless the minimum C02 coherence adjustment is
+required; no fabricated `LATE` status is permitted. Fewer than `K`
+materializable candidates rejects rather than underfilling or widening the
+configured range.
+
+### 15A.5.5 Shortage transition and exact actual-chain propagation
+
+There is intentionally no MaterialRequirement-to-PurchaseOrder FK. A newly
+created shortage exists for each matching link satisfying:
 
 ```text
 material_requirement.material_id == purchase_order.material_id
@@ -996,16 +1094,64 @@ AND baseline_actual_receipt_at <= material_requirement.need_by_at
 AND scenario_actual_receipt_at > material_requirement.need_by_at
 ```
 
-This is the frozen material/time shortage-overlap rule. If several delayed POs
-affect one work order, use the maximum required causal delay rather than
-summing duplicate shortage delays.
+`need_by_at` is the shortage eligibility threshold, not the production shift
+anchor. For an affected work order, both `actual_start_at` and `actual_end_at`
+must exist. Collect every scenario-delayed receipt causing such a transition
+for one of its material requirements and calculate:
 
-Shift only the minimum necessary actual operational chain so affected work
-cannot occur before material availability. Propagation may include work-order
-actual windows, operation actual windows, inspection timing, existing rework
-timing, and delivery timing. Maintain operation ordering and all C02 temporal
-constraints. Do not alter opening inventory, master data, BOM, planned
-commitments, unrelated work orders, or pre-window history.
+```text
+required_material_available_at = MAX(scenario_actual_receipt_at)
+causal_shift = max(
+    timedelta(0),
+    required_material_available_at - work_order.actual_start_at,
+)
+```
+
+Multiple shortages collapse to this single maximum availability boundary;
+never sum them or use `scenario_receipt - need_by_at` as the shift. If
+`causal_shift > 0`, shift by exactly that same duration the work-order actual
+start/end, every operation actual start/end, all inspections for the work
+order, both timestamps of its existing reworks, and all deliveries for the
+associated sales order. Preserve durations, ordering, relative spacing,
+planned timestamps, quantities, master data, opening inventory, pre-window
+facts, and unrelated work orders. An affected chain without complete actual
+work-order timing rejects.
+
+### 15A.5.6 Supplier HGT causal-chain contract
+
+The only Supplier relationship strings are:
+
+```text
+degrades_purchase_order_receipt
+creates_material_shortage
+sets_work_order_material_delay
+shifts_operation_actual_window
+shifts_inspection_time
+shifts_existing_rework_window
+shifts_delivery_time
+```
+
+Create exactly the applicable actual-effect links:
+
+- selected `dim_supplier` → each changed `fact_purchase_order`:
+  `degrades_purchase_order_receipt`;
+- each changed PO → every `fact_material_requirement` whose receipt crosses
+  `need_by_at`: `creates_material_shortage`, including non-binding shortages;
+- each binding maximum-availability material requirement → its shifted
+  `fact_work_order`: `sets_work_order_material_delay`; include every exact
+  tie, only when `causal_shift > 0`;
+- shifted work order → each actually shifted `fact_operation`:
+  `shifts_operation_actual_window`;
+- shifted work order → each actually shifted `fact_quality_inspection`:
+  `shifts_inspection_time`;
+- shifted work order → each actually shifted baseline-derived `fact_rework`:
+  `shifts_existing_rework_window`;
+- shifted work order → each actually shifted `fact_delivery`:
+  `shifts_delivery_time`.
+
+Supplier Degradation never creates Rework rows. Selected materials are already
+represented in HGT targets and the real PO relationship; no redundant
+Material-to-PO causal edge is recorded.
 
 ## 15A.6 Quality deterioration
 
@@ -1020,24 +1166,269 @@ rework_duration_multiplier_min = 1.2
 rework_duration_multiplier_max = 1.5
 ```
 
-Eligible inspections belong to the deterministically selected
-product/work-center graph and fall inside the scenario window. Raw changes may
-include inspection quantities/result/defect/severity, rework existence,
-quantity and duration, and delivery timing where required.
 
-Always preserve:
+### 15A.6.1 Work-center-first product target graph
+
+Start from inspections whose `inspection_at` is in `[window_start,
+window_end)`. Resolve the product through inspection → work order →
+`product_id`. Resolve work center from the referenced operation when
+`operation_id` is present, requiring that operation to belong to the same work
+order. When it is absent, use the final valid operation for the work order:
+highest `sequence_number`, with `operation_id` as deterministic tie-break. An
+unresolvable inspection is not materializable and is excluded; an insufficient
+remaining population rejects.
+
+Each resolved inspection contributes one actual `(product_id,
+work_center_id)` edge. Rank work centers first with purpose
+`quality-work-center-target`, sort by `(hash, work_center_id)`, and select
+exactly `affected_work_center_count`. Then rank products connected by an actual
+eligible edge to a selected work center with purpose `quality-product-target`,
+sort by `(hash, product_id)`, and select exactly `affected_product_count`.
+The final graph contains every eligible inspection whose resolved product and
+work center are both selected, never a Cartesian product. Every selected node
+must occur on a final edge.
+
+### 15A.6.2 Relevant baseline and failure target
+
+The relevant population is exactly the final graph's eligible inspections.
+A coherent baseline failure has `result == "FAIL"` and
+`failed_quantity > 0`; a coherent PASS has `result == "PASS"` and
+`failed_quantity == 0`. Reject incoherent input rather than reinterpret it.
+
+Let `N` be the relevant inspection count and `F0` the baseline FAIL count.
+Using exact Decimal-compatible arithmetic:
 
 ```text
-passed_quantity + failed_quantity == inspected_quantity
-rework_quantity <= failed_quantity
-PASS/FAIL coherence
-valid rework ordering
+pf0 = F0 / N
+pf1 = min(1, pf0 * failure_probability_multiplier)
+F1  = min(N, ceil(N * pf1))
+KF  = max(0, F1 - F0)
 ```
 
-Rework represents post-inspection production impact. Delivery must not occur
-before required scenario rework completes. Do not unnecessarily change planned
-quantities, product master, BOM, or unrelated operations. Root-cause labels
-must not appear in business rows.
+Existing FAIL events remain FAIL. Rank relevant PASS inspections independently
+with purpose `quality-failure-event` and `inspection_id`, and select exactly
+`KF`. `F0 == 0`, insufficient PASS rows, or an empty population rejects. C03's
+private global failure tuning is never a C04 baseline.
+
+### 15A.6.3 PASS-to-FAIL mutation
+
+For every selected PASS inspection set:
+
+```text
+failed_quantity = 1
+passed_quantity = inspected_quantity - 1
+result = "FAIL"
+```
+
+Choose defect category and severity independently per inspection using
+separate SHA-256 values with purposes `quality-defect-category` and
+`quality-severity`. Allowed existing operational vocabularies are:
+
+```text
+defect_category: DIMENSIONAL, SURFACE, ASSEMBLY, ELECTRICAL
+severity: LOW, MEDIUM, HIGH
+```
+
+### 15A.6.4 Rework probability and selection
+
+A relevant baseline FAIL inspection is reworked when at least one baseline
+Rework references its `inspection_id`. Let `R0` be the number of such unique
+baseline FAIL inspections and:
+
+```text
+pr0 = R0 / F0
+pr1 = min(1, pr0 + rework_probability_delta)
+FS  = resulting relevant FAIL count
+R1  = min(FS, ceil(FS * pr1))
+KR  = max(0, R1 - existing_rework_count_among_resulting_failures)
+```
+
+Rank resulting FAIL inspections without existing rework independently with
+purpose `quality-rework-event` and `inspection_id`; select exactly `KR`.
+Insufficient candidates reject. C03's private rework tuning is prohibited.
+
+### 15A.6.5 Existing and new affected Rework rows
+
+Every baseline Rework is in the scenario-affected existing set exactly when it
+references an inspection in the final selected graph/window, that inspection
+is a coherent baseline FAIL, and the Rework belongs to the same work order.
+Every such row receives duration deterioration; the set is not limited to
+newly converted failures or an arbitrary subset. Reworks outside this set are
+unchanged.
+
+For each newly required Rework, create exactly one row for the selected
+resulting FAIL inspection. Use its `inspection_id` and `work_order_id`; use the
+resolved inspection operation's work center or the same final-valid-operation
+fallback as target-graph construction. Set `rework_quantity` equal to
+`failed_quantity`. Choose from the existing operational reasons, independently
+with purpose `quality-rework-reason`:
+
+```text
+SYNTHETIC_DIMENSIONAL_ADJUSTMENT
+SYNTHETIC_ASSEMBLY_CORRECTION
+SYNTHETIC_SURFACE_REFINISH
+```
+
+The start is `inspection_at` plus a deterministic whole-hour offset from the
+inclusive range 1–6, selected with purpose `quality-rework-start`.
+
+### 15A.6.6 Scenario-created Rework identity
+
+Existing baseline-derived Rework IDs remain unchanged. A new Rework ID is
+determined by its selected inspection and the full 64-character scenario
+namespace; no ordinal, position, counter, C03 ID factory, RNG, UUID, database
+sequence, or wall clock is authorized.
+
+Construct this exact logical payload:
+
+```json
+{
+  "inspection_id": "<selected inspection_id>",
+  "purpose": "scenario-rework-id",
+  "scenario_namespace": "<full 64-character canonical scenario namespace>"
+}
+```
+
+Serialize with `json.dumps(payload, ensure_ascii=True, separators=(",", ":"),
+sort_keys=True)`, UTF-8 encode it, and calculate the lowercase SHA-256
+hexadecimal digest. The final identifier is:
+
+```text
+rework_id = "rw_" + digest[:45]
+len(rework_id) == 48
+```
+
+At most one new Rework exists per selected inspection. A collision with any
+existing Rework ID rejects explicitly; no suffix, ordinal, or rehash repair is
+allowed. Input order, unrelated inspections, and `generated_at` cannot change
+the ID; scenario namespace or inspection identity may change it.
+
+### 15A.6.7 Rework duration
+
+For an affected existing Rework preserve `rework_start_at`. Its baseline
+duration is `rework_end_at - rework_start_at`. Select a multiplier
+independently with purpose `quality-rework-duration` from the configured
+inclusive Decimal range at 0.01 resolution. The default discrete set is 1.20,
+1.21, ..., 1.50. Round the multiplied duration upward to a whole second and
+set:
+
+```text
+scenario_rework_end_at = rework_start_at + new_duration
+```
+
+For a new Rework, use the median valid baseline Rework duration in the final
+selected quality graph as its reference, using the arithmetic mean of the two
+middle durations when the count is even, then apply the same multiplier and
+rounding rule. No valid reference duration rejects; no global duration or C03
+private duration generation may be substituted.
+
+### 15A.6.8 Work-order completion and delivery propagation
+
+For each affected work order:
+
+```text
+required_rework_completion_at =
+    MAX(rework_end_at across its scenario-affected reworks)
+```
+
+When this exceeds baseline `work_order.actual_end_at`, set actual end to that
+timestamp. Do not move actual start, planned timestamps, or operations: quality
+is a post-inspection effect. With no scenario-affected Rework, timing is
+unchanged.
+
+For the associated sales order, sort deliveries by `(delivery_at,
+delivery_id)`. If no delivery precedes the required completion, leave all
+unchanged. Otherwise calculate `delivery_shift =
+required_rework_completion_at - earliest_delivery_at` and shift every delivery
+by that same duration, preserving order, spacing, and quantities.
+
+### 15A.6.9 Quality HGT causal-chain contract
+
+The only Quality relationship strings are:
+
+```text
+degrades_quality_inspection
+extends_existing_rework_duration
+creates_scenario_rework
+extends_work_order_completion
+shifts_delivery_time
+```
+
+Create exactly the applicable actual-effect links:
+
+- resolved selected `dim_work_center` → each inspection actually converted
+  PASS-to-FAIL: `degrades_quality_inspection`;
+- relevant inspection → each existing Rework whose duration actually
+  increases: `extends_existing_rework_duration`; the source inspection may be
+  unchanged;
+- selected resulting FAIL inspection → its new canonical R2 Rework:
+  `creates_scenario_rework`, exactly once per new Rework;
+- each Rework tying at the maximum required completion and extending the
+  baseline work-order actual end → that `fact_work_order`:
+  `extends_work_order_completion`; non-binding shorter Reworks are excluded;
+- extended work order → every actually shifted delivery:
+  `shifts_delivery_time`.
+
+### 15A.6.10 Shared deterministic failure and HGT semantics
+
+All entity/event choices use the full canonical scenario identity and a
+distinct stable purpose. At minimum the purposes are `supplier-target`,
+`supplier-material-target`, `supplier-late-event`, `supplier-delay-days`,
+`quality-work-center-target`, `quality-product-target`,
+`quality-failure-event`, `quality-defect-category`, `quality-severity`,
+`quality-rework-event`, `quality-rework-start`, `quality-rework-reason`, and
+`quality-rework-duration`. Construct semantic candidates, deduplicate by
+stable primary identity, compute hashes independently per entity, sort by
+`(hash, stable_primary_id)`, and select the required cardinality. List
+position, mutable counters, shared RNG, C03 RNG, database/iteration order, and
+wall-clock entropy are prohibited.
+
+Every probability-to-count conversion uses exact arithmetic and mathematical
+ceiling. Any insufficient graph/population or inability to materialize the
+configured count exactly rejects; do not reduce counts, widen windows, select
+unrelated entities, change configuration/schema, or import private C03 tuning.
+
+HGT target identities are stable sorted unions: selected suppliers plus
+selected critical materials for Supplier, and selected products plus selected
+work centers for Quality. No table-name prefixes are added. HGT
+`affected_entities_by_table` includes only rows whose business-semantic fields
+actually change or that are newly created; clone-only `dataset_version_id`
+replacement, canonicalization, metadata/hash/count recomputation, and selected
+target dimensions do not make a row affected. Supplier keys may be
+`fact_purchase_order`, `fact_work_order`, `fact_operation`,
+`fact_quality_inspection`, `fact_rework`, and `fact_delivery`; Quality keys may
+be `fact_quality_inspection`, `fact_rework`, `fact_work_order`, and
+`fact_delivery`. IDs are unique and stable sorted.
+
+`CausalLink` uses only applicable canonical physical table names from
+`dim_supplier`, `dim_material`, `dim_product`, `dim_work_center`,
+`fact_purchase_order`, `fact_material_requirement`, `fact_work_order`,
+`fact_operation`, `fact_quality_inspection`, `fact_rework`, and
+`fact_delivery`. Add links only for the frozen actual relationships above, not
+for cloning, selection bookkeeping, generic FK edges, or eligible/selected but
+unchanged rows. Unchanged rows may be sources only where explicitly authorized.
+Relationship tokens are exact, lowercase, case-sensitive API values; no
+synonyms are allowed. Build a semantic set and rely on immutable HGT
+deduplication/sorting, never insertion order.
+
+Every modified Supplier PO and PASS-to-FAIL inspection is the target of
+exactly one root link. Every new Rework exists in scenario business rows and
+the affected map and is the target of exactly one
+`creates_scenario_rework` link. Every causal target that is a changed/new row
+appears in the affected map, and no causal ID may reference a nonexistent
+entity.
+
+Target IDs, affected maps, every CausalLink table/entity field, and the exact
+relationship token participate in canonical HGT hashing. `generated_at` does
+not. Reordering input rows cannot change the causal set or `hgt_hash`.
+Scenarios are independently applied to the original C03 baseline and never
+stacked.
+
+Always preserve inspection quantity balance, PASS/FAIL coherence,
+`rework_quantity <= failed_quantity`, valid rework chronology, and every C02
+constraint. Operational fields may contain legitimate failure/rework facts,
+but never scenario, root-cause, anomaly, affected, evaluation, or expected
+causal-answer labels. HGT remains separate from business rows.
 
 ## 15A.7 Capacity surge
 

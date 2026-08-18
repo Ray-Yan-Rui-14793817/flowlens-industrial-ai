@@ -271,13 +271,50 @@ Approved future sequence:
 7. C04-H — PostgreSQL compatibility, directional-effect tests, C03
    regression, and full quality gates.
 
-**W02-C04 implementation status:** `NOT STARTED`
+**W02-C04 implementation status:** `FOUNDATION ONLY — D/E/F/G/H NOT STARTED`
 
 **ChatGPT contract resolution:** `ACCEPTED`
 
 **Entry-Gate contract gaps:** `RESOLVED BY W02-C04-A`
 
-**Next checkpoint:** `W02-C04-B IMPLEMENTATION AUTHORIZATION`
+### W02-C04-DE-A-R2 — Final Supplier + Quality Materialization Contract Freeze
+
+The initial W02-C04-DE implementation review stopped safely because contract
+clarification was required. W02-C04-DE-A resolved the first probability and
+materialization blockers but stopped before editing. W02-C04-DE-A-R1 resolved
+the five residual supplier/material graph, critical-material, supplier
+propagation-anchor, quality-graph, and existing-rework-set decisions; its final
+audit then stopped safely on two remaining identity/HGT blockers.
+
+W02-C04-DE-A-R2 freezes the complete DE-A/R1 materialization contract plus:
+
+- the exact canonical identity of every scenario-created Quality Rework row;
+- the exact Supplier and Quality HGT relationship vocabularies and causal-edge
+  topology;
+- clone-versus-actual affected-entity semantics and HGT consistency rules.
+
+```text
+Initial W02-C04-DE implementation review:
+BLOCKED SAFELY — CONTRACT CLARIFICATION REQUIRED
+
+W02-C04-DE-A:
+SUPERSEDED AFTER SAFE CONTRACT STOP
+
+W02-C04-DE-A-R1:
+SUPERSEDED AFTER SAFE FINAL RESIDUAL AUDIT STOP
+
+W02-C04-DE-A-R2:
+FINAL CONTRACT FREEZE / VERIFIED
+
+SUPPLIER IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+QUALITY IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+REMAINING BLOCKER: NONE
+```
+
+No C04-D/E Python behavior, tests, migration, dependency, persistence, or HGT
+manifest was implemented by these documentation-only contract checkpoints.
+
+**Next checkpoint:** `W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION`
 
 ---
 
