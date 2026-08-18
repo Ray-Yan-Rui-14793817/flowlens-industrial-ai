@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
+**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04-F IMPLEMENTATION AUTHORIZATION REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A and W02-C04-BC are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-DE-A-R2 has completed the final Supplier/Quality materialization contract freeze after the earlier safe DE-A and R1 stops; C04-D/E/F/G/H have NOT started. Persistence and data-quality engineering also remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 与 W02-C04-BC 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。此前 DE-A 与 R1 安全停止后，W02-C04-DE-A-R2 已完成 Supplier/Quality 最终物化契约冻结；C04-D/E/F/G/H 尚未开始。持久化和数据质量工程也尚未实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A and W02-C04-BC are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-DE-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED. Supplier and Quality implementation and hardening are verified, and W02-C04-DE is CLOSED / VERIFIED. C04-F/G/H have NOT started. Persistence and data-quality engineering remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 与 W02-C04-BC 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-DE-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED；Supplier 与 Quality 实现及加固验证已通过，W02-C04-DE 已 CLOSED / VERIFIED。C04-F/G/H 尚未开始，持久化与数据质量工程仍未实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-DE-A-R2 — Final Supplier + Quality Contract Freeze
-**Status:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+**Current Gate:** W02-C04-DE — Supplier + Quality Final Closeout
+**Status:** `CLOSED / VERIFIED`
 
 **W02-G0:** `PASS`
 
@@ -263,16 +263,29 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-DE-A-R1:** `SUPERSEDED AFTER SAFE FINAL RESIDUAL AUDIT STOP`
 
-**W02-C04-DE-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+**W02-C04-DE-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED`
 
-**W02-C04-D/E/F/G/H:** `NOT STARTED`
+**W02-C04-D:** `IMPLEMENTED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
+**W02-C04-E:** `IMPLEMENTED / VERIFIED`
 
-**C04-DE Implementation:** `NOT STARTED`
+**W02-C04-DE-R1:** `HARDENING VERIFIED`
 
-C04-DE requires separate explicit implementation authorization. Week 3
-remains unauthorized.
+**ChatGPT W02-C04-DE Final Targeted Re-review:** `PASS`
+
+**W02-C04-DE:** `CLOSED / VERIFIED`
+
+**W02-C04-F:** `NOT STARTED`
+
+**W02-C04-G:** `NOT STARTED`
+
+**W02-C04-H:** `NOT STARTED`
+
+**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION
+
+**W02-C04-F Implementation:** `NOT STARTED`
+
+Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
 ---
 
@@ -304,10 +317,10 @@ Closeout evidence on 2026-08-17:
 
 **W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
+**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION
 
-W02-C04-D/E/F/G/H remain not started and require the applicable explicit
-implementation authorization.
+W02-C04-D/E are implemented and verified. W02-C04-F/G/H remain not started and
+require their applicable explicit authorization.
 
 ---
 
@@ -334,13 +347,13 @@ validation responsibilities.
 
 **W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
+**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION
 
-**W02-C04 Status:** `FOUNDATION CLOSED — D/E/F/G/H NOT STARTED`
+**W02-C04 Status:** `D/E CLOSED / VERIFIED — F/G/H NOT STARTED`
 
-**W02-C04 Readiness:** `DE CONTRACT FROZEN — READY FOR IMPLEMENTATION RE-AUTHORIZATION`
+**W02-C04 Readiness:** `READY FOR C04-F IMPLEMENTATION AUTHORIZATION REVIEW`
 
-W02-C04-D/E implementation requires separate explicit re-authorization.
+W02-C04-F implementation requires separate explicit authorization.
 
 ---
 
@@ -374,9 +387,9 @@ Accepted non-blocking limitations:
 - procurement remains a simplified deterministic weekly-bucket synthetic
   baseline rather than full MRP or requirement-level PO allocation.
 
-**W02-C04 Status:** `FOUNDATION CLOSED — D/E/F/G/H NOT STARTED`
+**W02-C04 Status:** `D/E CLOSED / VERIFIED — F/G/H NOT STARTED`
 
-**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
+**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION
 
 ---
 
@@ -439,7 +452,7 @@ Verified foundation guarantees:
 - full baseline immutability and `generated_at` identity/hash isolation;
 - unchanged C03 deterministic generation regression behavior.
 
-Implementation state:
+Implementation state at W02-C04-BC closeout:
 
 ```text
 W02-C04-D: NOT STARTED
@@ -456,7 +469,7 @@ Accepted remaining limitations:
 - protected HGT file serialization remains deferred to W02-C04-G;
 - PostgreSQL scenario compatibility verification remains deferred to W02-C04-H.
 
-**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
+**Next Engineering Checkpoint at W02-C04-BC closeout:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
 
 **C04-DE Implementation:** `NOT STARTED`
 
@@ -472,7 +485,7 @@ Accepted remaining limitations:
 
 **W02-C04-DE-A-R1:** `SUPERSEDED AFTER SAFE FINAL RESIDUAL AUDIT STOP`
 
-**W02-C04-DE-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+**W02-C04-DE-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED`
 
 DE-A-R2 consolidates the complete Supplier and Quality materialization
 semantics, the exact scenario-created Rework identity, and the canonical HGT
@@ -487,7 +500,7 @@ HGT CAUSAL CHAIN FULLY FROZEN: YES
 REMAINING BLOCKER: NONE
 ```
 
-Implementation state remains:
+Implementation state at the W02-C04-DE-A-R2 contract-freeze checkpoint:
 
 ```text
 W02-C04-D: NOT STARTED
@@ -501,4 +514,50 @@ No Supplier or Quality Python behavior, test, migration, dependency, HGT
 manifest, persistence, analytics, ML, RAG, LLM, or Agent capability was added
 by this documentation-only contract checkpoint.
 
-**Next Engineering Checkpoint:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
+**Next Engineering Checkpoint at W02-C04-DE-A-R2 closeout:** W02-C04-DE IMPLEMENTATION RE-AUTHORIZATION
+
+---
+
+## 17. W02-C04-DE Supplier + Quality Final Closeout / Supplier + Quality 最终关闭
+
+**W02-C04-A:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**W02-C04-BC:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**W02-C04-DE-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED`
+
+**W02-C04-D:** `IMPLEMENTED / VERIFIED`
+
+**W02-C04-E:** `IMPLEMENTED / VERIFIED`
+
+**W02-C04-DE-R1:** `HARDENING VERIFIED`
+
+**ChatGPT W02-C04-DE Final Targeted Re-review:** `PASS`
+
+**W02-C04-DE:** `CLOSED / VERIFIED`
+
+Supplier Degradation and Quality Deterioration are implemented under the
+frozen C04 contract. Deterministic selection and materialization, detached
+scenario finalization, baseline immutability, generated-at isolation, and HGT
+referential integrity are verified. No C02 schema, Alembic migration,
+dependency, or C03 generator change was required. / Supplier Degradation 与
+Quality Deterioration 已按冻结的 C04 契约完成实现。确定性选择与物化、分离式场景
+终结、基线不可变性、generated-at 隔离及 HGT 引用完整性均已验证。无需修改 C02
+Schema、Alembic migration、依赖或 C03 generator。
+
+Accepted remaining limitations:
+
+- finalized `GeneratedDataset` objects still contain mutable detached ORM rows;
+  caller mutation after finalization can stale the stored content hash;
+- protected HGT file serialization remains deferred to W02-C04-G;
+- PostgreSQL scenario compatibility and database-dependent acceptance remain
+  deferred to W02-C04-H.
+
+```text
+W02-C04-F implementation: NOT STARTED
+W02-C04-G: NOT STARTED
+W02-C04-H: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION

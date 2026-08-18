@@ -1,5 +1,6 @@
 """Public foundation API for deterministic C04 scenario transformations."""
 
+from flowlens.data.scenarios.application import apply_scenario
 from flowlens.data.scenarios.config import (
     CapacitySurgeConfig,
     QualityDeteriorationConfig,
@@ -18,4 +19,5 @@ __all__ = [
     "ScenarioResult",
     "ScenarioType",
     "SupplierDegradationConfig",
+    "apply_scenario",
 ]

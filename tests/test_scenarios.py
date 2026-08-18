@@ -198,6 +198,7 @@ def test_package_public_api_is_limited_to_stable_domain_types() -> None:
         "ScenarioConfig",
         "HiddenGroundTruth",
         "ScenarioResult",
+        "apply_scenario",
     }
     internal = {
         "ScenarioIdentity",
