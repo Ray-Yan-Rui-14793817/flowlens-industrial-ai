@@ -1440,43 +1440,421 @@ arrival_volume_multiplier = 1.5
 queue_time_multiplier = 1.7
 ```
 
-`arrival_volume_multiplier` increases the number of sales-order arrival rows;
-it does not multiply existing order quantities and must not apply both changes.
-For N eligible baseline arrivals related to the selected work-center graph:
+### 15A.7.1 Target graph and exact baseline population
+
+Baseline Sales Order window eligibility is determined exclusively by
+`fact_sales_order.order_at` in the aware `Asia/Shanghai` half-open interval
+`[window_start, window_end)`. A baseline Sales Order is an arrival candidate
+only when it has an actual canonical WorkOrder/Operation path and at least one
+linked Operation references an eligible Work Center.
+
+Candidate Work Centers are exactly the distinct Work Centers referenced by
+Operations reachable from those candidate Sales Orders. Unused master-data
+Work Centers and synthetic candidates are prohibited. Rank candidate
+`work_center_id` values independently using the full scenario namespace,
+purpose `capacity-work-center`, and the ID; sort by `(hash, work_center_id)`
+and select exactly `affected_work_center_count`. Insufficient candidates,
+duplicates, clamping, or fallback selection reject the scenario.
+
+After selection, a baseline Sales Order belongs to the selected Capacity graph
+exactly when:
+
+- its `order_at` is in the scenario window;
+- at least one Operation on one of its actual Work Orders references a selected
+  Work Center; and
+- it contains a reusable canonical thread consisting of the Sales Order, at
+  least one Work Order, at least one Operation, every Material Requirement
+  owned by the reused Work Order graph, at least one Quality Inspection
+  required by the source thread, and at least one Delivery. Rework is optional.
+
+The authoritative baseline arrival population is:
+
+```text
+N = count(distinct qualifying baseline sales_order_id)
+```
+
+`N == 0` rejects. `N` is never derived from quantities or from counts of Work
+Orders, Operations, Work Centers, Material Requirements, or Deliveries.
+
+### 15A.7.2 Added arrivals and source templates
+
+Capacity arrival volume creates additional Sales Order rows; it never scales
+the quantity of an existing or new order. Using exact Decimal-compatible
+arithmetic and mathematical ceiling:
 
 ```text
 added_order_count = ceil(N * (arrival_volume_multiplier - 1))
 ```
 
-Every added sales order requires a complete scenario-only digital thread:
+A negative result rejects rather than clamps. Existing Sales Order quantities
+remain unchanged, and row-count increase plus quantity scaling is prohibited.
+
+Rank the `N` qualifying source Sales Orders independently using the full
+scenario namespace, purpose `capacity-arrival-template`, and baseline
+`sales_order_id`; sort by `(hash, sales_order_id)` to form the stable sequence
+`S[0], ..., S[N-1]`. For zero-based added-arrival ordinal `i`:
+
+```text
+source_order = S[i mod N]
+```
+
+Each new Sales Order copies all non-identity business attributes from its real
+source template, including customer, product, quantity, priority, status, and
+promised-delivery semantics. Its `order_at` is exactly the source
+`sales_order.order_at`, so it remains inside the scenario window. Shared
+timestamps are valid; deterministic IDs break ties. Input row order, arbitrary
+master-data selection, private C03 tuning, and C03 RNG continuation are not
+permitted.
+
+### 15A.7.3 Complete scenario-only thread and initial chronology
+
+Every added Sales Order clones the complete owned canonical source topology:
 
 ```text
 SalesOrder
-→ WorkOrder
-→ Operations
-→ MaterialRequirements
-→ time-causal supplemental procurement when required
-→ QualityInspection
-→ optional deterministic Rework
-→ Delivery
+→ WorkOrder(s)
+→ Operation(s)
+→ MaterialRequirement(s)
+→ QualityInspection(s)
+→ optional Rework(s)
+→ Delivery row(s)
 ```
 
-All scenario-only IDs are deterministic and all C02 FK/UQ/CK constraints must
-remain valid. Supplemental procurement may use only demand known by its
-decision time. Opening inventory remains unchanged.
+Work Order count, Operation count, routing, Work Center assignment, sequence,
+Material Requirement structure, inspection structure, optional Rework
+structure, Delivery structure, and all business quantities are copied exactly.
+Do not perform a second BOM explosion, invent routing or Work Centers, or use
+private C03 RNG. Baseline Purchase Orders are not cloned; dedicated
+supplemental procurement follows Section 15A.7.5.
 
-For affected operations at selected work centers:
+Before queue intervention, every planned and actual timestamp in the new
+thread equals its corresponding source timestamp. Customer promise timestamps
+remain unchanged after intervention. A source template or scenario input that
+cannot supply the complete required thread or the completion anchors required
+below rejects explicitly.
+
+### 15A.7.4 Scenario-created identity and C02 compatibility
+
+For every scenario-created row, construct the exact semantic payload below,
+serialize it with `json.dumps(payload, ensure_ascii=True,
+separators=(",", ":"), sort_keys=True)`, UTF-8 encode it, and calculate the
+lowercase SHA-256 hexadecimal digest. The payload's fixed `purpose` value is
+the purpose separator. The canonical digest algorithm is common; only the
+persisted prefix and schema-compatible digest truncation are entity-specific.
 
 ```text
-additional_queue_delay =
-    baseline_planned_operation_duration * (queue_time_multiplier - 1)
+SalesOrder:
+{"arrival_ordinal": i,
+ "purpose": "capacity-sales-order",
+ "scenario_namespace": scenario_namespace,
+ "source_sales_order_id": source_sales_order_id}
+
+WorkOrder:
+{"purpose": "capacity-work-order",
+ "scenario_namespace": scenario_namespace,
+ "scenario_sales_order_id": scenario_sales_order_id,
+ "source_work_order_id": source_work_order_id}
+
+Operation:
+{"purpose": "capacity-operation",
+ "scenario_namespace": scenario_namespace,
+ "scenario_work_order_id": scenario_work_order_id,
+ "source_operation_id": source_operation_id}
+
+MaterialRequirement:
+{"purpose": "capacity-material-requirement",
+ "scenario_namespace": scenario_namespace,
+ "scenario_work_order_id": scenario_work_order_id,
+ "source_material_requirement_id": source_material_requirement_id}
+
+PurchaseOrder:
+{"purpose": "capacity-supplemental-purchase-order",
+ "scenario_material_requirement_id": scenario_material_requirement_id,
+ "scenario_namespace": scenario_namespace,
+ "supplier_id": supplier_id}
+
+QualityInspection:
+{"purpose": "capacity-quality-inspection",
+ "scenario_namespace": scenario_namespace,
+ "scenario_work_order_id": scenario_work_order_id,
+ "source_inspection_id": source_inspection_id}
+
+Rework:
+{"purpose": "capacity-rework",
+ "scenario_inspection_id": scenario_inspection_id,
+ "scenario_namespace": scenario_namespace,
+ "source_rework_id": source_rework_id}
+
+Delivery:
+{"purpose": "capacity-delivery",
+ "scenario_namespace": scenario_namespace,
+ "scenario_sales_order_id": scenario_sales_order_id,
+ "source_delivery_id": source_delivery_id}
 ```
 
-Apply the delay before or at the affected operation, then propagate it through
-later operations in the work order and through actual work-order completion,
-inspection, rework, and delivery chronology. Multiple constrained operations
-accumulate one sequential queue delay per affected operation. Do not alter
-pre-window facts or work-center master capacity fields.
+The persisted identity matrix is frozen as follows:
+
+| Entity | PK | Prefix | Digest characters | Final length | C02 PK capacity | Referencing FK capacity | Result |
+|---|---|---:|---:|---:|---:|---:|---|
+| SalesOrder | `sales_order_id` | `so_` | 37 | 40 | 40 | 40 | PASS |
+| WorkOrder | `work_order_id` | `wo_` | 37 | 40 | 40 | 40 | PASS |
+| PurchaseOrder | `purchase_order_id` | `po_` | 37 | 40 | 40 | N/A | PASS |
+| Operation | `operation_id` | `op_` | 45 | 48 | 48 | 48 | PASS |
+| MaterialRequirement | `material_requirement_id` | `mr_` | 45 | 48 | 48 | N/A | PASS |
+| QualityInspection | `inspection_id` | `qi_` | 45 | 48 | 48 | 48 | PASS |
+| Rework | `rework_id` | `rw_` | 45 | 48 | 48 | N/A | PASS |
+| Delivery | `delivery_id` | `dl_` | 45 | 48 | 48 | N/A | PASS |
+
+The 40-character representations are exactly `so_ + digest[:37]`, `wo_ +
+digest[:37]`, and `po_ + digest[:37]`. The 48-character representations are
+the applicable prefix plus `digest[:45]`. Do not globally reduce IDs to 40
+characters or alter the separately frozen Quality scenario Rework identity.
+
+Every collision with an existing or already generated ID is an explicit
+rejection. UUIDs, Python `hash()`, wall-clock or `generated_at` input, random
+suffixes, silent regeneration, payload mutation, input-order-dependent
+ordinals, and C03 RNG are prohibited. Business rows and HGT use the identical
+persisted identities.
+
+### 15A.7.5 Dedicated supplemental procurement
+
+Opening inventory and every baseline Purchase Order remain unchanged. Every
+scenario-created Material Requirement receives exactly one dedicated
+scenario-only supplemental Purchase Order; new demand never steals or
+reallocates baseline supply. The supplemental ordered and received quantities
+both equal that Material Requirement's `required_quantity`, with no weekly
+bucket or cross-requirement aggregation.
+
+The decision time is the scenario Sales Order's `order_at`. A supplier is
+eligible exactly when the baseline dataset contains an actual historical
+Purchase Order for the same `material_id` whose `ordered_at <= decision_time`.
+Rank distinct eligible `supplier_id` values independently using the full
+scenario namespace, purpose `capacity-supplemental-supplier`, and supplier ID;
+sort by `(hash, supplier_id)` and select the first. No eligible supplier
+rejects.
+
+For each supplemental Purchase Order:
+
+```text
+material_id          = scenario MaterialRequirement.material_id
+ordered_at           = decision_time
+promised_receipt_at  = scenario MaterialRequirement.need_by_at
+actual_receipt_at    = scenario MaterialRequirement.need_by_at
+ordered_quantity     = scenario MaterialRequirement.required_quantity
+received_quantity    = scenario MaterialRequirement.required_quantity
+status               = "RECEIVED"
+```
+
+`need_by_at` must be strictly later than decision time or the scenario
+rejects. Capacity adds no Supplier Degradation intervention, and baseline
+Purchase Orders are never modified.
+
+### 15A.7.6 Queue population, delay, and operation propagation
+
+An Operation in the scenario dataset is directly Capacity-affected exactly
+when its Work Center is selected, its Sales Order belongs to the selected graph
+(including a scenario-created arrival), and its pre-intervention
+`actual_start_at` is in `[window_start, window_end)`. Baseline-derived cloned
+and scenario-created Operations are both eligible. Pre-window Operations are
+immutable for this queue intervention.
+
+For each directly affected Operation:
+
+```text
+baseline_planned_operation_duration = planned_end_at - planned_start_at
+additional_queue_delay =
+    ceil_to_whole_seconds(
+        baseline_planned_operation_duration
+        * (queue_time_multiplier - 1)
+    )
+```
+
+Missing or non-positive planned duration, a negative queue delay, or missing
+actual timestamps required for propagation rejects. Do not derive the delay
+from actual runtime. The delay is inserted immediately before execution:
+planned timestamps remain fixed, while both `actual_start_at` and
+`actual_end_at` move by the same accumulated delay. Operation duration is
+unchanged; stochastic rounding and wall-clock behavior are prohibited.
+
+Within each Work Order, process Operations in canonical
+`(sequence_number, operation_id)` order while maintaining cumulative queue
+delay. When an affected Operation is reached, add its own delay before shifting
+that Operation. Every later Operation receives the accumulated delay; a later
+affected Operation adds its own delay first. Already-late Operations use the
+same additive rule, with no clamping to planned or promised times.
+
+### 15A.7.7 Work Order and downstream temporal propagation
+
+After Operation propagation, recompute each participating Work Order:
+
+```text
+actual_start_at = min(resulting Operation.actual_start_at)
+actual_end_at   = max(resulting Operation.actual_end_at)
+WORK_ORDER_COMPLETION_DELTA =
+    resulting actual_end_at - pre-intervention actual_end_at
+```
+
+Planned Work Order timestamps remain unchanged unless required solely to
+preserve an already-frozen C02 invariant. A Work Order without computable
+Operation bounds or a required pre-intervention completion anchor rejects.
+Shift each linked Quality Inspection `inspection_at` and each linked Rework
+`rework_start_at` and `rework_end_at` by that Work Order's nonzero completion
+delta. Preserve event durations, relative ordering, and all planned fields.
+
+Delivery has only `sales_order_id`, so individual Work Order deltas are never
+added independently. For every affected Sales Order:
+
+```text
+PRE_ORDER_COMPLETION_AT =
+    max(pre-intervention actual completion of every owned Work Order
+        in the cloned/selected graph)
+
+POST_ORDER_COMPLETION_AT =
+    max(resulting actual completion of every owned Work Order
+        after queue propagation and Work Order bound recomputation)
+
+ORDER_COMPLETION_DELTA =
+    POST_ORDER_COMPLETION_AT - PRE_ORDER_COMPLETION_AT
+
+scenario_delivery_at =
+    baseline_or_cloned_delivery_at + ORDER_COMPLETION_DELTA
+```
+
+Apply `ORDER_COMPLETION_DELTA` exactly once to every Delivery owned by the
+Sales Order. All such Deliveries receive the same delta, preserving their
+relative order. Do not sum Work Order deltas, shift once per Work Order, or use
+the maximum individual delta in place of the order-level completion anchors.
+Multiple Work Orders are valid. A negative order delta or a participating
+Sales Order without at least one computable Work Order completion anchor
+rejects. When `ORDER_COMPLETION_DELTA == 0`, Delivery timestamps remain
+unchanged and no delivery-shift business effect is recorded. Customer
+`promised_delivery_at` remains unchanged.
+
+### 15A.7.8 Targets and affected entities
+
+Capacity never mutates Work Center master fields. HGT `target_entity_ids` is
+exactly the stable sorted selected `work_center_id` set. Products, Customers,
+Sales Orders, and Work Orders are not automatically targets.
+
+Dataset-version-only differences never make a row affected. Every
+scenario-created business row is affected. A baseline-derived row is affected
+only when a Capacity intervention changes a business-semantic field. The exact
+affected-table allowlist is:
+
+```text
+fact_sales_order
+fact_work_order
+fact_operation
+fact_material_requirement
+fact_purchase_order
+fact_quality_inspection
+fact_rework
+fact_delivery
+```
+
+`dim_work_center` is not affected. IDs within each table are unique and stable
+sorted.
+
+### 15A.7.9 Capacity HGT causal-chain contract
+
+The only Capacity relationship strings are:
+
+```text
+receives_added_sales_order_arrival
+creates_work_order
+creates_operation
+creates_material_requirement
+creates_supplemental_procurement
+creates_quality_inspection
+creates_rework
+creates_delivery
+adds_operation_queue_delay
+shifts_downstream_operation
+shifts_work_order_completion
+shifts_inspection_time
+shifts_rework_window
+shifts_delivery_time
+```
+
+Construct a semantic edge set and canonicalize it through the existing HGT
+path; insertion and input order never define output. Emit exactly the
+applicable actual-effect links:
+
+- each selected Work Center traversed by a new thread → that scenario Sales
+  Order: `receives_added_sales_order_arrival`, once per actual pair;
+- scenario Sales Order → each owned scenario Work Order:
+  `creates_work_order`, once per created Work Order;
+- scenario Work Order → each owned scenario Operation:
+  `creates_operation`, once per created Operation;
+- scenario Work Order → each owned scenario Material Requirement:
+  `creates_material_requirement`, once per created Material Requirement;
+- scenario Material Requirement → its dedicated supplemental Purchase Order:
+  `creates_supplemental_procurement`, exactly once;
+- for each scenario Quality Inspection whose `operation_id` is non-null, its
+  corresponding scenario Operation → the inspection; otherwise its
+  corresponding scenario Work Order → the inspection:
+  `creates_quality_inspection`, exactly once per created inspection;
+- scenario Quality Inspection → each owned scenario Rework:
+  `creates_rework`, once per created Rework;
+- scenario Sales Order → each owned scenario Delivery:
+  `creates_delivery`, once per created Delivery;
+- selected Work Center → each directly affected Operation at that center:
+  `adds_operation_queue_delay`, exactly once;
+- each directly delayed Operation → each later Operation whose actual timing
+  changes from that source Operation's accumulated delay contribution:
+  `shifts_downstream_operation`, once per actual causal pair;
+- the single canonical causally binding Operation defined below → each Work
+  Order whose completion changes: `shifts_work_order_completion`, exactly once
+  per shifted Work Order;
+- each shifted Work Order → each linked inspection whose time moves:
+  `shifts_inspection_time`, once per actual pair;
+- each shifted Work Order → each linked Rework whose window moves:
+  `shifts_rework_window`, once per actual pair;
+- each Work Order whose completion changes and whose Sales Order has a nonzero
+  `ORDER_COMPLETION_DELTA` → each of that order's shifted Deliveries:
+  `shifts_delivery_time`, once per actual pair. These causal edges do not
+  reapply or multiply the single order-level timestamp delta.
+
+For `creates_quality_inspection`, Operation is the canonical parent whenever
+the scenario inspection's `operation_id` is non-null; Work Order is the sole
+fallback when it is null. Never emit both, use a baseline parent when the
+scenario-side parent exists, or select by iteration order. A missing canonical
+scenario parent or a parent that cannot participate consistently in the
+affected/HGT graph rejects.
+
+For a Work Order whose resulting completion differs from its pre-intervention
+completion, build the binding candidate set from its Operations whose
+resulting `actual_end_at` equals the recomputed Work Order completion and whose
+actual timing changed because of Capacity propagation. One candidate is
+selected directly. For multiple candidates, select the final one by the
+already-frozen `(sequence_number, operation_id)` order, equivalently the
+maximum canonical tuple. Emit exactly one selected scenario Operation → Work
+Order `shifts_work_order_completion` edge. Emit none when completion is
+unchanged; a changed completion without a qualifying binding Operation
+rejects.
+
+Every causal source and target resolves either in
+`affected_entities_by_table` or, only for a selected unchanged Work Center, in
+`target_entity_ids`. Do not add generic FK, cloning, selection-bookkeeping, or
+unchanged-row links. Table names, entity IDs, target IDs, affected maps, and
+exact case-sensitive relationship tokens participate in canonical HGT hashing.
+No relationship string, source fallback, tie rule, cardinality, or ordering is
+implementation-defined.
+
+### 15A.7.10 Finalization and immutability
+
+Capacity reuses the single C04-BC canonical row ordering, row count, business
+content hash, scenario DatasetVersion identity, HGT identity/hash, and
+`ScenarioResult` binding. It does not introduce a second canonicalizer or
+hash/identity algorithm. `generated_at` remains excluded from every business,
+scenario, and HGT identity/hash.
+
+The original baseline business payload, content hash, row count, and
+DatasetVersion ID remain unchanged. Baseline and scenario share no ORM row or
+SQLAlchemy instrumentation, and applying the in-memory scenario attaches no
+rows to a database session. The accepted limitation remains: finalized
+`GeneratedDataset` objects contain mutable detached ORM rows, so caller
+mutation after finalization can stale a previously stored hash.
 
 ## 15A.8 Hidden Ground Truth schema, identity, and serialization
 

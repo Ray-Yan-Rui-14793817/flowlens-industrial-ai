@@ -318,6 +318,79 @@ manifest was implemented by these documentation-only contract checkpoints.
 
 ---
 
+### W02-C04-F-A-R2 — Capacity Surge Final Residual Contract Freeze
+
+The initial W02-C04-F implementation-authorization review stopped safely on
+six Capacity product-contract families. W02-C04-F-A supplied F1–F21 but
+stopped when the original universal 48-character generated-ID representation
+conflicted with the frozen 40-character SalesOrder, WorkOrder, and
+PurchaseOrder columns. W02-C04-F-A-R1 preserved C02 through entity-aware
+40/48-character SHA-256 representations, then stopped safely on three final
+delivery/HGT ambiguities.
+
+W02-C04-F-A-R2 preserves F1–F18, F20–F21, and the F8-R1 identity resolution and
+freezes the three residual decisions:
+
+- Delivery uses one SalesOrder-level completion delta derived from the maximum
+  pre- and post-intervention completion anchors across all owned Work Orders;
+- each created Quality Inspection has exactly one canonical HGT parent:
+  scenario Operation when `operation_id` exists, otherwise scenario Work
+  Order;
+- each shifted Work Order has exactly one canonical
+  `shifts_work_order_completion` source: the final qualifying Operation by
+  `(sequence_number, operation_id)` when completion-time ties exist.
+
+The complete Capacity contract now freezes the target graph and exact `N`,
+arrival count and template cycle, complete scenario-only digital thread,
+dedicated time-causal supplemental procurement, queue accumulation and
+downstream chronology, target/affected semantics, exact HGT vocabulary and
+topology, canonical finalization, and baseline immutability.
+
+The F8-R1 representation remains:
+
+```text
+SalesOrder:            so_ + digest[:37] = 40 / C02 varchar(40)
+WorkOrder:             wo_ + digest[:37] = 40 / C02 varchar(40)
+PurchaseOrder:         po_ + digest[:37] = 40 / C02 varchar(40)
+Operation:             op_ + digest[:45] = 48 / C02 varchar(48)
+MaterialRequirement:  mr_ + digest[:45] = 48 / C02 varchar(48)
+QualityInspection:     qi_ + digest[:45] = 48 / C02 varchar(48)
+Rework:                rw_ + digest[:45] = 48 / C02 varchar(48)
+Delivery:              dl_ + digest[:45] = 48 / C02 varchar(48)
+```
+
+Collision handling is explicit rejection. C02 remains unchanged; no schema
+widening, migration, dependency, C03 RNG continuation, or private C03 tuning
+is required.
+
+```text
+W02-C04-F-A:
+SAFE STOP / CONTRACT AMBIGUITY
+
+W02-C04-F-A-R1:
+SAFE STOP / RESIDUAL CONTRACT AMBIGUITY
+
+W02-C04-F-A-R2:
+CONTRACT FREEZE COMPLETE / VERIFIED
+
+CAPACITY IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+C02 SCHEMA COMPATIBILITY: PASS
+REMAINING BLOCKER: NONE
+
+W02-C04-F implementation: NOT STARTED
+W02-C04-G: NOT STARTED
+W02-C04-H: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+No production Python behavior, test, model, migration, dependency, protected
+HGT serialization, persistence, or later-phase capability was added by this
+documentation-only checkpoint.
+
+**Next checkpoint:** `CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW`
+
+---
+
 ## W02-C05 — Persistence, CLI, Data Quality, Reports
 
 Provide a documented local workflow such as:

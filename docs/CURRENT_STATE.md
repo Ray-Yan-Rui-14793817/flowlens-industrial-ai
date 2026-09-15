@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR W02-C04-F IMPLEMENTATION AUTHORIZATION REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A and W02-C04-BC are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-DE-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED. Supplier and Quality implementation and hardening are verified, and W02-C04-DE is CLOSED / VERIFIED. C04-F/G/H have NOT started. Persistence and data-quality engineering remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 与 W02-C04-BC 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-DE-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED；Supplier 与 Quality 实现及加固验证已通过，W02-C04-DE 已 CLOSED / VERIFIED。C04-F/G/H 尚未开始，持久化与数据质量工程仍未实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A and W02-C04-BC are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-DE-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-D, W02-C04-E, and W02-C04-DE are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-F-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED; C04-F/G/H have NOT started. Persistence and data-quality engineering remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 与 W02-C04-BC 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-DE-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED；W02-C04-D、W02-C04-E 与 W02-C04-DE 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-F-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED；C04-F/G/H 尚未开始，持久化与数据质量工程仍未实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-DE — Supplier + Quality Final Closeout
-**Status:** `CLOSED / VERIFIED`
+**Current Gate:** W02-C04-F-A-R2 — Capacity Surge Final Residual Contract Freeze
+**Status:** `CONTRACT FREEZE COMPLETE / VERIFIED`
 
 **W02-G0:** `PASS`
 
@@ -265,15 +265,21 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-DE-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED`
 
-**W02-C04-D:** `IMPLEMENTED / VERIFIED`
+**W02-C04-D:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
-**W02-C04-E:** `IMPLEMENTED / VERIFIED`
+**W02-C04-E:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-C04-DE-R1:** `HARDENING VERIFIED`
 
 **ChatGPT W02-C04-DE Final Targeted Re-review:** `PASS`
 
-**W02-C04-DE:** `CLOSED / VERIFIED`
+**W02-C04-DE:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**W02-C04-F-A:** `SUPERSEDED AFTER SAFE STOP`
+
+**W02-C04-F-A-R1:** `SUPERSEDED AFTER SAFE FINAL-AUDIT STOP`
+
+**W02-C04-F-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED`
 
 **W02-C04-F:** `NOT STARTED`
 
@@ -281,7 +287,7 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-H:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION
+**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW
 
 **W02-C04-F Implementation:** `NOT STARTED`
 
@@ -317,7 +323,7 @@ Closeout evidence on 2026-08-17:
 
 **W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION
+**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW
 
 W02-C04-D/E are implemented and verified. W02-C04-F/G/H remain not started and
 require their applicable explicit authorization.
@@ -526,15 +532,15 @@ by this documentation-only contract checkpoint.
 
 **W02-C04-DE-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED`
 
-**W02-C04-D:** `IMPLEMENTED / VERIFIED`
+**W02-C04-D:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
-**W02-C04-E:** `IMPLEMENTED / VERIFIED`
+**W02-C04-E:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-C04-DE-R1:** `HARDENING VERIFIED`
 
 **ChatGPT W02-C04-DE Final Targeted Re-review:** `PASS`
 
-**W02-C04-DE:** `CLOSED / VERIFIED`
+**W02-C04-DE:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 Supplier Degradation and Quality Deterioration are implemented under the
 frozen C04 contract. Deterministic selection and materialization, detached
@@ -560,4 +566,68 @@ W02-C04-H: NOT STARTED
 Week 3: NOT AUTHORIZED / NOT STARTED
 ```
 
-**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION
+**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW
+
+---
+
+## 18. W02-C04-F-A-R2 Capacity Surge Final Contract Freeze
+
+**W02-C04-F-A:** `SUPERSEDED AFTER SAFE STOP`
+
+**W02-C04-F-A-R1:** `SUPERSEDED AFTER SAFE FINAL-AUDIT STOP`
+
+**W02-C04-F-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+
+W02-C04-F-A stopped safely because the first Capacity decision pack's
+universal 48-character identity representation exceeded the frozen
+`varchar(40)` capacities of SalesOrder, WorkOrder, and PurchaseOrder.
+W02-C04-F-A-R1 preserved C02 through capacity-aware 40/48-character persisted
+SHA-256 representations and stopped safely on three final delivery/HGT
+ambiguities. W02-C04-F-A-R2 resolves those residual decisions and preserves
+the full F1–F21 contract.
+
+The verified final audit records:
+
+```text
+CAPACITY TARGET GRAPH FULLY FROZEN: YES
+EXACT N FULLY FROZEN: YES
+NEW ARRIVAL COUNT FULLY FROZEN: YES
+SOURCE TEMPLATE RULE FULLY FROZEN: YES
+NEW THREAD CONSTRUCTION FULLY FROZEN: YES
+SCENARIO ROW IDENTITIES FULLY FROZEN: YES
+IDENTIFIER PK/FK CAPACITY COMPATIBILITY: PASS
+SUPPLEMENTAL PROCUREMENT FULLY FROZEN: YES
+QUEUE / TEMPORAL PROPAGATION FULLY FROZEN: YES
+ORDER-LEVEL DELIVERY PROPAGATION FULLY FROZEN: YES
+CAPACITY HGT FULLY FROZEN: YES
+C02 SCHEMA COMPATIBILITY: PASS
+C03 PRIVATE TUNING REQUIRED: NO
+C03 RNG CONTINUATION REQUIRED: NO
+NEW PRODUCT DECISION REQUIRED: NO
+CAPACITY IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+REMAINING BLOCKER: NONE
+```
+
+R2 freezes one SalesOrder-level Delivery delta across multiple Work Orders,
+the Operation-primary/WorkOrder-fallback parent for every created Quality
+Inspection, and one canonical final binding Operation for each shifted Work
+Order. No C02 schema, ORM, migration, dependency, Python source, test, Docker,
+CI, C03, Supplier, or Quality behavior changed.
+
+Accepted remaining limitations:
+
+- finalized `GeneratedDataset` objects contain mutable detached ORM rows, so
+  caller mutation after finalization can stale the stored content hash;
+- protected HGT serialization remains deferred to W02-C04-G and is not
+  complete;
+- PostgreSQL C04 scenario compatibility and database-dependent acceptance
+  remain deferred to W02-C04-H and are not complete.
+
+```text
+W02-C04-F implementation: NOT STARTED
+W02-C04-G: NOT STARTED
+W02-C04-H: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW
