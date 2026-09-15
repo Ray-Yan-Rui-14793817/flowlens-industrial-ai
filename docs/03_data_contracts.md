@@ -1651,14 +1651,14 @@ Purchase Orders are never modified.
 
 ### 15A.7.6 Queue population, delay, and operation propagation
 
-An Operation in the scenario dataset is directly Capacity-affected exactly
+An Operation in the scenario dataset is queue-eligible exactly
 when its Work Center is selected, its Sales Order belongs to the selected graph
 (including a scenario-created arrival), and its pre-intervention
 `actual_start_at` is in `[window_start, window_end)`. Baseline-derived cloned
 and scenario-created Operations are both eligible. Pre-window Operations are
 immutable for this queue intervention.
 
-For each directly affected Operation:
+For each queue-eligible Operation:
 
 ```text
 baseline_planned_operation_duration = planned_end_at - planned_start_at
@@ -1678,9 +1678,9 @@ unchanged; stochastic rounding and wall-clock behavior are prohibited.
 
 Within each Work Order, process Operations in canonical
 `(sequence_number, operation_id)` order while maintaining cumulative queue
-delay. When an affected Operation is reached, add its own delay before shifting
+delay. When a queue-eligible Operation is reached, add its own delay before shifting
 that Operation. Every later Operation receives the accumulated delay; a later
-affected Operation adds its own delay first. Already-late Operations use the
+queue-eligible Operation adds its own delay first. Already-late Operations use the
 same additive rule, with no clamping to planned or promised times.
 
 ### 15A.7.7 Work Order and downstream temporal propagation
@@ -1798,8 +1798,9 @@ applicable actual-effect links:
   `creates_rework`, once per created Rework;
 - scenario Sales Order → each owned scenario Delivery:
   `creates_delivery`, once per created Delivery;
-- selected Work Center → each directly affected Operation at that center:
-  `adds_operation_queue_delay`, exactly once;
+- selected Work Center → each queue-eligible Operation at that center whose
+  `additional_queue_delay > 0`: `adds_operation_queue_delay`, exactly once;
+  emit none when its own `additional_queue_delay == 0`;
 - each directly delayed Operation → each later Operation whose actual timing
   changes from that source Operation's accumulated delay contribution:
   `shifts_downstream_operation`, once per actual causal pair;
@@ -1855,6 +1856,85 @@ SQLAlchemy instrumentation, and applying the in-memory scenario attaches no
 rows to a database session. The accepted limitation remains: finalized
 `GeneratedDataset` objects contain mutable detached ORM rows, so caller
 mutation after finalization can stale a previously stored hash.
+
+### 15A.7.11 R3 zero-delay queue and HGT semantics
+
+W02-C04-F-AR1 found one residual conflict: the valid
+`queue_time_multiplier == 1` yields zero additional queue delay, but the
+previous eligibility wording implied a mandatory queue edge even for an
+unchanged baseline Operation. W02-C04-F-A-R3 resolves only that conflict.
+
+**R3-D1 — Eligibility is not an effect.** The predicate in Section 15A.7.6
+selects candidates for queue transformation. Eligibility alone never makes a
+baseline Operation affected, mutated, causally changed, or entitled to an
+`adds_operation_queue_delay` edge. The materialized delay determines the
+direct queue effect.
+
+**R3-D2 — Positive-delay-only cardinality.** For each queue-eligible Operation
+with `additional_queue_delay > 0`, shift its actual start and end by the same
+additional delay, include it in affected business rows, and emit exactly one
+selected Work Center → Operation `adds_operation_queue_delay` edge. Preserve
+the already-frozen cumulative and downstream propagation rules. With
+`additional_queue_delay == 0`, that direct intervention leaves actual and
+planned timestamps and processing duration unchanged, emits no queue edge,
+and does not make an unchanged baseline Operation affected solely through
+eligibility. An independently realized upstream propagation effect still
+follows Section 15A.7.6; zero own delay cannot fabricate a direct queue edge.
+Negative queue delay is prohibited by the frozen configuration domain.
+
+**R3-D3 — Creation differs from queue delay.** A scenario-created Operation
+remains affected even with zero queue delay because creation itself is a
+business effect. It participates in its frozen creation/digital-thread
+topology, but receives no `adds_operation_queue_delay` edge for zero delay.
+Row creation effect is not queue delay effect.
+
+**R3-D4 — Targets differ from affected entities.** Selected unchanged Capacity
+Work Centers remain the stable sorted `target_entity_ids`, including when
+some or all eligible baseline Operations receive zero delay and are absent
+from the affected map. Target membership never implies affected membership.
+
+**R3-D5 — Arrival-only configuration.** `arrival_volume_multiplier > 1` with
+`queue_time_multiplier == 1` is valid. Create the frozen additional Sales
+Orders, complete threads, dedicated supplemental procurement, and applicable
+creation/thread edges. Do not emit zero-delay queue edges or queue-derived
+temporal-shift edges when no such effect materializes.
+
+**R3-D6 — Queue-only configuration.** `arrival_volume_multiplier == 1` with
+`queue_time_multiplier > 1` is valid. It creates zero additional arrival
+threads. Qualifying Operations and downstream facts may change under the
+frozen queue/temporal rules; HGT records only actually materialized effects.
+
+**R3-D7 — Fully neutral configuration.** Both multipliers equal to `1` remain
+valid; do not tighten config validation to avoid this boundary. Subject to
+the unchanged target-graph and input-validity gates, Capacity creates zero
+new arrival rows, makes zero queue or other business-field mutations, and
+emits zero queue edges. No unchanged baseline row becomes affected solely
+because it was eligible. Preserve baseline business content; do not normalize
+timestamps merely to manufacture a propagation effect. Selected Work Centers
+remain valid targets. With no created or mutated business facts, the affected
+map is `{}` and the causal chain is empty (`[]` in the canonical payload).
+Only tables with actually affected IDs belong in the Capacity affected map;
+do not add empty-table placeholders. This uses the existing HGT foundation,
+which permits an empty map and chain, and the existing C04 scenario
+identity/provenance remains distinct. `generated_at` stays provenance-only.
+
+**R3-D8 — No fake evidence.** Never create zero-duration or eligibility-only
+queue edges, synthetic timestamp changes, or fake affected membership to
+satisfy edge cardinality. HGT describes realized effects, not candidates.
+
+For fixed inputs, all four arrival/queue combinations use the same frozen
+target selection, persisted row IDs, relationship vocabulary, endpoint rules,
+and sorted/deduplicated semantic edge set. Their applicable effects uniquely
+determine the canonical HGT payload, `hgt_hash`, and `hgt_id`; no alternative
+zero-delay edge or affected-membership choice is permitted.
+
+R3 leaves F8-R1 identities, target graph, exact `N`, Work Center selection,
+arrival count, template ranking/cycling, copied business attributes, complete
+thread cloning, supplemental procurement, queue arithmetic/rounding,
+operation ordering, cumulative propagation, Work Order bounds, R2-D1 Delivery
+propagation, R2-D2 inspection parent/fallback, R2-D3 binding Operation/tie rule,
+and all other Capacity HGT vocabulary/topology unchanged. C02, C03, Supplier,
+Quality, and common C04 identity/finalization behavior remain unchanged.
 
 ## 15A.8 Hidden Ground Truth schema, identity, and serialization
 

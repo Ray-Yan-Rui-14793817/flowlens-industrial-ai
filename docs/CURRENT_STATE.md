@@ -1,5 +1,5 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-08-18
+**Last Updated / 最后更新:** 2026-09-15
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-F-AR2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A and W02-C04-BC are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-DE-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-D, W02-C04-E, and W02-C04-DE are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-F-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED; C04-F/G/H have NOT started. Persistence and data-quality engineering remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 与 W02-C04-BC 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-DE-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED；W02-C04-D、W02-C04-E 与 W02-C04-DE 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-F-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED；C04-F/G/H 尚未开始，持久化与数据质量工程仍未实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A and W02-C04-BC are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-DE-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-D, W02-C04-E, and W02-C04-DE are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-F-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-F-A-R3 is CONTRACT CLARIFICATION COMPLETE / VERIFIED; C04-F implementation is NOT STARTED / NOT AUTHORIZED pending AR2. C04-G/H have NOT started. Persistence and data-quality engineering remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 与 W02-C04-BC 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-DE-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED；W02-C04-D、W02-C04-E 与 W02-C04-DE 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-F-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED；W02-C04-F-A-R3 已完成零延迟契约澄清并验证，C04-F 尚未授权或开始，等待 AR2；C04-G/H 尚未开始，持久化与数据质量工程仍未实现。不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -586,7 +586,8 @@ SHA-256 representations and stopped safely on three final delivery/HGT
 ambiguities. W02-C04-F-A-R2 resolves those residual decisions and preserves
 the full F1–F21 contract.
 
-The verified final audit records:
+The historical R2 audit records (the later AR1 zero-delay finding and R3
+resolution are recorded in Section 19):
 
 ```text
 CAPACITY TARGET GRAPH FULLY FROZEN: YES
@@ -631,3 +632,82 @@ Week 3: NOT AUTHORIZED / NOT STARTED
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW
+
+---
+
+## 19. W02-C04-F-A-R3 Zero-Delay HGT Contract Clarification
+
+**Status:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
+
+Starting checkpoint verified on 2026-09-15: feature branch
+`feat/w02-industrial-data-foundation`, local/tracking/direct remote/PR #5 head
+`80cb49001f388b927c10d09479773b186518795b`, clean working tree, and main/merge
+base `311bad46c40ce365b726c2f7e918c5a65daa2ad9`. Draft PR #5 was open, draft,
+not merged, with auto-merge disabled.
+
+AR1 stopped implementation authorization on one edge case missed by the R2
+audit: `queue_time_multiplier == 1` is valid and produces zero queue delay,
+but prior wording implied an obligatory queue edge for eligible unchanged
+Operations. R3 resolves this in data-contract Section 15A.7.11: eligibility
+alone is not an effect; a direct queue edge exists exactly once only for
+positive additional delay. Creation remains an independent effect, while
+selected Work Centers remain targets without becoming affected rows.
+
+Arrival-only, queue-only, and fully neutral configurations remain valid
+under the unchanged input gates. Neutral Capacity has no new business rows,
+no business-field mutations, an empty affected map, and an empty causal
+chain; scenario identity/provenance remains distinct. An in-memory diagnostic
+confirmed that the existing config and HGT foundation accept the neutral
+configuration, zero delay, empty collections, and reproducible HGT IDs/hashes.
+No protected HGT file was generated.
+
+```text
+ZERO-DELAY QUEUE EFFECT SEMANTICS FULLY FROZEN: YES
+QUEUE EDGE CARDINALITY FULLY FROZEN: YES
+QUEUE ELIGIBILITY VS AFFECTED SEMANTICS FULLY FROZEN: YES
+SCENARIO-CREATED OPERATION ZERO-DELAY SEMANTICS FULLY FROZEN: YES
+ARRIVAL-ONLY CONFIGURATION FULLY FROZEN: YES
+QUEUE-ONLY CONFIGURATION FULLY FROZEN: YES
+FULLY NEUTRAL CONFIGURATION FULLY FROZEN: YES
+EMPTY AFFECTED MAP ALLOWED BY EXISTING HGT FOUNDATION: YES
+EMPTY CAUSAL CHAIN ALLOWED BY EXISTING HGT FOUNDATION: YES
+CAPACITY HGT IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+CAPACITY IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+REMAINING CONTRACT BLOCKER: NONE
+```
+
+The four arrival/queue boundary cases have canonical targets, actual-effect
+affected maps, endpoint IDs, vocabulary, link cardinality, and HGT hashes/IDs.
+F8-R1, R2-D1/D2/D3, all previous graph/count/template/procurement/queue rules,
+C02, C03, Supplier, Quality, and common C04 identity/finalization are unchanged.
+
+Validation executed before this state update:
+
+- focused scenario/intervention/generation pytest: **48 passed**;
+- full pytest: **78 passed, 9 skipped, 1 warning**; database-dependent tests
+  require `FLOWLENS_DATABASE_URL`; existing Starlette/httpx deprecation warning;
+- `ruff check .`: **PASS**;
+- established strict `mypy .`: **PASS**, 47 source files;
+- `docker compose config --quiet`: **PASS**, exit 0, with Docker config-file
+  access warnings;
+- `flowlens-uv.exe lock --check`: **ENVIRONMENT-BLOCKED**, uv cache
+  `sdists-v9/.git` access denied; dependencies and lock remain unchanged;
+- contract/sprint diff whitespace, balanced fences, conflict-marker,
+  accidental debug/TODO/FIXME/HACK, and secret-pattern scans: **PASS**.
+
+Only the data contract, Sprint Spec, and this state record are changed by R3.
+No source, test, schema/model, migration, dependency, Docker/CI, persistence,
+PostgreSQL behavior, or protected HGT serialization is added. The accepted
+mutable-detached-row limitation remains; C04-G serialization and C04-H
+database acceptance remain deferred.
+
+```text
+C04-F IMPLEMENTATION: NOT STARTED / NOT AUTHORIZED
+C04-G: NOT STARTED
+C04-H: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+This is contract clarification, not permission to implement Capacity.
+
+**Next Engineering Checkpoint:** W02-C04-F-AR2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW

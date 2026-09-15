@@ -391,6 +391,50 @@ documentation-only checkpoint.
 
 ---
 
+### W02-C04-F-A-R3 — Zero-Delay HGT Contract Clarification
+
+W02-C04-F-AR1 subsequently found one blocker missed by the historical R2
+audit: valid `queue_time_multiplier == 1` produces zero delay, while the
+previous queue-eligibility wording implied one mandatory queue edge for an
+unchanged Operation. Its authorization result was BLOCKED; it did not start
+implementation.
+
+R3 freezes Section 15A.7.11 of the data contract: eligibility alone is not an
+effect; `adds_operation_queue_delay` occurs exactly once for each positive
+direct queue delay and never for zero delay. Created rows remain affected by
+creation; selected Work Centers remain targets without becoming affected.
+The existing HGT foundation permits an empty affected map and causal chain.
+
+| Arrival multiplier | Queue multiplier | Frozen effects |
+|---|---|---|
+| `> 1` | `> 1` | Added threads plus actually materialized positive queue effects |
+| `> 1` | `== 1` | Arrival/thread creation only; no zero-delay queue edges |
+| `== 1` | `> 1` | Zero new threads; only realized queue/propagation effects |
+| `== 1` | `== 1` | Valid neutral scenario; selected targets, empty affected map and chain |
+
+All four cases retain canonical HGT IDs/hashes and prohibit fabricated
+timestamps, affected rows, or causal evidence. Prior F8-R1 and R2-D1/D2/D3
+decisions, graph/count/template/procurement/queue rules, C02, C03, Supplier,
+Quality, and common C04 identity/finalization remain unchanged.
+
+```text
+W02-C04-F-A-R3: CONTRACT CLARIFICATION COMPLETE / VERIFIED
+ZERO-AMBIGUITY AUDIT: PASS
+CAPACITY HGT IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+CAPACITY IMPLEMENTABLE WITHOUT NEW PRODUCT DECISION: YES
+REMAINING CONTRACT BLOCKER: NONE
+C04-F implementation: NOT STARTED / NOT AUTHORIZED
+C04-G/H: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+This documentation-only checkpoint is not implementation authorization.
+A new authorization review is required before C04-F implementation.
+
+**Next checkpoint:** `W02-C04-F-AR2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW`
+
+---
+
 ## W02-C05 — Persistence, CLI, Data Quality, Reports
 
 Provide a documented local workflow such as:
