@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-F IMPLEMENTATION REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-G AUTHORIZATION / CONTRACT REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A, W02-C04-BC, W02-C04-D, W02-C04-E, and W02-C04-DE remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. The DE-A-R2, Capacity F-A-R2, and zero-delay F-A-R3 contract checkpoints are verified and synchronized. W02-C04-F-AR2 is AUTHORIZED / VERIFIED. W02-C04-F is IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW, not CLOSED. C04-G/H have NOT started. Persistence and data-quality engineering remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 和已关闭的 Week 2 检查点保持不变，数据契约与 Sprint Spec 保持冻结。Capacity 的 R2/R3 契约已验证并同步，AR2 已授权并验证；C04-F 已实现并通过 Codex 验证，等待 ChatGPT 审查，尚未 CLOSED。C04-G/H、持久化与数据质量工程尚未开始；不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified; the Data Contract and Sprint Spec remain frozen. W02-C04-F is now CLOSED / VERIFIED / GITHUB SYNCHRONIZED following ChatGPT implementation review PASS and explicit human closeout approval. Capacity Surge is IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED. C04-G, C04-H, and C05 have NOT started. Week 3 remains NOT AUTHORIZED / NOT STARTED. Week 2 must **not** be described as COMPLETE. Current status is recorded in Sections 10 and 21; earlier checkpoint status and next-step labels remain historical records. / 已关闭的历史检查点与冻结契约保持不变。C04-F 已通过 ChatGPT 实现审查并获人工批准，现为 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。C04-G、C04-H、C05 尚未开始；Week 3 尚未授权或开始。当前状态以第 10、21 节为准，早期检查点状态与后续步骤标签作为历史记录保留；不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-F-I — Capacity Surge Production Implementation
-**Status:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+**Current Gate:** W02-C04-F-C1 — Capacity Surge Final Closeout
+**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-G0:** `PASS`
 
@@ -285,15 +285,25 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-F-AR2:** `AUTHORIZED / VERIFIED`
 
-**W02-C04-F:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+**W02-C04-F ChatGPT Implementation Review:** `PASS`
+
+**W02-C04-F Human Closeout Approval:** `AUTHORIZED`
+
+**W02-C04-F:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-C04-G:** `NOT STARTED`
 
 **W02-C04-H:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION REVIEW
+**W02-C05:** `NOT STARTED`
 
-**W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+**Next Engineering Checkpoint:** CHATGPT W02-C04-G IMPLEMENTATION AUTHORIZATION / CONTRACT REVIEW
+
+**W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
+
+**Reviewed Implementation Commit:** `0e58880aaada7c393ee6ea1e185cf295884d96c7`
+
+**Contract Blockers:** `NONE`
 
 Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
@@ -816,3 +826,71 @@ CONTRACT CONFLICT: NONE
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION REVIEW
+
+---
+
+## 21. W02-C04-F Final Closeout
+
+**Task:** `W02-C04-F-C1`
+
+**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**Capacity Surge:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
+
+**Reviewed Implementation Commit:** `0e58880aaada7c393ee6ea1e185cf295884d96c7`
+
+**ChatGPT Implementation Review:** `PASS`
+
+**Human Closeout Approval:** `AUTHORIZED`
+
+The human owner supplied the independent ChatGPT review PASS and explicitly
+authorized this documentation-only closeout on 2026-09-15. Contract conformance,
+business semantics, test adequacy, and scope control passed with no blocker,
+high, or medium finding. No code correction, reimplementation, or contract
+reopening is required. The reviewed implementation remains unchanged.
+
+Verified capabilities:
+
+- deterministic Capacity target graph and exact qualifying SalesOrder population `N`;
+- deterministic arrival count, template ranking/cycling, and complete digital-thread cloning;
+- F8-R1 schema-compatible generated identities and collision rejection;
+- deterministic, historically eligible supplemental procurement;
+- queue arithmetic, cumulative temporal propagation, and WorkOrder completion recomputation;
+- R2-D1 SalesOrder-level Delivery propagation;
+- R2-D2 QualityInspection parent and R2-D3 binding Operation semantics;
+- R3 zero-delay, arrival-only, queue-only, combined, and neutral behavior;
+- deterministic HGT targets, affected maps, causal topology, and canonicalization;
+- baseline immutability, generated_at isolation, and input-order independence;
+- full 12,000-order DEMO execution and Supplier / Quality / C03 regression preservation.
+
+The reviewed implementation evidence in Section 20 remains authoritative:
+41 Capacity tests passed; 48 scenario/generation regression tests passed;
+full pytest had 119 passed, 9 database-dependent skips, and one existing
+deprecation warning. Ruff, strict mypy (49 files), and Compose configuration
+passed. These implementation/infrastructure checks were not rerun for this
+documentation-only closeout. Closeout validation checks the complete state diff,
+single-file scope, whitespace, Markdown fences, prohibited artifacts, reviewed
+implementation immutability, and Git/PR synchronization.
+
+Accepted deferred boundaries:
+
+- protected HGT serialization/isolation remains deferred to C04-G;
+- PostgreSQL scenario acceptance and applicable database-dependent tests remain deferred to C04-H;
+- mutable detached ORM rows can stale a stored hash after caller mutation; this limitation remains accepted;
+- uv lock verification remains environment-blocked by the documented cache-access limitation;
+- the existing Starlette/httpx deprecation and Docker config-access warnings remain documented.
+
+Earlier checkpoint states, including Section 20's pending-review state, remain
+historical evidence. This section and Section 10 define the current state.
+Closing C04-F does not close Week 2 or authorize later implementation.
+
+```text
+W02-C04-F: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+CONTRACT BLOCKER: NONE
+C04-G: NOT STARTED
+C04-H: NOT STARTED
+C05: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C04-G IMPLEMENTATION AUTHORIZATION / CONTRACT REVIEW
