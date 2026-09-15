@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-F-AR2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-F IMPLEMENTATION REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A and W02-C04-BC are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-DE-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-D, W02-C04-E, and W02-C04-DE are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-F-A-R2 is CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-F-A-R3 is CONTRACT CLARIFICATION COMPLETE / VERIFIED; C04-F implementation is NOT STARTED / NOT AUTHORIZED pending AR2. C04-G/H have NOT started. Persistence and data-quality engineering remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 保持 CLOSED / VERIFIED，Week 2 Data Contract 与 Sprint Spec 保持冻结。W02-C01、W02-C02 与 W02-C03 已 CLOSED / VERIFIED。W02-C04-A 与 W02-C04-BC 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-DE-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED；W02-C04-D、W02-C04-E 与 W02-C04-DE 已 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。W02-C04-F-A-R2 已达到 CONTRACT FREEZE COMPLETE / VERIFIED / GITHUB SYNCHRONIZED；W02-C04-F-A-R3 已完成零延迟契约澄清并验证，C04-F 尚未授权或开始，等待 AR2；C04-G/H 尚未开始，持久化与数据质量工程仍未实现。不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 remains CLOSED / VERIFIED, and the Week 2 Data Contract and Sprint Spec remain frozen. W02-C01, W02-C02, and W02-C03 are CLOSED / VERIFIED. W02-C04-A, W02-C04-BC, W02-C04-D, W02-C04-E, and W02-C04-DE remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. The DE-A-R2, Capacity F-A-R2, and zero-delay F-A-R3 contract checkpoints are verified and synchronized. W02-C04-F-AR2 is AUTHORIZED / VERIFIED. W02-C04-F is IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW, not CLOSED. C04-G/H have NOT started. Persistence and data-quality engineering remain unimplemented. Week 2 must **not** be described as COMPLETE. / Week 1 和已关闭的 Week 2 检查点保持不变，数据契约与 Sprint Spec 保持冻结。Capacity 的 R2/R3 契约已验证并同步，AR2 已授权并验证；C04-F 已实现并通过 Codex 验证，等待 ChatGPT 审查，尚未 CLOSED。C04-G/H、持久化与数据质量工程尚未开始；不得将 Week 2 描述为 COMPLETE。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-F-A-R2 — Capacity Surge Final Residual Contract Freeze
-**Status:** `CONTRACT FREEZE COMPLETE / VERIFIED`
+**Current Gate:** W02-C04-F-I — Capacity Surge Production Implementation
+**Status:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
 
 **W02-G0:** `PASS`
 
@@ -281,15 +281,19 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-F-A-R2:** `CONTRACT FREEZE COMPLETE / VERIFIED`
 
-**W02-C04-F:** `NOT STARTED`
+**W02-C04-F-A-R3:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED / GITHUB SYNCHRONIZED`
+
+**W02-C04-F-AR2:** `AUTHORIZED / VERIFIED`
+
+**W02-C04-F:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
 
 **W02-C04-G:** `NOT STARTED`
 
 **W02-C04-H:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION REVIEW
 
-**W02-C04-F Implementation:** `NOT STARTED`
+**W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
 
 Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
@@ -323,10 +327,10 @@ Closeout evidence on 2026-08-17:
 
 **W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION AUTHORIZATION RE-REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION REVIEW
 
-W02-C04-D/E are implemented and verified. W02-C04-F/G/H remain not started and
-require their applicable explicit authorization.
+W02-C04-D/E remain closed and verified. W02-C04-F is implemented and Codex
+verified, pending ChatGPT review. W02-C04-G/H remain not started.
 
 ---
 
@@ -353,13 +357,11 @@ validation responsibilities.
 
 **W02-C03 Status:** `CLOSED / VERIFIED`
 
-**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION
+**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION REVIEW
 
-**W02-C04 Status:** `D/E CLOSED / VERIFIED — F/G/H NOT STARTED`
+**W02-C04 Status:** `D/E CLOSED / VERIFIED — F IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW — G/H NOT STARTED`
 
-**W02-C04 Readiness:** `READY FOR C04-F IMPLEMENTATION AUTHORIZATION REVIEW`
-
-W02-C04-F implementation requires separate explicit authorization.
+**W02-C04 Readiness:** `READY FOR C04-F IMPLEMENTATION REVIEW`
 
 ---
 
@@ -393,9 +395,9 @@ Accepted non-blocking limitations:
 - procurement remains a simplified deterministic weekly-bucket synthetic
   baseline rather than full MRP or requirement-level PO allocation.
 
-**W02-C04 Status:** `D/E CLOSED / VERIFIED — F/G/H NOT STARTED`
+**W02-C04 Status:** `D/E CLOSED / VERIFIED — F IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW — G/H NOT STARTED`
 
-**Next Engineering Checkpoint:** W02-C04-F — CAPACITY SURGE IMPLEMENTATION AUTHORIZATION
+**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION REVIEW
 
 ---
 
@@ -711,3 +713,106 @@ Week 3: NOT AUTHORIZED / NOT STARTED
 This is contract clarification, not permission to implement Capacity.
 
 **Next Engineering Checkpoint:** W02-C04-F-AR2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
+
+---
+
+## 20. W02-C04-F-I Capacity Surge Implementation
+
+**W02-C04-F-AR2:** `AUTHORIZED / VERIFIED`
+
+**W02-C04-F:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+
+Starting feature HEAD was `cad7acb0174a377f00656761340b01bf648789c1`, verified
+equal to tracking, direct remote, and Draft PR #5. Main/merge base remained
+`311bad46c40ce365b726c2f7e918c5a65daa2ad9`; the branch was 11 ahead / 0 behind
+main and clean before implementation.
+
+Implemented only:
+
+- `src/flowlens/data/scenarios/capacity.py`: private deterministic Capacity
+  injector; real target graph, exact order population and template cycling,
+  complete added threads, F8-R1 IDs/FKs, historical supplemental procurement,
+  queue accumulation, WorkOrder/inspection/Rework propagation, R2-D1 order-level
+  Delivery delta, R2-D2/D3 causal parents, R3 neutral semantics, and exact HGT;
+- `src/flowlens/data/scenarios/application.py`: Capacity dispatch through the
+  existing detached-cloning/finalization/ScenarioResult pipeline;
+- `tests/test_capacity_scenario.py`: 41 cases covering the A–AO implementation
+  matrix, all four multiplier modes, independent identity/field/causal-edge
+  expectations, boundary and rejection cases, and a full real DEMO baseline;
+- `tests/test_scenario_interventions.py`: replace the obsolete Capacity
+  NotImplementedError expectation with successful queue-only dispatch while
+  preserving all Supplier, Quality, and business-day assertions;
+- this current-state record, updated only after validation passed.
+
+All new source threads are copied before any source-derived timing is shifted.
+Existing foundation primitives supply independent ORM cloning, purpose-separated
+ranking, duration rounding, canonical row sorting/counting/hashing, DatasetVersion
+finalization, HGT identity, and ScenarioResult binding. No common foundation
+module or public scenario API changed.
+
+Verification executed on 2026-09-15 with existing `.venv/Scripts` executables:
+
+| Command | Result |
+|---|---|
+| `python -B -m pytest -p no:cacheprovider tests/test_capacity_scenario.py` | 41 passed |
+| `python -B -m pytest -p no:cacheprovider tests/test_scenario_interventions.py tests/test_scenarios.py tests/test_generation.py` | 48 passed |
+| `python -B -m pytest -p no:cacheprovider` | 119 passed, 9 skipped, 1 warning |
+| `ruff check .` | PASS |
+| `mypy .` | PASS, 49 source files |
+| `git diff --check` | PASS |
+| `docker compose config --quiet` | PASS, exit 0; Docker config-file access warnings |
+| `flowlens-uv.exe lock --check` | ENVIRONMENT-BLOCKED: existing uv cache `sdists-v9/.git` access denied |
+
+The nine skips require `FLOWLENS_DATABASE_URL`. The warning is the existing
+Starlette/httpx deprecation. No non-database test was skipped, disabled,
+deleted, or weakened. Initial development runs exposed a test expectation
+arithmetic error and two unsuitable success-smoke windows; these were corrected
+without changing frozen behavior. The final successful runs above supersede
+those failures.
+
+Verified outcomes:
+
+- exact eight-family IDs fit existing PK/FK lengths; collisions reject;
+- full copied topology and rewritten FKs match independent expectations;
+- selected targets are distinct from actually affected rows;
+- zero direct delay produces no queue edge; creation remains an independent
+  effect; fully neutral Capacity has an empty affected map and causal chain;
+- multiple WorkOrders shift each Delivery once by the order-level anchor delta;
+- immutable baseline payload/hash/count/ID, independent ORM instrumentation,
+  session-free operation, repeated application, input ordering, and generated-at
+  isolation are preserved;
+- default Capacity runs on the 12,000-order, 18-month C03 DEMO baseline;
+- Supplier, Quality, C03, and existing foundation regressions pass.
+
+Targeted contract audits also pass without source corrections. Section 15A.7.1
+requires copying every owned Material Requirement, not a minimum Material
+Requirement count or per-WorkOrder coverage; it requires at least one Quality
+Inspection across the reusable thread, not per WorkOrder. All owned Operations
+and required completion anchors remain validated. The existing HGT foundation
+sorts and deduplicates targets, affected IDs, and causal links before canonical
+hashing; no additional canonicalizer is needed. All checks were rerun before
+repository closeout with the results above, including the lock-check limitation.
+
+Known limitations and boundaries:
+
+- Early added arrivals can legitimately reject when no same-material supplier
+  PO predates the order decision time. This frozen rejection is tested; no
+  fallback supplier, future information, or altered selection is used.
+- Finalized detached ORM rows remain mutable by callers, as previously accepted.
+- C04-G protected HGT serialization/isolation and C04-H PostgreSQL acceptance
+  remain deferred. This task generates no protected HGT files and adds no
+  persistence, database sessions, or database-dependent scenario behavior.
+- Frozen data/Sprint contracts, C02 models/schema, migrations, dependencies,
+  C03, Supplier/Quality behavior, Docker, and CI are unchanged.
+
+```text
+C04-F: IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW
+C04-F CLOSED: NO
+C04-G: NOT STARTED
+C04-H: NOT STARTED
+C05: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+CONTRACT CONFLICT: NONE
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C04-F IMPLEMENTATION REVIEW

@@ -258,7 +258,7 @@ def _supplier_outcome(result: ScenarioResult) -> tuple[object, ...]:
     )
 
 
-def test_public_dispatch_rejects_capacity_and_business_days_are_exact() -> None:
+def test_public_dispatch_supports_all_scenarios_and_business_days_are_exact() -> None:
     friday = datetime(2026, 1, 2, 18, tzinfo=BUSINESS_TIMEZONE)
     saturday = datetime(2026, 1, 3, 18, tzinfo=BUSINESS_TIMEZONE)
     assert add_business_days(friday, 1) == datetime(
@@ -277,17 +277,21 @@ def test_public_dispatch_rejects_capacity_and_business_days_are_exact() -> None:
     assert supplier.ground_truth.scenario_type.value == "SCN_SUPPLIER_DEGRADATION"
     quality = apply_scenario(_baseline(), _quality_config(), generated_at=GENERATED_AT)
     assert quality.ground_truth.scenario_type.value == "SCN_QUALITY_DETERIORATION"
-    with pytest.raises(NotImplementedError, match="W02-C04-F"):
-        apply_scenario(
-            _baseline(),
-            CapacitySurgeConfig(
-                scenario_version=SCENARIO_VERSION,
-                scenario_seed=SCENARIO_SEED,
-                window_start=datetime(2026, 1, 1, tzinfo=BUSINESS_TIMEZONE),
-                window_end=datetime(2026, 4, 1, tzinfo=BUSINESS_TIMEZONE),
-            ),
-            generated_at=GENERATED_AT,
-        )
+    capacity = apply_scenario(
+        _baseline(),
+        CapacitySurgeConfig(
+            scenario_version=SCENARIO_VERSION,
+            scenario_seed=SCENARIO_SEED,
+            window_start=datetime(2026, 1, 1, tzinfo=BUSINESS_TIMEZONE),
+            window_end=datetime(2026, 4, 1, tzinfo=BUSINESS_TIMEZONE),
+            arrival_volume_multiplier=Decimal("1"),
+        ),
+        generated_at=GENERATED_AT,
+    )
+    assert capacity.ground_truth.scenario_type.value == "SCN_CAPACITY_SURGE"
+    assert capacity.dataset.row_count_total == _baseline().row_count_total
+    assert any(link.relationship == "adds_operation_queue_delay"
+               for link in capacity.ground_truth.causal_chain)
 
 
 def test_supplier_graph_counts_late_target_and_delay_are_exact() -> None:

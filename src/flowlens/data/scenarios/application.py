@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from flowlens.data.generation import GeneratedDataset
+from flowlens.data.scenarios.capacity import apply_capacity_surge
 from flowlens.data.scenarios.config import (
     CapacitySurgeConfig,
     QualityDeteriorationConfig,
@@ -46,8 +47,11 @@ def apply_scenario(
             rows_by_table,
         )
     elif isinstance(config, CapacitySurgeConfig):
-        raise NotImplementedError(
-            "SCN_CAPACITY_SURGE is not implemented until W02-C04-F"
+        ground_truth = apply_capacity_surge(
+            baseline,
+            identity,
+            config,
+            rows_by_table,
         )
     else:
         raise TypeError("config must be one of the three frozen scenario config types")
