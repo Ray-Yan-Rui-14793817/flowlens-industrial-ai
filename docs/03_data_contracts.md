@@ -2120,6 +2120,67 @@ required for C04-G implementation or unit acceptance; C04-H is not a
 prerequisite. Database-backed scenario acceptance remains C04-H. No C02/C03
 change, migration, dependency, or database persistence is authorized.
 
+### 15A.8.2 G-A3 existing-manifest HGT identity uniqueness clarification
+
+After the G-A2 freeze, W02-C04-G-A1-R1 stopped safely because the policy for
+pre-existing semantically identical duplicate HGT records was not explicit.
+The following ChatGPT/human-owned clarification closes only that residual
+decision. G-A2 history and all other frozen semantics remain unchanged.
+
+**G-A3-D1 — Collection-wide HGT identity uniqueness.** In every valid existing
+manifest, each `hgt_id` present MUST occur exactly once. Repeating an `hgt_id`
+makes the existing manifest invalid, whether the complete records are
+semantically identical or conflicting. Both cases reject without mutation.
+Do not automatically deduplicate, silently retain duplicates and continue,
+merge repeated records, choose one duplicate, rewrite/regenerate/suffix an
+identity, repair, migrate, or replace the invalid existing manifest.
+
+**G-A3-D2 — Incoming idempotence remains distinct.** Validate the existing
+collection-wide uniqueness invariant before applying incoming-record
+idempotence or collision logic. For an otherwise valid existing manifest
+containing exactly one record with `hgt_id = X`, an incoming record with that
+ID and identical complete semantic content remains idempotent: no duplicate
+and no semantic change. Incoming different semantic content for that same ID
+still rejects without mutation. This does not change G-A2 incoming-write
+idempotence or collision semantics.
+
+**G-A3-D3 — Canonical valid-manifest invariant.** A valid protected manifest
+contains exactly one top-level `records` field with zero or more complete
+valid HGT records. Each record satisfies the exact frozen 15-field schema;
+every `hgt_id` is unique across the collection. Canonical publication orders
+records lexicographically by `(scenario_id, hgt_id)`. Identity uniqueness is
+a validity requirement, not automatic normalization or repair.
+
+**G-A3-D4 — Failure preservation.** If read/validation detects duplicate
+`hgt_id` values, reject before integrating the incoming record. Do not publish
+a replacement, create a temporary repaired collection for publication, or
+remove duplicate entries. Leave the original artifact byte-for-byte unchanged.
+Temporary diagnostic/in-memory parsing is allowed; repository, business, and
+scenario state must not be mutated.
+
+**Rationale.** `hgt_id` is the existing authoritative HGT identity; a canonical
+collection cannot contain multiple records for one identity. Deduplication
+would be unapproved repair, while retaining duplicate identities would be
+non-canonical. Rejecting this pre-existing invalid state follows G-A2's
+malformed/incompatible-manifest policy. Incoming idempotence remains supported
+for a valid manifest with exactly one matching record.
+
+```text
+EXISTING IDENTICAL DUPLICATE HGT IDS: INVALID MANIFEST / REJECT WITHOUT MUTATION
+EXISTING CONFLICTING DUPLICATE HGT IDS: INVALID MANIFEST / REJECT WITHOUT MUTATION
+AUTOMATIC DEDUPLICATION: PROHIBITED
+INCOMING IDENTICAL REPEAT AGAINST ONE VALID EXISTING RECORD: IDEMPOTENT
+COLLECTION-WIDE HGT_ID UNIQUENESS: REQUIRED
+```
+
+No new HGT or manifest-level identity system is introduced. HGT IDs/hashes,
+scenario identity, business hashes, `apply_scenario()`, `ScenarioResult`, the
+protected path, and runtime isolation remain unchanged. Supplier, Quality,
+Capacity, F8-R1, R2, R3, C02, and C03 are not reopened. PostgreSQL, C04-H, and
+C05 are not prerequisites for C04-G; no new dependency is required. This
+documentation clarification neither implements nor authorizes C04-G, C04-H,
+C05, or Week 3.
+
 ## 15A.9 Scope boundaries and implementation sequence
 
 C04 may create legitimate raw operational facts but must not materialize

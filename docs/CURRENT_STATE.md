@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-G-A1-R1 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-G-A1-R2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. W02-C04-F remains CLOSED / VERIFIED / GITHUB SYNCHRONIZED; Capacity Surge remains IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED. ChatGPT/human ownership resolved the two C04-G-A1 artifact-policy blockers; G-A2 records only those authorized contract decisions. C04-G, C04-H, and C05 implementation have NOT started. Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 22; earlier checkpoint states and next-step labels remain historical records. Week 2 is not COMPLETE. / 历史已关闭检查点及 C04-F 状态保持不变。ChatGPT/人工已解决 G-A1 的两项制品策略阻塞，G-A2 仅记录已授权的契约决策，不授权实现。C04-G、C04-H、C05 尚未实现；Week 3 尚未授权或开始。当前状态以第 10、22 节为准，历史记录保留；Week 2 尚未完成。
+> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. W02-C04-F remains CLOSED / VERIFIED / GITHUB SYNCHRONIZED; Capacity Surge remains IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED. After G-A2, G-A1-R1 stopped safely on existing identical-duplicate HGT policy. G-A3 records the supplied ChatGPT/human uniqueness decision only; it does not authorize C04-G implementation. C04-G, C04-H, and C05 have NOT started. Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 23; earlier checkpoint states and next-step labels remain historical records. Week 2 is not COMPLETE. / 历史已关闭检查点及 C04-F 状态保持不变。G-A2 后，G-A1-R1 因现有清单中相同 HGT 重复项策略不明确而安全停止。G-A3 仅记录 ChatGPT/人工批准的身份唯一性决策，不授权 C04-G 实现。C04-G、C04-H、C05 尚未开始；Week 3 尚未授权或开始。当前状态以第 10、23 节为准，历史记录保留；Week 2 尚未完成。
 
 ---
 
@@ -241,7 +241,7 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-G-A2 — Protected HGT Manifest Structure and Existing-File Policy Freeze
+**Current Gate:** W02-C04-G-A3 — Existing HGT Identity Uniqueness Policy Freeze
 **Status:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
 
 **W02-G0:** `PASS`
@@ -291,23 +291,27 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-F:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
-**W02-C04-G-A1:** `BLOCKED — RESOLVED BY A2 CONTRACT DECISIONS`
+**W02-C04-G-A1:** `BLOCKED — RESOLVED BY A2 EXCEPT FOR THE LATER R1 RESIDUAL AUDIT`
 
 **W02-C04-G-A2:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
 
-**W02-C04-G:** `NOT STARTED`
+**W02-C04-G-A1-R1:** `BLOCKED SAFELY — EXISTING IDENTICAL-DUPLICATE POLICY; RESIDUAL CLOSED BY G-A3`
+
+**W02-C04-G-A3:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
+
+**W02-C04-G:** `NOT STARTED / NOT AUTHORIZED BY THIS DOCUMENTATION TASK`
 
 **W02-C04-H:** `NOT STARTED`
 
 **W02-C05:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C04-G-A1-R1 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C04-G-A1-R2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
 **Reviewed Implementation Commit:** `0e58880aaada7c393ee6ea1e185cf295884d96c7`
 
-**Contract Blockers:** `NONE`
+**Contract Blockers:** `A1-R1 RESIDUAL CLOSED BY G-A3; FINAL AUTHORIZATION RE-REVIEW PENDING`
 
 Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
@@ -973,3 +977,74 @@ Week 3: NOT AUTHORIZED / NOT STARTED
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C04-G-A1-R1 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
+
+---
+
+## 23. W02-C04-G-A3 Existing HGT Identity Uniqueness Policy Freeze
+
+**W02-C04-G-A3:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
+
+**A1-R1 Residual Blocker:** `CLOSED BY G-A3 CONTRACT DECISION`
+
+Baseline verified on 2026-09-16: clean feature branch
+`feat/w02-industrial-data-foundation`; local, tracking, direct remote, and
+Draft PR #5 HEAD matched `6be8d1b793e60a62d33fa3e1cc566590beff43e9`.
+Main/merge base remained `311bad46c40ce365b726c2f7e918c5a65daa2ad9`;
+feature was 14 ahead / 0 behind main and 0 ahead / 0 behind tracking.
+PR #5 was open/draft/not merged with auto-merge disabled.
+
+**Historical safe stop — W02-C04-G-A1-R1:** `BLOCKED SAFELY — RESIDUAL EXISTING IDENTICAL-DUPLICATE POLICY`.
+The read-only review confirmed the G-A2 envelope and incoming-write rules,
+but existing identical duplicate HGT records had no explicit validity outcome.
+It made no repository mutation and granted no implementation authorization.
+Original A1 blockers and the G-A2 freeze remain recorded in Section 22;
+Sections 11–22 are preserved as historical evidence.
+
+ChatGPT/human ownership now supplies only the residual uniqueness decision,
+recorded as G-A3-D1–D4 in data-contract Section 15A.8.2. Existing identical
+and conflicting duplicate `hgt_id` values both invalidate the manifest.
+Validate the whole existing collection before incoming-record logic; reject
+duplicates without integration, deduplication, repair, or replacement, leaving
+the original artifact byte-for-byte unchanged. Do not create a temporary
+repaired collection for publication. Diagnostic/in-memory parsing is allowed
+without mutating repository, business, or scenario state.
+
+A valid manifest has only the top-level `records` field, zero or more complete
+valid 15-field HGT records, unique IDs, and lexicographic `(scenario_id, hgt_id)`
+ordering when canonically published. Uniqueness is validity, not normalization.
+Incoming identical content remains idempotent for a valid collection with
+exactly one matching record; conflicting incoming content rejects unchanged.
+
+```text
+EXISTING IDENTICAL DUPLICATE HGT IDS: REJECT WITHOUT MUTATION
+EXISTING CONFLICTING DUPLICATE HGT IDS: REJECT WITHOUT MUTATION
+COLLECTION-WIDE HGT_ID UNIQUENESS: REQUIRED
+AUTOMATIC DEDUPLICATION: PROHIBITED
+INCOMING IDENTICAL REPEAT: IDEMPOTENT WHEN EXISTING MANIFEST IS OTHERWISE VALID AND CONTAINS EXACTLY ONE MATCHING RECORD
+C04-G implementation: NOT STARTED / NOT AUTHORIZED BY THIS DOCUMENTATION TASK
+C04-H: NOT STARTED
+C05: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+No new HGT or manifest-level identity algorithm is introduced. HGT IDs/hashes,
+scenario identity, business hashes, protected-path/runtime isolation,
+`apply_scenario()`, and `ScenarioResult` remain unchanged. Supplier, Quality,
+Capacity, F8-R1, R2/R3, C02, and C03 are not reopened; C04-F remains closed.
+PostgreSQL, C04-H, and C05 are not C04-G prerequisites; no dependency is required.
+The accepted mutable-detached-row and uv cache-access limitations remain.
+
+This checkpoint changes only the data contract, Sprint Spec, and current-state
+documentation. No serializer, tests, manifest, source/schema/migration,
+dependency, Docker, or CI change is authorized. On 2026-09-16, documentation
+validation passed: exact three-file scope, whitespace, Markdown fence/structure,
+conflict-marker, accidental-addition and secret-pattern scans, complete diff
+review, and historical checkpoint preservation. The original contract/Sprint
+content outside the new G-A3 sections and current-state Sections 11–22 remain
+unchanged. All 20 zero-ambiguity questions have the supplied answers. After
+these checks, G-A3 transitioned from IN PROGRESS to COMPLETE / VERIFIED.
+No expensive scenario generation or implementation tests were rerun; no
+serializer, test, or protected artifact was created. This contract completion
+does not grant implementation authorization.
+
+**Next Engineering Checkpoint:** CHATGPT W02-C04-G-A1-R2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW

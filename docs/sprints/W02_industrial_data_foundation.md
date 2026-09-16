@@ -494,6 +494,44 @@ No HGT artifact is created by this checkpoint.
 
 ---
 
+### W02-C04-G-A3 — Existing HGT Identity Uniqueness Policy Freeze
+
+**W02-C04-G-A1-R1:** `BLOCKED SAFELY — RESIDUAL EXISTING IDENTICAL-DUPLICATE POLICY`
+
+**W02-C04-G-A3:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
+
+G-A2 resolved the original A1 artifact-policy blockers. The subsequent
+read-only A1-R1 review stopped without repository mutation because existing
+identical duplicate HGT identities had no explicit validity outcome. G-A3
+records the ChatGPT/human decision in data-contract Section 15A.8.2;
+the prior G-A2 checkpoint remains historical evidence.
+
+Documentation validation and the 20-question zero-ambiguity audit passed.
+The A1-R1 residual blocker is closed by G-A3; implementation authorization
+still requires the next review.
+
+A valid manifest has exactly the `records` envelope, zero or more complete
+15-field HGT records, and collection-wide unique `hgt_id` values. Both
+identical and conflicting pre-existing duplicate IDs invalidate the manifest
+and reject before incoming-record integration, preserving original bytes.
+Automatic repair/deduplication, retaining duplicates and continuing, choosing
+or merging duplicates, identity rewriting, migration, and replacement of the
+invalid artifact are prohibited. Uniqueness is validity, not normalization.
+
+Incoming identical repetition remains idempotent only after the existing
+manifest is validated and contains exactly one matching record. Incoming
+conflicting content still rejects unchanged. Canonical record ordering remains
+`(scenario_id, hgt_id)`; no identity, hash, scenario, or business semantics change.
+PostgreSQL, C04-H, and C05 are not C04-G prerequisites; no dependency is added.
+
+No serializer, tests, or protected manifest are added by this documentation
+checkpoint. It grants no C04-G implementation authorization. C04-F stays closed;
+C04-G, C04-H, and C05 remain not started; Week 3 remains not authorized/not started.
+
+**Next checkpoint:** `CHATGPT W02-C04-G-A1-R2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW`
+
+---
+
 ## W02-C05 — Persistence, CLI, Data Quality, Reports
 
 Provide a documented local workflow such as:
