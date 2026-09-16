@@ -435,6 +435,65 @@ A new authorization review is required before C04-F implementation.
 
 ---
 
+### W02-C04-G-A2 — Protected HGT Manifest Artifact-Policy Freeze
+
+W02-C04-G-A1's read-only authorization review stopped on two product-contract
+blockers: manifest cardinality/envelope and existing-file/repeated-write
+behavior. ChatGPT/human ownership resolves both through G-A2-D1–D10 in
+`docs/03_data_contracts.md`, Section 15A.8.1.
+
+The future protected artifact remains
+`data/hidden_ground_truth/scenario_manifest.yaml`: canonical UTF-8 JSON valid
+as YAML 1.2, stable ordering, LF endings, and no wall-clock timestamps or
+PyYAML dependency. The top-level object contains only `records`, a collection
+of complete finalized HGT records with exactly the existing 15 HGT fields.
+No manifest metadata, provenance extension, manifest ID, or manifest hash is
+introduced. Records are ordered lexicographically by `(scenario_id, hgt_id)`;
+existing canonicalization within each HGT remains authoritative.
+
+One explicit future writer invocation receives one finalized HGT record:
+
+- absent file: create a one-record collection;
+- new `hgt_id` in a valid manifest: preserve all existing records, insert,
+  canonical-sort, and publish the entire collection;
+- same `hgt_id`, identical complete semantic record: idempotent, no duplicate;
+- same `hgt_id`, different semantic content: reject without artifact mutation;
+- malformed/incompatible manifest or conflicting duplicate identities: reject
+  without mutation, automatic migration, repair, or coercion.
+
+Invocation order must not affect canonical manifest bytes. Atomic filesystem
+replacement may publish the complete collection but cannot authorize deletion
+of unrelated records. The protected root must resist traversal, symlink escape,
+and unexpected alternate roots; normal Week 2 callers cannot choose arbitrary
+destinations. No source or business dataset may be overwritten.
+
+`apply_scenario()` and `ScenarioResult` remain unchanged, with no automatic
+manifest write. HGT semantic payloads/IDs/hashes, scenario/DatasetVersion
+identities, and business hashes are preserved; whole-file checksums are not
+`hgt_hash`. Evaluation truth remains isolated from business rows, public APIs,
+runtime consumers/images, and operational labels.
+
+Supplier/Quality/Capacity behavior, F8-R1, R2/R3, C02, C03, models, migrations,
+dependencies, Docker/Compose, and CI are not changed by this freeze.
+PostgreSQL is required neither for C04-G implementation nor unit acceptance;
+C04-H is not a prerequisite and retains database-backed acceptance.
+
+```text
+W02-C04-G-A1: BLOCKED — RESOLVED BY A2 CONTRACT DECISIONS
+W02-C04-G-A2: CONTRACT CLARIFICATION COMPLETE / VERIFIED
+C04-G implementation: NOT STARTED
+C04-H: NOT STARTED
+C05: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+This is a documentation-only contract freeze, not implementation authorization.
+No HGT artifact is created by this checkpoint.
+
+**Next checkpoint:** `CHATGPT W02-C04-G-A1-R1 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW`
+
+---
+
 ## W02-C05 — Persistence, CLI, Data Quality, Reports
 
 Provide a documented local workflow such as:

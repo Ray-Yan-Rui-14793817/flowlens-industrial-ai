@@ -1943,7 +1943,7 @@ business hashing, raw rows, public manifests, and all normal
 API/worker/analytics/ML/RAG/LLM runtime paths. The scenario business dataset
 must be analyzable without HGT.
 
-The minimum HGT schema is:
+The exact Week 2 HGT record schema is:
 
 ```text
 schema_version
@@ -2010,6 +2010,115 @@ expected_causal_chain
 affected entity lists
 HGT parameters or causal labels
 ```
+
+### 15A.8.1 G-A2 protected manifest structure and existing-file policy
+
+W02-C04-G-A1 stopped safely on two product decisions: fixed-manifest
+cardinality/envelope and existing-file/repeated-write behavior. The following
+ChatGPT/human-owned G-A2 decisions resolve those two blockers. They freeze the
+future C04-G artifact policy only; no serializer implementation is authorized
+by this documentation checkpoint.
+
+**G-A2-D1 — Collection envelope and exact records.** The artifact remains
+`data/hidden_ground_truth/scenario_manifest.yaml`. Despite its suffix, its
+content is canonical UTF-8 JSON text valid as YAML 1.2, with stable key/list
+ordering, LF endings, and no wall-clock timestamps. No PyYAML dependency or
+separate YAML serialization implementation is authorized.
+
+The manifest is a deterministic collection, not a single-HGT document. Its
+envelope is `{"records": [<complete HGT record>, ...]}` (schematic). The
+top-level object contains exactly one product-defined field: `records`.
+Each item is one complete finalized HiddenGroundTruth representation containing
+exactly the 15 fields listed in Section 15A.8, including `hgt_id` and `hgt_hash`.
+Do not add, remove, reinterpret, or recalculate those fields.
+
+Week 2 adds no manifest metadata: no `generated_at`, `created_at`,
+`manifest_id`, `manifest_hash`, `writer_version`, `tool_version`, debug
+metadata, explanatory text, root-cause text, user labels, or provenance
+extensions. `generated_at` remains DatasetVersion provenance and is absent
+from both the protected HGT record and HGT semantic identity.
+
+**G-A2-D2 — Record ordering.** Before publication, order `records`
+lexicographically by `(scenario_id, hgt_id)`. Ordering must not depend on
+invocation order, filesystem order, dictionary insertion order, process hash
+seed, wall clock, `generated_at`, machine, working directory, or OS path
+separator. Existing HGT canonicalization remains authoritative inside each
+record; no second HGT canonicalizer is authorized.
+
+**G-A2-D3 — Writer input.** One explicit writer invocation takes one finalized
+HiddenGroundTruth input and safely integrates that record into the protected
+collection. Normal `apply_scenario()` never implicitly writes the manifest.
+`apply_scenario()` and `ScenarioResult` remain unchanged; scenario
+implementations must not become aware of manifest collection management.
+
+**G-A2-D4 — Missing file.** If the protected file is absent, create a manifest
+whose `records` collection contains exactly the supplied complete HGT record,
+using the frozen canonical serialization rules.
+
+**G-A2-D5 — New record in a valid manifest.** If a valid manifest exists and
+the incoming `hgt_id` is absent, preserve every existing valid record, add the
+incoming complete record, sort by `(scenario_id, hgt_id)`, deterministically
+serialize the entire resulting manifest, and publish that complete manifest.
+No earlier record may be silently removed because a later scenario is written.
+Supplier followed by Capacity retains both; Capacity followed by Supplier
+must produce semantically and byte-wise equivalent canonical manifest content.
+
+**G-A2-D6 — Identical repeated write.** If the same `hgt_id` is present and the
+incoming complete HGT record is semantically identical, the operation is
+idempotent: no duplicate record, semantic manifest change, identity change,
+HGT hash change, or HGT ID change. The writer may avoid rewriting when
+canonical bytes are already identical; the mandatory outcome is semantic
+idempotence.
+
+**G-A2-D7 — HGT identity collision or inconsistency.** If the same `hgt_id`
+exists but the incoming complete record differs in semantic content, reject
+without mutating the existing manifest. This is an HGT integrity violation.
+Do not replace, mutate, suffix, regenerate, merge fields, create a duplicate,
+or automatically assign a different ID.
+
+**G-A2-D8 — Malformed or incompatible existing manifest.** Reject existing
+content that is not valid canonical-compatible JSON, lacks the required
+top-level `records` collection, contains malformed HGT records or duplicate
+conflicting HGT identities, violates the frozen schema, or cannot be safely
+interpreted under this contract. Do not automatically migrate, repair, coerce,
+or destructively replace it. Failure preserves the original artifact unchanged.
+
+**G-A2-D9 — Non-destructive collection update.** New HGT records never
+destructively replace unrelated existing records. This semantic rule is
+distinct from publication mechanics: a temporary file, validation, and atomic
+filesystem replacement may publish the complete new manifest. Atomic
+replacement does not authorize semantic deletion or replacement of existing
+HGT records. Detailed temporary-file mechanics remain an engineering choice
+subject to these frozen semantics.
+
+**G-A2-D10 — Protected path.** The normal Week 2 path is exactly
+`data/hidden_ground_truth/scenario_manifest.yaml`; arbitrary caller-controlled
+destinations are not permitted. Protect the authorized artifact root against
+path traversal, symlink indirection, and unexpected alternate roots. Never
+overwrite source files, baseline or scenario business datasets, repository
+code, schema files, or migrations.
+
+**Identity preservation.** Serialize existing finalized HGT without changing
+`scenario_id`, the HGT semantic payload, `hgt_hash`, `hgt_id`, DatasetVersion
+identity, or business content hashes. Do not recalculate business semantics
+or introduce a second HGT identity system. A whole-file checksum computed by
+an implementation or external tool is not `hgt_hash`. Week 2 requires no
+manifest-level semantic identity system.
+
+**Business/runtime isolation.** The artifact is evaluation-only and remains
+outside ordinary ORM facts, public business API payloads, runtime scenario
+consumers, API/worker runtime images, baseline/scenario business datasets,
+business hashes, and user-visible operational labels. Add no HGT or
+intervention labels to business data. `ScenarioResult.ground_truth` remains
+logically distinct from `ScenarioResult.dataset`.
+
+**Unchanged implementation boundaries.** C04-G consumes finalized HGT and
+must not reopen Supplier, Quality, or Capacity behavior, F8-R1 identities,
+R2 propagation, R3 zero-delay semantics, scenario mathematics, affected-entity
+semantics, causal relationships, or HGT canonicalization. PostgreSQL is not
+required for C04-G implementation or unit acceptance; C04-H is not a
+prerequisite. Database-backed scenario acceptance remains C04-H. No C02/C03
+change, migration, dependency, or database persistence is authorized.
 
 ## 15A.9 Scope boundaries and implementation sequence
 

@@ -1,5 +1,5 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-15
+**Last Updated / 最后更新:** 2026-09-16
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-G AUTHORIZATION / CONTRACT REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-G-A1-R1 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified; the Data Contract and Sprint Spec remain frozen. W02-C04-F is now CLOSED / VERIFIED / GITHUB SYNCHRONIZED following ChatGPT implementation review PASS and explicit human closeout approval. Capacity Surge is IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED. C04-G, C04-H, and C05 have NOT started. Week 3 remains NOT AUTHORIZED / NOT STARTED. Week 2 must **not** be described as COMPLETE. Current status is recorded in Sections 10 and 21; earlier checkpoint status and next-step labels remain historical records. / 已关闭的历史检查点与冻结契约保持不变。C04-F 已通过 ChatGPT 实现审查并获人工批准，现为 CLOSED / VERIFIED / GITHUB SYNCHRONIZED。C04-G、C04-H、C05 尚未开始；Week 3 尚未授权或开始。当前状态以第 10、21 节为准，早期检查点状态与后续步骤标签作为历史记录保留；不得将 Week 2 描述为 COMPLETE。
+> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. W02-C04-F remains CLOSED / VERIFIED / GITHUB SYNCHRONIZED; Capacity Surge remains IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED. ChatGPT/human ownership resolved the two C04-G-A1 artifact-policy blockers; G-A2 records only those authorized contract decisions. C04-G, C04-H, and C05 implementation have NOT started. Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 22; earlier checkpoint states and next-step labels remain historical records. Week 2 is not COMPLETE. / 历史已关闭检查点及 C04-F 状态保持不变。ChatGPT/人工已解决 G-A1 的两项制品策略阻塞，G-A2 仅记录已授权的契约决策，不授权实现。C04-G、C04-H、C05 尚未实现；Week 3 尚未授权或开始。当前状态以第 10、22 节为准，历史记录保留；Week 2 尚未完成。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-F-C1 — Capacity Surge Final Closeout
-**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+**Current Gate:** W02-C04-G-A2 — Protected HGT Manifest Structure and Existing-File Policy Freeze
+**Status:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
 
 **W02-G0:** `PASS`
 
@@ -291,13 +291,17 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-F:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
+**W02-C04-G-A1:** `BLOCKED — RESOLVED BY A2 CONTRACT DECISIONS`
+
+**W02-C04-G-A2:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
+
 **W02-C04-G:** `NOT STARTED`
 
 **W02-C04-H:** `NOT STARTED`
 
 **W02-C05:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C04-G IMPLEMENTATION AUTHORIZATION / CONTRACT REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C04-G-A1-R1 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
@@ -894,3 +898,78 @@ Week 3: NOT AUTHORIZED / NOT STARTED
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C04-G IMPLEMENTATION AUTHORIZATION / CONTRACT REVIEW
+
+---
+
+## 22. W02-C04-G-A2 Protected HGT Manifest Policy Freeze
+
+**W02-C04-G-A1:** `BLOCKED — RESOLVED BY A2 CONTRACT DECISIONS`
+
+**W02-C04-G-A2:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
+
+Starting checkpoint on 2026-09-16: feature branch
+`feat/w02-industrial-data-foundation`, clean working tree, and matching local,
+tracking, direct remote, and Draft PR #5 HEAD
+`b393c5d955bc8e036289f5aedae2cb04067635b3`. Main/merge base remained
+`311bad46c40ce365b726c2f7e918c5a65daa2ad9`; feature was 13 ahead / 0 behind
+main and 0 ahead / 0 behind tracking. PR #5 was open/draft/not merged with
+auto-merge disabled.
+
+A1 was a read-only authorization review and stopped without changing the
+repository. Its two blockers were fixed-manifest cardinality/envelope and
+existing-file/repeated-write behavior. ChatGPT/human ownership now resolves
+both through G-A2-D1–D10 in data-contract Section 15A.8.1:
+
+- only `records` at the manifest top level, containing complete existing HGT
+  records; no extra metadata or provenance fields;
+- lexicographic record ordering by `(scenario_id, hgt_id)`;
+- one explicit writer invocation receives one finalized HGT;
+- absent file creates a one-record collection;
+- a new HGT ID preserves existing records, inserts, sorts, and publishes;
+- an identical repeated HGT is idempotent without duplicate records;
+- same ID with different semantic content rejects without mutation;
+- malformed/incompatible existing content rejects without repair or mutation;
+- collection updates retain unrelated records even when publication uses
+  atomic filesystem replacement;
+- the fixed protected path rejects traversal, symlink escape, and unexpected
+  alternate roots; arbitrary normal-path destinations are prohibited.
+
+The existing HGT object supplies all 15 record fields and canonical
+targets/affected IDs/causal links. Its semantic payload and HGT IDs/hashes
+remain authoritative; collection ordering introduces no second identity
+system. `generated_at` stays DatasetVersion-only provenance. A whole-file
+checksum is not `hgt_hash`. `apply_scenario()` and `ScenarioResult` do not
+change, and scenario execution never automatically writes the manifest.
+
+Only the data contract, Sprint Spec, and this state record are changed.
+Historical Sections 11–21 remain intact. No source, test, schema/model,
+migration, dependency, Docker/Compose, CI, business persistence, or generated
+artifact is changed. C04-F remains closed and its reviewed implementation
+commit remains `0e58880aaada7c393ee6ea1e185cf295884d96c7`.
+
+The editing state was CONTRACT FREEZE IN PROGRESS. After documentation
+validation on 2026-09-16, the freeze transitioned to COMPLETE / VERIFIED.
+The 14-question zero-ambiguity audit passes: collection/envelope/record
+schema/order, missing/new/identical/conflicting/malformed input behavior,
+non-destructive updates, explicit-only writing, identity preservation, and
+the PostgreSQL/scenario-business boundaries all match the supplied decisions.
+Exactly three authorized documentation files changed. Complete-diff review,
+whitespace, Markdown fences/structure, conflict-marker, accidental debug,
+and secret-pattern scans passed; historical Sections 11–21 were preserved.
+No expensive scenario generation or implementation/infrastructure test suite
+was rerun for this contract-only checkpoint. No HGT artifact was generated.
+
+The accepted mutable-detached-row and uv cache-access limitations remain.
+Protected serialization is still unimplemented; PostgreSQL scenario
+acceptance remains C04-H. Neither PostgreSQL nor C04-H is required before
+C04-G implementation or unit acceptance. This freeze is not implementation
+authorization.
+
+```text
+C04-G implementation: NOT STARTED
+C04-H: NOT STARTED
+C05: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C04-G-A1-R1 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
