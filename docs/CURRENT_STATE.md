@@ -1,5 +1,5 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-16
+**Last Updated / 最后更新:** 2026-09-20
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-G-A1-R2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-G IMPLEMENTATION REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. W02-C04-F remains CLOSED / VERIFIED / GITHUB SYNCHRONIZED; Capacity Surge remains IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED. After G-A2, G-A1-R1 stopped safely on existing identical-duplicate HGT policy. G-A3 records the supplied ChatGPT/human uniqueness decision only; it does not authorize C04-G implementation. C04-G, C04-H, and C05 have NOT started. Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 23; earlier checkpoint states and next-step labels remain historical records. Week 2 is not COMPLETE. / 历史已关闭检查点及 C04-F 状态保持不变。G-A2 后，G-A1-R1 因现有清单中相同 HGT 重复项策略不明确而安全停止。G-A3 仅记录 ChatGPT/人工批准的身份唯一性决策，不授权 C04-G 实现。C04-G、C04-H、C05 尚未开始；Week 3 尚未授权或开始。当前状态以第 10、23 节为准，历史记录保留；Week 2 尚未完成。
+> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. W02-C04-F remains CLOSED / VERIFIED / GITHUB SYNCHRONIZED; Capacity Surge remains IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED. G-A2/G-A3 froze the protected-manifest policy; G-A1-R2 subsequently returned AUTHORIZED / VERIFIED. The explicitly authorized W02-C04-G-I implementation is now IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW, not closed or human-approved. C04-H and C05 have NOT started. Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 24; Sections 11–23 and their next-step labels remain historical records. Week 2 is not COMPLETE. / 历史已关闭检查点及 C04-F 状态保持不变。G-A2/G-A3 冻结受保护清单策略，随后 G-A1-R2 通过实现授权复核。经明确授权的 W02-C04-G-I 已实现并由 Codex 验证，待 ChatGPT 审查，尚未关闭或获得人工批准。C04-H、C05 尚未开始；Week 3 尚未授权或开始。当前状态以第 10、24 节为准，第 11–23 节历史记录保留；Week 2 尚未完成。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-G-A3 — Existing HGT Identity Uniqueness Policy Freeze
-**Status:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
+**Current Gate:** W02-C04-G-I — Protected HGT Serialization / Isolation Implementation
+**Status:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
 
 **W02-G0:** `PASS`
 
@@ -299,19 +299,21 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-G-A3:** `CONTRACT CLARIFICATION COMPLETE / VERIFIED`
 
-**W02-C04-G:** `NOT STARTED / NOT AUTHORIZED BY THIS DOCUMENTATION TASK`
+**W02-C04-G-A1-R2:** `AUTHORIZED / VERIFIED`
+
+**W02-C04-G:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
 
 **W02-C04-H:** `NOT STARTED`
 
 **W02-C05:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C04-G-A1-R2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C04-G IMPLEMENTATION REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
 **Reviewed Implementation Commit:** `0e58880aaada7c393ee6ea1e185cf295884d96c7`
 
-**Contract Blockers:** `A1-R1 RESIDUAL CLOSED BY G-A3; FINAL AUTHORIZATION RE-REVIEW PENDING`
+**Contract Blockers:** `NONE; G-A1-R2 AUTHORIZED / VERIFIED; IMPLEMENTATION REVIEW PENDING`
 
 Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
@@ -1048,3 +1050,137 @@ serializer, test, or protected artifact was created. This contract completion
 does not grant implementation authorization.
 
 **Next Engineering Checkpoint:** CHATGPT W02-C04-G-A1-R2 FINAL IMPLEMENTATION AUTHORIZATION RE-REVIEW
+
+---
+
+## 24. W02-C04-G-I Protected HGT Serialization / Isolation Implementation
+
+**W02-C04-G-A1-R2:** `AUTHORIZED / VERIFIED`
+
+**W02-C04-G-I:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+
+Starting baseline verified on 2026-09-20 after fetching origin: clean branch
+`feat/w02-industrial-data-foundation`; local, tracking, direct remote and
+Draft PR #5 HEAD matched `01dd9a2beaa94ca62476e272aa9d6085e85607a2`.
+Main/merge base remained `311bad46c40ce365b726c2f7e918c5a65daa2ad9`;
+feature was 15 ahead / 0 behind main and 0 ahead / 0 behind tracking.
+PR #5 was open/draft/not merged with auto-merge disabled. The explicit G-I
+request authorized implementation, validation, one commit and a normal push;
+the earlier G-A2/G-A3 documentation checkpoints did not themselves authorize
+implementation. Historical Sections 11–23 remain unchanged.
+
+Implemented only:
+
+- `src/flowlens/data/scenarios/serialization.py`: direct evaluation-only
+  `write_protected_hgt(HiddenGroundTruth)` callable, without a package export
+  or caller-selected output path;
+- `tests/test_hgt_serialization.py`: 84 dedicated independent cases;
+- this current-state record, updated only after successful implementation
+  validation, with the known environment-blocked lock check recorded below.
+
+The fixed source-checkout-relative destination is
+`data/hidden_ground_truth/scenario_manifest.yaml`. The only envelope field is
+`records`; every record contains exactly the frozen 15 HGT fields. Publication
+uses UTF-8 canonical JSON (valid YAML 1.2), sorted keys, `(scenario_id, hgt_id)`
+record order, compact separators, and exactly one terminal LF. No metadata,
+wall-clock values, `generated_at`, public manifest or manifest-level identity
+is added. Tests use isolated temporary roots; no real repository manifest
+was generated or included in the implementation commit scope.
+
+The entire existing collection is validated before incoming-record handling:
+UTF-8/JSON, exact envelope and record shapes, supported schema, existing HGT
+semantic/hash consistency, and collection-wide `hgt_id` uniqueness. Identical
+and conflicting existing duplicate IDs both reject without mutation, repair,
+deduplication or incoming integration. Missing/empty valid collections accept
+the incoming record; new IDs preserve all previous records; identical repeats
+are idempotent; collisions reject. Canonical identical bytes skip replacement.
+Existing noncanonical collection/dictionary ordering may be published in the
+frozen order, but malformed record structures are never normalized into validity.
+
+Integrity checks reuse `HiddenGroundTruth` and `canonical_hgt_payload` as a
+validation witness and require exact complete-record round-trip equality.
+Transport decoding restores existing Decimal/datetime types; it does not
+define another HGT canonicalizer or replace supplied HGT identities. No
+business graph is traversed or persisted. Real finalized Supplier, Quality,
+Capacity combined, arrival-only, queue-only and neutral outputs are covered;
+neutral empty affected maps and causal chains remain empty.
+
+The writer anchors to its source-checkout location rather than CWD. It rejects
+relative/traversing roots, unexpected installed-package layout, symlinks,
+Windows reparse points, hardlinked destinations and nonregular files. Complete
+bytes are written to a temporary sibling, flushed/fsynced, and atomically
+replaced only after path/parent and original-content rechecks. Safe cleanup
+removes temporary siblings on simulated failures. Existing bytes survive read,
+parse, validation, serialization and pre-publication failures. A process-local
+lock serializes calls; detected external changes reject rather than overwrite.
+
+Verification executed with the established `.venv/Scripts` executables:
+
+| Command | Result |
+|---|---|
+| `python -B -m pytest -p no:cacheprovider tests/test_hgt_serialization.py` | 84 passed, 0 failed, 0 skipped, 0 warnings |
+| `python -B -m pytest -p no:cacheprovider tests/test_scenarios.py tests/test_scenario_interventions.py tests/test_capacity_scenario.py tests/test_generation.py` | 89 passed, 0 failed, 0 skipped, 0 warnings |
+| `python -B -m pytest -p no:cacheprovider` | 203 passed, 0 failed, 9 skipped, 1 warning |
+| `ruff check .` | PASS |
+| `mypy .` | PASS, strict configuration, 51 source files |
+| `git diff --check` | PASS |
+| `docker compose config --quiet` | PASS, exit 0; existing Docker config-file access warnings |
+| `flowlens-uv.exe lock --check` | ENVIRONMENT-BLOCKED: uv cache `sdists-v9/.git` access denied |
+
+Focused regression totals are 18 scenario-foundation, 11 Supplier/Quality
+intervention, 41 Capacity and 19 C03 generation tests. All nine full-suite
+skips are the established `FLOWLENS_DATABASE_URL`-dependent integration tests.
+The single warning is the existing Starlette/httpx deprecation. No existing
+test was weakened, disabled, removed or newly skipped. An initial dedicated
+run had one test-guard failure because Windows platform detection opens `NUL`;
+the guard now permits that OS null device while continuing to reject artifact
+writes. Initial new-file lint/type issues were corrected before the successful
+runs above; no frozen behavior was changed to pass validation.
+
+Isolation evidence: independent before/after snapshots preserve baseline and
+scenario business rows, DatasetVersion fields/hashes and HGT semantics.
+Repeated scenario application with different provenance timestamps produces
+the same HGT; neither application nor module imports write a manifest. Fresh
+runtime imports do not import scenario/HGT modules or read protected files.
+API and worker Docker COPY allowlists still contain only uv binaries, project
+metadata and `src`; neither image copies repository `data`. Compose mounts no
+protected HGT into API/worker. No Dockerfile/Compose or `.dockerignore` change
+was necessary; image isolation was checked statically, not by new image builds.
+
+Scope, whitespace, conflict-marker, accidental-debug, secret-pattern and
+artifact audits passed. The test subprocess's `print` is intentional captured
+determinism evidence, not runtime/debug output. No cache, virtual environment,
+coverage output, generated HGT artifact or unexpected archive enters the diff.
+Frozen data/Sprint contracts, C02 models/schema, migrations, dependencies, C03,
+Supplier/Quality/Capacity semantics, F8-R1/R2/R3, `apply_scenario()`,
+`ScenarioResult`, package exports and runtime APIs are unchanged.
+
+Known limitations and boundaries:
+
+- Evaluation callers must coordinate writers across processes and keep the
+  checkout trusted during publication. Portable path/recheck protections and
+  a process-local lock are not an adversarial-filesystem sandbox or a
+  cross-process transactional lock; atomic replacement prevents partial files,
+  not every possible concurrent last-writer race or power-loss scenario.
+- Windows symlink/reparse rejection is tested with portable injected lstat
+  metadata without privileged symlink creation; the hardlink test uses an
+  actual filesystem hardlink. These tests do not claim platform-wide adversarial
+  race proof. Source-checkout-only execution is intentional.
+- Existing detached ORM-row mutability, uv-cache access denial, Docker config
+  warnings and the Starlette warning remain. No dependency workaround was made.
+- PostgreSQL is not required for C04-G unit acceptance and was not accepted
+  here. C04-H database-backed scenario acceptance remains unstarted.
+
+```text
+C04-G: IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW
+C04-G CLOSED: NO
+C04-G CHATGPT REVIEWED / HUMAN APPROVED: NO
+C04-F: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C04-H: NOT STARTED
+C05: NOT STARTED
+Week 3: NOT AUTHORIZED / NOT STARTED
+WEEK 2 COMPLETE: NO
+CONTRACT CONFLICT: NONE
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C04-G IMPLEMENTATION REVIEW
