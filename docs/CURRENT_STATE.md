@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-G IMPLEMENTATION REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-H IMPLEMENTATION AUTHORIZATION / ACCEPTANCE-SCOPE REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. W02-C04-F remains CLOSED / VERIFIED / GITHUB SYNCHRONIZED; Capacity Surge remains IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED. G-A2/G-A3 froze the protected-manifest policy; G-A1-R2 subsequently returned AUTHORIZED / VERIFIED. The explicitly authorized W02-C04-G-I implementation is now IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW, not closed or human-approved. C04-H and C05 have NOT started. Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 24; Sections 11–23 and their next-step labels remain historical records. Week 2 is not COMPLETE. / 历史已关闭检查点及 C04-F 状态保持不变。G-A2/G-A3 冻结受保护清单策略，随后 G-A1-R2 通过实现授权复核。经明确授权的 W02-C04-G-I 已实现并由 Codex 验证，待 ChatGPT 审查，尚未关闭或获得人工批准。C04-H、C05 尚未开始；Week 3 尚未授权或开始。当前状态以第 10、24 节为准，第 11–23 节历史记录保留；Week 2 尚未完成。
+> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. W02-C04-F and W02-C04-G are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. Protected HGT Serialization is IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED after the human owner accepted the independent ChatGPT implementation review PASS for commit 20ec582093c6b6b2640f9e6bd44ae137a2a29d2f and authorized documentation-only final closeout. C04-H and C05 have NOT started; C04-H implementation is not authorized by this closeout. Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 25; Sections 11–24 and their next-step labels remain unchanged historical records. Week 2 remains IN PROGRESS, not COMPLETE. / 历史已关闭检查点保持有效。C04-F、C04-G 已关闭、验证并同步 GitHub。人工接受独立 ChatGPT 实现审查 PASS 并授权仅文档最终关闭，受保护 HGT 序列化现已实现、Codex 验证、ChatGPT 审查及人工批准。C04-H、C05 尚未开始，本次关闭不授权 C04-H 实现；Week 3 尚未授权或开始。当前状态以第 10、25 节为准，第 11–24 节历史记录保持不变；Week 2 仍在进行中，尚未完成。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-G-I — Protected HGT Serialization / Isolation Implementation
-**Status:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+**Current Gate:** W02-C04-G-C1 — Final Closeout
+**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-G0:** `PASS`
 
@@ -301,21 +301,30 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-G-A1-R2:** `AUTHORIZED / VERIFIED`
 
-**W02-C04-G:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+**W02-C04-G ChatGPT Implementation Review:** `PASS`
+
+**W02-C04-G Human Closeout Authorization:** `AUTHORIZED`
+
+**W02-C04-G:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**Protected HGT Serialization:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
+
+**W02-C04-G Reviewed Implementation Commit:** `20ec582093c6b6b2640f9e6bd44ae137a2a29d2f`
 
 **W02-C04-H:** `NOT STARTED`
 
 **W02-C05:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C04-G IMPLEMENTATION REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C04-H IMPLEMENTATION AUTHORIZATION / ACCEPTANCE-SCOPE REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
-**Reviewed Implementation Commit:** `0e58880aaada7c393ee6ea1e185cf295884d96c7`
+**W02-C04-F Reviewed Implementation Commit:** `0e58880aaada7c393ee6ea1e185cf295884d96c7`
 
-**Contract Blockers:** `NONE; G-A1-R2 AUTHORIZED / VERIFIED; IMPLEMENTATION REVIEW PENDING`
+**Contract Blockers:** `NONE`
 
-Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
+Week 2 remains `IN PROGRESS`. C04-H implementation is not authorized by this
+closeout. Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
 ---
 
@@ -1184,3 +1193,107 @@ CONTRACT CONFLICT: NONE
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C04-G IMPLEMENTATION REVIEW
+
+---
+
+## 25. W02-C04-G-C1 Final Closeout
+
+**W02-C04-G:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**Protected HGT Serialization:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
+
+**Reviewed Implementation Commit:** `20ec582093c6b6b2640f9e6bd44ae137a2a29d2f`
+
+**ChatGPT Implementation Review:** `PASS`
+
+**Human Closeout Authorization:** `AUTHORIZED`
+
+**Review Findings:** `BLOCKER: NONE / HIGH: NONE / MEDIUM: NONE`
+
+**Contract Blocker:** `NONE`
+
+On 2026-09-20, the human owner accepted the independent ChatGPT implementation
+review PASS for the exact commit above and authorized documentation-only
+final closeout. This records that supplied review/approval; it does not
+reimplement, refactor or independently rerun the implementation review.
+Historical Sections 11–24, including the original pending-review implementation
+checkpoint and its evidence, remain exactly unchanged.
+
+Starting baseline verified after fetching origin: clean branch
+`feat/w02-industrial-data-foundation`; local HEAD, tracking HEAD, direct remote
+feature HEAD and Draft PR #5 HEAD all matched the reviewed implementation SHA.
+Main and merge base remained `311bad46c40ce365b726c2f7e918c5a65daa2ad9`;
+feature was 16 ahead / 0 behind main and 0 ahead / 0 behind tracking.
+PR #5 was open/draft/not merged with auto-merge disabled.
+
+Reviewed capabilities accepted at closeout:
+
+- explicit evaluation-only writer at the fixed protected destination
+  `data/hidden_ground_truth/scenario_manifest.yaml`;
+- frozen collection envelope with exactly 15 fields per HGT record;
+- collection-wide `hgt_id` uniqueness, rejection of existing identical and
+  conflicting duplicates, idempotent incoming identical repeats, and no
+  automatic deduplication;
+- reuse of existing HGT identity/hash semantics and deterministic canonical
+  UTF-8 JSON serialization;
+- protected-path safeguards, atomic publication and failure preservation;
+- business-state immutability and no implicit scenario writes;
+- runtime HGT isolation and API/worker build isolation;
+- Supplier, Quality and Capacity compatibility without C02/C03, schema,
+  migration or dependency changes.
+
+Accepted non-blocking limitations remain explicit:
+
+- cross-process writer coordination is the caller's responsibility;
+- this implementation is not an adversarial-filesystem sandbox;
+- directory fsync/full power-loss durability is not guaranteed;
+- Windows reparse coverage is primarily injected/static;
+- uv lock verification remains environment-blocked by the known cache-access
+  issue, with no dependency or lock workaround.
+
+The human owner accepts these limitations; they do not block C04-G closeout.
+
+Authoritative prior implementation evidence from the reviewed commit, **not
+rerun for this documentation-only closeout**:
+
+| Prior implementation validation | Reviewed result |
+|---|---|
+| Dedicated HGT serialization tests | 84 passed |
+| Focused scenario/generation regression | 89 passed |
+| Full suite | 203 passed, 9 established database-dependent skips, 1 existing warning |
+| Ruff | PASS |
+| Strict mypy | PASS |
+| Docker Compose configuration | PASS |
+| uv lock verification | ENVIRONMENT-BLOCKED: known cache-access limitation |
+
+Closeout validation is documentation-only: `git diff --check`, exact one-file
+changed-path scope, Markdown fence/heading structure, conflict-marker,
+accidental-debug/addition and secret-pattern scans, historical Sections 11–24
+preservation, and comparison against the reviewed implementation commit.
+Only `docs/CURRENT_STATE.md` changes. The serializer and its tests, Supplier,
+Quality, Capacity, `application.py`, `ground_truth.py`, C02, C03, migrations,
+dependencies, Dockerfiles, Compose, frozen data contract and Sprint Spec remain
+unchanged. No generated protected manifest or other artifact is added.
+
+The authorized closeout uses one documentation-only commit and a normal push
+to the existing feature branch, followed by local/tracking/direct-remote/PR
+HEAD synchronization verification. No amend, squash, force push, merge,
+auto-merge enablement or draft-to-ready transition is authorized. The closeout
+commit SHA and final synchronization result are reported in the task handoff;
+the reviewed implementation SHA above remains the immutable review reference.
+
+```text
+C04-G: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+PROTECTED HGT SERIALIZATION: IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED
+CHATGPT IMPLEMENTATION REVIEW: PASS
+HUMAN CLOSEOUT AUTHORIZATION: AUTHORIZED
+CONTRACT BLOCKER: NONE
+C04-F: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C04-H: NOT STARTED
+C04-H IMPLEMENTATION AUTHORIZED BY THIS CLOSEOUT: NO
+C05: NOT STARTED
+Week 2: IN PROGRESS
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C04-H IMPLEMENTATION AUTHORIZATION / ACCEPTANCE-SCOPE REVIEW
