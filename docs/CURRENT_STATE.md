@@ -1,5 +1,5 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-20
+**Last Updated / 最后更新:** 2026-09-21
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-H IMPLEMENTATION AUTHORIZATION / ACCEPTANCE-SCOPE REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-H IMPLEMENTATION REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. W02-C04-F and W02-C04-G are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. Protected HGT Serialization is IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED after the human owner accepted the independent ChatGPT implementation review PASS for commit 20ec582093c6b6b2640f9e6bd44ae137a2a29d2f and authorized documentation-only final closeout. C04-H and C05 have NOT started; C04-H implementation is not authorized by this closeout. Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 25; Sections 11–24 and their next-step labels remain unchanged historical records. Week 2 remains IN PROGRESS, not COMPLETE. / 历史已关闭检查点保持有效。C04-F、C04-G 已关闭、验证并同步 GitHub。人工接受独立 ChatGPT 实现审查 PASS 并授权仅文档最终关闭，受保护 HGT 序列化现已实现、Codex 验证、ChatGPT 审查及人工批准。C04-H、C05 尚未开始，本次关闭不授权 C04-H 实现；Week 3 尚未授权或开始。当前状态以第 10、25 节为准，第 11–24 节历史记录保持不变；Week 2 仍在进行中，尚未完成。
+> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. C04-F and C04-G remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-H is IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW after the authorized implementation and R3 interruption recovery; it is NOT CLOSED, ChatGPT reviewed, or human approved. C05 remains NOT STARTED; Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 26. Sections 11–25 and their next-step labels remain unchanged historical records. Week 2 remains IN PROGRESS, not COMPLETE. / 历史已关闭检查点保持有效。C04-H 已实现并通过 Codex 验证，等待独立 ChatGPT 实现审查，尚未关闭或获得人工批准。C04-F、C04-G 保持关闭；C05 尚未开始，Week 3 尚未授权或开始。当前状态以第 10、26 节为准，第 11–25 节历史记录保持不变。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-G-C1 — Final Closeout
-**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+**Current Gate:** W02-C04-H-I-R3 — PostgreSQL Acceptance Implementation Recovery
+**Status:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
 
 **W02-G0:** `PASS`
 
@@ -311,11 +311,11 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-G Reviewed Implementation Commit:** `20ec582093c6b6b2640f9e6bd44ae137a2a29d2f`
 
-**W02-C04-H:** `NOT STARTED`
+**W02-C04-H:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
 
 **W02-C05:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C04-H IMPLEMENTATION AUTHORIZATION / ACCEPTANCE-SCOPE REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C04-H IMPLEMENTATION REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
@@ -323,8 +323,9 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **Contract Blockers:** `NONE`
 
-Week 2 remains `IN PROGRESS`. C04-H implementation is not authorized by this
-closeout. Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
+Week 2 remains `IN PROGRESS`. C04-H requires independent ChatGPT implementation
+review and subsequent human closeout authorization. It is not CLOSED.
+Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
 ---
 
@@ -1297,3 +1298,173 @@ Week 3: NOT AUTHORIZED / NOT STARTED
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C04-H IMPLEMENTATION AUTHORIZATION / ACCEPTANCE-SCOPE REVIEW
+
+---
+
+## 26. W02-C04-H-I PostgreSQL Scenario Acceptance Implementation
+
+**Recovery Task:** `W02-C04-H-I-R3`
+
+**W02-C04-H:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+
+**C04-H CLOSED / CHATGPT REVIEWED / HUMAN APPROVED:** `NO`
+
+The authorized implementation was recovered from the interrupted working tree,
+not restarted. The committed baseline remained
+`df754af4b7321c268106995b00a4959303a5f155` on
+`feat/w02-industrial-data-foundation`, synchronized with tracking, the direct
+remote and open Draft PR #5. Main and merge base remained
+`311bad46c40ce365b726c2f7e918c5a65daa2ad9`. The interrupted work consisted only
+of the untracked C04-H integration module (1,103 lines before recovery), not
+generated fixtures or runtime artifacts. Ignored environments/caches were not
+staged or deleted. No prior checkpoint was reopened.
+
+Implementation scope is one new `tests/integration/test_scenario_database.py`
+and this state record. Fourteen database tests cover the unchanged C03 TEST
+baseline, ordinary and targeted Supplier/Quality cases, all four Capacity
+modes on ordinary and targeted data, and repeated/failing transaction cleanup.
+The small targeted fixture has three coherent order threads, an out-of-window
+control, a material shortage, nullable/non-null inspection parents, fractional
+timestamps/Decimal quantities, existing/new Rework, and split deliveries.
+
+The private test insertion helper accepts only `GeneratedDataset`, inserts its
+existing DatasetVersion then batches business rows in C03's dependency-safe
+table order, and has no production loader, HGT parameter, replacement policy,
+CLI or persistence API. Baseline and scenario use separate rollback-only
+transactions. Tables must be empty before insertion; unexpected data is
+rejected, never truncated. Successful reads and both injected assertion and
+actual PostgreSQL PK failures are followed by rollback/no-residue verification.
+Reordered insertion and descending database reads preserve canonical results.
+
+Database reads reconstruct existing mapped objects and reuse the unchanged C03
+canonicalizer/hash. All nine mapped DatasetVersion fields round-trip, including
+`generator_version`, `row_count_total`, `generated_at`, ownership and hash;
+no nonexistent `schema_version`/`row_count` columns were added. Timestamp
+instants and microseconds survive; Decimal values remain exact. Neutral
+Capacity is compared semantically excluding only ownership, and reproduces
+its own finalized hash, not the baseline hash.
+
+PostgreSQL reflection confirms the frozen 16 PKs, 34 FKs, 3 explicit UQs and
+45 named checks. Valid datasets exercise actual SQL constraints and column
+capacities, including all eight Capacity-created 40/48-character ID families.
+Separate assertions verify parent ownership, WorkOrder/Operation/inspection/
+Rework relationships, BOM-derived material quantities, inspection balances,
+Rework bounds/chronology and cumulative delivery quantities. These cross-row
+assertions are not misrepresented as database check constraints.
+
+Supplier acceptance independently verifies capped late counts, business-day
+receipt shifts, shortage eligibility and exact actual-chain propagation.
+Quality acceptance verifies failed/reworked populations, PASS-to-FAIL values,
+parent references, duration scaling/whole-second ceiling, completion and
+delivery propagation. Capacity verifies added counts, procurement, queue
+accumulation and propagation, processing-duration preservation and all four
+R3 modes. Created-thread checks identify persisted source templates from
+unchanged business fields and independently check clone topology/cardinalities
+and timing; they do not merely compare database output with generator output
+or duplicate scenario hashing/ranking. Existing broader Capacity unit tests
+retain multi-WorkOrder and binding-tie coverage. HGT remains an in-memory
+evaluation witness; insertion cannot publish it. Protected-writer guards,
+actual affected-map comparisons and schema checks confirm separation.
+
+### Disposable PostgreSQL safety and cleanup
+
+The R2-created container was verified and reused by R3:
+
+- name: `flowlens-c04h-postgres-3f2ec57f4b`;
+- container ID: `c7faf13ba4fbba5eb6472dff9e1b0ea0950bb420b281ba1091479cb606e2383c`;
+- image: `pgvector/pgvector:0.8.6-pg17-bookworm`;
+- PostgreSQL `17.11`, pgvector `0.8.6`;
+- database: `flowlens_c04h_test`, environment: `test`;
+- endpoint: `127.0.0.1:50558`, dynamically assigned localhost-only port;
+- data: tmpfs at `/var/lib/postgresql/data`, no attached volumes;
+- existing Alembic head: `0002_industrial_data_foundation`.
+
+Only this disposable database received migrations and integration tests,
+including the existing C02 downgrade/re-upgrade regression. Its credentials
+were ephemeral environment values and were not added to repository files.
+The normal `flowlens-postgres-data` volume was never attached, reset or removed.
+
+After all PostgreSQL validation, an independent query confirmed all 16 domain
+tables empty. Only the exact verified C04-H container and its tmpfs state were
+stopped/removed. The task-owned pytest temporary directory was also removed.
+Development-volume metadata and the IDs/status/start/finish timestamps of all
+three pre-existing development containers were unchanged across cleanup.
+Docker Server remained available, `docker ps` succeeded, and Compose config
+validated afterward. No protected manifest existed before or after the task.
+
+### Executed validation
+
+Commands used the established `.venv/Scripts` tools, with pytest flags
+`-B -m pytest -p no:cacheprovider ... -q`. PostgreSQL runs used only the
+verified disposable database environment. Results below are final successful
+runs; deselected tests are not skipped tests.
+
+| Gate / command target | Passed | Failed/errors | Skipped | Warnings |
+|---|---:|---:|---:|---:|
+| C04-H module, recovered first-failure run (`-x`) | 14 | 0 | 0 | 0 |
+| C04-H module, complete run without `-x` | 14 | 0 | 0 | 0 |
+| C02 manufacturing schema integration | 4 | 0 | 0 | 0 |
+| C03 generation database integration | 1 | 0 | 0 | 0 |
+| Existing database + API integration modules | 7 | 0 | 0 | 1 |
+| Scenario foundation | 18 | 0 | 0 | 0 |
+| Supplier/Quality intervention suite | 11 | 0 | 0 | 0 |
+| Capacity suite | 41 | 0 | 0 | 0 |
+| Protected HGT serialization | 84 | 0 | 0 | 0 |
+| C03 generation | 19 | 0 | 0 | 0 |
+| Full non-integration suite (23 deselected) | 203 | 0 | 0 | 1 |
+| Integration suite (203 deselected) | 23 | 0 | 0 | 1 |
+| Full PostgreSQL-enabled suite | 226 | 0 | 0 | 1 |
+
+Ruff `check .`, strict `mypy .` (52 source files), `git diff --check`, and
+`docker compose config --quiet` passed. Existing database connectivity,
+pgvector, Alembic and real-database `/health` tests passed; worker behavior
+tests passed in the complete suite. Runtime/Docker/Compose/CI files are
+unchanged. No fresh full Compose image-build/startup smoke was claimed.
+
+H01–H32 and H34–H35 PASS. H33 is **ENVIRONMENT-BLOCKED — KNOWN UV CACHE ACCESS
+LIMITATION**, expressly permitted by the task: both frozen sync (R2) and
+`flowlens-uv.exe lock --check` (R3) failed to access the existing uv cache
+`sdists-v9/.git`. No dependency, lockfile or environment replacement workaround
+was made.
+
+Initial failures and resolved limitations are retained as evidence:
+
+- R2 found a new-test datetime arithmetic error; adding the parenthesized
+  completion delta corrected the assertion. Capacity source was unchanged.
+- R3 restored the missing `Mapping` typing import left by the interruption;
+  final lint/type checks pass without suppressions.
+- The first PostgreSQL-enabled full run had 146 passed, 80 setup errors and
+  one warning because Windows denied access to shared `pytest-of-C` temporary
+  storage. This was an environment/setup failure, not HGT behavior or schema
+  failure. The complete unchanged suite was rerun successfully with a fresh,
+  task-owned `--basetemp` directory (226 passed, zero skips), then that directory
+  was removed. Shared temporary directories/ACLs were not modified.
+- The remaining warning is the existing Starlette/httpx deprecation. No new
+  dependency was added to suppress it.
+- Acceptance targets the pinned PostgreSQL 17 image, not a cross-version or
+  concurrent production-loading guarantee. The created-thread oracle uses
+  the fixture's one-WorkOrder/one-inspection topology; existing unit regressions
+  cover broader frozen topologies. No C05 functionality is supplied.
+
+Scope audit: C02 models/schema, both migrations, C03 generation/hash,
+Supplier/Quality/Capacity source, HGT foundation and serializer, dependencies,
+API/worker, Dockerfiles, Compose, CI and frozen data/Sprint contracts remain
+unchanged. Historical Sections 11–25 are preserved. No secrets, manifests,
+caches, virtual environments, logs, dumps, archives or binary artifacts enter
+the commit. The authorized workflow is one new implementation commit and a
+normal feature-branch push, with final local/tracking/remote/PR SHA equality
+reported in the task handoff; no amend, rebase, force push or PR-state change.
+
+```text
+C04-H: IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW
+C04-H CLOSED: NO
+C04-H CHATGPT REVIEWED / HUMAN APPROVED: NO
+C04-F: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C04-G: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C05: NOT STARTED
+Week 2: IN PROGRESS
+Week 3: NOT AUTHORIZED / NOT STARTED
+CONTRACT CONFLICT: NONE
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C04-H IMPLEMENTATION REVIEW
