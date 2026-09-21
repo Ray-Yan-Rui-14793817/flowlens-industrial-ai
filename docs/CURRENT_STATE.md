@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C04-H IMPLEMENTATION REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C05 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. C04-F and C04-G remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C04-H is IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW after the authorized implementation and R3 interruption recovery; it is NOT CLOSED, ChatGPT reviewed, or human approved. C05 remains NOT STARTED; Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 26. Sections 11–25 and their next-step labels remain unchanged historical records. Week 2 remains IN PROGRESS, not COMPLETE. / 历史已关闭检查点保持有效。C04-H 已实现并通过 Codex 验证，等待独立 ChatGPT 实现审查，尚未关闭或获得人工批准。C04-F、C04-G 保持关闭；C05 尚未开始，Week 3 尚未授权或开始。当前状态以第 10、26 节为准，第 11–25 节历史记录保持不变。
+> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. C04-F, C04-G and C04-H are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. PostgreSQL Scenario Acceptance is IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED after the human owner accepted the independent ChatGPT implementation review PASS for commit 97d837ec9d0f13a7735526174c867a9d2f4d1e3b and authorized documentation-only final closeout. C05 remains NOT STARTED and requires ChatGPT implementation authorization / scope review first; this closeout does not authorize C05 implementation. Week 2 remains IN PROGRESS, not COMPLETE; Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 27. Sections 11–26 and their next-step labels remain unchanged historical records. / 历史已关闭检查点保持有效。人工接受独立 ChatGPT 实现审查 PASS 并授权仅文档最终关闭，C04-H 已关闭、验证并同步 GitHub；C04-F、C04-G 保持关闭。C05 尚未开始，须先进行 ChatGPT 实现授权与范围审查；本次关闭不授权 C05 实现。Week 2 仍在进行中，Week 3 尚未授权或开始。当前状态以第 10、27 节为准，第 11–26 节历史记录保持不变。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-H-I-R3 — PostgreSQL Acceptance Implementation Recovery
-**Status:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+**Current Gate:** W02-C04-H-C1 — Final Closeout
+**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-G0:** `PASS`
 
@@ -311,11 +311,19 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-G Reviewed Implementation Commit:** `20ec582093c6b6b2640f9e6bd44ae137a2a29d2f`
 
-**W02-C04-H:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+**W02-C04-H:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**PostgreSQL Scenario Acceptance:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
+
+**W02-C04-H Reviewed Implementation Commit:** `97d837ec9d0f13a7735526174c867a9d2f4d1e3b`
+
+**W02-C04-H ChatGPT Implementation Review:** `PASS / VERIFIED`
+
+**W02-C04-H Human Closeout Authorization:** `AUTHORIZED`
 
 **W02-C05:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C04-H IMPLEMENTATION REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C05 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
@@ -323,8 +331,9 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **Contract Blockers:** `NONE`
 
-Week 2 remains `IN PROGRESS`. C04-H requires independent ChatGPT implementation
-review and subsequent human closeout authorization. It is not CLOSED.
+Week 2 remains `IN PROGRESS`. C04-H is closed after the accepted ChatGPT review
+and explicit human authorization. C05 remains required before Week 2 closeout;
+its implementation is not authorized by this documentation-only task.
 Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
 ---
@@ -1468,3 +1477,175 @@ CONTRACT CONFLICT: NONE
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C04-H IMPLEMENTATION REVIEW
+
+---
+
+## 27. W02-C04-H-C1 Final Closeout
+
+**Task ID:** `W02-C04-H-C1`
+
+**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+
+**PostgreSQL Scenario Acceptance:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
+
+**Reviewed Implementation Commit:** `97d837ec9d0f13a7735526174c867a9d2f4d1e3b`
+
+**ChatGPT Implementation Review:** `PASS / VERIFIED`
+
+**Human Closeout Authorization:** `AUTHORIZED`
+
+**Review Findings:** `BLOCKER: NONE / HIGH: NONE / MEDIUM: NONE`
+
+**LOW:** `ONE ACCEPTED NON-BLOCKING TEST-HARDENING OBSERVATION`
+
+**Contract Blocker:** `NONE`
+
+On 2026-09-21, the human owner accepted the independent ChatGPT C04-H
+implementation review PASS for the exact commit above and explicitly
+authorized this documentation-only final closeout. This records the supplied
+review and human approval; it does not rerun or reinterpret that review.
+Sections 11–26 remain unchanged historical evidence, including Section 26's
+`IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW` state. Section 27 and
+the top-level/current gate now define the authoritative closeout state.
+
+Starting baseline: clean branch `feat/w02-industrial-data-foundation`, with
+local, tracking, direct remote feature and Draft PR #5 HEAD all equal to the
+reviewed implementation SHA. Remote main and merge base remained
+`311bad46c40ce365b726c2f7e918c5a65daa2ad9`; feature was 18 ahead / 0 behind
+main and 0 ahead / 0 behind tracking. No staged/untracked files or active
+merge, rebase or cherry-pick existed. PR #5 was open/draft/not merged with
+auto-merge disabled. The reviewed implementation's parent is
+`df754af4b7321c268106995b00a4959303a5f155`; that exact implementation diff
+contains only `tests/integration/test_scenario_database.py` and this state
+record. The implementation SHA remains the immutable review reference.
+
+### Accepted review and capabilities
+
+| Accepted ChatGPT review dimension | Result |
+|---|---|
+| Contract conformance | PASS |
+| PostgreSQL scenario acceptance | PASS |
+| C02 / Alembic compatibility | PASS |
+| Supplier | PASS |
+| Quality | PASS |
+| Capacity combined | PASS |
+| Capacity arrival-only | PASS |
+| Capacity queue-only | PASS |
+| Capacity neutral | PASS |
+| DatasetVersion round-trip | PASS |
+| Canonical hash round-trip | PASS |
+| Timestamp / Decimal round-trip | PASS |
+| HGT / database isolation | PASS |
+| Transaction isolation | PASS |
+
+Accepted capabilities are real PostgreSQL acceptance for the unchanged C03
+baseline; Supplier and Quality round-trips with directional-effect checks;
+all four Capacity modes; and compatibility with the existing PostgreSQL
+schema/constraints and Alembic chain. DatasetVersion and canonical content
+hashes round-trip using existing C03 canonicalization. Timezone-aware
+timestamp instants/microseconds, exact Decimal values, generated Capacity
+ID widths and independently verified created-thread persistence are accepted.
+Baseline/scenario transactions are rollback-only and isolated; real PostgreSQL
+failure rollback leaves no residue. HGT remains separate from database facts.
+This is a compatibility/acceptance layer, not a C05 production persistence
+workflow or a reimplementation of scenario semantics.
+
+```text
+C04-F REOPEN REQUIRED: NO
+C04-G REOPEN REQUIRED: NO
+C02 CHANGE REQUIRED: NO
+MIGRATION REQUIRED: NO
+C03 CHANGE REQUIRED: NO
+DEPENDENCY CHANGE REQUIRED: NO
+C05 STARTED: NO
+WEEK 3 STARTED: NO
+```
+
+### Authoritative prior implementation evidence
+
+The following results belong to the reviewed C04-H execution recorded in
+Section 26. They were **not rerun during this documentation-only closeout**.
+
+| Prior implementation validation | Accepted result |
+|---|---|
+| C04-H module | 14 passed |
+| C02 manufacturing schema integration | 4 passed |
+| C03 generation database integration | 1 passed |
+| Existing database/API integration | 7 passed |
+| Scenario foundation | 18 passed |
+| Supplier/Quality | 11 passed |
+| Capacity | 41 passed |
+| HGT serialization | 84 passed |
+| Generation | 19 passed |
+| Full non-integration | 203 passed |
+| Integration-only | 23 passed |
+| Full PostgreSQL-enabled suite | 226 passed, 0 failed, 0 skipped, 1 existing warning |
+| Ruff | PASS |
+| Strict mypy | PASS, 52 source files |
+| Compose config | PASS |
+| git diff --check | PASS |
+| uv lock check / H33 | ENVIRONMENT-BLOCKED — KNOWN UV CACHE ACCESS LIMITATION |
+
+H33 remains an accepted non-blocking environment limitation because dependencies
+and `uv.lock` are unchanged; no dependency or environment workaround was made.
+The existing Starlette/httpx deprecation warning is also non-blocking.
+No fresh full Compose build/startup smoke was claimed by C04-H or this closeout.
+The pinned PostgreSQL 17 and targeted-fixture coverage boundaries, and the
+resolved initial failures, remain recorded without alteration in Section 26.
+
+### Accepted LOW future hardening note
+
+The generic _assert_effect_map() helper is primarily an oracle for new/changed rows and is not by itself a complete generic deleted-baseline-row detector.
+
+This does not block C04-H because existing C04 scenario unit regressions remain
+in place, Capacity acceptance explicitly verifies preservation of existing
+keys, the PostgreSQL-enabled full suite passed, and C04-H is a compatibility/
+acceptance layer rather than a reimplementation of all scenario semantics.
+The human owner accepts this as a non-blocking future hardening note only.
+No code correction is required for this closeout, and no tests or production
+code are changed to address it.
+
+### Closeout scope, validation and boundaries
+
+Only `docs/CURRENT_STATE.md` changes. Lightweight closeout validation covers
+`git diff --check`, exact changed/staged/untracked path scope, Markdown headings
+and fences, conflict markers, accidental development markers, secret-like
+additions, prohibited generated/binary artifacts, historical preservation,
+and reviewed-commit immutability. The C04-H integration module is byte-for-byte
+unchanged from the reviewed implementation. C04-F/C04-G source and tests,
+C02/C03, models, migrations, dependencies, frozen contracts, Docker/Compose,
+CI and API/worker files are unchanged. No protected HGT is regenerated, no
+disposable PostgreSQL is recreated, and no database or Docker resources are
+modified. Existing ignored environments/caches are left untouched and unstaged.
+
+The authorized workflow is exactly one documentation-only commit followed by
+a normal push to `origin/feat/w02-industrial-data-foundation`, with final
+local/tracking/direct-remote/PR SHA equality and a clean working tree verified
+in the task handoff. The closeout commit does not amend or replace the reviewed
+implementation commit. No rebase, squash, force push, PR merge, draft conversion
+or auto-merge enablement is authorized.
+
+Closing C04-H does not close Week 2. C05 remains required before Week 2
+closeout, and C06/final Week 2 acceptance requirements remain in the frozen
+Sprint Spec. The next step is ChatGPT authorization/scope review, not C05
+implementation. This closeout grants no C05 or Week 3 implementation authority.
+
+```text
+W02-C04-H: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+POSTGRESQL SCENARIO ACCEPTANCE: IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED
+CHATGPT IMPLEMENTATION REVIEW: PASS
+HUMAN CLOSEOUT AUTHORIZATION: AUTHORIZED
+CONTRACT BLOCKER: NONE
+BLOCKER: NONE
+HIGH: NONE
+MEDIUM: NONE
+LOW: ONE ACCEPTED NON-BLOCKING TEST-HARDENING OBSERVATION
+C04-F: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C04-G: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C05: NOT STARTED
+Week 2: IN PROGRESS
+Week 3: NOT AUTHORIZED / NOT STARTED
+Draft PR #5: OPEN / DRAFT / NOT MERGED
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C05 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
