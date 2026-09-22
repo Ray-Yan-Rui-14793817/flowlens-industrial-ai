@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C05 IMPLEMENTATION REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C06 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：C04-F, C04-G and C04-H remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C05 is IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW following the authorized implementation and recovery verification. It is not CLOSED, ChatGPT-reviewed or human-approved. Week 2 remains IN PROGRESS; C06 is NOT STARTED; Week 3 is NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 28. Sections 11–27, including their historical next-step labels, remain unchanged. / C04-F/G/H 保持已关闭、验证并同步状态。C05 已实现并通过 Codex 验证，待 ChatGPT 审查，尚未关闭或获得人工批准。Week 2 仍在进行中，C06 尚未开始，Week 3 尚未授权或开始。当前状态以第 10、28 节为准，第 11–27 节历史记录保持不变。
+> Important / 重要：C04-F, C04-G and C04-H remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C05 is CLOSED / VERIFIED / GITHUB SYNCHRONIZED, subject to the Section 29 publication gate, following the accepted independent ChatGPT implementation review and explicit human closeout authorization. Week 2 remains IN PROGRESS; C06 is NOT STARTED; Week 3 is NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 29. Sections 11–28, including their historical next-step labels, remain unchanged. / C04-F/G/H 保持已关闭、验证并同步状态。C05 已通过独立 ChatGPT 实现审查并获得人工关闭授权，现已关闭并验证；GitHub 同步状态以第 29 节发布验证条件为准。Week 2 仍在进行中，C06 尚未开始，Week 3 尚未授权或开始。当前状态以第 10、29 节为准，第 11–28 节历史记录保持不变。
 
 ---
 
@@ -321,13 +321,23 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-H Human Closeout Authorization:** `AUTHORIZED`
 
-**W02-C05:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+**W02-C05:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (publication-gated; see Section 29)
 
-**W02-C05 Closed / ChatGPT Reviewed / Human Approved:** `NO / NO / NO`
+**W02-C05 Closed / ChatGPT Reviewed / Human Approved:** `YES / YES / YES`
+
+**W02-C05 Reviewed Implementation Commit:** `ba527fc398f8e3c821379b630e6664da7f737fac`
+
+**W02-C05 ChatGPT Implementation Review:** `PASS / VERIFIED`
+
+**W02-C05 Human Review Acceptance:** `ACCEPTED`
+
+**W02-C05 Human Closeout Authorization:** `AUTHORIZED`
+
+**C05 Public Data Workflow:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
 **W02-C06:** `NOT STARTED`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C05 IMPLEMENTATION REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C06 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
@@ -335,9 +345,9 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **Contract Blockers:** `NONE`
 
-Week 2 remains `IN PROGRESS`. C04-H is closed after the accepted ChatGPT review
-and explicit human authorization. C05 implementation and Codex verification are
-complete, but its independent ChatGPT review and human approval remain pending.
+Week 2 remains `IN PROGRESS`. C04-H remains closed. C05 is closed following the
+accepted independent ChatGPT implementation review and explicit human closeout
+authorization. Section 29 records the documentation-only closeout and publication gate.
 C06 and final Week 2 acceptance remain outstanding.
 Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
@@ -1846,3 +1856,152 @@ Week 3: NOT AUTHORIZED / NOT STARTED
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C05 IMPLEMENTATION REVIEW
+
+---
+
+## 29. W02-C05-C1 Final Closeout
+
+**Task:** `W02-C05-C1`
+
+**Date:** 2026-09-22
+
+**Mode:** Documentation-only closeout / commit / push; no implementation change.
+
+**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (effective only after the publication gate below)
+
+**Reviewed Implementation Commit:** `ba527fc398f8e3c821379b630e6664da7f737fac`
+
+**ChatGPT Implementation Review:** `PASS / VERIFIED`
+
+**Human Review Acceptance:** `ACCEPTED`
+
+**Human Closeout Authorization:** `AUTHORIZED`
+
+**Implementation Files:** `UNCHANGED FROM REVIEWED COMMIT`
+
+The human owner accepted the independent ChatGPT implementation review for the
+exact commit above and explicitly authorized C05 closure. No implementation
+correction is authorized or required. This checkpoint changes only
+`docs/CURRENT_STATE.md`; Sections 11–28 remain historical records, unchanged.
+
+### Baseline and publication gate
+
+The pre-edit baseline was clean on `feat/w02-industrial-data-foundation`.
+Local HEAD, the fetched tracking HEAD, the direct remote feature HEAD and Draft
+PR #5 HEAD all matched the reviewed implementation commit, with zero ahead/behind.
+Remote main remained `311bad46c40ce365b726c2f7e918c5a65daa2ad9`.
+No merge, rebase, cherry-pick, conflict or untracked task artifact was present.
+
+The pre-publication state is `CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING`.
+The published state `CLOSED / VERIFIED / GITHUB SYNCHRONIZED` becomes effective
+only after this single documentation commit is normally pushed and its local,
+tracking, direct remote feature and PR #5 HEADs are verified equal, with a clean
+working tree and zero ahead/behind. Before that verification, synchronization is
+pending; no pre-push verification is implied. The actual closeout commit SHA and
+post-push observations are reported in the closeout handoff, avoiding a
+self-referential commit SHA or a second documentation commit.
+
+PR #5 must remain OPEN / DRAFT / NOT MERGED with auto-merge disabled. Its title,
+body and comments are outside this task's mutation scope. Main must remain unchanged.
+
+### Accepted execution evidence — not rerun in C1
+
+The following implementation evidence was accepted by the human owner together
+with the independent ChatGPT review. C1 does not claim new execution of these suites.
+
+| Accepted check | Result |
+|---|---|
+| Focused C05 non-database | 103 passed |
+| Focused C05 PostgreSQL | 12 passed |
+| Requested legacy regressions | 199 passed |
+| Full non-integration | 306 passed, 0 failed, 0 skipped, 35 deselected, 1 warning; 68.85s |
+| Full integration | 35 passed, 0 failed, 0 skipped, 306 deselected, 1 warning; 149.21s |
+| Full PostgreSQL-enabled suite | 341 passed, 0 failed, 0 skipped, 1 warning; 204.51s |
+| Ruff | PASS |
+| Strict mypy | PASS; 58 source files |
+| Compose configuration | PASS |
+| Implementation diff whitespace | PASS |
+| Dependency lock verification | ENVIRONMENT-BLOCKED — KNOWN UV CACHE ACCESS LIMITATION |
+| Dependency files | UNCHANGED |
+
+The existing warning is the accepted Starlette/httpx deprecation. The lock check
+is not represented as PASS. No pytest, PostgreSQL acceptance, migration, Docker
+build/startup, scenario generation, HGT generation or public-artifact generation
+is rerun by this documentation-only closeout. No database is created or modified.
+
+### Accepted capabilities and scope
+
+| Capability / boundary | Accepted status |
+|---|---|
+| Public data quality | IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED |
+| Public data workflow | IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED |
+| Public manifest | IMPLEMENTED / VERIFIED |
+| Quality JSON | IMPLEMENTED / VERIFIED |
+| Quality Markdown | IMPLEMENTED / VERIFIED |
+| PostgreSQL persistence | IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED |
+| Baseline generation CLI (`generate`) | IMPLEMENTED / VERIFIED |
+| Database validation CLI (`validate`) | IMPLEMENTED / VERIFIED |
+| Duplicate load rejection | VERIFIED |
+| Concurrent load serialization | VERIFIED |
+| Atomic database rollback | VERIFIED |
+| Canonical hash round-trip | VERIFIED |
+| HGT database leakage | NONE |
+| HGT public artifact leakage | NONE |
+| C02 / migrations / C03 | UNCHANGED |
+| C04-F | CLOSED / VERIFIED / GITHUB SYNCHRONIZED |
+| C04-G | CLOSED / VERIFIED / GITHUB SYNCHRONIZED |
+| C04-H | CLOSED / VERIFIED / GITHUB SYNCHRONIZED |
+| C05 | CLOSED / VERIFIED / GITHUB SYNCHRONIZED; subject to the publication gate above |
+| C06 | NOT STARTED |
+| Week 2 | IN PROGRESS |
+| Week 3 | NOT AUTHORIZED / NOT STARTED |
+
+The reviewed source, tests, README and ignore rules are immutable in this task.
+No schema, migration, C03, canonical hash, scenario, C04, dependency, Docker,
+Compose, CI, API or worker change is authorized. No C06 or Week 3 code is added.
+
+### Lightweight closeout audit
+
+Closeout validation is limited to `git diff --check`, `git status --short`,
+changed-path and staged-scope inspection, Markdown heading/fence checks, and
+scanning changed additions for unfinished-work markers, conflict markers and
+secret-like content. Exactly one repository path may change: this document.
+No generated artifact may enter the commit scope.
+
+The eight reviewed implementation files are checked against pre-edit SHA-256
+fingerprints and the reviewed Git commit. Sections 11–28 are checked against
+their pre-edit fingerprint; their content and historical next-step labels are
+not rewritten. The commit/push handoff records the final audit results.
+
+Pre-commit documentation audit: PASS. Exactly `docs/CURRENT_STATE.md` changed;
+all eight implementation fingerprints and their reviewed Git contents matched.
+Sections 11–28 matched their pre-edit SHA-256 fingerprint. Numbered headings
+1–29 were ordered, all 38 code fences were balanced, and the whitespace and
+changed-addition marker/conflict/secret-like scans passed. No generated artifact
+or out-of-scope change was found.
+
+### Accepted limitations and review disposition
+
+1. The known Windows uv-cache access limitation blocked `uv lock --check`.
+   It did not cause dependency or lockfile changes and remains environment-blocked.
+2. The existing Starlette/httpx deprecation warning remains accepted.
+3. Public artifact publication is atomic per file, not across the database and
+   all public files. Recovery through `validate` after publication failure is
+   implemented and documented.
+4. Draft PR #5 contains historical/stale checkpoint text. This accepted,
+   non-blocking observation does not prevent C05 closeout. PR metadata is
+   intentionally unchanged; refresh requires a later explicitly authorized checkpoint.
+
+**Contract Blocker:** `NONE`
+
+**BLOCKER:** `NONE`
+
+**HIGH:** `NONE`
+
+**MEDIUM:** `NONE`
+
+**LOW:** `ACCEPTED NON-BLOCKING OBSERVATIONS ONLY`
+
+C05 closure does not close Week 2, start C06 or authorize Week 3.
+
+**Next Engineering Checkpoint:** CHATGPT W02-C06 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
