@@ -1,5 +1,5 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-21
+**Last Updated / 最后更新:** 2026-09-22
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C05 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C05 IMPLEMENTATION REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：Week 1 and all previously closed Week 2 checkpoints remain verified. C04-F, C04-G and C04-H are CLOSED / VERIFIED / GITHUB SYNCHRONIZED. PostgreSQL Scenario Acceptance is IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED after the human owner accepted the independent ChatGPT implementation review PASS for commit 97d837ec9d0f13a7735526174c867a9d2f4d1e3b and authorized documentation-only final closeout. C05 remains NOT STARTED and requires ChatGPT implementation authorization / scope review first; this closeout does not authorize C05 implementation. Week 2 remains IN PROGRESS, not COMPLETE; Week 3 remains NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 27. Sections 11–26 and their next-step labels remain unchanged historical records. / 历史已关闭检查点保持有效。人工接受独立 ChatGPT 实现审查 PASS 并授权仅文档最终关闭，C04-H 已关闭、验证并同步 GitHub；C04-F、C04-G 保持关闭。C05 尚未开始，须先进行 ChatGPT 实现授权与范围审查；本次关闭不授权 C05 实现。Week 2 仍在进行中，Week 3 尚未授权或开始。当前状态以第 10、27 节为准，第 11–26 节历史记录保持不变。
+> Important / 重要：C04-F, C04-G and C04-H remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C05 is IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW following the authorized implementation and recovery verification. It is not CLOSED, ChatGPT-reviewed or human-approved. Week 2 remains IN PROGRESS; C06 is NOT STARTED; Week 3 is NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 28. Sections 11–27, including their historical next-step labels, remain unchanged. / C04-F/G/H 保持已关闭、验证并同步状态。C05 已实现并通过 Codex 验证，待 ChatGPT 审查，尚未关闭或获得人工批准。Week 2 仍在进行中，C06 尚未开始，Week 3 尚未授权或开始。当前状态以第 10、28 节为准，第 11–27 节历史记录保持不变。
 
 ---
 
@@ -321,9 +321,13 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-H Human Closeout Authorization:** `AUTHORIZED`
 
-**W02-C05:** `NOT STARTED`
+**W02-C05:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C05 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
+**W02-C05 Closed / ChatGPT Reviewed / Human Approved:** `NO / NO / NO`
+
+**W02-C06:** `NOT STARTED`
+
+**Next Engineering Checkpoint:** CHATGPT W02-C05 IMPLEMENTATION REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
@@ -332,8 +336,9 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 **Contract Blockers:** `NONE`
 
 Week 2 remains `IN PROGRESS`. C04-H is closed after the accepted ChatGPT review
-and explicit human authorization. C05 remains required before Week 2 closeout;
-its implementation is not authorized by this documentation-only task.
+and explicit human authorization. C05 implementation and Codex verification are
+complete, but its independent ChatGPT review and human approval remain pending.
+C06 and final Week 2 acceptance remain outstanding.
 Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
 ---
@@ -1649,3 +1654,195 @@ Draft PR #5: OPEN / DRAFT / NOT MERGED
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C05 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
+
+---
+
+## 28. W02-C05-I-R1 Persistence / CLI / Public Data Quality Implementation
+
+**Task:** `W02-C05-I-R1`
+
+**Recovery/finalization:** `W02-C05-I-R1-RECOVERY` / `W02-C05-I-R1-FINALIZATION`
+
+**Status:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW`
+
+**Original committed baseline:** `5901a61ae6213c9cdebe5c5263189010f5316c1b`
+
+**Branch:** `feat/w02-industrial-data-foundation`
+
+**Main / feature merge base:** `311bad46c40ce365b726c2f7e918c5a65daa2ad9`
+
+### Recovery and preserved implementation
+
+Recovery was requested after a reported Codex workspace-quota interruption during
+final verification. The eight existing C05 files were recovered without reset,
+discard, recreation or reimplementation. No implementation/test correction was
+needed during recovery or finalization. File hashes matched the immediately
+preceding verified recovery state. No task-owned C05 commit already existed;
+CURRENT_STATE remained unchanged until the final suites and quality gates below
+completed. The known dependency-cache limitation is recorded as blocked, not PASS.
+
+Implementation files:
+
+- `src/flowlens/data/quality.py`
+- `src/flowlens/data/artifacts.py`
+- `src/flowlens/data/persistence.py`
+- `src/flowlens/data/cli.py`
+- `tests/test_data_workflow.py`
+- `tests/integration/test_data_workflow_database.py`
+- `README.md`
+- `.gitignore`
+
+This state record is the ninth changed file. Historical Sections 11–27 are
+preserved; the current header and Section 10 identify this new authoritative state.
+
+### Public workflow and integrity boundaries
+
+- `GeneratedDataset` is the reusable persistence/quality input. Existing C03
+  models, table ordering, scalar canonicalization and business hash are reused.
+  Finalized scenario business datasets use the same persistence boundary; HGT
+  and ScenarioResult are not persistence inputs.
+- Public quality implements schema/scalar, PK/UQ/FK, ownership, row-count,
+  temporal, quantity and canonical-hash validation. The valid test dataset runs
+  144 named checks. All 34 frozen foreign-key paths have negative-test coverage.
+  Diagnostics contain fixed check names and counts, not operational identities.
+- PostgreSQL and the existing Alembic head are required explicitly. There is no
+  automatic migration, schema change, alternate hash or identity rewrite.
+- Generation, preflight validation and detached copying happen outside the load
+  transaction. Within one READ COMMITTED transaction, fixed-order SHARE ROW
+  EXCLUSIVE locks serialize loaders, with a 30-second lock-wait timeout. Any
+  existing DatasetVersion is rejected before mutation, including competing loads
+  with different dataset IDs. Database constraints remain enabled.
+- Metadata is inserted first, followed by dependency-checked canonical table
+  order in batches of at most 1,000 rows. Native Decimal values, aware timestamps,
+  IDs and metadata are preserved. Readback and public validation occur before
+  commit. Injected, constraint and post-check failures roll back every table.
+- Database validation reads a detached, REPEATABLE READ / READ ONLY snapshot of
+  all business rows; it rejects missing/multiple metadata and never repairs data.
+- The baseline-only CLI exposes `generate` and `validate`. Profile, period start
+  and generator version are explicit; the default seed reuses C03's `20260824`.
+  Execution time supplies generated_at provenance only. Failures return nonzero;
+  settings/database errors are redacted. No scenario CLI, replacement, merge,
+  upsert, delete/reload or `--replace` is supplied.
+
+### Public artifacts and HGT isolation
+
+The default public outputs are `data/synthetic/dataset_manifest.json`,
+`data_quality_report.json` and `data_quality_report.md`. Explicit allowlists expose
+dataset metadata, table counts and aggregate quality results only. No scenario
+answers, affected operational identities, causal chains, root causes or HGT
+identifiers/hashes are emitted. Public modules do not import scenario/evaluation
+modules or read protected HGT files. No HGT table, column or database payload is
+introduced; existing C04-G/H isolation regressions pass unchanged.
+
+Publication stages complete files, flushes them and uses atomic per-file
+replacement outside the database transaction. It is not a cross-file/database
+transaction. FAIL validation refreshes FAIL reports without publishing a new
+manifest. An older manifest is not a new validation-success result. If publication
+fails after commit, the data remains loaded; correcting the path and rerunning
+`validate` refreshes the reports and, on PASS, the manifest. Interrupted multi-file
+publication may require that recovery. README documents these exact semantics.
+
+Generated defaults and `.c05-*.tmp` are narrowly ignored. Acceptance artifacts and
+JUnit evidence used task-owned temporary paths, not source-controlled bulk data.
+No generated public files, protected HGT manifests, secrets, database dumps,
+archives, coverage output, caches or virtual-environment artifacts enter the commit.
+
+### Authoritative executed verification
+
+All runs used the existing `.venv/Scripts/python.exe -m pytest`, not a dependency
+change. PostgreSQL coverage used `FLOWLENS_APP_ENVIRONMENT=test` and the verified
+disposable `flowlens_c05_test` database. Each run used a distinct task-owned
+`--basetemp`, cache directory and JUnit XML output. No database tests silently
+skipped for a missing URL. The table uses actual pytest console durations;
+deselected tests are not skips, and overlapping suites are not additive totals.
+
+| Run | Passed | Failed / errors | Skipped | Deselected | Warnings | Duration |
+|---|---:|---:|---:|---:|---:|---:|
+| Focused C05 non-database | 103 | 0 / 0 | 0 | 0 | 0 | 8.57 s |
+| Focused C05 PostgreSQL | 12 | 0 / 0 | 0 | 0 | 0 | 132.53 s |
+| Requested legacy regressions | 199 | 0 / 0 | 0 | 0 | 1 | 61.06 s |
+| Final `pytest -m "not integration"` | 306 | 0 / 0 | 0 | 35 | 1 | 68.85 s |
+| Final `pytest -m integration` | 35 | 0 / 0 | 0 | 306 | 1 | 149.21 s |
+| Final PostgreSQL-enabled `pytest` | 341 | 0 / 0 | 0 | 0 | 1 | 204.51 s |
+
+Focused commands selected `tests/test_data_workflow.py` and
+`tests/integration/test_data_workflow_database.py`. The requested legacy command
+selected generation (19), scenario foundation (18), Supplier/Quality interventions
+(11), Capacity (41), HGT serialization (84), manufacturing schema (4), C03 database
+(1), C04-H database (14), database foundation (6) and API integration (1): 199 passed.
+
+The preserved focused acceptance proves committed round-trip equality, all-table
+counts, exact Decimal/timestamp/ID/hash behavior, duplicate zero-mutation behavior,
+all-table rollback, concurrent-loader serialization, empty/multiple/invalid database
+states, artifact failure recovery, finalized scenario business-data loading, and
+real generate/validate CLI execution for test, ci and demo profiles.
+
+| Final quality gate | Result |
+|---|---|
+| `.venv/Scripts/ruff.exe check .` | PASS — All checks passed |
+| `.venv/Scripts/mypy.exe .` | PASS — no issues in 58 source files; strict configuration unchanged |
+| `git diff --check` | PASS |
+| `docker compose config --quiet` | PASS |
+| `.venv/Scripts/flowlens-uv.exe lock --check` | ENVIRONMENT-BLOCKED — KNOWN UV CACHE ACCESS LIMITATION |
+| Dependency files compared with original baseline | UNCHANGED — pyproject.toml and uv.lock |
+
+H33 / dependency verification remains blocked exclusively by Windows access denial
+(os error 5) opening `C:\Users\C\AppData\Local\uv\cache\sdists-v9\.git`.
+It is not recorded as PASS and no lock/dependency workaround was committed.
+The only warning in the final suites is the unchanged Starlette/httpx deprecation.
+Fresh task-owned pytest temp/cache paths avoided shared-path access failures in
+these authoritative runs. No test weakening or source workaround was needed.
+
+### Disposable PostgreSQL safety and cleanup
+
+The recovered task-owned container `flowlens-c05-postgres-4e6996ee51` used the
+existing pinned `pgvector/pgvector:0.8.6-pg17-bookworm` image, PostgreSQL 17, database
+`flowlens_c05_test`, localhost port 56752 and tmpfs `/var/lib/postgresql/data`.
+It had no volume mounts. All 16 tables were empty before recovery acceptance and
+again after the final suite. Only this verified task-owned container was stopped
+and removed after database verification; its disposable data was reproducible.
+The development volume `flowlens-postgres-data` was never attached, modified or
+removed. Its creation identity and all three unrelated containers were unchanged.
+Docker 29.7.2 and Compose v5.3.1 remained available; Compose config passed after
+cleanup. No fresh full image-build/Compose-start smoke was performed or claimed.
+
+### Frozen scope and next state
+
+Changes to C02 models/schema, migrations, C03 generation, canonical hashing,
+Supplier, Quality, Capacity, C04-G, C04-H, dependencies, Dockerfiles, Compose, CI,
+API, worker, C06 and Week 3: **NO** for every item. No frozen contract was changed.
+Contract conflicts: **None**.
+
+```text
+PUBLIC DATA QUALITY: IMPLEMENTED / VERIFIED
+PUBLIC MANIFEST: IMPLEMENTED / VERIFIED
+QUALITY JSON: IMPLEMENTED / VERIFIED
+QUALITY MARKDOWN: IMPLEMENTED / VERIFIED
+POSTGRESQL PERSISTENCE: IMPLEMENTED / VERIFIED
+BASELINE GENERATION CLI: IMPLEMENTED / VERIFIED
+DATABASE VALIDATION CLI: IMPLEMENTED / VERIFIED
+DUPLICATE REJECTION: IMPLEMENTED / VERIFIED
+ATOMIC ROLLBACK: IMPLEMENTED / VERIFIED
+CONCURRENT LOADER SERIALIZATION: IMPLEMENTED / VERIFIED
+CANONICAL HASH ROUND-TRIP: VERIFIED
+HGT DATABASE LEAKAGE: NONE
+HGT PUBLIC ARTIFACT LEAKAGE: NONE
+C02 CHANGE: NO
+MIGRATION CHANGE: NO
+C03 SEMANTIC CHANGE: NO
+CANONICAL HASH CHANGE: NO
+C04 CHANGE: NO
+DEPENDENCY CHANGE: NO
+W02-C05: IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW
+W02-C05 CLOSED: NO
+W02-C05 CHATGPT REVIEWED: NO
+W02-C05 HUMAN APPROVED: NO
+C04-F: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C04-G: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C04-H: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C06: NOT STARTED
+Week 2: IN PROGRESS
+Week 3: NOT AUTHORIZED / NOT STARTED
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C05 IMPLEMENTATION REVIEW
