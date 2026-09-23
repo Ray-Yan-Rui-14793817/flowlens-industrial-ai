@@ -1,5 +1,5 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-22
+**Last Updated / 最后更新:** 2026-09-23
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C06 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
+**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C06 IMPLEMENTATION / ACCEPTANCE REVIEW (subject to Section 30 exact-SHA CI verification)
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：C04-F, C04-G and C04-H remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. W02-C05 is CLOSED / VERIFIED / GITHUB SYNCHRONIZED, subject to the Section 29 publication gate, following the accepted independent ChatGPT implementation review and explicit human closeout authorization. Week 2 remains IN PROGRESS; C06 is NOT STARTED; Week 3 is NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 29. Sections 11–28, including their historical next-step labels, remain unchanged. / C04-F/G/H 保持已关闭、验证并同步状态。C05 已通过独立 ChatGPT 实现审查并获得人工关闭授权，现已关闭并验证；GitHub 同步状态以第 29 节发布验证条件为准。Week 2 仍在进行中，C06 尚未开始，Week 3 尚未授权或开始。当前状态以第 10、29 节为准，第 11–28 节历史记录保持不变。
+> Important / 重要：C04-F, C04-G, C04-H and C05 remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. C06 implements CI / automated acceptance only; Codex verification is subject to the exact-SHA GitHub CI gate in Section 30. Independent ChatGPT review and human business acceptance remain pending. Week 2 remains IN PROGRESS; Week 3 is NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 30; Sections 11–29 remain unchanged historical evidence. / C04-F/G/H 和 C05 保持已关闭、验证并同步状态。C06 仅实现 CI 与自动化验收，Codex 验证以第 30 节精确 SHA 的 GitHub CI 结果为准；独立 ChatGPT 审查与人工业务验收尚待完成。Week 2 仍在进行中，Week 3 尚未授权或开始。当前状态以第 10、30 节为准，第 11–29 节历史记录保持不变。
 
 ---
 
@@ -241,8 +241,8 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C04-H-C1 — Final Closeout
-**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
+**Current Gate:** W02-C06-I-R1 — CI / Acceptance Implementation
+**Status:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW / PENDING HUMAN BUSINESS ACCEPTANCE` (subject to Section 30 exact-SHA CI verification)
 
 **W02-G0:** `PASS`
 
@@ -321,7 +321,7 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C04-H Human Closeout Authorization:** `AUTHORIZED`
 
-**W02-C05:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (publication-gated; see Section 29)
+**W02-C05:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`
 
 **W02-C05 Closed / ChatGPT Reviewed / Human Approved:** `YES / YES / YES`
 
@@ -335,9 +335,9 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **C05 Public Data Workflow:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
-**W02-C06:** `NOT STARTED`
+**W02-C06:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW / PENDING HUMAN BUSINESS ACCEPTANCE` (subject to Section 30 exact-SHA CI verification)
 
-**Next Engineering Checkpoint:** CHATGPT W02-C06 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
+**Next Engineering Checkpoint:** CHATGPT W02-C06 IMPLEMENTATION / ACCEPTANCE REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
@@ -348,7 +348,8 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 Week 2 remains `IN PROGRESS`. C04-H remains closed. C05 is closed following the
 accepted independent ChatGPT implementation review and explicit human closeout
 authorization. Section 29 records the documentation-only closeout and publication gate.
-C06 and final Week 2 acceptance remain outstanding.
+C06 adds CI and automated acceptance, without reopening C01–C05. Independent
+C06 review, human business acceptance and final Week 2 closeout remain outstanding.
 Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
 ---
@@ -2005,3 +2006,177 @@ or out-of-scope change was found.
 C05 closure does not close Week 2, start C06 or authorize Week 3.
 
 **Next Engineering Checkpoint:** CHATGPT W02-C06 IMPLEMENTATION AUTHORIZATION / SCOPE REVIEW
+
+---
+
+## 30. W02-C06-I-R1 CI / Acceptance Implementation
+
+**Recovery Task:** `W02-C06-I-R1-RECOVERY`
+
+**Date:** 2026-09-23
+
+**Authorization:** `AUTHORIZED / SCOPE FROZEN`
+
+**Contract Blocker:** `NONE`
+
+**Status after exact-SHA CI succeeds:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW / PENDING HUMAN BUSINESS ACCEPTANCE`
+
+### Recovery and scope
+
+The interruption occurred during review, not implementation or validation failure.
+Recovery audit found Case A: a clean tree at the original C06 baseline
+`77a271d3bdac12d7bb67374bddb62fc968d7fd6d` on
+`feat/w02-industrial-data-foundation`. Local, fetched tracking, direct remote and
+Draft PR #5 HEAD matched; tracking was 0 ahead / 0 behind. Main remained
+`311bad46c40ce365b726c2f7e918c5a65daa2ad9`. PR #5 was open/draft/not merged,
+with auto-merge disabled. No reset, recovery commit or unnecessary reimplementation
+was needed. Historical Sections 11–29 are preserved without rewriting their states.
+
+Exactly three repository paths change:
+
+- `.github/workflows/ci.yml`: Week 2 CI-profile smoke and task-owned cleanup;
+- `README.md`: replace stale C05/C06 checkpoint text with the actual boundaries;
+- `docs/CURRENT_STATE.md`: current fields and this new implementation record.
+
+C02/models/schema, migrations, C03 generation/hash, all three scenarios, HGT
+semantics/serializer, C05 source, existing tests, dependencies/lock, Dockerfiles,
+Compose, API and worker are unchanged. No generated report, manifest, database
+dump, log, archive, cache, temporary evidence or secret belongs in the commit.
+
+### CI design and database isolation
+
+The existing Quality gate retains Python 3.12, uv, the pinned action SHAs and
+`pgvector/pgvector:0.8.6-pg17-bookworm`. One service hosts two logical databases:
+
+- `flowlens_test`: initially empty manufacturing tables for integration and full pytest;
+- `flowlens_ci_profile_test`: the separate populated CI-profile smoke database.
+
+After connectivity and integration-database migrations, the existing psycopg
+dependency creates the smoke database using a scoped AUTOCOMMIT connection.
+The smoke database is migrated, then the existing C05 CLI runs:
+
+```text
+generate --profile ci --seed 20260824 --period-start 2026-01-01 --generator-version 0.1.0-c03
+validate
+```
+
+Both commands use `--output-dir "$C06_OUTPUT_DIR"`, rooted under the runner's
+temporary directory. Generate already performs generation, preflight, atomic
+database persistence, readback validation and public publication. No second
+loader, truncation, replacement, `--replace` or weakened fixture safety is added.
+Only the smoke steps override the database URL; integration/full pytest retain
+the original clean-start database.
+
+The guard requires exactly the three public artifacts, checks their contents
+against the existing C05 serializers and database snapshot, requires public
+quality PASS, and checks profile/seed/version, 800 orders and six-month coverage
+(`2026-01-01` through the existing inclusive `2026-06-30` period end). It rejects
+scenario/HGT answer tokens and requires the protected manifest to remain absent.
+It imports no scenario/evaluation module and does not read protected HGT content.
+
+Integration pytest, complete pytest, Ruff, strict mypy and lock verification
+follow the smoke. Always-run cleanup removes the successfully created smoke
+database and its validated temporary output directory. The complete Week 1
+Docker Compose smoke job is byte-for-byte unchanged; no gate is disabled.
+
+### Executed local acceptance
+
+Local verification used a new task-owned PostgreSQL 17 container with tmpfs
+`/var/lib/postgresql/data`, no volume mounts and dynamic localhost-only port
+53881. The databases were `flowlens_c06_integration_test` and
+`flowlens_c06_smoke_test`; `FLOWLENS_APP_ENVIRONMENT=test` was explicit.
+Existing `.venv/Scripts` executables were used without dependency changes.
+
+| Local gate | Observed result |
+|---|---|
+| Alembic upgrade on both disposable databases | PASS; existing approved head |
+| CI-profile generate / persistence | PASS; 800 orders, 11,389 business rows |
+| Explicit validate / exact workflow artifact guard | PASS; 144 checks, zero failures |
+| Integration pytest | 35 passed, 306 deselected, 0 failed, 0 skipped, 1 warning; 150.27s |
+| Full PostgreSQL-enabled pytest | 341 passed, 0 failed, 0 skipped, 1 warning; 202.63s |
+| Ruff `check .` | PASS |
+| Strict mypy | PASS; 58 source files |
+| Docker Compose configuration | PASS, including after cleanup |
+| Local `uv lock --check` | ENVIRONMENT-BLOCKED — KNOWN UV CACHE ACCESS LIMITATION |
+
+Pytest used separate task-owned `--basetemp` and cache directories. The warning
+is the existing Starlette/httpx deprecation. The local lock check failed only on
+the documented Windows uv-cache `sdists-v9/.git` permission denial (os error 5);
+it is not PASS. Dependency files remain unchanged. Initial sandbox-only Docker
+inspection was access-denied; authorized host inspection and acceptance succeeded.
+
+Workflow validation parsed YAML with unique-key checks using an already bundled
+tool, parsed all four embedded Python blocks, inspected all 19 Quality steps,
+and confirmed smoke/integration environment separation and unchanged action pins.
+No dependency was added. Git whitespace, Markdown, scope and changed-addition
+checks are required before the implementation commit.
+
+### Human acceptance evidence readiness
+
+**Manual Digital-Thread Acceptance:** `EVIDENCE PREPARED / HUMAN DECISION PENDING`
+
+The disposable CI database supplied a deterministic complete order trace,
+including actual Rework: prefer orders with Rework/Delivery, rank by descending
+material-requirement plus operation count, then stable SalesOrder ID. The final
+task report contains the actual IDs, quantities and timestamps, not a committed
+generated acceptance report. Procurement evidence is material/time-associated;
+there is no invented requirement-to-PO allocation FK or inventory-consumption ledger.
+
+**Hidden Scenario Business Acceptance:** `EVIDENCE PREPARED / HUMAN DECISION PENDING`
+
+Existing C04-H targeted fixtures and configurations demonstrate Supplier receipt
+and downstream timing deterioration, Quality failure/Rework growth and Capacity
+arrival/load/elapsed-time growth. Separate in-memory HGT records exist for all
+three, while their public artifacts pass C05 quality and contain no HGT identity
+or answer leakage. No protected manifest was needed or generated. The initial
+ordinary-fixture evidence probe did not realize a downstream Supplier shift;
+the existing targeted fixture supplies that evidence without changing behavior.
+These evaluation comparisons are not a new runtime analytics/metric feature and
+do not constitute human approval. Ordinary and targeted regression tests also
+passed in the PostgreSQL-enabled suites above.
+
+### Disposable cleanup
+
+All 16 integration-domain tables were empty after the suites. Smoke table counts
+matched its sole generated dataset and public manifest; no unexpected data needed
+preservation. The smoke database was dropped using an AUTOCOMMIT connection,
+then only task-owned container `flowlens-c06-postgres-ff619a6377` and its tmpfs
+were removed. The task-owned public/pytest/cache directory was removed after
+absolute-path validation. No protected artifact remained. The three pre-existing
+development containers retained their IDs/states; `flowlens-postgres-data`
+retained its creation identity and was never attached, reset or deleted.
+Docker remained responsive and Compose config passed afterward.
+
+### Exact-SHA GitHub CI and review boundary
+
+At commit preparation, local acceptance is complete (with the explicitly accepted
+Windows lock limitation); GitHub CI is **PENDING PUSH / EXACT-SHA VERIFICATION**.
+The current-field `CODEX VERIFIED` status becomes effective only when the single
+C06 implementation commit's GitHub Actions run succeeds for both `Quality gate`
+and `Docker Compose smoke`, including the new smoke and Ubuntu lock verification.
+An older SHA, local result or skipped step cannot satisfy this condition.
+If exact-SHA CI fails, C06 is not Codex-verified and work stops for a separately
+authorized fix, without amending the commit.
+
+The one-commit constraint means the post-push implementation SHA, run URL and
+observed job/step results are recorded in the final task handoff and GitHub's
+exact-commit checks, not fabricated in advance or added through a second commit.
+Normal push must be followed by local/tracking/direct-remote/PR SHA equality,
+0 ahead / 0 behind, clean-tree verification and unchanged main. PR #5 title,
+body, comments, draft state and auto-merge configuration are not modified.
+
+Remaining limitations: known local uv-cache blockage, existing warning, accepted
+C05 per-file rather than database/all-files atomic publication, and stale Draft
+PR #5 metadata deferred to explicitly authorized final closeout. Independent
+ChatGPT review and human digital-thread/scenario acceptance remain outstanding.
+
+```text
+C05: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C06 CLOSED: NO
+Week 2: IN PROGRESS
+WEEK 2 COMPLETE: NO
+Week 3: NOT AUTHORIZED / NOT STARTED
+MANUAL BUSINESS ACCEPTANCE: HUMAN DECISION PENDING
+```
+
+**Next Engineering Checkpoint:** CHATGPT W02-C06 IMPLEMENTATION / ACCEPTANCE REVIEW

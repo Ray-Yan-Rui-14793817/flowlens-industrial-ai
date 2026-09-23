@@ -40,6 +40,7 @@ jobs:
       FLOWLENS_APP_ENVIRONMENT: test
       FLOWLENS_LOG_LEVEL: INFO
       FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_test
+      C06_OUTPUT_DIR: ${{ runner.temp }}/flowlens-ci-artifacts
 
     steps:
       - name: Check out repository
@@ -73,8 +74,87 @@ jobs:
       - name: Apply database migrations
         run: uv run alembic upgrade head
 
-      - name: Verify dependency lock
-        run: uv lock --check
+      - name: Create isolated Week 2 smoke database
+        id: c06-database
+        run: |
+          uv run python - <<'PY'
+          import os
+          from pathlib import Path
+          import psycopg
+
+          assert not Path("data/hidden_ground_truth/scenario_manifest.yaml").exists()
+          assert not Path(os.environ["C06_OUTPUT_DIR"]).exists()
+          with psycopg.connect(
+              host="127.0.0.1", port=5432, dbname="postgres",
+              user=os.environ["POSTGRES_USER"], password=os.environ["POSTGRES_PASSWORD"],
+              autocommit=True,
+          ) as connection:
+              connection.execute("CREATE DATABASE flowlens_ci_profile_test")
+          PY
+
+      - name: Migrate isolated Week 2 smoke database
+        env:
+          FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_ci_profile_test
+        run: uv run alembic upgrade head
+
+      - name: Generate and persist Week 2 CI profile
+        env:
+          FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_ci_profile_test
+        run: >-
+          uv run python -m flowlens.data.cli generate
+          --profile ci --seed 20260824 --period-start 2026-01-01
+          --generator-version 0.1.0-c03 --output-dir "$C06_OUTPUT_DIR"
+
+      - name: Validate Week 2 CI profile
+        env:
+          FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_ci_profile_test
+        run: uv run python -m flowlens.data.cli validate --output-dir "$C06_OUTPUT_DIR"
+
+      - name: Verify public artifacts and HGT isolation
+        env:
+          FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_ci_profile_test
+        run: |
+          uv run python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from flowlens.config import get_settings
+          from flowlens.data.artifacts import public_manifest, quality_markdown, quality_report
+          from flowlens.data.persistence import read_active_dataset
+          from flowlens.data.quality import validate_dataset
+          from flowlens.db import create_database_engine
+
+          directory = Path(os.environ["C06_OUTPUT_DIR"])
+          names = {"dataset_manifest.json", "data_quality_report.json", "data_quality_report.md"}
+          assert {path.name for path in directory.iterdir()} == names
+          assert all((directory / name).is_file() for name in names)
+          assert not Path("data/hidden_ground_truth/scenario_manifest.yaml").exists()
+          engine = create_database_engine(get_settings())
+          try:
+              dataset = read_active_dataset(engine)
+          finally:
+              engine.dispose()
+          result = validate_dataset(dataset)
+          assert result.passed
+          manifest = public_manifest(dataset)
+          assert manifest["profile"] == "ci" and manifest["seed"] == 20260824
+          assert manifest["period_start"] == "2026-01-01"
+          assert manifest["period_end"] == "2026-06-30"
+          assert manifest["generator_version"] == "0.1.0-c03"
+          assert manifest["row_counts_by_table"]["fact_sales_order"] == 800
+          assert json.loads((directory / "dataset_manifest.json").read_text()) == manifest
+          assert json.loads((directory / "data_quality_report.json").read_text()) == quality_report(dataset, result)
+          assert (directory / "data_quality_report.md").read_text() == quality_markdown(dataset, result)
+          forbidden = (
+              "scenario_id", "scenario_name", "scenario_type", "scn_", "true_root_cause",
+              "root_cause", "target_entity_ids", "affected_entities", "causal_chain",
+              "hgt_id", "hgt_hash",
+          )
+          for name in names:
+              content = (directory / name).read_text().lower()
+              assert not any(token in content for token in forbidden), name
+          print("CI profile: 800 orders / six months; public artifacts PASS; HGT leakage NONE")
+          PY
 
       - name: Run database integration tests
         run: uv run pytest -m integration
@@ -87,6 +167,40 @@ jobs:
 
       - name: Run mypy
         run: uv run mypy .
+
+      - name: Verify dependency lock
+        run: uv lock --check
+
+      - name: Clean up isolated Week 2 smoke database
+        if: always() && steps.c06-database.outcome == 'success'
+        run: |
+          uv run python - <<'PY'
+          import os
+          import psycopg
+
+          with psycopg.connect(
+              host="127.0.0.1", port=5432, dbname="postgres",
+              user=os.environ["POSTGRES_USER"], password=os.environ["POSTGRES_PASSWORD"],
+              autocommit=True,
+          ) as connection:
+              connection.execute("DROP DATABASE flowlens_ci_profile_test")
+          PY
+
+      - name: Clean up temporary Week 2 public artifacts
+        if: always() && steps.c06-database.outcome == 'success'
+        run: |
+          uv run python - <<'PY'
+          import os
+          import shutil
+          from pathlib import Path
+
+          directory = Path(os.environ["C06_OUTPUT_DIR"])
+          expected = Path(os.environ["RUNNER_TEMP"]).resolve() / "flowlens-ci-artifacts"
+          assert not directory.is_symlink() and directory.resolve() == expected
+          if directory.exists():
+              shutil.rmtree(directory)
+          assert not Path("data/hidden_ground_truth/scenario_manifest.yaml").exists()
+          PY
 
   compose-smoke:
     name: Docker Compose smoke
