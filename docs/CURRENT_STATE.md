@@ -3,15 +3,15 @@
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
-**Current Project Phase / 当前阶段:** WEEK 2 IN PROGRESS
+**Current Project Phase / 当前阶段:** WEEK 2 READY FOR FINAL CLOSEOUT REVIEW
 
-**Implementation Status / 工程实现状态:** IN PROGRESS
+**Implementation Status / 工程实现状态:** C06 CLOSED / VERIFIED / GITHUB SYNCHRONIZED; WEEK 2 FINAL CLOSEOUT PENDING
 
-**Codex Readiness / Codex 开发就绪:** W02-C06-CI-R1 GITHUB CI REPAIR IN PROGRESS; EXACT-SHA CI VERIFICATION PENDING
+**Codex Readiness / Codex 开发就绪:** READY FOR FINAL WEEK-2 CLOSEOUT REVIEW; WEEK 3 NOT AUTHORIZED
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：C04-F, C04-G, C04-H and C05 remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. C06 local acceptance passed, but the original exact-SHA GitHub run failed before jobs started. C06 is not yet Codex-verified; Section 31 records the authorized CI repair. Independent ChatGPT review and human business acceptance remain pending. Week 2 remains IN PROGRESS; Week 3 is NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 31; Sections 11–29 remain unchanged historical evidence. / C04-F/G/H 和 C05 保持已关闭、验证并同步状态。C06 本地验收通过，但原始精确 SHA 的 GitHub 运行在任务启动前失败。C06 尚未经过 Codex 验证；第 31 节记录获授权的 CI 修复。独立 ChatGPT 审查与人工业务验收尚待完成。Week 2 仍在进行中，Week 3 尚未授权或开始。当前状态以第 10、31 节为准，第 11–29 节历史记录保持不变。
+> Important / 重要：C04-F/G/H and C05 remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. C06 exact-SHA CI Run #28 succeeded, independent ChatGPT review passed, and the Product Owner accepted the bounded business evidence **with documented limitations**. C06 closeout is effective only after the Section 32 publication gate; Week 2 is ready for its separate final closeout review, not closed or complete. Week 3 is NOT AUTHORIZED / NOT STARTED. Sections 10 and 32 define current state; Sections 11–31 are unchanged historical evidence. / C04-F/G/H 和 C05 保持已关闭、验证并同步状态。C06 精确 SHA 的 CI Run #28 成功，独立 ChatGPT 审查通过，Product Owner 在记录限制的前提下接受了限定范围的业务证据。C06 关闭仅在第 32 节发布门通过后生效；Week 2 等待单独的最终关闭审查，尚未关闭或完成。Week 3 尚未授权或开始。当前状态以第 10、32 节为准，第 11–31 节保留为历史证据。
 
 ---
 
@@ -241,10 +241,14 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C06-CI-R1 — GitHub Actions validation repair / exact-SHA acceptance
-**Status:** `IMPLEMENTED / LOCAL ACCEPTANCE PASSED / GITHUB CI REPAIR IN PROGRESS`
-**C06 CODEX VERIFIED:** `NO — PENDING SUCCESSFUL EXACT-SHA GITHUB CI`
-**C06 CLOSED:** `NO`
+**Current Gate:** W02-C06 final closeout / final Week-2 closeout review readiness
+**Status:** `C06 CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (effective only after Section 32 publication gate)
+**C06 CODEX VERIFIED:** `YES — EXACT-SHA CI RUN #28 SUCCESS`
+**C06 HUMAN BUSINESS ACCEPTANCE:** `ACCEPTED WITH DOCUMENTED LIMITATIONS`
+**C06 CLOSED:** `YES` (effective only after Section 32 publication gate)
+**WEEK 2:** `READY FOR FINAL WEEK-2 CLOSEOUT REVIEW / NOT CLOSED`
+**WEEK 2 COMPLETE:** `NO`
+**WEEK 3:** `NOT AUTHORIZED / NOT STARTED`
 
 **W02-G0:** `PASS`
 
@@ -337,9 +341,9 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **C05 Public Data Workflow:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
-**W02-C06:** `IMPLEMENTED / LOCAL ACCEPTANCE PASSED / GITHUB CI REPAIR IN PROGRESS`
+**W02-C06:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (Section 32 publication gate)
 
-**Next Engineering Checkpoint:** W02-C06-CI-R1 EXACT-SHA GITHUB CI VERIFICATION
+**Next Engineering Checkpoint:** FINAL WEEK-2 CLOSEOUT REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
@@ -347,11 +351,10 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **Contract Blockers:** `NONE`
 
-Week 2 remains `IN PROGRESS`. C04-H remains closed. C05 is closed following the
-accepted independent ChatGPT implementation review and explicit human closeout
-authorization. Section 29 records the documentation-only closeout and publication gate.
-C06 adds CI and automated acceptance, without reopening C01–C05. Independent
-C06 review, human business acceptance and final Week 2 closeout remain outstanding.
+Week 2 is ready for a separate final closeout review, not closed or complete.
+C01–C05 remain closed; C06 is closed only after the Section 32 publication gate.
+Independent C06 review and bounded human business acceptance are complete with
+the accepted limitations recorded below. No implementation checkpoint is reopened.
 Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
 
 ---
@@ -2226,3 +2229,166 @@ MANUAL BUSINESS ACCEPTANCE: HUMAN DECISION PENDING
 ```
 
 **Next Engineering Checkpoint:** W02-C06-CI-R1 EXACT-SHA GITHUB CI VERIFICATION
+
+---
+
+## 32. W02-C06 Final Closeout — Human Business Acceptance
+
+**Task:** `W02-C06-C1`
+
+**Date:** 2026-09-23
+
+**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (effective only after the publication gate below)
+
+**Reviewed implementation HEAD:** `604c5db7ed289fb887d85befb62b78c022711ad5`
+
+**Exact-SHA GitHub CI:** Run #28 / `35844472117` / `SUCCESS`
+
+**Independent ChatGPT C06 implementation review:** `PASS / VERIFIED`
+
+**Human Product-Owner business acceptance:** `ACCEPTED WITH DOCUMENTED LIMITATIONS`
+
+The Product Owner accepted the bounded BA1-R1 digital-thread and scenario
+evidence and explicitly authorized C06 closeout only. This records that human
+decision; it is not a new implementation, a Week 2 final-closeout approval,
+or authorization for Week 3. Historical Sections 11–31 remain unchanged.
+
+### Accepted deterministic manual trace
+
+The CI profile (`seed=20260824`, `period_start=2026-01-01`,
+`generator_version=0.1.0-c03`) has DatasetVersion
+`dsv_cddc2181a699ad26f230269ab0514dab`, 800 Sales Orders, 11,389
+business rows and canonical content hash
+`4bad9e517ef56f50b8f09f3dac388a939a0d2f0dd983d73b107172e63eeae6aa`.
+The accepted BA1-R1 in-memory reproduction matched that hash and passed all
+144 public data-quality checks. No disposable database or protected HGT
+manifest was required for BA1-R1. All times below retain the generated
+`Asia/Shanghai` (`+08:00`) business timezone.
+
+- Sales Order `so_cddc2181a699_00000781`: Product FK
+  `prd_cddc2181a699_00000007` (`SYN-PROD-0007`, `GROUNDING_SWITCH`),
+  Customer FK `cus_cddc2181a699_00000016`, quantity 8, `DELIVERED`;
+  ordered `2026-04-10 09:00+08:00`, promised `2026-05-12 09:00+08:00`.
+- The product has six BOM product/material edges. Each Material Requirement
+  directly references Work Order `wo_cddc2181a699_00000781` and its Material;
+  BOM-to-requirement matching is by product, material and quantity, not a
+  direct BOM FK. Every requirement is needed `2026-04-13 09:00+08:00`.
+
+| Material ID | BOM per product | Material Requirement ID | Required for 8 |
+|---|---:|---|---:|
+| `mat_cddc2181a699_00000002` | 5.3500 KG | `mr_cddc2181a699_00003557` | 42.8000 KG |
+| `mat_cddc2181a699_00000007` | 8.6000 M | `mr_cddc2181a699_00003558` | 68.8000 M |
+| `mat_cddc2181a699_00000011` | 0.5000 M | `mr_cddc2181a699_00003559` | 4.0000 M |
+| `mat_cddc2181a699_00000016` | 9.3000 SET | `mr_cddc2181a699_00003560` | 74.4000 SET |
+| `mat_cddc2181a699_00000022` | 2.0500 KG | `mr_cddc2181a699_00003561` | 16.4000 KG |
+| `mat_cddc2181a699_00000042` | 7.1000 KG | `mr_cddc2181a699_00003562` | 56.8000 KG |
+
+- Related material/time evidence, **not order allocation**: Purchase Order
+  `po_cddc2181a699_00000380` directly references material
+  `mat_cddc2181a699_00000042` and supplier
+  `sup_cddc2181a699_00000003`; 355.6850 KG ordered/received, `RECEIVED`,
+  ordered `2026-03-04 18:00+08:00`, promised/actual receipt
+  `2026-04-07 18:00+08:00`. Inventory Snapshot
+  `inv_cddc2181a699_00000042` references the same material and records
+  152.0000 KG on hand and 30.4000 KG reserved at
+  `2026-01-01 07:00+08:00`. Neither row is directly linked to this
+  requirement or proves stock at Work Order execution.
+- Work Order `wo_cddc2181a699_00000781` directly references the Sales Order
+  and product; planned/completed quantity 8/8, `COMPLETED`; planned window
+  `2026-04-13 09:00+08:00` to `2026-04-18 09:00+08:00`, actual window
+  `2026-04-13 13:00+08:00` to `2026-04-18 22:00+08:00`.
+- Its five `COMPLETED` Operations directly reference that Work Order and the
+  listed Work Centers. Ordered route: MACHINING → WELDING → ASSEMBLY →
+  INSPECTION → PACKING.
+
+| Sequence | Operation ID | Work Center ID / process | Actual start → end (2026, `+08:00`) |
+|---:|---|---|---|
+| 1 | `op_cddc2181a699_00003127` | `wc_cddc2181a699_00000001` / MACHINING | Apr 13 13:00 → Apr 14 14:48 |
+| 2 | `op_cddc2181a699_00003128` | `wc_cddc2181a699_00000002` / WELDING | Apr 14 14:48 → Apr 15 16:36 |
+| 3 | `op_cddc2181a699_00003129` | `wc_cddc2181a699_00000003` / ASSEMBLY | Apr 15 16:36 → Apr 16 18:24 |
+| 4 | `op_cddc2181a699_00003130` | `wc_cddc2181a699_00000004` / INSPECTION | Apr 16 18:24 → Apr 17 20:12 |
+| 5 | `op_cddc2181a699_00003131` | `wc_cddc2181a699_00000005` / PACKING | Apr 17 20:12 → Apr 18 22:00 |
+
+- Final Quality Inspection `qi_cddc2181a699_00000781` directly references
+  the Work Order and operation 5. At `2026-04-19 00:00+08:00` it recorded
+  8 inspected, 7 passed, 1 failed (`FAIL`, dimensional defect). Rework
+  `rw_cddc2181a699_00000051` directly references the inspection, Work Order
+  and Work Center `wc_cddc2181a699_00000005`; it records 1 unit from
+  `2026-04-19 03:00+08:00` to `2026-04-19 12:00+08:00`.
+- Delivery rows `del_cddc2181a699_00000951` and
+  `del_cddc2181a699_00000952` each directly reference the Sales Order,
+  recording 4 units at `2026-05-10 09:00+08:00` and 4 units at
+  `2026-05-11 09:00+08:00`. Delivery-to-Work-Order/inspection is a business
+  and time association, not a direct FK. The selected quantity path is
+  7 passed + 1 recorded rework = 8 later delivered; no failed unit is
+  unaccounted for in this selected trace.
+
+The selected trace is contract-coherent and suitable for bounded manual
+acceptance. It does not prove a formal quality-release workflow or material
+availability at production time. These synthetic simplifications remain
+explicit, not silently repaired or reinterpreted.
+
+### Accepted hidden-scenario business directions
+
+The Product Owner accepted the prior same-seed baseline-vs-injected evidence:
+Supplier Degradation moves receipt/shortage and downstream operational timing
+in the frozen expected direction; Quality Deterioration increases inspection
+failures and rework and propagates timing; Capacity Surge adds arrivals and
+queue/load pressure with the expected elapsed-time direction. These are
+evaluation-path comparisons under the frozen C04-H/C06 checks, not new Week 3
+analytics metrics. HGT remains evaluation-only; public HGT leakage is `NONE`.
+No scenario behavior was rerun or redesigned for this documentation closeout.
+
+### Accepted limitations and pre-Week-3 backlog
+
+1. No post-rework inspection or formal release record exists in the Week 2
+   model. The selected 7/1/1/8 quantity path is explainable for synthetic
+   acceptance, but is not a complete production quality-release workflow.
+2. Procurement and inventory evidence is material/time-associated, not an
+   order-specific allocation or consumption ledger. The opening inventory
+   snapshot is not proof of availability at Work Order execution.
+3. BA1-R1 inspected all 800 CI orders. Under the strict preferred route
+   heuristic, 387 are non-monotonic; 34 fully delivered orders have failed
+   quantities not fully covered by recorded rework. These population-level
+   synthetic-data realism observations are accepted, are not C06 blockers,
+   and do not authorize automatic generator or schema redesign.
+4. Retain explicit **pre-Week-3 / analytics-data-quality backlog** items to
+   review operation-route realism and unresolved failed-unit dispositions
+   before treating the full synthetic population as business-clean for later
+   analytics. Resolution requires a separately authorized future checkpoint;
+   no new model, metric or implementation is added here.
+
+The existing local Windows uv-cache lock-check limitation, the accepted
+Starlette/httpx warning, and C05 per-file public-artifact publication boundary
+remain recorded in their earlier sections. They are not silently recast as
+new PASS results or corrected in this closeout.
+
+### Closeout scope and publication gate
+
+Only `docs/CURRENT_STATE.md` changes. The approved C06 implementation,
+workflow, tests, C02 schema/migrations, C03/C04/C05 behavior, dependencies,
+frozen contracts, runtime and PR metadata remain untouched. Prior exact-SHA
+CI and implementation/acceptance results are reused, not claimed as newly
+rerun tests. Bounded closeout checks are single-file scope, historical-section
+preservation, Markdown/whitespace/marker and artifact scans, followed by one
+documentation-only commit and a normal feature-branch push.
+
+Before the push and final verification, the publication status is
+`CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING`. The published
+`CLOSED / VERIFIED / GITHUB SYNCHRONIZED` state becomes effective only when
+the closeout commit is normally pushed and local, tracking, direct remote
+feature and Draft PR #5 HEADs match, with zero ahead/behind and a clean tree.
+The actual closeout SHA and observations belong in the task handoff, avoiding
+a self-referential commit or second closeout commit. PR #5 stays open/draft,
+unmerged, with auto-merge disabled; main stays unchanged.
+
+```text
+C06: CLOSED / VERIFIED / GITHUB SYNCHRONIZED (AFTER PUBLICATION GATE)
+HUMAN BUSINESS ACCEPTANCE: ACCEPTED WITH DOCUMENTED LIMITATIONS
+WEEK 2: READY FOR FINAL WEEK-2 CLOSEOUT REVIEW
+WEEK 2 COMPLETE: NO
+WEEK 3: NOT AUTHORIZED / NOT STARTED
+CONTRACT CONFLICT: NONE
+```
+
+**Next Engineering Checkpoint:** FINAL WEEK-2 CLOSEOUT REVIEW
