@@ -1,5 +1,5 @@
 # FlowLens Industrial AI — AGENTS.md
-> Week 1 Project Foundation / 第一周项目基础规则
+> Week 2 Industrial Data Foundation / 第二周工业数据基础规则
 
 This file defines repository-wide rules for Codex and any engineering agent working in this repository.  
 本文件定义 Codex 及任何工程代理在本仓库中必须遵守的全局规则。
@@ -46,15 +46,55 @@ Approved business contracts must not be silently changed for implementation conv
 
 **中文**
 
-当前阶段：**Week 1 — Project Foundation**
+当前阶段：**Week 2 — Industrial Data Foundation**
 
-Week 1 只建立可复现、可测试、可一键启动的工程基础。不得提前实现 Week 2 及以后功能。
+**Week 1 — Project Foundation：CLOSED / POST-MERGE VERIFIED**
+
+Week 2 建立：
+
+- canonical manufacturing data contracts；
+- manufacturing SQLAlchemy models；
+- Alembic manufacturing schema；
+- deterministic synthetic-data generation；
+- dataset versioning；
+- fixed random seed；
+- scenario injection；
+- Hidden Ground Truth isolation；
+- referential / temporal / quantity data-quality validation；
+- Week 2 unit / integration / CI validation。
+
+已冻结的 Week 2 控制契约：
+
+- `docs/03_data_contracts.md`
+- `docs/sprints/W02_industrial_data_foundation.md`
+
+所有 Week 2 实现必须遵守这些契约。不得提前实现 Week 3 或更晚阶段的能力。
 
 **English**
 
-Current phase: **Week 1 — Project Foundation**
+Current phase: **Week 2 — Industrial Data Foundation**
 
-Week 1 is limited to establishing a reproducible, testable, one-command engineering foundation. Do not implement Week 2 or later capabilities early.
+**Week 1 — Project Foundation: CLOSED / POST-MERGE VERIFIED**
+
+Week 2 establishes:
+
+- canonical manufacturing data contracts;
+- manufacturing SQLAlchemy models;
+- Alembic manufacturing schema;
+- deterministic synthetic-data generation;
+- dataset versioning;
+- fixed random seed;
+- scenario injection;
+- Hidden Ground Truth isolation;
+- referential / temporal / quantity data-quality validation;
+- Week 2 unit / integration / CI validation.
+
+Frozen Week 2 control contracts:
+
+- `docs/03_data_contracts.md`
+- `docs/sprints/W02_industrial_data_foundation.md`
+
+All Week 2 implementation must conform to those contracts. Do not implement Week 3 or later capabilities early.
 
 ---
 
@@ -100,11 +140,11 @@ Prefer a modular monolith. Do not introduce microservices, Kafka, RabbitMQ, Kube
 
 **中文**
 
-第一版使用 PostgreSQL 作为主要数据库。Week 1 可以启用 pgvector 扩展，但不得实现 Embedding、Vector Search 或 RAG。
+第一版使用 PostgreSQL 作为主要数据库。Week 2 只能创建 `docs/03_data_contracts.md` 明确批准的制造 Schema。pgvector 仍然仅作为基础设施存在；Week 2 不得实现 Embedding、Vector Search、Semantic Retrieval 或 RAG。
 
 **English**
 
-Use PostgreSQL as the primary database. pgvector may be enabled in Week 1, but embeddings, vector search, and RAG must not be implemented yet.
+Use PostgreSQL as the primary database. Week 2 may create only the manufacturing schema explicitly approved by `docs/03_data_contracts.md`. pgvector remains infrastructure-only; Week 2 must not implement embeddings, vector search, semantic retrieval, or RAG.
 
 ### 5.3 Deterministic Numbers
 
@@ -148,95 +188,171 @@ Once data contracts, metric definitions, API contracts, or sprint specifications
 
 ---
 
-## 6. Week 1 禁止事项 / Week 1 Prohibitions
+## 6. Week 2 禁止事项 / Week 2 Prohibitions
 
 **中文**
 
-Week 1 不得实现：
+Week 2 不得实现：
 
-- Synthetic manufacturing data generation
-- Manufacturing domain tables
 - Manufacturing metrics
+- On-Time Delivery / Delay Rate
+- Cycle Time / WIP analytics
+- Material Availability metric
+- Supplier On-Time Rate
+- FPY / Rework Rate
+- Analytics API
 - Dashboard business functionality
-- ML or feature engineering
-- RAG
+- Plotly business analytics
+- Feature engineering
+- Delivery Risk ML
+- Model training or inference
 - Embeddings
 - Vector search
+- Semantic retrieval
+- RAG
 - LLM API calls
+- Prompt engineering
 - Agents
 - LangChain
 - LangGraph
-- Prompt engineering
-- ERP / MES integration
+- Real ERP / MES integration
 - Predictive maintenance
 - Computer vision
 - Multi-agent systems
 - Fine-tuning
+- New message brokers
+- Unnecessary distributed infrastructure
+
+Week 2 operational tables 不得存储：
+
+- `is_delayed`
+- `delay_days`
+- `delivery_delay_rate`
+- `supplier_on_time_rate`
+- `material_availability_ratio`
+- `first_pass_yield`
+- `rework_rate`
+- `delivery_risk_probability`
+- `scenario_id`
+- `scenario_name`
+- `true_root_cause`
 
 **English**
 
-Do not implement the following during Week 1:
+Do not implement the following during Week 2:
 
-- Synthetic manufacturing data generation
-- Manufacturing domain tables
-- Manufacturing metrics
-- Dashboard business functionality
-- ML or feature engineering
-- RAG
-- Embeddings
-- Vector search
-- LLM API calls
-- Agents
-- LangChain
-- LangGraph
-- Prompt engineering
-- ERP / MES integration
-- Predictive maintenance
-- Computer vision
-- Multi-agent systems
-- Fine-tuning
+- manufacturing metrics;
+- On-Time Delivery / Delay Rate;
+- Cycle Time / WIP analytics;
+- Material Availability metric;
+- Supplier On-Time Rate;
+- FPY / Rework Rate;
+- analytics API;
+- dashboard business functionality;
+- Plotly business analytics;
+- feature engineering;
+- Delivery Risk ML;
+- model training or inference;
+- embeddings;
+- vector search;
+- semantic retrieval;
+- RAG;
+- LLM API calls;
+- prompt engineering;
+- agents;
+- LangChain;
+- LangGraph;
+- real ERP / MES integration;
+- predictive maintenance;
+- computer vision;
+- multi-agent systems;
+- fine-tuning;
+- new message brokers;
+- unnecessary distributed infrastructure.
+
+Week 2 operational tables must not store:
+
+- `is_delayed`
+- `delay_days`
+- `delivery_delay_rate`
+- `supplier_on_time_rate`
+- `material_availability_ratio`
+- `first_pass_yield`
+- `rework_rate`
+- `delivery_risk_probability`
+- `scenario_id`
+- `scenario_name`
+- `true_root_cause`
 
 ---
 
-## 7. Week 1 允许事项 / Week 1 Allowed Work
+## 7. Week 2 允许事项 / Week 2 Allowed Work
 
 **中文**
 
-Week 1 可以实现：
+Week 2 可以实现：
 
-- Python project setup
-- FastAPI skeleton
-- PostgreSQL + pgvector infrastructure
-- SQLAlchemy setup
-- Alembic setup
-- Docker Compose
-- Worker placeholder
-- `/health` API
-- pytest
-- Lint
-- Type checking
-- `.env.example`
-- basic CI
-- repository documentation
+- `docs/03_data_contracts.md` 批准的 manufacturing schema；
+- canonical SQLAlchemy Base / metadata；
+- manufacturing SQLAlchemy models；
+- Alembic manufacturing-domain migrations；
+- deterministic synthetic manufacturing data generator；
+- test / ci / demo dataset profiles；
+- fixed seed；
+- dataset version；
+- generator version；
+- canonical content hashing；
+- three approved scenario injectors；
+- Hidden Ground Truth manifest / runtime isolation；
+- referential integrity validation；
+- temporal integrity validation；
+- quantity integrity validation；
+- reproducibility validation；
+- scenario distribution validation；
+- dataset manifest；
+- data-quality report；
+- Week 2 unit tests；
+- PostgreSQL integration tests；
+- Week 2 CI seed/data-quality smoke；
+- required Week 2 documentation。
+
+所有实现必须遵守：
+
+- `docs/03_data_contracts.md`
+- `docs/sprints/W02_industrial_data_foundation.md`
 
 **English**
 
-Week 1 may implement:
+Week 2 may implement:
 
-- Python project setup
-- FastAPI skeleton
-- PostgreSQL + pgvector infrastructure
-- SQLAlchemy setup
-- Alembic setup
-- Docker Compose
-- Worker placeholder
-- `/health` API
-- pytest
-- lint
-- type checking
-- `.env.example`
-- basic CI
-- repository documentation
+- the manufacturing schema approved by `docs/03_data_contracts.md`;
+- canonical SQLAlchemy Base / metadata;
+- manufacturing SQLAlchemy models;
+- Alembic manufacturing-domain migrations;
+- deterministic synthetic manufacturing data generator;
+- test / ci / demo dataset profiles;
+- fixed seed;
+- dataset version;
+- generator version;
+- canonical content hashing;
+- the three approved scenario injectors;
+- Hidden Ground Truth manifest / runtime isolation;
+- referential-integrity validation;
+- temporal-integrity validation;
+- quantity-integrity validation;
+- reproducibility validation;
+- scenario-distribution validation;
+- dataset manifest;
+- data-quality report;
+- Week 2 unit tests;
+- PostgreSQL integration tests;
+- Week 2 CI seed/data-quality smoke;
+- required Week 2 documentation.
+
+All implementation must conform to:
+
+- `docs/03_data_contracts.md`
+- `docs/sprints/W02_industrial_data_foundation.md`
 
 ---
 
@@ -246,18 +362,28 @@ Week 1 may implement:
 
 - 不得提交 `.env`、API key、密码或其他 secret。
 - 必须提供 `.env.example`。
-- 后续 `data/hidden_ground_truth/` 必须与生产应用代码隔离。
-- Production application code 不得读取 hidden ground truth。
-- Week 1 不得创建完整制造业务 Schema。
+- Manufacturing tables 只能在冻结的数据契约明确规定时创建。
+- 不得静默引入新的字段、业务标签、指标或语义。
+- `data/hidden_ground_truth/` 必须与 runtime application code 隔离。
+- API、Worker、Analytics、未来 ML、RAG 和 orchestration runtime code 不得读取 Hidden Ground Truth。
+- Runtime Docker images 不得包含 Hidden Ground Truth。
+- Public manifests 不得暴露 scenario names、affected entities、true root causes 或 evaluation answers。
+- Synthetic assumptions 不得表述为浙江恒博的真实内部运营参数或真实生产数据。
+- 不得引入真实 customer、supplier、employee、commercial 或 confidential identifiers。
 - 不得在日志中输出敏感凭据。
 
 **English**
 
 - Never commit `.env`, API keys, passwords, or other secrets.
 - Provide `.env.example`.
-- Future `data/hidden_ground_truth/` must be isolated from production application code.
-- Production application code must never read hidden ground truth.
-- Do not create the full manufacturing business schema in Week 1.
+- Manufacturing tables may be created only when explicitly defined by the frozen data contract.
+- Do not silently introduce new fields, business labels, metrics, or semantics.
+- `data/hidden_ground_truth/` must remain isolated from runtime application code.
+- API, Worker, Analytics, future ML, RAG, and orchestration runtime code must not read Hidden Ground Truth.
+- Runtime Docker images must not contain Hidden Ground Truth.
+- Public manifests must not reveal scenario names, affected entities, true root causes, or evaluation answers.
+- Synthetic assumptions must not be represented as real Zhejiang Hengbo internal operating parameters or real production data.
+- Do not introduce real customer, supplier, employee, commercial, or confidential identifiers.
 - Do not log sensitive credentials.
 
 ---
