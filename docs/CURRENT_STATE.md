@@ -3,15 +3,15 @@
 
 **Sprint / Sprint:** Week 2 — Industrial Data Foundation
 
-**Current Project Phase / 当前阶段:** WEEK 2 READY FOR FINAL CLOSEOUT REVIEW
+**Current Project Phase / 当前阶段:** WEEK 2 CLOSED / VERIFIED / GITHUB SYNCHRONIZED (effective after Section 33 publication gate)
 
-**Implementation Status / 工程实现状态:** C06 CLOSED / VERIFIED / GITHUB SYNCHRONIZED; WEEK 2 FINAL CLOSEOUT PENDING
+**Implementation Status / 工程实现状态:** WEEK 2 COMPLETE; C01–C06 CLOSED / VERIFIED
 
-**Codex Readiness / Codex 开发就绪:** READY FOR FINAL WEEK-2 CLOSEOUT REVIEW; WEEK 3 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** READY FOR WEEK-3 AUTHORIZATION REVIEW ONLY; WEEK 3 IMPLEMENTATION NOT AUTHORIZED
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：C04-F/G/H and C05 remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. C06 exact-SHA CI Run #28 succeeded, independent ChatGPT review passed, and the Product Owner accepted the bounded business evidence **with documented limitations**. C06 closeout is effective only after the Section 32 publication gate; Week 2 is ready for its separate final closeout review, not closed or complete. Week 3 is NOT AUTHORIZED / NOT STARTED. Sections 10 and 32 define current state; Sections 11–31 are unchanged historical evidence. / C04-F/G/H 和 C05 保持已关闭、验证并同步状态。C06 精确 SHA 的 CI Run #28 成功，独立 ChatGPT 审查通过，Product Owner 在记录限制的前提下接受了限定范围的业务证据。C06 关闭仅在第 32 节发布门通过后生效；Week 2 等待单独的最终关闭审查，尚未关闭或完成。Week 3 尚未授权或开始。当前状态以第 10、32 节为准，第 11–31 节保留为历史证据。
+> Important / 重要：C01–C06 are CLOSED / VERIFIED; C04–C06 are GITHUB SYNCHRONIZED. C06 exact-SHA CI Run #28 succeeded, independent ChatGPT review passed, and the Product Owner accepted bounded business evidence **with documented limitations**. Week 2 is CLOSED / VERIFIED / GITHUB SYNCHRONIZED only after the Section 33 publication gate. The accepted limitations and pre-Week-3 semantic-trust backlog remain unresolved by design. Week 3 implementation is NOT AUTHORIZED / NOT STARTED; only its architecture / AI-readiness / semantic-trust authorization review is ready. Sections 10 and 33 define the latest state; Sections 11–32 are historical evidence. / C01–C06 已关闭并验证，C04–C06 已与 GitHub 同步。C06 精确 SHA 的 CI Run #28 成功，独立 ChatGPT 审查通过，Product Owner 在记录限制的前提下接受了限定范围的业务证据。Week 2 仅在第 33 节发布门通过后视为已关闭、验证并与 GitHub 同步。已接受的限制及 Week 3 前的语义信任待办事项仍未解决。Week 3 实施尚未授权或开始；仅架构、AI 就绪性和语义信任授权审查已就绪。当前最新状态以第 10、33 节为准，第 11–32 节保留为历史证据。
 
 ---
 
@@ -241,14 +241,15 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C06 final closeout / final Week-2 closeout review readiness
+**Current Gate:** W02-FINAL-CLOSEOUT-R2 publication gate / Week-3 authorization-review readiness
 **Status:** `C06 CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (effective only after Section 32 publication gate)
 **C06 CODEX VERIFIED:** `YES — EXACT-SHA CI RUN #28 SUCCESS`
 **C06 HUMAN BUSINESS ACCEPTANCE:** `ACCEPTED WITH DOCUMENTED LIMITATIONS`
 **C06 CLOSED:** `YES` (effective only after Section 32 publication gate)
-**WEEK 2:** `READY FOR FINAL WEEK-2 CLOSEOUT REVIEW / NOT CLOSED`
-**WEEK 2 COMPLETE:** `NO`
-**WEEK 3:** `NOT AUTHORIZED / NOT STARTED`
+**WEEK 2:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (effective only after Section 33 publication gate)
+**WEEK 2 COMPLETE:** `YES` (effective only after Section 33 publication gate)
+**WEEK 3:** `NOT STARTED / IMPLEMENTATION NOT AUTHORIZED`
+**WEEK 3 AUTHORIZATION REVIEW:** `READY`
 
 **W02-G0:** `PASS`
 
@@ -343,7 +344,7 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **W02-C06:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (Section 32 publication gate)
 
-**Next Engineering Checkpoint:** FINAL WEEK-2 CLOSEOUT REVIEW
+**Next Engineering Checkpoint:** CHATGPT W03 ARCHITECTURE / AI-READINESS / SEMANTIC-TRUST AUTHORIZATION REVIEW
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
@@ -351,11 +352,10 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **Contract Blockers:** `NONE`
 
-Week 2 is ready for a separate final closeout review, not closed or complete.
-C01–C05 remain closed; C06 is closed only after the Section 32 publication gate.
-Independent C06 review and bounded human business acceptance are complete with
-the accepted limitations recorded below. No implementation checkpoint is reopened.
-Week 3 remains `NOT AUTHORIZED / NOT STARTED`.
+Week 2 final closeout is recorded in Section 33 and becomes effective only
+after its publication gate. C01–C06 remain closed, and the accepted limitations
+below remain documented and unresolved. No implementation checkpoint is reopened.
+Week 3 implementation remains `NOT AUTHORIZED / NOT STARTED`.
 
 ---
 
@@ -2392,3 +2392,108 @@ CONTRACT CONFLICT: NONE
 ```
 
 **Next Engineering Checkpoint:** FINAL WEEK-2 CLOSEOUT REVIEW
+
+---
+
+## 33. W02-FINAL-CLOSEOUT-R2 — Week 2 Industrial Data Foundation Final Closeout
+
+**Date:** 2026-09-23
+
+**Starting C06 closeout SHA:** `773edb6544f66b870a20c9180df3f8fe72477d70`
+
+**Status:** `CLOSED / VERIFIED / GITHUB SYNCHRONIZED` (effective only after the publication gate below)
+
+W02-FINAL-CLOSEOUT-R1 completed the sprint-level source, contract, Week 1
+regression and Week 3 boundary review. Its only closeout gate was the README's
+stale present-tense statement that C06 review and human acceptance were still
+pending. The Product Owner explicitly authorized the narrow R2 correction to
+`README.md` and this document. No source, tests, schema, migration, dependency,
+workflow, Docker, Compose, API, worker or frozen contract is changed by R2.
+Sections 11–32 remain historical records; their earlier pending states are not
+reinterpreted as current state.
+
+### Accepted checkpoint and human evidence
+
+- C01 SQLAlchemy domain foundation, C02 canonical schema/Alembic and C03
+  deterministic baseline generator: `CLOSED / VERIFIED`.
+- C04 Supplier Degradation, Quality Deterioration, Capacity Surge, protected
+  HGT serialization/isolation and PostgreSQL scenario acceptance:
+  `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`.
+- C05 PostgreSQL persistence, CLI, public data quality and artifacts:
+  `CLOSED / VERIFIED / GITHUB SYNCHRONIZED`.
+- C06 CI/data acceptance: `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED /`
+  `HUMAN ACCEPTED WITH DOCUMENTED LIMITATIONS / CLOSED / GITHUB SYNCHRONIZED`.
+  Accepted prior implementation SHA `578476b366c64d7cf3f9d09718fbafe3a420e2f2`,
+  CI repair SHA `604c5db7ed289fb887d85befb62b78c022711ad5`, exact-SHA
+  GitHub Actions Run #28 (`35844472117`, `SUCCESS`), and C06 closeout SHA
+  `773edb6544f66b870a20c9180df3f8fe72477d70` are historical accepted
+  evidence, **not tests rerun for this final documentation closeout**.
+- Product-Owner BA1-R1 acceptance covers the selected synthetic digital thread
+  and all three frozen scenario directions within the bounded Week 2 model.
+  The Week 1 foundation remains preserved; the frozen Week 2 contracts remain
+  preserved. R1 found no implementation, contract or Week 3 capability blocker.
+
+### Accepted limitations and pre-Week-3 semantic-trust backlog
+
+The following four business/data observations are explicit **PRE-WEEK-3
+DATA-QUALITY / SEMANTIC-TRUST BACKLOG**. They are accepted, unresolved by design,
+and neither C06 nor Week 2 blockers:
+
+1. No explicit post-rework inspection or formal quality-release record exists;
+   the selected 7 passed + 1 recorded rework = 8 delivered trace is a bounded
+   synthetic explanation, not a complete production release workflow.
+2. Procurement and inventory are associated by material and time, not linked by
+   an order-specific allocation or consumption ledger. An opening inventory
+   snapshot does not establish material availability at Work Order execution.
+3. Under the strict preferred route heuristic, 387 of 800 CI orders do not
+   follow the preferred manufacturing route.
+4. Thirty-four fully delivered orders contain failed quantities not fully
+   covered by recorded rework.
+
+The accepted Starlette/httpx warning, historical local Windows uv-cache
+limitation, and C05 per-file atomic artifact publication boundary also remain
+documented and unresolved. C05 publication is not one transaction spanning
+the database and all public files. None of these observations authorizes a
+generator, schema, quality-workflow or scenario redesign in this closeout.
+
+### R2 scope and publication gate
+
+The R2 change scope is exactly `README.md` and `docs/CURRENT_STATE.md`. Only
+lightweight documentation and Git checks are run. Prior PostgreSQL, scenario,
+pytest, lint, typing, lock and CI results remain accepted prior evidence and
+are not represented as newly rerun. The final commit SHA is recorded in the
+task handoff, not in its own commit content.
+
+Before normal push and final verification, this closeout is `FINAL CLOSEOUT
+DOCUMENTATION PREPARED / SYNCHRONIZATION PENDING`. The published status below
+becomes effective only when the one documentation-only commit is pushed and
+local, tracking, direct remote feature and Draft PR #5 HEADs match, tracking
+is 0 ahead / 0 behind, and the working tree is clean. PR #5 remains open,
+draft, unmerged, without auto-merge; main remains unchanged. No Week 3 code or
+implementation authorization is created. The next checkpoint is a Week 3
+**authorization review only**.
+
+```text
+C01: CLOSED / VERIFIED
+C02: CLOSED / VERIFIED
+C03: CLOSED / VERIFIED
+C04: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C05: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C06: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+WEEK 1 BASELINE: PRESERVED
+FROZEN CONTRACTS: PRESERVED
+WEEK 2: CLOSED / VERIFIED / GITHUB SYNCHRONIZED (AFTER PUBLICATION GATE)
+WEEK 2 COMPLETE: YES (AFTER PUBLICATION GATE)
+WEEK 2 CONTRACT BLOCKER: NONE
+BLOCKER: NONE
+HIGH: NONE
+MEDIUM: NONE
+LOW: ACCEPTED NON-BLOCKING OBSERVATIONS
+KNOWN LIMITATIONS: DOCUMENTED / ACCEPTED
+PRE-WEEK-3 DATA-QUALITY BACKLOG: DOCUMENTED / UNRESOLVED BY DESIGN
+WEEK 3: NOT STARTED
+WEEK 3 IMPLEMENTATION AUTHORIZED: NO
+WEEK 3 AUTHORIZATION REVIEW: READY
+```
+
+**Next Engineering Checkpoint:** CHATGPT W03 ARCHITECTURE / AI-READINESS / SEMANTIC-TRUST AUTHORIZATION REVIEW
