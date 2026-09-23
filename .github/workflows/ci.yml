@@ -40,11 +40,14 @@ jobs:
       FLOWLENS_APP_ENVIRONMENT: test
       FLOWLENS_LOG_LEVEL: INFO
       FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_test
-      C06_OUTPUT_DIR: ${{ runner.temp }}/flowlens-ci-artifacts
 
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Configure Week 2 temporary artifact directory
+        shell: bash
+        run: echo "C06_OUTPUT_DIR=$RUNNER_TEMP/flowlens-ci-artifacts" >> "$GITHUB_ENV"
 
       - name: Validate Docker Compose configuration
         run: docker compose config --quiet

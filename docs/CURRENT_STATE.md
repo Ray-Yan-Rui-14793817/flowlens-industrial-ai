@@ -7,11 +7,11 @@
 
 **Implementation Status / 工程实现状态:** IN PROGRESS
 
-**Codex Readiness / Codex 开发就绪:** READY FOR CHATGPT W02-C06 IMPLEMENTATION / ACCEPTANCE REVIEW (subject to Section 30 exact-SHA CI verification)
+**Codex Readiness / Codex 开发就绪:** W02-C06-CI-R1 GITHUB CI REPAIR IN PROGRESS; EXACT-SHA CI VERIFICATION PENDING
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：C04-F, C04-G, C04-H and C05 remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. C06 implements CI / automated acceptance only; Codex verification is subject to the exact-SHA GitHub CI gate in Section 30. Independent ChatGPT review and human business acceptance remain pending. Week 2 remains IN PROGRESS; Week 3 is NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 30; Sections 11–29 remain unchanged historical evidence. / C04-F/G/H 和 C05 保持已关闭、验证并同步状态。C06 仅实现 CI 与自动化验收，Codex 验证以第 30 节精确 SHA 的 GitHub CI 结果为准；独立 ChatGPT 审查与人工业务验收尚待完成。Week 2 仍在进行中，Week 3 尚未授权或开始。当前状态以第 10、30 节为准，第 11–29 节历史记录保持不变。
+> Important / 重要：C04-F, C04-G, C04-H and C05 remain CLOSED / VERIFIED / GITHUB SYNCHRONIZED. C06 local acceptance passed, but the original exact-SHA GitHub run failed before jobs started. C06 is not yet Codex-verified; Section 31 records the authorized CI repair. Independent ChatGPT review and human business acceptance remain pending. Week 2 remains IN PROGRESS; Week 3 is NOT AUTHORIZED / NOT STARTED. Current status is in Sections 10 and 31; Sections 11–29 remain unchanged historical evidence. / C04-F/G/H 和 C05 保持已关闭、验证并同步状态。C06 本地验收通过，但原始精确 SHA 的 GitHub 运行在任务启动前失败。C06 尚未经过 Codex 验证；第 31 节记录获授权的 CI 修复。独立 ChatGPT 审查与人工业务验收尚待完成。Week 2 仍在进行中，Week 3 尚未授权或开始。当前状态以第 10、31 节为准，第 11–29 节历史记录保持不变。
 
 ---
 
@@ -241,8 +241,10 @@ Week 3 Analytics remains unauthorized until Week 2 is implemented, reviewed, acc
 
 ## 10. Gate 状态 / Gate Status
 
-**Current Gate:** W02-C06-I-R1 — CI / Acceptance Implementation
-**Status:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW / PENDING HUMAN BUSINESS ACCEPTANCE` (subject to Section 30 exact-SHA CI verification)
+**Current Gate:** W02-C06-CI-R1 — GitHub Actions validation repair / exact-SHA acceptance
+**Status:** `IMPLEMENTED / LOCAL ACCEPTANCE PASSED / GITHUB CI REPAIR IN PROGRESS`
+**C06 CODEX VERIFIED:** `NO — PENDING SUCCESSFUL EXACT-SHA GITHUB CI`
+**C06 CLOSED:** `NO`
 
 **W02-G0:** `PASS`
 
@@ -335,9 +337,9 @@ Hidden Ground Truth isolation rules, and acceptance criteria are frozen.
 
 **C05 Public Data Workflow:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
-**W02-C06:** `IMPLEMENTED / CODEX VERIFIED / PENDING CHATGPT REVIEW / PENDING HUMAN BUSINESS ACCEPTANCE` (subject to Section 30 exact-SHA CI verification)
+**W02-C06:** `IMPLEMENTED / LOCAL ACCEPTANCE PASSED / GITHUB CI REPAIR IN PROGRESS`
 
-**Next Engineering Checkpoint:** CHATGPT W02-C06 IMPLEMENTATION / ACCEPTANCE REVIEW
+**Next Engineering Checkpoint:** W02-C06-CI-R1 EXACT-SHA GITHUB CI VERIFICATION
 
 **W02-C04-F Implementation:** `IMPLEMENTED / CODEX VERIFIED / CHATGPT REVIEWED / HUMAN APPROVED`
 
@@ -2180,3 +2182,47 @@ MANUAL BUSINESS ACCEPTANCE: HUMAN DECISION PENDING
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W02-C06 IMPLEMENTATION / ACCEPTANCE REVIEW
+
+---
+
+## 31. W02-C06-CI-R1 GitHub Actions Validation Repair
+
+**Date:** 2026-09-23
+
+**Original implementation commit:** `578476b366c64d7cf3f9d09718fbafe3a420e2f2` (preserved)
+
+**Failed exact-SHA run:** `35819237163` / Run #27 / `FAILURE`; zero jobs instantiated.
+
+**Pre-repair C06 status:** `IMPLEMENTED / LOCAL ACCEPTANCE PASSED / GITHUB CI REPAIR IN PROGRESS`
+
+**C06 CODEX VERIFIED:** `NO — PENDING SUCCESSFUL EXACT-SHA GITHUB CI`
+
+GitHub Actions does not allow the `runner` context in `jobs.<job_id>.env`.
+The Quality job had set `C06_OUTPUT_DIR` there using `${{ runner.temp }}`.
+The repair removes that expression and configures `C06_OUTPUT_DIR` from
+`$RUNNER_TEMP` in a Bash step after checkout using `$GITHUB_ENV`, before any
+C06 step reads the variable. Public artifacts remain runner-temporary.
+
+The two-database separation, C06 generate/validate and public-quality guards,
+integration/full pytest, Ruff, strict mypy, Ubuntu lock check, cleanup steps,
+pinned actions, and Week 1 Docker Compose smoke remain intact. The trigger block
+remains narrow (`push` on main/Week 1 branch, `pull_request` targeting main):
+PR #5 targets main, so a synchronize event can supply the repair SHA's run.
+README remains correct and unchanged. No source, test, migration, schema,
+dependency, frozen contract, or Docker/Compose file is changed.
+
+At repair-commit preparation, the new exact-SHA GitHub result is pending.
+Both `Quality gate` and `Docker Compose smoke` must pass with real jobs before
+C06 becomes Codex-verified. GitHub's run and final task handoff record that
+post-push result; this repair does not close C06 or Week 2.
+
+```text
+C05: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C06 CLOSED: NO
+Week 2: IN PROGRESS
+WEEK 2 COMPLETE: NO
+Week 3: NOT AUTHORIZED / NOT STARTED
+MANUAL BUSINESS ACCEPTANCE: HUMAN DECISION PENDING
+```
+
+**Next Engineering Checkpoint:** W02-C06-CI-R1 EXACT-SHA GITHUB CI VERIFICATION
