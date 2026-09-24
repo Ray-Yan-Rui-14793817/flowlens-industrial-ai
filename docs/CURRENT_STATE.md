@@ -2798,3 +2798,38 @@ C02 CLOSED: NO
 C03: NOT AUTHORIZED
 STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
 ```
+
+### W03-C02-REPAIR-01 — R1 MEDIUM-01 harness repair
+
+GPT Independent Review R1 found that the cross-dataset future-tail harness
+did not yet compare uncertainty and DecisionContext semantics. The Product
+Owner explicitly authorized this bounded repair. Starting report HEAD was
+`af742b7bbc602a66eaea89774e94a69e7825d814`. The new harness-only
+repair commit is `90767ae555178db3d7af4cc6555fa7593ac056bf`; it changes
+only `tests/test_decision_temporal.py`. It compares normalized source,
+Evidence, EvidenceBundle uncertainty and DecisionContext semantics across
+different future tails and dataset hashes, including missing inventory,
+quality and procurement evidence and a conflict case. No runtime source or
+frozen contract changed.
+
+Focused C02 tests (26), C01 regression (39), non-integration tests (371),
+guarded C02 PostgreSQL integration (8), Ruff, strict mypy, diff check and
+Compose configuration passed. Exact repair-SHA
+[CI Run #43](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36018976342)
+(`36018976342`) succeeded with both `Quality gate` and `Docker Compose smoke`
+passing. The full evidence and remaining review boundary are recorded in
+[`W03_C02_REPAIR_01_DELTA_REPORT.md`](w03/reports/W03_C02_REPAIR_01_DELTA_REPORT.md).
+GPT C02 re-review and Human acceptance remain pending. C02 is not closed;
+C03 is not authorized. R1 `LOW-01` top metadata cleanup remains deferred to
+final C02 closeout.
+
+```text
+W03-C02-REPAIR-01: IMPLEMENTED / CODEX VERIFIED / PENDING GPT RE-REVIEW
+C02 REPAIR IMPLEMENTATION SHA: 90767ae555178db3d7af4cc6555fa7593ac056bf
+C02 EXACT REPAIR-SHA CI: PASS — RUN #43 / 36018976342
+GPT C02 RE-REVIEW: PENDING
+HUMAN C02 ACCEPTANCE: PENDING
+C02 CLOSED: NO
+C03: NOT AUTHORIZED
+STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
