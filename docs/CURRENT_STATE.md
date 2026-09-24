@@ -3,15 +3,15 @@
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-G0-C1 CLOSEOUT PREPARED; G0 CLOSED / VERIFIED ONLY AFTER FINAL PUBLICATION AND EXACT-SHA CI GATE
+**Current Project Phase / 当前阶段:** W03-C01 CLOSED / VERIFIED / GITHUB SYNCHRONIZED, EFFECTIVE ONLY AFTER THE C01-C1 FINAL PUBLICATION GATE SUCCEEDS
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03 IMPLEMENTATION NOT STARTED
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CORE CONTRACT KERNEL IMPLEMENTED / CODEX VERIFIED / GPT REVIEWED / HUMAN ACCEPTED
 
-**Codex Readiness / Codex 开发就绪:** W03-C01-A GPT CONTRACT AUTHORIZATION IS NEXT AFTER G0 CLOSEOUT; W03-C01 IMPLEMENTATION NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** C01 CLOSED AFTER FINAL PUBLICATION GATE; C02 IMPLEMENTATION NOT AUTHORIZED; NEXT = GPT W03-C02-A AUTHORIZATION / CONTRACT FREEZE
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：Section 35 records the conditional W03-G0-C1 closeout. Sections 1–34 preserve W1/W2 and G0-P1 history. The independent GPT repository review passed and the Product Owner accepted G0; final closeout still requires an exact-SHA Draft-PR CI pass and remote publication gate. W03-C01 implementation remains unauthorized and has not started. / 第 35 节记录附最终发布门条件的 W03-G0-C1 关闭状态。第 1–34 节保留 W1/W2 与 G0-P1 历史。独立 GPT 仓库审查通过，Product Owner 已接受 G0；最终关闭仍须精确 SHA 的 Draft PR CI 与远端发布验证。W03-C01 实施未获授权且尚未开始。
+> Current state / 当前状态：Section 38 records the conditional W03-C01-C1 closeout. Sections 1–37 preserve W1/W2, G0 and C01 history. The C01 core contract kernel and Repair-01 passed independent GPT re-review R2, and the Product Owner explicitly accepted C01. C01 closure takes effect only after the closeout commit's exact-SHA CI and final Git/PR synchronization gates pass. C02 implementation is unauthorized; GPT W03-C02-A is next. / 第 38 节记录附最终发布门条件的 W03-C01-C1 关闭状态。第 1–37 节保留 W1/W2、G0 与 C01 历史。C01 核心契约及 Repair-01 通过 GPT 独立复审 R2，Product Owner 已明确验收 C01。C01 关闭仅在 closeout 提交的精确 SHA CI 与最终 Git/PR 同步门通过后生效。C02 实施未获授权；下一步为 GPT W03-C02-A。
 
 ---
 
@@ -2710,4 +2710,45 @@ HUMAN C01 ACCEPTANCE: PENDING
 C01 CLOSED: NO
 C02 AUTHORIZED: NO
 STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
+
+---
+
+## 38. W03-C01-C1 — Final Governance Closeout
+
+**Date:** 2026-09-24
+**Starting HEAD:** `0930da1d30e170b955e32d5ec3d8adb79112c998`
+**Reviewed Repair-01 implementation:** `889f29a5b5a9444c0eaa6514b027edb9715ec8f0`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner's explicit chat message `W03-C01 HUMAN ACCEPTANCE: ACCEPTED`
+accepts the C01 implementation, Repair-01, GPT Independent Re-Review R2 PASS,
+and deferred limitations. R2 is published in
+`docs/w03/reports/W03_C01_GPT_INDEPENDENT_REREVIEW_R2.md`. The separate
+`docs/w03/reports/W03_C01_C1_FINAL_CLOSEOUT.md` records the evidence chain,
+accepted C01 capability, deferred C02–C08 boundaries, and publication gate.
+R1 findings HIGH-01, HIGH-02 and MEDIUM-01 are CLOSED by R2.
+
+The starting report-head CI Run #37 (`35983039655`) succeeded on
+`0930da1d30e170b955e32d5ec3d8adb79112c998`; repair exact-SHA CI Run #36
+(`35981909766`) succeeded on the reviewed repair implementation. This
+documentation-only closeout makes no implementation or test change, preserves
+W1/W2/G0 and historical C01 evidence, leaves `main` unchanged, and keeps
+PR #6 open, draft and unmerged with auto-merge disabled.
+
+C01 CLOSED is conditional in this committed record. It becomes effective only
+after the one closeout commit is normally pushed, its exact-SHA PR CI passes
+both required jobs, and final local/tracking/direct-remote/PR synchronization
+and clean-tree gates pass. The final commit SHA and CI run are reported in the
+Codex handoff; no second evidence commit is required.
+
+```text
+GPT C01 RE-REVIEW: PASS
+HUMAN C01 ACCEPTANCE: ACCEPTED
+C01 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL PUBLICATION GATE
+PR #6: OPEN / DRAFT / NOT MERGED
+main: UNCHANGED
+C02-A: NEXT GPT CHECKPOINT
+C02 IMPLEMENTATION: NOT AUTHORIZED
+STATUS: C01_CLOSED ONLY AFTER FINAL PUBLICATION GATE
 ```
