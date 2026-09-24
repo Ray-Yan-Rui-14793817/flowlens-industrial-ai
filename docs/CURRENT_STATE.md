@@ -2752,3 +2752,49 @@ C02-A: NEXT GPT CHECKPOINT
 C02 IMPLEMENTATION: NOT AUTHORIZED
 STATUS: C01_CLOSED ONLY AFTER FINAL PUBLICATION GATE
 ```
+
+---
+
+## 39. W03-C02 — Trusted Snapshot and DecisionContext Implementation Round
+
+**Date:** 2026-09-24
+**Starting C01 closeout SHA:** `c626126a81fe07b5d1f670deaeaadc809f6bea55`
+**C02 implementation/harness SHA:** `d0e6e598afb1d380331619ba02fae95fd872479f`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner explicitly authorized W03-C02-I/H/R. The C02 Context Lock was
+published as `LOCKED` before source changes. The authorized implementation adds
+pure temporal Snapshot, Evidence, Semantic Trust, derivation and DecisionContext
+modules and one PostgreSQL `REPEATABLE READ` / `READ ONLY` snapshot adapter.
+It preserves frozen C01 and W2 contracts, schema, migrations, canonical hash,
+scenario semantics, dependencies and the runtime HGT boundary. It adds no C03
+capability or operational write.
+
+Focused C02 tests (22), frozen C01 regression (39), non-integration regression
+(367), all PostgreSQL integration tests (43, including 8 C02), Ruff, strict
+mypy, Compose configuration and the C01-to-C02 diff check passed. Temporal and
+future-tail, Semantic Trust, inventory freshness, quality unknown, replay,
+HGT isolation and no-mutation checks are recorded in
+[`W03_C02_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C02_R_DEVELOPMENT_ROUND_REPORT.md).
+Exact implementation/harness SHA
+[CI Run #41](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/35998586313)
+(`35998586313`) succeeded; `Quality gate` and `Docker Compose smoke` both passed.
+
+The recovery audit confirmed clean local/tracking/direct-remote/PR synchronization
+at the implementation/harness SHA before the separate report commit. PR #6
+remained open, draft and unmerged, and `main` stayed at
+`9d18ddde9fe933952a2661ee1419f13c8577605d`. This reporting commit changes
+only this historical/current entry and the C02 Development Round Report.
+Independent GPT review and Human acceptance remain pending. C02 is not closed;
+C03 remains unauthorized.
+
+```text
+W03-C02: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+C02 IMPLEMENTATION/HARNESS SHA: d0e6e598afb1d380331619ba02fae95fd872479f
+C02 EXACT-SHA CI: PASS — RUN #41 / 35998586313
+GPT C02 REVIEW: PENDING
+HUMAN C02 ACCEPTANCE: PENDING
+C02 CLOSED: NO
+C03: NOT AUTHORIZED
+STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
