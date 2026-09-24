@@ -2620,3 +2620,49 @@ OPERATIONAL MUTATION: NONE
 
 **Next authorized checkpoint after final gate:** W03-C01-A — Core AI Loop
 Contracts Authorization. G0-C1 does not authorize or start C01 implementation.
+
+---
+
+## 36. W03-C01 — Immutable Core Contracts Implementation Round
+
+**Date:** 2026-09-24
+**Starting G0 SHA:** `08c8d62b635ae5162ecbfed8be308b93006ac94d`
+**Implementation SHA:** `f779c9fd77f617e6050d5eefa91f711851c86a4f`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner supplied explicit C01 implementation authorization in the Codex
+task. The C01 Context Lock was published before the first source write. The
+implementation commit adds only the authorized C01 contract documents, immutable
+`flowlens.decision` type package, and two focused test files. It does not change
+W1/W2 source, operational schema, migrations, dependencies, CI, Docker, Compose,
+API or worker behavior. No runtime HGT or operational mutation capability was added.
+
+The focused C01 tests passed (36), the non-integration regression passed
+(342 passed, 35 integration tests deselected), Ruff and strict mypy passed,
+`git diff --check` passed, and Compose configuration validation passed. The
+exact implementation-SHA PR CI Run [#34](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/35958005313)
+(`35958005313`) completed successfully with `Quality gate` and
+`Docker Compose smoke` both successful. The full evidence is in
+`docs/w03/reports/W03_C01_R_DEVELOPMENT_ROUND_REPORT.md`.
+
+This is an implementation and evidence record, not a GPT independent review or
+Human acceptance. It becomes the current C01 review state after the separate
+report commit is published and Git/PR synchronization is verified.
+
+```text
+W03-C01: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+
+C01 IMPLEMENTATION SHA: f779c9fd77f617e6050d5eefa91f711851c86a4f
+
+C01 EXACT-SHA CI: PASS — RUN #34 / 35958005313
+
+GPT C01 REVIEW: PENDING
+
+HUMAN C01 ACCEPTANCE: PENDING
+
+C01 CLOSED: NO
+
+C02: NOT AUTHORIZED
+
+STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
