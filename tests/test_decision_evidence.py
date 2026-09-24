@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 from dataclasses import replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from flowlens.decision.enums import FreshnessStatus, TrustLevel
 from flowlens.decision.evidence import build_evidence_bundle
-from flowlens.decision.snapshot import build_state_snapshot
-from test_decision_snapshot import AS_OF, make_run, sample_projected, sample_snapshot
+from flowlens.decision.primitives import ScalarValue
+from flowlens.decision.snapshot import build_state_snapshot, source_unknowns
+from flowlens.decision.temporal import project_record
+from test_decision_snapshot import AS_OF, ORDER_AT, make_run, sample_projected, sample_snapshot
 
 
 def test_source_evidence_is_exactly_snapshot_backed() -> None:
@@ -96,3 +98,69 @@ def test_full_recorded_rework_still_has_unknown_quality_finality() -> None:
     codes = {item.code for item in bundle.uncertainties}
     assert "QUALITY_FINALITY_UNKNOWN" in codes
     assert "QUALITY_DISPOSITION_UNKNOWN" not in codes
+
+
+def test_full_delivery_uses_only_admitted_delivery_quantity() -> None:
+    projected = tuple(
+        replace(item, value=10)
+        if item.source_entity == "fact_delivery" and item.source_field == "delivered_quantity"
+        else item
+        for item in sample_projected()
+    )
+    bundle = build_evidence_bundle(build_state_snapshot(make_run(), projected))
+    derived = {
+        item.source_field: item.value
+        for item in bundle.evidence
+        if item.source_entity == "c02_derivation"
+    }
+    assert derived["delivered_quantity_as_of"] == 10
+    assert derived["remaining_quantity_as_of"] == 0
+    assert derived["delivery_state_as_of"] == "DELIVERED_AS_OF"
+
+
+def test_work_order_and_operation_states_follow_admitted_events_only() -> None:
+    fields: dict[str, ScalarValue] = {
+        "operation_id": "OP-1",
+        "work_order_id": "WO-1",
+        "work_center_id": "WC-1",
+        "sequence_number": 1,
+        "planned_start_at": ORDER_AT,
+        "planned_end_at": datetime(2026, 1, 23, tzinfo=UTC),
+        "actual_start_at": datetime(2026, 1, 14, tzinfo=UTC),
+        "actual_end_at": datetime(2026, 1, 22, tzinfo=UTC),
+        "status": "COMPLETED",
+    }
+    for at, expected in (
+        (datetime(2026, 1, 13, tzinfo=UTC), "NOT_STARTED_AS_OF"),
+        (AS_OF, "IN_PROGRESS_AS_OF"),
+        (datetime(2026, 1, 23, tzinfo=UTC), "COMPLETED_AS_OF"),
+    ):
+        operation = project_record(
+            "fact_operation",
+            "OP-1",
+            fields,
+            as_of_time=at,
+            period_start=date(2026, 1, 1),
+            target_order_at=ORDER_AT,
+        )
+        snapshot = build_state_snapshot(make_run(at), (*sample_projected(at), *operation))
+        derived = {
+            item.source_field: item.value
+            for item in build_evidence_bundle(snapshot).evidence
+            if item.source_entity == "c02_derivation"
+        }
+        assert derived["work_order_state_as_of"] == expected
+        assert derived["operation_state_as_of"] == expected
+
+
+def test_missing_procurement_and_inventory_remain_unknown() -> None:
+    projected = tuple(
+        item
+        for item in sample_projected()
+        if item.source_entity not in {"fact_purchase_order", "fact_inventory_snapshot"}
+    )
+    unknowns = source_unknowns(1, 1, ("MAT-1",), ())
+    bundle = build_evidence_bundle(build_state_snapshot(make_run(), projected, unknowns))
+    codes = {item.code for item in bundle.uncertainties}
+    assert {"PROCUREMENT_EVIDENCE_NOT_AVAILABLE", "INVENTORY_EVIDENCE_MISSING"} <= codes
+    assert not any(item.source_entity == "fact_purchase_order" for item in bundle.evidence)
