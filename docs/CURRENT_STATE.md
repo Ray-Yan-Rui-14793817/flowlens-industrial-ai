@@ -3,15 +3,15 @@
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C01 CLOSED / VERIFIED / GITHUB SYNCHRONIZED, EFFECTIVE ONLY AFTER THE C01-C1 FINAL PUBLICATION GATE SUCCEEDS
+**Current Project Phase / 当前阶段:** W03-C02 CLOSED / VERIFIED / GITHUB SYNCHRONIZED, EFFECTIVE ONLY AFTER THE C02-C1 FINAL PUBLICATION GATE SUCCEEDS
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CORE CONTRACT KERNEL IMPLEMENTED / CODEX VERIFIED / GPT REVIEWED / HUMAN ACCEPTED
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 TRUSTED SNAPSHOT AND DECISIONCONTEXT IMPLEMENTED / CODEX VERIFIED / GPT R2 PASS / HUMAN ACCEPTED; C03 NOT STARTED
 
-**Codex Readiness / Codex 开发就绪:** C01 CLOSED AFTER FINAL PUBLICATION GATE; C02 IMPLEMENTATION NOT AUTHORIZED; NEXT = GPT W03-C02-A AUTHORIZATION / CONTRACT FREEZE
+**Codex Readiness / Codex 开发就绪:** C02-C1 DOCUMENTATION CLOSEOUT AUTHORIZED; C03 IMPLEMENTATION NOT AUTHORIZED; NEXT = GPT W03-C03-A AUTHORIZATION / CONTRACT FREEZE
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：Section 38 records the conditional W03-C01-C1 closeout. Sections 1–37 preserve W1/W2, G0 and C01 history. The C01 core contract kernel and Repair-01 passed independent GPT re-review R2, and the Product Owner explicitly accepted C01. C01 closure takes effect only after the closeout commit's exact-SHA CI and final Git/PR synchronization gates pass. C02 implementation is unauthorized; GPT W03-C02-A is next. / 第 38 节记录附最终发布门条件的 W03-C01-C1 关闭状态。第 1–37 节保留 W1/W2、G0 与 C01 历史。C01 核心契约及 Repair-01 通过 GPT 独立复审 R2，Product Owner 已明确验收 C01。C01 关闭仅在 closeout 提交的精确 SHA CI 与最终 Git/PR 同步门通过后生效。C02 实施未获授权；下一步为 GPT W03-C02-A。
+> Current state / 当前状态：Section 40 records the conditional W03-C02-C1 closeout. Earlier sections preserve W1/W2, G0, C01 and C02 implementation/repair history. GPT independent re-review R2 passed, and the Product Owner explicitly accepted C02. C02 closure takes effect only after the closeout commit's exact-SHA CI and final Git/PR synchronization gates pass. C03 is not authorized; GPT W03-C03-A is next. / 第 40 节记录附最终发布门条件的 W03-C02-C1 关闭状态。前面各节保留 W1/W2、G0、C01 及 C02 实施与修复历史。GPT 独立复审 R2 已通过，Product Owner 已明确验收 C02。C02 仅在关闭提交的精确 SHA CI 与最终 Git/PR 同步门通过后正式关闭。C03 尚未获授权；下一步为 GPT W03-C03-A。
 
 ---
 
@@ -2832,4 +2832,43 @@ HUMAN C02 ACCEPTANCE: PENDING
 C02 CLOSED: NO
 C03: NOT AUTHORIZED
 STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
+
+---
+
+## 40. W03-C02-C1 — Final Closeout
+
+**Date:** 2026-09-24
+
+**Starting repair report SHA:** `e222b85f85ef3d419f22b761457973a167f34231`
+
+**Reviewed repair implementation SHA:** `90767ae555178db3d7af4cc6555fa7593ac056bf`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+GPT Independent Re-Review R2 returned **PASS** and closed R1 `MEDIUM-01`.
+The Product Owner separately supplied `W03-C02 HUMAN ACCEPTANCE: ACCEPTED`
+and `W03-C02-C1 CLOSEOUT AUTHORIZATION: APPROVED` in chat. Run #44
+(`36020407915`) succeeded on the exact starting report SHA with both Quality
+gate and Docker Compose smoke successful. The authorized documentation-only
+closeout publishes the [R2 review](w03/reports/W03_C02_GPT_INDEPENDENT_REREVIEW_R2.md)
+and the [final closeout report](w03/reports/W03_C02_C1_FINAL_CLOSEOUT.md).
+The top current-state metadata and the W03 Sprint Spec current-status surface
+are normalized, closing R1 `LOW-01` without modifying source or tests.
+
+Historical sections remain unchanged. C02 adds no C03 capability. PR #6
+remains open, draft and unmerged; main remains at
+`9d18ddde9fe933952a2661ee1419f13c8577605d`. Final closure is effective
+only after the closeout commit's exact-SHA CI and final Git/PR synchronization
+gates pass; the final SHA and CI run are reported in the Codex handoff.
+
+```text
+W03-C02: CLOSED / VERIFIED / GITHUB SYNCHRONIZED — EFFECTIVE ONLY AFTER FINAL PUBLICATION GATE
+GPT C02 RE-REVIEW: PASS
+HUMAN C02 ACCEPTANCE: ACCEPTED
+R1 MEDIUM-01: CLOSED
+R1 LOW-01: CLOSED BY DOCUMENTATION NORMALIZATION
+C02 CONTRACT BLOCKER: NONE
+C03: NOT STARTED / NOT AUTHORIZED
+NEXT: GPT W03-C03-A AUTHORIZATION / CONTRACT FREEZE
 ```
