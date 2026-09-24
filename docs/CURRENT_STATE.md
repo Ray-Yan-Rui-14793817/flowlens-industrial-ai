@@ -3,15 +3,15 @@
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-G0-P1 GOVERNANCE PUBLISHED AND REMOTE-VERIFIED ON `feat/w03-ai-decision-loop`; REVIEW PENDING
+**Current Project Phase / 当前阶段:** W03-G0-C1 CLOSEOUT PREPARED; G0 CLOSED / VERIFIED ONLY AFTER FINAL PUBLICATION AND EXACT-SHA CI GATE
 
 **Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03 IMPLEMENTATION NOT STARTED
 
-**Codex Readiness / Codex 开发就绪:** G0 REVIEW_READY; GPT INDEPENDENT REPOSITORY REVIEW PENDING; W03-C01 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** W03-C01-A GPT CONTRACT AUTHORIZATION IS NEXT AFTER G0 CLOSEOUT; W03-C01 IMPLEMENTATION NOT AUTHORIZED
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：Section 34 is the current W03-G0-P1 publication record. Sections 1–33 preserve the accepted Week 1 and Week 2 history, including exact-SHA CI Run #28, Product Owner acceptance with documented limitations, and the unresolved pre-Week-3 semantic-trust backlog. W03-C01 implementation remains unauthorized and has not started. / 第 34 节记录当前 W03-G0-P1 发布状态。第 1–33 节保留已接受的 Week 1、Week 2 历史证据，包括精确 SHA 的 CI Run #28、附限制条件的 Product Owner 验收，以及尚未解决的 Week 3 前语义信任待办事项。W03-C01 实施未获授权且尚未开始。
+> Current state / 当前状态：Section 35 records the conditional W03-G0-C1 closeout. Sections 1–34 preserve W1/W2 and G0-P1 history. The independent GPT repository review passed and the Product Owner accepted G0; final closeout still requires an exact-SHA Draft-PR CI pass and remote publication gate. W03-C01 implementation remains unauthorized and has not started. / 第 35 节记录附最终发布门条件的 W03-G0-C1 关闭状态。第 1–34 节保留 W1/W2 与 G0-P1 历史。独立 GPT 仓库审查通过，Product Owner 已接受 G0；最终关闭仍须精确 SHA 的 Draft PR CI 与远端发布验证。W03-C01 实施未获授权且尚未开始。
 
 ---
 
@@ -2555,3 +2555,68 @@ W03 IMPLEMENTATION: NOT STARTED
 OPERATIONAL MUTATION: NONE
 NEXT: GPT INDEPENDENT G0-P1 REPOSITORY REVIEW
 ```
+
+---
+
+## 35. W03-G0-C1 — Final Governance Closeout
+
+**Date:** 2026-09-24
+**Starting main:** `9d18ddde9fe933952a2661ee1419f13c8577605d`
+**Starting W03 HEAD:** `1d552b26bd43437c28a946abba06e7b0ccf82813`
+**Governance publication:** `1a5d54d691304f3eefbb82863682ac8bcde39f29`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner supplied a PASS result for the independent W03-G0-P1 GPT
+repository review and the Human G0 decision ACCEPT. These are separate
+evidence records. The review found no BLOCKER, HIGH, or MEDIUM findings; its
+two LOW findings are documented in
+`docs/w03/reports/W03_G0_P1_GPT_INDEPENDENT_REVIEW.md`. The Human decision
+accepts G0 governance and those prescribed dispositions, not C01
+implementation or a PR merge.
+
+Draft PR [#6](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/pull/6)
+was created from `feat/w03-ai-decision-loop` to `main` as OPEN / DRAFT / NOT
+MERGED. It activated the existing `pull_request` CI path without changing the
+workflow. Initial PR CI Run #32 (`35952434600`) passed for the starting W03
+HEAD, including `Quality gate` and `Docker Compose smoke`.
+
+The Sprint Spec now identifies the actual authorized G0 transition from the
+verified main baseline through W03 branch creation, governance publication,
+independent review, Human acceptance, and G0-C1 closeout. Its original G0-R1
+candidate sequence remains explicitly labeled as historical design evidence.
+The AGENTS router, LOOP router, and skills policy remain unchanged.
+
+W1/W2 frozen contracts and historical evidence remain preserved. There is no
+runtime code, test, schema, migration, dependency, CI workflow, Docker, or
+operational-data mutation. The W2 semantic-trust backlog remains unresolved:
+post-rework release is not formalized; procurement/inventory have material/time
+association rather than order allocation; the opening inventory snapshot does
+not prove later availability; 387/800 orders fail the preferred-route
+heuristic; and 34 fully delivered orders have failed quantities not fully
+covered by recorded rework. These are W03 Semantic Trust inputs and limits.
+
+The exact final G0-C1 commit SHA and its final exact-SHA CI run are recorded in
+the Codex handoff after push. The closeout below becomes effective only when
+that commit is normally pushed, the Draft-PR synchronize CI run passes on the
+same SHA, local/tracking/direct-remote/PR HEADs match, `main` is unchanged,
+tracking is 0 ahead / 0 behind, the working tree is clean, and PR #6 stays
+OPEN / DRAFT / NOT MERGED with auto-merge disabled. If the gate fails, G0
+remains open.
+
+```text
+WEEK 1: CLOSED / PRESERVED
+WEEK 2: CLOSED / VERIFIED / MERGED TO MAIN / PRESERVED
+W03-G0 GOVERNANCE: CLOSED / VERIFIED / GITHUB SYNCHRONIZED (ONLY AFTER FINAL GATE)
+W03-G0-P1 GPT INDEPENDENT REVIEW: PASS
+W03-G0 HUMAN ACCEPTANCE: ACCEPTED
+W03 REPOSITORY PROJECTION: VERIFIED
+W03 DRAFT PR: OPEN / DRAFT / NOT MERGED
+EXACT-SHA CI PATH: ACTIVE THROUGH PULL_REQUEST TO MAIN
+W03-C01-A: NEXT GPT ARCHITECTURE / CONTRACT AUTHORIZATION CHECKPOINT
+W03-C01 IMPLEMENTATION: NOT AUTHORIZED
+W03 RUNTIME IMPLEMENTATION: NOT STARTED
+OPERATIONAL MUTATION: NONE
+```
+
+**Next authorized checkpoint after final gate:** W03-C01-A — Core AI Loop
+Contracts Authorization. G0-C1 does not authorize or start C01 implementation.

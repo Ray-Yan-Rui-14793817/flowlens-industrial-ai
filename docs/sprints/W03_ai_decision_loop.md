@@ -3,8 +3,8 @@
 **Task:** W03-G0-GPT-08\
 **Sprint:** Week 3 — Industrial AI Decision Loop Foundation\
 **Baseline:** `main@9d18ddde9fe933952a2661ee1419f13c8577605d`\
-**G0 Status:** READY FOR GPT FINAL REVIEW / HUMAN APPROVAL\
-**Implementation:** NOT YET AUTHORIZED
+**G0 Status:** GPT REVIEW PASSED / HUMAN ACCEPTED; G0-C1 FINAL PUBLICATION GATE PENDING\
+**Implementation:** NOT AUTHORIZED
 
 ---
 
@@ -99,12 +99,16 @@ multiple business decision loops
 
 ## 5. Branch Policy
 
-After G0 Human Approval only:
+The W03-G0-P1 task-level Git sequence authorized branch creation from the
+verified main baseline before repository publication. The completed transition
+and G0-C1 closeout sequence are recorded in Section 22.
+
+Current W03 branch:
 
 ```text
 main@9d18ddde9fe933952a2661ee1419f13c8577605d
 ↓
-create feat/w03-ai-decision-loop
+feat/w03-ai-decision-loop
 ```
 
 The older historical W2 branch must not be reused.
@@ -608,9 +612,13 @@ Before C01 implementation:
 G0 documents complete
 GPT G0 final review PASS FOR HUMAN APPROVAL
 Human G0 approval YES
+G0-C1 closeout publication and exact-SHA CI PASS
+C01-A architecture / contract authorization
+Human C01 implementation authorization
 ```
 
-Only then create the W03 feature branch.
+The W03 feature branch already exists under the authorized G0-P1 transition.
+G0 closeout alone does not authorize C01 implementation.
 
 ---
 
@@ -621,13 +629,22 @@ G0 AUTHORING:
 COMPLETE
 
 GPT FINAL REVIEW:
-PENDING IN SEPARATE REVIEW ARTIFACT
+PASS FOR HUMAN APPROVAL
+
+GPT INDEPENDENT G0-P1 REPOSITORY REVIEW:
+PASS
 
 HUMAN G0 APPROVAL:
-PENDING
+ACCEPTED
 
 W03 BRANCH:
-NOT CREATED
+feat/w03-ai-decision-loop — G0 GOVERNANCE PUBLISHED
+
+G0-C1 CLOSEOUT:
+PENDING FINAL PUBLICATION + EXACT-SHA CI GATE
+
+W03-C01-A:
+NEXT GPT CHECKPOINT AFTER G0 CLOSEOUT
 
 C01 IMPLEMENTATION:
 NOT AUTHORIZED
@@ -637,7 +654,8 @@ NOT AUTHORIZED
 
 ## 22. G0-R1 Repository Projection Requirement
 
-Before G0 can be closed and before `feat/w03-ai-decision-loop` can be created, repository execution surfaces must be aligned:
+Repository execution surfaces required alignment before G0 could close. The
+W03-G0-P1 publication aligned them on `feat/w03-ai-decision-loop`:
 
 ```text
 AGENTS.md
@@ -653,7 +671,9 @@ CURRENT_STATE
 → updated to the true post-G0 publication state
 ```
 
-Therefore the final G0 sequence is:
+The original G0-R1 candidate sequence below is retained as historical design
+evidence; its branch timing was superseded by the authorized W03-G0-P1 Git
+sequence:
 
 ```text
 G0 Architecture Contracts
@@ -674,3 +694,30 @@ Create W03 Feature Branch
 ↓
 W03-C01-A
 ```
+
+The current authoritative G0 transition and closeout sequence is:
+
+```text
+verified main@9d18ddde9fe933952a2661ee1419f13c8577605d
+↓
+Human G0 design authorization
+↓
+create feat/w03-ai-decision-loop
+↓
+publish G0 governance baseline
+↓
+publish G0-P1 evidence
+↓
+GPT independent repository review
+↓
+Human G0 acceptance
+↓
+G0-C1 closeout publication and exact-SHA CI
+↓
+G0 CLOSED
+↓
+W03-C01-A architecture / contract authorization
+```
+
+W03-C01 implementation remains unauthorized until its separate contract and
+Human authorization gates pass.
