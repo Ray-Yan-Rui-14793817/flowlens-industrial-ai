@@ -1,8 +1,8 @@
 # FlowLens Industrial AI — W03-C02 Context Lock
 
-checkpoint_id: W03-C02  
-context_lock_status: LOCKED  
-locked_on: 2026-09-24  
+checkpoint_id: W03-C02
+context_lock_status: LOCKED
+locked_on: 2026-09-24
 human_authorization: APPROVED — explicit Product Owner chat message, 2026-09-24
 
 ## Verified entry state

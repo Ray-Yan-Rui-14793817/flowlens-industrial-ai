@@ -1,8 +1,8 @@
 # FlowLens Industrial AI — W03-C02-A Implementation Authorization Contract
 
-**Task:** `W03-C02-A`  
-**Checkpoint:** `W03-C02 — StateSnapshot + DecisionContext + Semantic Trust`  
-**GPT decision:** `PASS FOR HUMAN IMPLEMENTATION AUTHORIZATION`  
+**Task:** `W03-C02-A`
+**Checkpoint:** `W03-C02 — StateSnapshot + DecisionContext + Semantic Trust`
+**GPT decision:** `PASS FOR HUMAN IMPLEMENTATION AUTHORIZATION`
 **Human implementation authorization:** `PENDING`
 
 ## 1. Objective

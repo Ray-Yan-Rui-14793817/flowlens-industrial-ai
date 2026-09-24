@@ -1,6 +1,6 @@
 # FlowLens Industrial AI — W03-C02 Source Field → StateSnapshot Matrix
 
-**Contract:** `w03-c02-source-matrix.v1`  
+**Contract:** `w03-c02-source-matrix.v1`
 **Purpose:** exact whitelist and decision-time availability semantics.
 
 ## 1. Entry conventions

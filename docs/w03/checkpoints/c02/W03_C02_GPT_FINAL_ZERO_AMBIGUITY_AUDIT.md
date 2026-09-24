@@ -1,6 +1,6 @@
 # FlowLens Industrial AI — W03-C02 GPT Final Zero-Ambiguity Audit
 
-**Task:** `W03-C02-A-FINAL-AUDIT`  
+**Task:** `W03-C02-A-FINAL-AUDIT`
 **Verdict:** `PASS FOR HUMAN IMPLEMENTATION AUTHORIZATION`
 
 ## 1. Entry gate

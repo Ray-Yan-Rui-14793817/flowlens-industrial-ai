@@ -1,8 +1,8 @@
 # FlowLens Industrial AI — W03-C02 Final Architecture & Semantic Freeze
 
-**Task:** `W03-C02-A`  
-**Contract bundle:** `w03-c02-v1`  
-**Baseline:** `feat/w03-ai-decision-loop@c626126a81fe07b5d1f670deaeaadc809f6bea55`  
+**Task:** `W03-C02-A`
+**Contract bundle:** `w03-c02-v1`
+**Baseline:** `feat/w03-ai-decision-loop@c626126a81fe07b5d1f670deaeaadc809f6bea55`
 **Status:** `GPT CONTRACT FREEZE COMPLETE / PASS FOR HUMAN IMPLEMENTATION AUTHORIZATION`
 
 ## 1. Objective
