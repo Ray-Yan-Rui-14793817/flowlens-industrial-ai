@@ -3,11 +3,11 @@
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-G0-P1 GOVERNANCE PUBLICATION PREPARED ON `feat/w03-ai-decision-loop`; REMOTE VERIFICATION PENDING
+**Current Project Phase / 当前阶段:** W03-G0-P1 GOVERNANCE PUBLISHED AND REMOTE-VERIFIED ON `feat/w03-ai-decision-loop`; REVIEW PENDING
 
 **Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03 IMPLEMENTATION NOT STARTED
 
-**Codex Readiness / Codex 开发就绪:** G0 PUBLICATION IN PROGRESS; GPT INDEPENDENT REPOSITORY REVIEW PENDING; W03-C01 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** G0 REVIEW_READY; GPT INDEPENDENT REPOSITORY REVIEW PENDING; W03-C01 NOT AUTHORIZED
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
@@ -2505,6 +2505,7 @@ WEEK 3 AUTHORIZATION REVIEW: READY
 **Date:** 2026-09-24\
 **Starting main baseline:** `9d18ddde9fe933952a2661ee1419f13c8577605d`\
 **Branch:** `feat/w03-ai-decision-loop`\
+**Governance publication SHA:** `1a5d54d691304f3eefbb82863682ac8bcde39f29`\
 **Primary loop:** Order Delivery Risk Decision Loop\
 **Product mode:** OFFLINE / SHADOW / HUMAN-IN-THE-LOOP
 
@@ -2532,22 +2533,25 @@ Ruff and strict mypy passed. Docker Compose configuration validation passed
 with a local Docker config access warning. No runtime code, tests, schema,
 migrations, dependencies, or CI workflow semantics were changed.
 
-The exact governance publication SHA, direct remote verification, and any CI
-observation will be recorded in the separate W03-G0-P1 publication report after
-the normal branch push. This section's repository-publication status becomes
-effective only after the remote branch is verified at the governance SHA.
+The first governance commit was normally pushed and the direct remote W03 ref
+matched its exact SHA; remote `main` remained at the starting baseline. GitHub
+displayed the expected governance paths. The existing CI workflow does not
+include W03 in its push branch filters, and the GitHub Actions W03 branch query
+showed zero runs. The separate W03-G0-P1 publication report records this
+evidence, limitations, and reviewer questions.
 
 ```text
 WEEK 1: CLOSED / PRESERVED
 WEEK 2: CLOSED / VERIFIED / MERGED TO MAIN / PRESERVED
-WEEK 3: G0 GOVERNANCE PUBLICATION PREPARED
+WEEK 3: G0 GOVERNANCE PUBLICATION COMPLETE
 G0 GPT ARCHITECTURE: COMPLETE IN SUPPLIED V2 GOVERNANCE PACKAGE
-G0 REPOSITORY PROJECTION: PREPARED ON feat/w03-ai-decision-loop
+G0 REPOSITORY PROJECTION: PUBLISHED ON feat/w03-ai-decision-loop
+CI: NOT TRIGGERED FOR W03 GOVERNANCE BRANCH
 GPT INDEPENDENT REPOSITORY REVIEW: PENDING
 HUMAN G0 CLOSEOUT: PENDING
 G0 CLOSED: NO
 W03-C01: NOT AUTHORIZED
 W03 IMPLEMENTATION: NOT STARTED
 OPERATIONAL MUTATION: NONE
-NEXT: PUSH, VERIFY, AND RECORD W03-G0-P1 PUBLICATION; THEN GPT INDEPENDENT REVIEW
+NEXT: GPT INDEPENDENT G0-P1 REPOSITORY REVIEW
 ```
