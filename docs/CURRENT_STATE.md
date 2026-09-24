@@ -1,17 +1,17 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-23
+**Last Updated / 最后更新:** 2026-09-24
 
-**Sprint / Sprint:** Week 2 — Industrial Data Foundation
+**Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** WEEK 2 CLOSED / VERIFIED / GITHUB SYNCHRONIZED (effective after Section 33 publication gate)
+**Current Project Phase / 当前阶段:** W03-G0-P1 GOVERNANCE PUBLICATION PREPARED ON `feat/w03-ai-decision-loop`; REMOTE VERIFICATION PENDING
 
-**Implementation Status / 工程实现状态:** WEEK 2 COMPLETE; C01–C06 CLOSED / VERIFIED
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03 IMPLEMENTATION NOT STARTED
 
-**Codex Readiness / Codex 开发就绪:** READY FOR WEEK-3 AUTHORIZATION REVIEW ONLY; WEEK 3 IMPLEMENTATION NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** G0 PUBLICATION IN PROGRESS; GPT INDEPENDENT REPOSITORY REVIEW PENDING; W03-C01 NOT AUTHORIZED
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Important / 重要：C01–C06 are CLOSED / VERIFIED; C04–C06 are GITHUB SYNCHRONIZED. C06 exact-SHA CI Run #28 succeeded, independent ChatGPT review passed, and the Product Owner accepted bounded business evidence **with documented limitations**. Week 2 is CLOSED / VERIFIED / GITHUB SYNCHRONIZED only after the Section 33 publication gate. The accepted limitations and pre-Week-3 semantic-trust backlog remain unresolved by design. Week 3 implementation is NOT AUTHORIZED / NOT STARTED; only its architecture / AI-readiness / semantic-trust authorization review is ready. Sections 10 and 33 define the latest state; Sections 11–32 are historical evidence. / C01–C06 已关闭并验证，C04–C06 已与 GitHub 同步。C06 精确 SHA 的 CI Run #28 成功，独立 ChatGPT 审查通过，Product Owner 在记录限制的前提下接受了限定范围的业务证据。Week 2 仅在第 33 节发布门通过后视为已关闭、验证并与 GitHub 同步。已接受的限制及 Week 3 前的语义信任待办事项仍未解决。Week 3 实施尚未授权或开始；仅架构、AI 就绪性和语义信任授权审查已就绪。当前最新状态以第 10、33 节为准，第 11–32 节保留为历史证据。
+> Current state / 当前状态：Section 34 is the current W03-G0-P1 publication record. Sections 1–33 preserve the accepted Week 1 and Week 2 history, including exact-SHA CI Run #28, Product Owner acceptance with documented limitations, and the unresolved pre-Week-3 semantic-trust backlog. W03-C01 implementation remains unauthorized and has not started. / 第 34 节记录当前 W03-G0-P1 发布状态。第 1–33 节保留已接受的 Week 1、Week 2 历史证据，包括精确 SHA 的 CI Run #28、附限制条件的 Product Owner 验收，以及尚未解决的 Week 3 前语义信任待办事项。W03-C01 实施未获授权且尚未开始。
 
 ---
 
@@ -2497,3 +2497,57 @@ WEEK 3 AUTHORIZATION REVIEW: READY
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W03 ARCHITECTURE / AI-READINESS / SEMANTIC-TRUST AUTHORIZATION REVIEW
+
+---
+
+## 34. W03-G0-P1 — Governance Repository Publication
+
+**Date:** 2026-09-24\
+**Starting main baseline:** `9d18ddde9fe933952a2661ee1419f13c8577605d`\
+**Branch:** `feat/w03-ai-decision-loop`\
+**Primary loop:** Order Delivery Risk Decision Loop\
+**Product mode:** OFFLINE / SHADOW / HUMAN-IN-THE-LOOP
+
+The Product Owner authorized this governance publication and creation of the
+W03 feature branch from the verified main baseline. The task-level branch
+sequence governs this publication; it does not authorize W03-C01 implementation
+or alter the W1/W2 frozen contracts. The supplied V2 ZIP is the file payload,
+and all selected ZIP artifacts were found verbatim in the V2 Master. The
+repository copies differ only where Markdown hard breaks were normalized for
+Git whitespace validation. The aggregate Master and ZIP remain handoff inputs
+outside the repository.
+
+This publication projects the G0 controls into `docs/w03/`, the W03 sprint spec
+into `docs/sprints/`, and the Context Index and Material Registry into
+`docs/context/`. Root `AGENTS.md` is now the W03 agent router; root `LOOP.md` is
+only a router to the authoritative contracts. `skills/` contains admission
+policy only, with no executable project Skill. The V2 G0 review and
+authorization artifacts are published under `docs/w03/reports/`.
+
+Local pre-publication verification found all referenced W03 paths in
+`AGENTS.md`, `LOOP.md`, `docs/context/CONTEXT_INDEX.md`, and the W03 sprint spec.
+The existing non-integration regression suite passed (306 passed,
+35 integration tests deselected, one accepted third-party deprecation warning).
+Ruff and strict mypy passed. Docker Compose configuration validation passed
+with a local Docker config access warning. No runtime code, tests, schema,
+migrations, dependencies, or CI workflow semantics were changed.
+
+The exact governance publication SHA, direct remote verification, and any CI
+observation will be recorded in the separate W03-G0-P1 publication report after
+the normal branch push. This section's repository-publication status becomes
+effective only after the remote branch is verified at the governance SHA.
+
+```text
+WEEK 1: CLOSED / PRESERVED
+WEEK 2: CLOSED / VERIFIED / MERGED TO MAIN / PRESERVED
+WEEK 3: G0 GOVERNANCE PUBLICATION PREPARED
+G0 GPT ARCHITECTURE: COMPLETE IN SUPPLIED V2 GOVERNANCE PACKAGE
+G0 REPOSITORY PROJECTION: PREPARED ON feat/w03-ai-decision-loop
+GPT INDEPENDENT REPOSITORY REVIEW: PENDING
+HUMAN G0 CLOSEOUT: PENDING
+G0 CLOSED: NO
+W03-C01: NOT AUTHORIZED
+W03 IMPLEMENTATION: NOT STARTED
+OPERATIONAL MUTATION: NONE
+NEXT: PUSH, VERIFY, AND RECORD W03-G0-P1 PUBLICATION; THEN GPT INDEPENDENT REVIEW
+```
