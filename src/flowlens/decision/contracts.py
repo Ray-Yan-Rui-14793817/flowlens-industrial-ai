@@ -184,6 +184,8 @@ class StateSnapshot(Validated):
         validate_sha256(self.snapshot_hash, "snapshot_hash")
         validate_sorted_unique(self.entries, lambda item: item.entry_key, "entries")
         _uncertainties(self.unknowns, "unknowns")
+        if any(unknown.evidence_ids for unknown in self.unknowns):
+            raise ValueError("snapshot unknowns cannot reference downstream Evidence")
         for entry in self.entries:
             if (
                 entry.available_at > self.as_of_time
@@ -520,6 +522,11 @@ class RecommendationRecord(Validated):
     def __post_init__(self) -> None:
         if len(set(self.candidate_order)) != len(self.candidate_order):
             raise ValueError("candidate_order contains duplicates")
+        if (
+            self.selected_candidate_id is not None
+            and self.selected_candidate_id not in self.candidate_order
+        ):
+            raise ValueError("selected_candidate_id must occur in candidate_order")
         _named(self.score_components, "score_components")
         _sorted_codes(self, "reason_codes", "supporting_evidence_ids")
         _uncertainties(self.uncertainties, "uncertainties")

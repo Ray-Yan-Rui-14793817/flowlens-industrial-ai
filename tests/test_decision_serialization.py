@@ -104,9 +104,15 @@ def test_snapshot_hash_tracks_only_semantic_observation() -> None:
         unknowns=snapshot.unknowns,
     )
     assert compute_snapshot_hash(semantic) == snapshot.snapshot_hash
-    new_provenance = replace(snapshot.provenance, producer_version="2", implementation_sha="b" * 64)
+    new_provenance = replace(
+        snapshot.provenance,
+        producer_version="2",
+        implementation_sha="f779c9fd77f617e6050d5eefa91f711851c86a4f",
+    )
     assert isinstance(new_provenance, ArtifactProvenance)
     assert replace(snapshot, provenance=new_provenance).snapshot_hash == snapshot.snapshot_hash
+    assert snapshot.unknowns[0].evidence_ids == ()
+    assert compute_snapshot_hash(semantic) == compute_snapshot_hash(dict(semantic))
     changed_entry = replace(snapshot.entries[0], value=Decimal("2.0"))
     changed_semantic = {**semantic, "entries": (changed_entry,)}
     assert compute_snapshot_hash(changed_semantic) != snapshot.snapshot_hash

@@ -53,6 +53,8 @@ deterministic identity
 deterministic serialization
 provenance present
 mutable containers absent
+implementation_sha accepts only 40/64-character lowercase Git OIDs
+artifact/dataset/snapshot/scenario hashes remain 64-character SHA-256
 ```
 
 ## 4. Boundary review
@@ -86,6 +88,7 @@ DecisionPacket contains no HumanDecision mutation
 HumanDecisionEvent is append-only schema
 Evaluation types remain protected-plane schemas
 Recommendation structure invents no scoring semantics
+selected_candidate_id, when present, occurs in candidate_order
 ```
 
 ## 6. Safety review
@@ -96,6 +99,7 @@ Verify:
 runtime HGT imports = NONE
 runtime HGT fields = NONE
 future-leakage structural gate enforced
+StateSnapshot unknowns have no downstream Evidence IDs
 operational mutation = NONE
 DB side effect = NONE
 external network capability = NONE

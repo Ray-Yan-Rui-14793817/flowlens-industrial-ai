@@ -17,6 +17,7 @@ from flowlens.decision.serialization import canonical_primitive
 type ScalarValue = None | bool | int | str | Decimal | date | datetime
 
 _HASH_RE = re.compile(r"[0-9a-f]{64}\Z")
+_GIT_OID_RE = re.compile(r"(?:[0-9a-f]{40}|[0-9a-f]{64})\Z")
 
 
 def validate_aware_datetime(value: datetime, label: str) -> None:
@@ -27,6 +28,11 @@ def validate_aware_datetime(value: datetime, label: str) -> None:
 def validate_sha256(value: str, label: str) -> None:
     if _HASH_RE.fullmatch(value) is None:
         raise ValueError(f"{label} must be a lowercase SHA-256 hex digest")
+
+
+def validate_git_oid(value: str, label: str) -> None:
+    if _GIT_OID_RE.fullmatch(value) is None:
+        raise ValueError(f"{label} must be a 40- or 64-character lowercase Git object ID")
 
 
 def validate_artifact_id(value: str, prefix: str, expected: str) -> None:
@@ -151,7 +157,7 @@ class ArtifactProvenance(Validated):
             self.contract_versions, lambda item: (item.name, item.version), "contract_versions"
         )
         if self.implementation_sha is not None:
-            validate_sha256(self.implementation_sha, "implementation_sha")
+            validate_git_oid(self.implementation_sha, "implementation_sha")
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

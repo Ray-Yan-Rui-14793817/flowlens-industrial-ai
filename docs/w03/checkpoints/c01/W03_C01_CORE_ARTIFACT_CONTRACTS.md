@@ -74,6 +74,11 @@ contract_versions: tuple[VersionRef, ...]
 implementation_sha: str | None
 ```
 
+`implementation_sha` is a Git object ID: 40 lowercase hexadecimal characters
+for the current repository, or 64 lowercase hexadecimal characters for a Git
+SHA-256 repository. It is distinct from the 64-character artifact and dataset
+SHA-256 digests.
+
 Provenance must not contain HGT payload, scenario answer, true root cause,
 reviewer reasoning or Codex prompt text.
 
@@ -348,6 +353,8 @@ Rules:
 
 - immutable observation envelope;
 - `snapshot_hash` represents semantic observation payload, not developer metadata;
+- every snapshot-level `Uncertainty` must have `evidence_ids == ()`, because
+  the snapshot is frozen before Evidence IDs exist;
 - every entry must satisfy `available_at <= as_of_time`;
 - real W2→snapshot mapping and Semantic Trust mapping remain C02;
 - no HGT.
@@ -553,8 +560,10 @@ limitations: tuple[Limitation, ...]
 provenance: ArtifactProvenance
 ```
 
-`candidate_order` preserves semantic order. C01 defines no formula, scale or
-confidence score. C05 owns scoring/ranking/tie/abstention rules.
+`candidate_order` preserves semantic order. When `selected_candidate_id` is
+present, it must occur in `candidate_order`. This is structural only: C01
+defines no formula, scale or confidence score. C05 owns
+scoring/ranking/tie/abstention rules.
 
 ### 4.13 DecisionPacket
 

@@ -277,6 +277,11 @@ entries
 unknowns
 ```
 
+Snapshot-level `unknowns` are pre-Evidence observations: each must have
+`evidence_ids == ()`. Evidence-linked uncertainties belong in downstream
+artifacts. This prevents `snapshot_hash → snapshot_id → evidence_id` from
+depending on a downstream Evidence ID.
+
 Excluded:
 
 ```text
@@ -393,6 +398,10 @@ contract versions
 implementation SHA
 ```
 
+`implementation_sha` means a Git object ID, accepting 40 or 64 lowercase hex
+characters. It is not validated as a fixed 64-character artifact/dataset
+SHA-256 digest.
+
 Forbidden runtime provenance:
 
 ```text
@@ -423,13 +432,16 @@ At minimum:
 ```text
 IDs match expected prefix + 64 lowercase hex
 hashes are 64 lowercase hex
+implementation_sha, when present, is a 40- or 64-character lowercase Git object ID
 required strings non-empty/stripped
 datetimes timezone-aware
 Evidence available_at <= as_of_time
+StateSnapshot.unknowns[*].evidence_ids == ()
 tuples deeply immutable
 set-like tuples sorted/unique
 bundle members share run/snapshot
 DecisionPacket references are consistent
+selected_candidate_id, when present, occurs in candidate_order
 runtime artifacts have no protected HGT/scenario-truth field
 ```
 

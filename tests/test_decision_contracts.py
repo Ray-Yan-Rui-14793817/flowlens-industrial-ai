@@ -579,6 +579,76 @@ def test_artifact_id_prefix_and_digest_are_checked() -> None:
         replace(packet.run, run_id="run_" + "b" * 64)
 
 
+def test_implementation_git_oid_accepts_40_or_64_lowercase_hex_only() -> None:
+    packet, _, _, _, _ = sample_artifacts()
+    provenance = packet.run.provenance
+    assert replace(provenance, implementation_sha="f779c9fd77f617e6050d5eefa91f711851c86a4f")
+    assert replace(provenance, implementation_sha="b" * 64)
+    for invalid in (
+        "a" * 39,
+        "a" * 41,
+        "a" * 63,
+        "a" * 65,
+        "A" * 40,
+        "A" * 64,
+        "g" * 40,
+        "g" * 64,
+        "",
+    ):
+        with pytest.raises(ValueError):
+            replace(provenance, implementation_sha=invalid)
+    with pytest.raises(ValueError, match="SHA-256"):
+        replace(packet.run, dataset_hash="a" * 40)
+    with pytest.raises(ValueError, match="SHA-256"):
+        replace(packet.snapshot, snapshot_hash="a" * 40)
+    with pytest.raises(ValueError, match="SHA-256"):
+        replace(packet.simulations.results[0], scenario_hash="a" * 40)
+
+
+def test_snapshot_unknown_cannot_reference_downstream_evidence() -> None:
+    packet, _, _, _, _ = sample_artifacts()
+    assert packet.snapshot.unknowns[0].evidence_ids == ()
+    linked = replace(
+        packet.snapshot.unknowns[0],
+        evidence_ids=(packet.evidence.evidence[0].evidence_id,),
+    )
+    with pytest.raises(ValueError, match="snapshot unknowns"):
+        replace(packet.snapshot, unknowns=(linked,))
+
+
+def test_selected_candidate_must_occur_in_candidate_order() -> None:
+    packet, _, _, _, _ = sample_artifacts()
+    recommendation = packet.recommendation
+    selected = packet.candidates.candidates[0].candidate_id
+    identity_names = (
+        "run_id",
+        "snapshot_id",
+        "diagnosis_id",
+        "candidate_set_id",
+        "simulation_bundle_id",
+        "policy_version",
+        "disposition",
+        "selected_candidate_id",
+        "candidate_order",
+        "score_components",
+        "reason_codes",
+        "supporting_evidence_ids",
+        "uncertainties",
+    )
+    identity = {name: getattr(recommendation, name) for name in identity_names}
+    identity["selected_candidate_id"] = selected
+    selected_recommendation = replace(
+        recommendation,
+        selected_candidate_id=selected,
+        recommendation_id=derive_artifact_id(
+            "recommendation-record", "recommendation-record.v1", identity
+        ),
+    )
+    assert selected_recommendation.selected_candidate_id in selected_recommendation.candidate_order
+    with pytest.raises(ValueError, match="selected_candidate_id must occur in candidate_order"):
+        replace(recommendation, selected_candidate_id="cand_" + "b" * 64)
+
+
 def test_bundle_and_packet_cross_references_reject_mismatch() -> None:
     packet, _, _, _, _ = sample_artifacts()
     original = packet.evidence.evidence[0]

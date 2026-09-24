@@ -14,10 +14,13 @@
 | Evidence temporal rule | `available_at <= as_of_time` | boundary tests | reject |
 | Scalar contract | no float | negative tests | reject |
 | Artifact IDs | deterministic/prefix-bound | repeat/change tests | fail |
+| Implementation revision | Git OID, distinct from SHA-256 content hashes | 40/64 accept and invalid OID tests | reject |
 | Snapshot hash | stable observation identity | replay/hash tests | fail |
+| Snapshot unknowns | no downstream Evidence ID cycle | empty/linked uncertainty tests | reject |
 | Serialization | same object → same bytes | repeat/order tests | fail |
 | Bundle identity | run/snapshot consistent | mismatch tests | reject |
 | Packet consistency | nested references consistent | mismatch tests | reject |
+| Candidate selection | selected candidate occurs in candidate_order | present/absent tests | reject |
 | Human authority | packet has no human-decision mutation | schema test | hard fail |
 | Human event | immutable append-only shape | mutation/chain tests | fail |
 | HGT isolation | no runtime HGT fields/imports | schema/import/source audit | hard fail |
@@ -46,14 +49,18 @@ Minimum test families:
 - float rejection;
 - deterministic IDs;
 - wrong ID prefix/digest rejection;
+- 40/64-character lowercase Git OID acceptance and malformed OID rejection;
+- dataset/snapshot/scenario hashes remain 64-character SHA-256;
 - deterministic canonical JSON;
 - Decimal and datetime canonicalization;
 - snapshot hash stability;
+- snapshot unknown with empty evidence IDs accepted and linked IDs rejected;
 - producer SHA change alone does not alter snapshot hash;
 - semantic snapshot change alters snapshot hash;
 - bundle run/snapshot mismatch rejection;
 - duplicate bundle member rejection;
 - packet cross-reference mismatch rejection;
+- selected candidate present in candidate_order accepted, absent rejected;
 - DecisionPacket has no human-decision field;
 - HumanDecisionEvent references packet and is immutable;
 - no runtime HGT fields/imports;
