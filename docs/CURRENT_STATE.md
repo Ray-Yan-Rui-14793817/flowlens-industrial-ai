@@ -2666,3 +2666,48 @@ C02: NOT AUTHORIZED
 
 STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
 ```
+
+---
+
+## 37. W03-C01-REPAIR-01 — Independent Review Findings Repair
+
+**Date:** 2026-09-24
+**Reviewed implementation SHA:** `f779c9fd77f617e6050d5eefa91f711851c86a4f`
+**Starting report SHA:** `abc9bf6e8ea01d73373b3a4caaa976f737bd4b1b`
+**Repair implementation SHA:** `889f29a5b5a9444c0eaa6514b027edb9715ec8f0`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner supplied `HUMAN AUTHORIZATION: APPROVED` for the bounded
+same-checkpoint repair specified by the GPT independent C01 review R1 and
+`W03-C01-REPAIR-01` execution contract. The repair addresses exactly HIGH-01
+(40/64-character lowercase implementation Git OID), HIGH-02 (snapshot unknowns
+cannot reference downstream Evidence IDs), and MEDIUM-01 (selected candidate
+must occur in candidate order). It adds structural validation, focused tests,
+and C01 contract clarifications in eight authorized files. No W1/W2 baseline,
+G0 control document, schema/migration, dependency, CI workflow, or operational
+behavior changed.
+
+Focused tests passed (39), non-integration regression passed (345 passed,
+35 deselected), Ruff and strict mypy passed, diff whitespace check passed, and
+Compose configuration validation passed. Exact repair-SHA PR
+[CI Run #36](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/35981909766)
+(`35981909766`) completed successfully on
+`889f29a5b5a9444c0eaa6514b027edb9715ec8f0`; both `Quality gate` and
+`Docker Compose smoke` succeeded. The full record is in
+`docs/w03/reports/W03_C01_REPAIR_01_DELTA_REPORT.md`.
+
+This is an implementation and evidence record. GPT independent re-review and
+Human C01 acceptance remain separate pending decisions. PR #6 stays open,
+draft and unmerged; C01 remains open and C02 is unauthorized. Final
+report-commit synchronization is verified in the Codex handoff after push.
+
+```text
+W03-C01 REPAIR-01: IMPLEMENTED
+REPAIR HARNESS: PASS
+REPAIR EXACT-SHA CI: PASS — RUN #36 / 35981909766
+GPT RE-REVIEW: PENDING
+HUMAN C01 ACCEPTANCE: PENDING
+C01 CLOSED: NO
+C02 AUTHORIZED: NO
+STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
