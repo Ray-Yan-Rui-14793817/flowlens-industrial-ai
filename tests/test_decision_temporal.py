@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
+import hashlib
+from collections.abc import Iterable
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 
 import pytest
 
+from flowlens.decision.context import build_decision_context
+from flowlens.decision.contracts import Evidence
 from flowlens.decision.evidence import build_evidence_bundle
-from flowlens.decision.primitives import ScalarValue
-from flowlens.decision.snapshot import build_state_snapshot
+from flowlens.decision.primitives import ScalarValue, Uncertainty
+from flowlens.decision.serialization import canonical_json_bytes
+from flowlens.decision.snapshot import build_state_snapshot, source_unknowns
 from flowlens.decision.temporal import C02BuildError, project_record, validate_as_of
 from test_decision_snapshot import ORDER_AT, make_run, sample_projected, sample_records
 
@@ -183,18 +188,33 @@ def test_future_tail_normalized_visible_semantics() -> None:
     assert left.snapshot_hash == right.snapshot_hash
 
 
-def test_cross_dataset_future_tail_preserves_normalized_semantics() -> None:
+@pytest.mark.parametrize(
+    "case",
+    ("complete", "missing_inventory", "missing_quality", "missing_procurement", "conflict"),
+)
+def test_cross_dataset_future_tail_preserves_normalized_semantics(case: str) -> None:
     cutoff = datetime(2026, 1, 20, tzinfo=UTC)
 
-    def project_variant(days_later: int) -> tuple[tuple[object, ...], tuple[object, ...]]:
+    def project_variant(days_later: int) -> tuple[tuple[object, ...], set[str]]:
         future = cutoff + timedelta(days=days_later)
         records = [
-            (entity, record_id, dict(fields)) for entity, record_id, fields in sample_records()
+            (entity, record_id, dict(fields))
+            for entity, record_id, fields in sample_records()
+            if not (
+                (case == "missing_inventory" and entity == "fact_inventory_snapshot")
+                or (
+                    case == "missing_quality"
+                    and entity in ("fact_quality_inspection", "fact_rework")
+                )
+                or (case == "missing_procurement" and entity == "fact_purchase_order")
+            )
         ]
         for entity, _, fields in records:
             if entity == "fact_work_order":
                 fields["actual_end_at"] = future
                 fields["completed_quantity"] = days_later
+                if case == "conflict":
+                    fields["product_id"] = "P-2"
             elif entity == "fact_purchase_order":
                 fields["actual_receipt_at"] = future
                 fields["received_quantity"] = Decimal(days_later)
@@ -202,6 +222,21 @@ def test_cross_dataset_future_tail_preserves_normalized_semantics() -> None:
                 fields["rework_end_at"] = future
         records.extend(
             (
+                (
+                    "fact_purchase_order",
+                    "PO-FUTURE",
+                    {
+                        "purchase_order_id": "PO-FUTURE",
+                        "supplier_id": "SUP-FUTURE",
+                        "material_id": "MAT-1",
+                        "ordered_at": future,
+                        "promised_receipt_at": future + timedelta(days=1),
+                        "ordered_quantity": Decimal(days_later),
+                        "actual_receipt_at": future + timedelta(days=1),
+                        "received_quantity": Decimal(days_later),
+                        "status": "RECEIVED",
+                    },
+                ),
                 (
                     "fact_operation",
                     "OP-FUTURE",
@@ -282,9 +317,61 @@ def test_cross_dataset_future_tail_preserves_normalized_semantics() -> None:
                 target_order_at=ORDER_AT,
             )
         )
-        run = make_run(cutoff, f"dsv-{days_later}", str(days_later) * 64)
-        snapshot = build_state_snapshot(run, projected)
+        run = make_run(
+            cutoff,
+            f"dsv-{case}-{days_later}",
+            hashlib.sha256(f"{case}:{days_later}".encode()).hexdigest(),
+        )
+        inventory_materials = tuple(
+            item.value
+            for item in projected
+            if item.source_entity == "fact_inventory_snapshot"
+            and item.source_field == "material_id"
+            and isinstance(item.value, str)
+        )
+        unknowns = source_unknowns(1, 1, ("MAT-1",), inventory_materials)
+        snapshot = build_state_snapshot(run, projected, unknowns)
         bundle = build_evidence_bundle(snapshot)
+        context = build_decision_context(snapshot, bundle)
+        future_ids = {"PO-FUTURE", "D-FUTURE", "QI-FUTURE", "RW-FUTURE", "INV-FUTURE"}
+        assert not any(
+            entry.source_ref.source_record_id in future_ids for entry in snapshot.entries
+        )
+        assert not any(item.source_record_id in future_ids for item in bundle.evidence)
+        assert context.uncertainties == bundle.uncertainties
+        assert canonical_json_bytes(snapshot) == canonical_json_bytes(
+            build_state_snapshot(run, projected, unknowns)
+        )
+        assert canonical_json_bytes(bundle) == canonical_json_bytes(build_evidence_bundle(snapshot))
+        assert canonical_json_bytes(context) == canonical_json_bytes(
+            build_decision_context(snapshot, bundle)
+        )
+
+        def evidence_key(item: Evidence) -> tuple[object, ...]:
+            return (
+                item.source_entity,
+                item.source_record_id,
+                item.source_field,
+                item.value,
+                item.observed_at,
+                item.available_at,
+                item.relationship_type,
+                item.trust_level,
+                item.freshness_status,
+                tuple((limit.code, limit.message) for limit in item.limitations),
+            )
+
+        keys_by_id = {item.evidence_id: evidence_key(item) for item in bundle.evidence}
+
+        def evidence_refs(ids: tuple[str, ...]) -> tuple[tuple[object, ...], ...]:
+            return tuple(sorted((keys_by_id[item_id] for item_id in ids), key=repr))
+
+        def uncertainty_key(item: Uncertainty) -> tuple[object, ...]:
+            return item.status, item.code, item.message, evidence_refs(item.evidence_ids)
+
+        def uncertainties(items: Iterable[Uncertainty]) -> tuple[tuple[object, ...], ...]:
+            return tuple(sorted((uncertainty_key(item) for item in items), key=repr))
+
         source_view = tuple(
             (
                 entry.source_ref.source_entity,
@@ -296,26 +383,59 @@ def test_cross_dataset_future_tail_preserves_normalized_semantics() -> None:
             )
             for entry in snapshot.entries
         )
-        evidence_view = tuple(
-            sorted(
-                (
+        evidence_view = tuple(sorted(keys_by_id.values(), key=repr))
+        context_view = (
+            context.schema_version,
+            context.context_policy_version,
+            context.order_id,
+            context.as_of_time,
+            evidence_refs(context.selected_evidence_ids),
+            evidence_refs(context.direct_evidence_ids),
+            evidence_refs(context.derived_evidence_ids),
+            evidence_refs(context.associative_evidence_ids),
+            uncertainties(context.uncertainties),
+            tuple((item.code, item.message) for item in context.limitations),
+            tuple(
+                sorted(
                     (
-                        item.source_entity,
-                        item.source_record_id,
-                        item.source_field,
-                        item.value,
-                        item.observed_at,
-                        item.available_at,
-                        item.relationship_type,
-                        item.trust_level,
-                        item.freshness_status,
-                        item.limitations,
-                    )
-                    for item in bundle.evidence
-                ),
-                key=repr,
-            )
+                        (
+                            item.conflict_code,
+                            item.critical,
+                            item.resolution_status,
+                            item.message,
+                            evidence_refs(item.evidence_ids),
+                        )
+                        for item in context.conflicts
+                    ),
+                    key=repr,
+                )
+            ),
         )
-        return source_view, evidence_view
+        normalized = (
+            snapshot.schema_version,
+            snapshot.order_id,
+            snapshot.as_of_time,
+            source_view,
+            uncertainties(snapshot.unknowns),
+            bundle.schema_version,
+            evidence_view,
+            uncertainties(bundle.uncertainties),
+            context_view,
+        )
+        codes = {item.code for item in bundle.uncertainties}
+        codes.update(item.conflict_code for item in context.conflicts)
+        return normalized, codes
 
-    assert project_variant(2) == project_variant(3)
+    first, first_codes = project_variant(2)
+    second, second_codes = project_variant(3)
+    assert first == second
+    assert first_codes == second_codes
+    if case == "missing_inventory":
+        assert "INVENTORY_EVIDENCE_MISSING" in first_codes
+    elif case == "missing_quality":
+        assert "QUALITY_EVIDENCE_NOT_AVAILABLE" in first_codes
+        assert "QUALITY_FINALITY_UNKNOWN" not in first_codes
+    elif case == "missing_procurement":
+        assert "PROCUREMENT_EVIDENCE_NOT_AVAILABLE" in first_codes
+    elif case == "conflict":
+        assert "WORK_ORDER_PRODUCT_MISMATCH" in first_codes
