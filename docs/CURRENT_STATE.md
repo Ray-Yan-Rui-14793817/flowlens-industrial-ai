@@ -1,17 +1,17 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-24
+**Last Updated / 最后更新:** 2026-09-25
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C02 CLOSED / VERIFIED / GITHUB SYNCHRONIZED, EFFECTIVE ONLY AFTER THE C02-C1 FINAL PUBLICATION GATE SUCCEEDS
+**Current Project Phase / 当前阶段:** W03-C02 CLOSED / VERIFIED / GITHUB SYNCHRONIZED; W03-DEVCTRL-01 IMPLEMENTED / CODEX VERIFIED / REPORT PUBLICATION GATE PENDING
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 TRUSTED SNAPSHOT AND DECISIONCONTEXT IMPLEMENTED / CODEX VERIFIED / GPT R2 PASS / HUMAN ACCEPTED; C03 NOT STARTED
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 DEVELOPMENT CONTROL PLANE HARDENING IMPLEMENTED / FULL EXACT-SHA CI PASS; C03 NOT STARTED
 
-**Codex Readiness / Codex 开发就绪:** C02-C1 DOCUMENTATION CLOSEOUT AUTHORIZED; C03 IMPLEMENTATION NOT AUTHORIZED; NEXT = GPT W03-C03-A AUTHORIZATION / CONTRACT FREEZE
+**Codex Readiness / Codex 开发就绪:** DEVCTRL-01 REPORT PUBLICATION PROOF NEXT, THEN GPT INDEPENDENT REVIEW AND HUMAN ACCEPTANCE; C03 IMPLEMENTATION NOT AUTHORIZED
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：Section 40 records the conditional W03-C02-C1 closeout. Earlier sections preserve W1/W2, G0, C01 and C02 implementation/repair history. GPT independent re-review R2 passed, and the Product Owner explicitly accepted C02. C02 closure takes effect only after the closeout commit's exact-SHA CI and final Git/PR synchronization gates pass. C03 is not authorized; GPT W03-C03-A is next. / 第 40 节记录附最终发布门条件的 W03-C02-C1 关闭状态。前面各节保留 W1/W2、G0、C01 及 C02 实施与修复历史。GPT 独立复审 R2 已通过，Product Owner 已明确验收 C02。C02 仅在关闭提交的精确 SHA CI 与最终 Git/PR 同步门通过后正式关闭。C03 尚未获授权；下一步为 GPT W03-C03-A。
+> Current state / 当前状态：Section 41 records the separate W03-DEVCTRL-01 development-control implementation and its full exact-SHA proof. The publication-only report commit is awaiting its own exact-SHA gate; GPT review and Human acceptance follow. C03 implementation is not authorized. / 第 41 节记录独立的 W03-DEVCTRL-01 开发控制面实现及其完整精确 SHA 验证。仅含发布文档的报告提交仍需通过自身的精确 SHA 验证；之后才进入 GPT 评审和人工验收。C03 实现尚未获授权。
 
 ---
 
@@ -2871,4 +2871,52 @@ R1 LOW-01: CLOSED BY DOCUMENTATION NORMALIZATION
 C02 CONTRACT BLOCKER: NONE
 C03: NOT STARTED / NOT AUTHORIZED
 NEXT: GPT W03-C03-A AUTHORIZATION / CONTRACT FREEZE
+```
+
+---
+
+## 41. W03-DEVCTRL-01 — Development Verification Latency Hardening
+
+**Date:** 2026-09-25
+
+**Starting C02 closeout SHA:** `28173582661bc4bba5f254928ab8a9bbb5de63a0`
+
+**DEVCTRL-01 implementation SHA:** `c8ee00e172d116512d25e7c642ecd11ec45e3c73`
+
+The Product Owner explicitly authorized W03-DEVCTRL-01-I/H/R. The three
+authorization artifacts were checked for readability and consistency; the
+[DEVCTRL-01 Context Lock](w03/checkpoints/devctrl01/W03_DEVCTRL_01_CONTEXT_LOCK.md)
+was published as `LOCKED` before implementation. The change adds a
+deterministic P/C/I/F classifier, a publication-only verifier and a stable
+`Verification gate` in the existing CI workflow. Unknown and unproven
+boundaries require the full gate. The full Quality and Docker Compose jobs
+remain required for control, implementation and foundation changes.
+
+The exact implementation SHA received
+[CI Run #46](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36094916122)
+(`36094916122`): class `C / FULL_EXACT_SHA`, Quality PASS, Compose PASS,
+Publication skipped, Verification gate PASS. Local classifier/publication
+tests, 417 non-integration tests, 43 guarded PostgreSQL integration tests,
+Ruff, strict mypy and Compose configuration also passed. The full evidence
+and authorized file list are in the
+[DEVCTRL-01 Development Round Report](w03/reports/W03_DEVCTRL_01_R_DEVELOPMENT_ROUND_REPORT.md).
+No runtime source, schema, migration, dependency, Docker/Compose, Sprint,
+W1/W2 or C01/C02 contract changed. Main remains at
+`9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open,
+draft and unmerged. C03 implementation has not started.
+
+This entry and the Round Report form the first publication-only commit under
+the new policy. Its exact SHA and proof result will be recorded in the Codex
+handoff after CI finishes. GPT independent review and Human acceptance are
+pending. DEVCTRL-01 is not closed.
+
+```text
+W03-DEVCTRL-01: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION EXACT-SHA CI: PASS — RUN #46 / 36094916122
+REPORT PUBLICATION EXACT-SHA CI: PENDING ON THIS COMMIT
+GPT REVIEW: PENDING
+HUMAN ACCEPTANCE: PENDING
+DEVCTRL-01 CLOSED: NO
+C03 IMPLEMENTATION AUTHORIZED: NO
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
 ```
