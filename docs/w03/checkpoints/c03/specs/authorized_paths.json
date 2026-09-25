@@ -1,0 +1,87 @@
+{
+  "branch": "feat/w03-ai-decision-loop",
+  "checkpoint_doc_projection": {
+    "repo_docs": "docs/w03/checkpoints/c03/",
+    "specs": "docs/w03/checkpoints/c03/specs/"
+  },
+  "entry_sha": "2e84a6dfdbdbd81cf5ea9ad0b555fdf1707db978",
+  "forbidden_even_when_convenient": [
+    "src/flowlens/decision/contracts.py",
+    "src/flowlens/decision/primitives.py",
+    "src/flowlens/decision/enums.py",
+    "src/flowlens/decision/serialization.py",
+    "src/flowlens/decision/context.py",
+    "src/flowlens/decision/evidence.py",
+    "src/flowlens/decision/derivations.py",
+    "src/flowlens/decision/snapshot.py",
+    "src/flowlens/decision/temporal.py",
+    "src/flowlens/decision/trust.py",
+    "src/flowlens/db/decision_snapshot.py",
+    "pyproject.toml",
+    "uv.lock",
+    "AGENTS.md",
+    "LOOP.md",
+    ".github/workflows/ci.yml",
+    "scripts/ci/classify_change.py",
+    "scripts/ci/verify_publication.py",
+    "docs/sprints/W03_ai_decision_loop.md"
+  ],
+  "future_closeout_stage": [
+    "docs/w03/reports/W03_C03_GPT_INDEPENDENT_REVIEW_R1.md",
+    "docs/w03/reports/W03_C03_C1_FINAL_CLOSEOUT.md",
+    "docs/CURRENT_STATE.md"
+  ],
+  "human_required": [
+    "W03-C03 HUMAN AUTHORIZATION: APPROVED"
+  ],
+  "implementation_expected_change_class": "I",
+  "implementation_expected_gate": "FULL_EXACT_SHA",
+  "implementation_stage": [
+    "src/flowlens/decision/c03_policy.py",
+    "src/flowlens/decision/c03_validation.py",
+    "src/flowlens/decision/signals.py",
+    "src/flowlens/decision/diagnosis.py",
+    "src/flowlens/decision/__init__.py",
+    "tests/test_c03_policy_contract.py",
+    "tests/test_c03_signals.py",
+    "tests/test_c03_diagnosis.py",
+    "tests/test_c03_harness.py",
+    "tests/integration/test_c03_decision_database.py",
+    "docs/w03/checkpoints/c03/W03_C03_AUTHORIZATION_CONTRACT.md",
+    "docs/w03/checkpoints/c03/W03_C03_BASELINE_AND_SOURCES.md",
+    "docs/w03/checkpoints/c03/W03_C03_ARCHITECTURE_AND_COMPATIBILITY.md",
+    "docs/w03/checkpoints/c03/W03_C03_INPUT_AND_EVIDENCE_CONTRACT.md",
+    "docs/w03/checkpoints/c03/W03_C03_SIGNAL_RULEBOOK.md",
+    "docs/w03/checkpoints/c03/W03_C03_DIAGNOSIS_CONTRACT.md",
+    "docs/w03/checkpoints/c03/W03_C03_IDENTITY_AND_REPLAY.md",
+    "docs/w03/checkpoints/c03/W03_C03_HARNESS_ACCEPTANCE_SPEC.md",
+    "docs/w03/checkpoints/c03/W03_C03_DEVCTRL_INTEGRATION_CONTRACT.md",
+    "docs/w03/checkpoints/c03/W03_C03_GPT_FINAL_ZERO_AMBIGUITY_AUDIT.md",
+    "docs/w03/checkpoints/c03/W03_C03_GPT_REVIEW_CHECKLIST.md",
+    "docs/w03/checkpoints/c03/W03_C03_HUMAN_AUTHORIZATION.md",
+    "docs/w03/checkpoints/c03/W03_C03_SUPERSEDED_PACKAGE_NOTICE.md",
+    "docs/w03/checkpoints/c03/specs/signal_policy.json",
+    "docs/w03/checkpoints/c03/specs/acceptance_vectors.json",
+    "docs/w03/checkpoints/c03/specs/authorized_paths.json",
+    "docs/w03/checkpoints/c03/W03_C03_CONTEXT_LOCK.md"
+  ],
+  "main_sha": "9d18ddde9fe933952a2661ee1419f13c8577605d",
+  "no_existing_test_edit": true,
+  "no_workflow_edit": true,
+  "pr_number": 6,
+  "preserve_subtrees": [
+    "src/flowlens/data/",
+    "migrations/",
+    "skills/",
+    "docs/w03/checkpoints/c01/",
+    "docs/w03/checkpoints/c02/",
+    "docs/w03/checkpoints/devctrl01/"
+  ],
+  "report_expected_change_class": "P",
+  "report_expected_gate": "PUBLICATION_EXACT_SHA",
+  "report_stage": [
+    "docs/w03/reports/W03_C03_R_DEVELOPMENT_ROUND_REPORT.md",
+    "docs/CURRENT_STATE.md"
+  ],
+  "schema_version": "w03-c03-scope.v3"
+}
