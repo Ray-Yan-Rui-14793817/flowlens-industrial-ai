@@ -10,8 +10,20 @@ from flowlens.decision.context import DecisionContext
 from flowlens.decision.contracts import Evidence, EvidenceBundle
 from flowlens.decision.enums import TrustLevel
 from flowlens.decision.primitives import SourceRef
-from flowlens.decision.serialization import canonical_primitive, derive_artifact_id, sha256_hex
+from flowlens.decision.serialization import (
+    canonical_primitive,
+    derive_artifact_id,
+    sha256_hex,
+)
 from flowlens.decision.trust import context_limitations
+
+_C02_CONFLICT_CODES = frozenset(
+    {
+        "WORK_ORDER_PRODUCT_MISMATCH",
+        "INSPECTION_OPERATION_WORK_ORDER_MISMATCH",
+        "REWORK_INSPECTION_WORK_ORDER_MISMATCH",
+    }
+)
 
 
 class C03BuildError(ValueError):
@@ -113,6 +125,41 @@ def _expected_conflict_codes(
         ):
             result.append("REWORK_INSPECTION_WORK_ORDER_MISMATCH")
     return tuple(sorted(result))
+
+
+def _validate_conflicts(context: DecisionContext, evidence_id_set: set[str]) -> None:
+    """Revalidate frozen C02 conflict values after artifact construction."""
+    for conflict in context.conflicts:
+        if (
+            conflict.schema_version != "evidence-conflict.v1"
+            or conflict.run_id != context.run_id
+            or conflict.snapshot_id != context.snapshot_id
+            or conflict.conflict_code not in _C02_CONFLICT_CODES
+            or conflict.critical is not True
+            or conflict.resolution_status != "UNRESOLVED"
+            or not conflict.evidence_ids
+            or tuple(sorted(conflict.evidence_ids)) != conflict.evidence_ids
+            or len(set(conflict.evidence_ids)) != len(conflict.evidence_ids)
+            or not set(conflict.evidence_ids) <= evidence_id_set
+        ):
+            raise C03BuildError("C03_NONCANONICAL_C02_CONTEXT", "BLOCKED_CONTRACT")
+        identity = {
+            "run_id": conflict.run_id,
+            "snapshot_id": conflict.snapshot_id,
+            "conflict_code": conflict.conflict_code,
+            "evidence_ids": conflict.evidence_ids,
+            "critical": conflict.critical,
+            "resolution_status": conflict.resolution_status,
+        }
+        expected_id = "conf_" + sha256_hex(
+            {
+                "artifact_kind": "evidence-conflict",
+                "schema_version": conflict.schema_version,
+                "identity": identity,
+            }
+        )
+        if conflict.conflict_id != expected_id:
+            raise C03BuildError("C03_NONCANONICAL_C02_CONTEXT", "BLOCKED_CONTRACT")
 
 
 def validate_c03_inputs(bundle: EvidenceBundle, context: DecisionContext) -> EvidenceIndex:
@@ -238,13 +285,7 @@ def validate_c03_inputs(bundle: EvidenceBundle, context: DecisionContext) -> Evi
     )
     if context.limitations != expected_limitations:
         raise C03BuildError("C03_NONCANONICAL_C02_CONTEXT", "BLOCKED_CONTRACT")
-    if any(
-        conflict.run_id != context.run_id
-        or conflict.snapshot_id != context.snapshot_id
-        or not set(conflict.evidence_ids) <= evidence_id_set
-        for conflict in context.conflicts
-    ):
-        raise C03BuildError("C03_NONCANONICAL_C02_CONTEXT", "BLOCKED_CONTRACT")
+    _validate_conflicts(context, evidence_id_set)
     if tuple(sorted(item.conflict_code for item in context.conflicts)) != _expected_conflict_codes(
         dict(rows), context
     ):

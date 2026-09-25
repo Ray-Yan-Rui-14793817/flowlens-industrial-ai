@@ -94,6 +94,8 @@ def build_c03_fixture(
     records: Iterable[Record] | None = None,
     *,
     as_of: datetime = AS_OF,
+    dataset_version: str = "dsv-1",
+    dataset_hash: str = "a" * 64,
 ) -> tuple[StateSnapshot, EvidenceBundle, DecisionContext]:
     selected = tuple(sample_records() if records is None else records)
     projected: list[ProjectedSourceField] = []
@@ -125,7 +127,11 @@ def build_c03_fixture(
         required_materials,
         inventory_materials,
     )
-    snapshot = build_state_snapshot(make_run(as_of), projected, unknowns)
+    snapshot = build_state_snapshot(
+        make_run(as_of, dataset_version=dataset_version, dataset_hash=dataset_hash),
+        projected,
+        unknowns,
+    )
     bundle = build_evidence_bundle(snapshot)
     return snapshot, bundle, build_decision_context(snapshot, bundle)
 
