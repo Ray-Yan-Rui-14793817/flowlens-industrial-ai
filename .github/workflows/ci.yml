@@ -13,8 +13,37 @@ permissions:
   contents: read
 
 jobs:
+  classify-change:
+    name: Classify change
+    runs-on: ubuntu-latest
+    outputs:
+      change_class: ${{ steps.classify.outputs.class }}
+      gate: ${{ steps.classify.outputs.gate }}
+
+    steps:
+      - name: Check out exact source head with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Classify verified current delta
+        id: classify
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          python scripts/ci/classify_change.py \
+            --event-path "$GITHUB_EVENT_PATH" \
+            --event-name "$GITHUB_EVENT_NAME" \
+            --expected-head "$EXPECTED_HEAD" \
+            --output-json "$RUNNER_TEMP/change-class.json" \
+            --github-output "$GITHUB_OUTPUT"
+
   quality:
     name: Quality gate
+    needs: classify-change
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
     runs-on: ubuntu-latest
 
     services:
@@ -44,6 +73,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
 
       - name: Configure Week 2 temporary artifact directory
         shell: bash
@@ -163,7 +200,7 @@ jobs:
         run: uv run pytest -m integration
 
       - name: Run complete test suite
-        run: uv run pytest
+        run: uv run pytest -m "not integration"
 
       - name: Run Ruff
         run: uv run ruff check .
@@ -207,6 +244,8 @@ jobs:
 
   compose-smoke:
     name: Docker Compose smoke
+    needs: classify-change
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -223,6 +262,13 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+      - name: Verify exact source head
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
 
       - name: Validate Docker Compose configuration
         run: docker compose config --quiet
@@ -287,3 +333,52 @@ jobs:
       - name: Tear down Docker Compose stack
         if: always()
         run: docker compose down -v --remove-orphans
+
+  publication-proof:
+    name: Publication proof
+    needs: classify-change
+    if: ${{ needs['classify-change'].result == 'success' && needs['classify-change'].outputs.change_class == 'P' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out exact source head with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Verify publication-only exact source delta
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          python scripts/ci/verify_publication.py \
+            --event-path "$GITHUB_EVENT_PATH" \
+            --event-name "$GITHUB_EVENT_NAME" \
+            --expected-head "$EXPECTED_HEAD"
+
+  verification-gate:
+    name: Verification gate
+    needs: [classify-change, quality, compose-smoke, publication-proof]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce class-specific exact-SHA proof
+        env:
+          CHANGE_CLASS: ${{ needs['classify-change'].outputs.change_class }}
+          CLASS_RESULT: ${{ needs['classify-change'].result }}
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          COMPOSE_RESULT: ${{ needs['compose-smoke'].result }}
+          PUBLICATION_RESULT: ${{ needs['publication-proof'].result }}
+        run: |
+          test "$CLASS_RESULT" = success
+          if [[ "$CHANGE_CLASS" == P ]]; then
+            test "$PUBLICATION_RESULT" = success
+            test "$QUALITY_RESULT" = skipped
+            test "$COMPOSE_RESULT" = skipped
+          else
+            test "$CHANGE_CLASS" = C -o "$CHANGE_CLASS" = I -o "$CHANGE_CLASS" = F -o "$CHANGE_CLASS" = UNKNOWN
+            test "$QUALITY_RESULT" = success
+            test "$COMPOSE_RESULT" = success
+            test "$PUBLICATION_RESULT" = skipped
+          fi

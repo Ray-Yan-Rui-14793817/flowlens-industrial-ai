@@ -401,6 +401,10 @@ CLOSEOUT COMMIT
 
 The report must not be fabricated before exact implementation/CI evidence exists.
 
+From W03-DEVCTRL-01 onward, the exact-SHA CI step uses the proof depth defined in
+Section 17. Implementation and control commits still require full proof. A proven
+publication-only report commit receives publication proof at its own exact SHA.
+
 ---
 
 ## 14. Checkpoint Evidence Bundle
@@ -476,3 +480,54 @@ C01 IMPLEMENTATION ENTRY DENIED
 ```
 
 This is a governance/preflight gate, not a runtime AI gate.
+
+---
+
+## 17. W03 Development Verification Proof Layers
+
+W03-DEVCTRL-01 changes CI proof scheduling only. It does not change the Runtime
+Safety Harness, AI Evaluation Harness, semantic trust rules, HGT isolation, or
+human review authority.
+
+### Local candidate gate
+
+Before an implementation commit, run focused classifier/publication tests,
+non-integration regression, guarded PostgreSQL integration when safely
+available, Ruff, strict mypy, dependency-lock check, Git diff check, and Docker
+Compose configuration check. Local proof is not a substitute for remote
+exact-SHA evidence.
+
+### Deterministic change classes
+
+```text
+P = narrow publication-only paths
+C = development control-plane paths
+I = runtime or ordinary test implementation paths
+F = foundation-critical paths
+UNKNOWN = missing, invalid, or ambiguous delta
+```
+
+Only `docs/w03/reports/**` and `docs/CURRENT_STATE.md` may be P. Mixed changes
+take the highest-risk applicable class. Unknown paths or an unproven source-head
+boundary select FULL. Classification uses Git paths and the verified event
+transition, never a commit message, Markdown extension, model, or agent.
+
+### Remote exact-SHA gates
+
+| Class | Required proof |
+|---|---|
+| P | `PUBLICATION_EXACT_SHA`: Publication proof, then Verification gate |
+| C / I / F / UNKNOWN | `FULL_EXACT_SHA`: Quality gate and Docker Compose smoke, then Verification gate |
+
+For a pull-request `synchronize` event, classification uses the verified old and
+new PR source-head SHAs for that event. Other PR actions and push events run
+FULL. Every proof job verifies that the checked-out HEAD equals the expected
+event source head. Publication proof reclassifies the actual delta, checks the
+strict path allowlist, `git diff --check`, balanced changed Markdown fences,
+and absence of merge-conflict markers. It does not replace GPT semantic review.
+
+The stable final `Verification gate` runs with `always()` and passes only if
+classification and exactly the class-required proof jobs succeeded. Missing,
+failed, or cancelled required jobs fail the gate. Publication commits must show
+Quality and Compose skipped; non-publication commits must show Publication
+proof skipped. No checkpoint advances automatically from a green gate.
