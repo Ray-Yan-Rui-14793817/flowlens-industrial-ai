@@ -2974,3 +2974,60 @@ OPTIMIZED DEVELOPMENT VERIFICATION: ACCEPTED
 C03 IMPLEMENTATION: NOT STARTED / NOT AUTHORIZED BY THIS CLOSEOUT
 NEXT: GPT W03-C03-A PACKAGE NORMALIZATION / AUTHORIZATION
 ```
+
+---
+
+## 43. W03-C03 — Deterministic Signal and Structured Diagnosis Implementation Round
+
+**Date:** 2026-09-25
+
+**Starting DEVCTRL-01 closeout SHA:** `2e84a6dfdbdbd81cf5ea9ad0b555fdf1707db978`
+
+**C03 implementation SHA:** `00af5f9dbe292e2b0f7bb4a551a15c00a65c1f75`
+
+The Product Owner supplied `W03-C03 HUMAN AUTHORIZATION: APPROVED` and later
+authorized recovery of the same checkpoint without discarding valid work. A
+read-only recovery audit preserved the existing authorized delta and confirmed
+the branch, remote, PR and frozen-main boundaries before execution resumed.
+The [C03 Context Lock](w03/checkpoints/c03/W03_C03_CONTEXT_LOCK.md) remained
+`LOCKED`.
+
+C03 adds four pure deterministic decision modules and five C03 test files,
+along with the authorized checkpoint contracts/specifications. Runtime input
+is limited to `EvidenceBundle + DecisionContext`. The implementation emits
+exactly eight frozen Signal types, keeps `CAPACITY_PRESSURE` UNKNOWN-only,
+uses the explicitly limited QUEUE_DELAY start-slippage proxy and narrow
+non-probabilistic DELIVERY_RISK rule, and synthesizes only fixed structured
+non-causal Diagnosis claims. It adds no database, filesystem, network, model,
+HGT, scenario, clock, random, subprocess, recommendation or operational-write
+capability.
+
+Local verification passed 51 focused C03 tests, 39 C01 regression tests, 26
+C02 regression tests, 468 non-integration tests, five guarded C03 PostgreSQL
+tests, Ruff, strict mypy, diff checks and Compose configuration. All 36 golden
+acceptance vectors, future-tail mutation families, critical-conflict and
+tamper cases, scenario-backed direction smoke, route variance and forbidden
+inference negatives passed. Exact implementation-SHA
+[CI Run #49](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36133208015)
+(`36133208015`) classified the delta `I / FULL_EXACT_SHA` and completed with
+Quality PASS, Docker Compose PASS, Publication skipped and Verification PASS.
+Remote Quality passed 48 integration and 468 non-integration tests.
+
+The complete evidence is in the
+[W03-C03 Development Round Report](w03/reports/W03_C03_R_DEVELOPMENT_ROUND_REPORT.md).
+This entry and that report are the exact two-file publication commit. The
+commit's own SHA and `P / PUBLICATION_EXACT_SHA` result are reported in the
+Codex handoff after CI completes. PR #6 remains open, draft and unmerged; main
+remains `9d18ddde9fe933952a2661ee1419f13c8577605d`. GPT review and Human
+acceptance remain pending. C03 is not closed and C04 is not authorized.
+
+```text
+W03-C03: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION FULL EXACT-SHA: PASS — RUN #49 / 36133208015
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C03 REVIEW: PENDING
+HUMAN C03 ACCEPTANCE: PENDING
+C03 CLOSED: NO
+C04 AUTHORIZED: NO
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
