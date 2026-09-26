@@ -3,11 +3,11 @@
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C04-R1 HARNESS REPAIR IMPLEMENTED / CODEX VERIFIED / PENDING GPT R2 RE-REVIEW; W03-C03 CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+**Current Project Phase / 当前阶段:** W03-C04 GPT R2 PASSED / HUMAN ACCEPTED / FINAL CLOSEOUT PUBLICATION GATE PENDING; W03-C03 CLOSED / VERIFIED / GITHUB SYNCHRONIZED
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 IMPLEMENTED; W03-C04-R1 HARNESS REPAIR CODEX VERIFIED
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 IMPLEMENTED AND ACCEPTED; W03-C04-R1 HARNESS REPAIR ACCEPTED
 
-**Codex Readiness / Codex 开发就绪:** W03-C04 REVIEW_READY_FOR_GPT_R2 ONLY AFTER R1 REPORT PUBLICATION GATE; C05 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** W03-C04 CLOSEOUT EFFECTIVE ONLY AFTER FINAL PUBLICATION GATE; C05 NOT AUTHORIZED
 
 **C04 Implementation SHA / C04 实现 SHA:** `62405d7169b1aaea321290749395ab077792f86f`
 
@@ -17,19 +17,19 @@
 
 **C04 R1 Repair Exact-SHA / C04 R1 修复精确 SHA:** PASS — Run #57 / `36244584464` — `I / FULL_EXACT_SHA`
 
-**GPT C04 R2 Re-review / GPT C04 R2 复审:** PENDING
+**GPT C04 R2 Re-review / GPT C04 R2 复审:** PASS FOR HUMAN C04 ACCEPTANCE
 
-**Human C04 Acceptance / C04 人工验收:** PENDING
+**Human C04 Acceptance / C04 人工验收:** ACCEPTED
 
-**C04 Closed / C04 关闭:** NO
+**C04 Closed / C04 关闭:** YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
 
 **C05 Authorized / C05 授权:** NO
 
-**Next / 下一步:** GPT C04 R2 INDEPENDENT RE-REVIEW
+**Next / 下一步:** GPT W03-C05 AUTHORIZATION / CONTRACT REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：W03-C04-R1 closes all four GPT R1 evidence findings through test/harness-only proof at exact repair SHA `ae54dbc23effedf59566306d209a03b7290a299e`. Supplier, Quality and Capacity successful wrapper paths, full SimulationBundle fresh-process replay, Capacity-created-row semantic diff, and all four Capacity compatibility modes pass. Runtime source is unchanged; HGT isolation and the closed-observation boundary remain intact. GPT C04 R2 re-review and Human acceptance remain pending; C04 is not closed and C05 is not authorized. / W03-C04-R1 已在精确修复 SHA `ae54dbc23effedf59566306d209a03b7290a299e` 上通过纯测试/harness 证据关闭全部四项 GPT R1 发现。Supplier、Quality、Capacity 成功包装路径、完整 SimulationBundle 新进程重放、Capacity 新建行语义差异及四种 Capacity 兼容模式均通过。运行时源码未变，HGT 隔离与闭合观测边界保持不变。GPT C04 R2 复审与人工验收仍待进行；C04 尚未关闭，C05 未获授权。
+> Current state / 当前状态：GPT C04 Independent Re-Review R2 passed the accepted runtime implementation and test-only R1 harness repair for Human acceptance, with all four R1 findings closed and no blocker. The Product Owner separately accepted C04 and authorized this documentation-only final closeout. Runtime source remains unchanged; HGT isolation, the closed-observation boundary, baseline immutability and no post-C02 runtime database access remain intact. C04 closure becomes effective only after the exact closeout publication gate and final synchronization pass. C05 remains unauthorized. / GPT C04 独立复审 R2 已通过所验收的运行时实现与纯测试 R1 harness 修复，供人工验收；四项 R1 发现全部关闭且无阻断项。Product Owner 已分别接受 C04 并授权本次纯文档最终关闭。运行时源码保持不变；HGT 隔离、闭合观测边界、基线不可变性及 C02 后无运行时数据库访问均保持有效。C04 关闭仅在精确关闭发布门与最终同步通过后生效。C05 仍未获授权。
 
 ---
 
@@ -3246,4 +3246,74 @@ HUMAN C04 ACCEPTANCE: PENDING
 C04 CLOSED: NO
 C05 AUTHORIZED: NO
 STATUS: REVIEW_READY_FOR_GPT_R2 ONLY AFTER PUBLICATION GATE
+```
+
+---
+
+## 47. W03-C04-C1 — Final Closeout
+
+**Date:** 2026-09-26
+
+**Entry R1 report SHA:** `933aada93d1db91cce0165e794d41dc759d8dc74`
+
+**Accepted C04 implementation SHA:** `62405d7169b1aaea321290749395ab077792f86f`
+
+**Accepted R1 harness repair SHA:** `ae54dbc23effedf59566306d209a03b7290a299e`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+GPT C04 Independent Re-Review R2 returned **PASS FOR HUMAN C04 ACCEPTANCE**
+and closed R1 `MEDIUM-01`, `MEDIUM-02`, `LOW-01`, and `LOW-02`. It reported
+no BLOCKER, HIGH, MEDIUM or contract blocker. The Product Owner separately
+supplied `W03-C04 HUMAN ACCEPTANCE: ACCEPTED` and `W03-C04-C1 CLOSEOUT
+AUTHORIZATION: APPROVED` in chat.
+
+The accepted C04 implementation received full exact-SHA proof in Run #55
+(`36227210323`) on `62405d7169b1aaea321290749395ab077792f86f` as
+`I / FULL_EXACT_SHA`: Quality PASS, Docker Compose PASS, Publication skipped
+and Verification PASS. The test-only R1 harness repair received full
+exact-SHA proof in Run #57 (`36244584464`) on
+`ae54dbc23effedf59566306d209a03b7290a299e` as `I / FULL_EXACT_SHA`, with the
+same required job disposition. The separate R1 report received publication
+exact-SHA proof in Run #58 (`36245190187`) on
+`933aada93d1db91cce0165e794d41dc759d8dc74` as
+`P / PUBLICATION_EXACT_SHA`: Publication proof PASS, Verification PASS, and
+Quality/Docker Compose skipped.
+
+This authorized documentation/governance-only closeout publishes the
+[GPT C04 R2 review](w03/reports/W03_C04_GPT_INDEPENDENT_REREVIEW_R2.md) and
+the [final closeout report](w03/reports/W03_C04_C1_FINAL_CLOSEOUT.md). It
+changes exactly those two new reports and this current-state document. No
+source, test, runtime, frozen C04 contract, C03, W2, W03 Sprint Spec, workflow,
+CI/control-plane, schema, migration, dependency, lock file, Docker/Compose,
+API, worker or C05 surface changes.
+
+Runtime HGT access, post-C02 runtime database access and operational mutation
+remain **NONE**. Recommendation, scoring and ranking remain outside C04. The
+three non-`NO_ACTION` simulations remain stress probes for human investigation
+rather than modeled intervention efficacy, and frozen W2 scenario selection
+remains not guaranteed to target the current order.
+
+PR #6 remains open, draft and unmerged; main remains
+`9d18ddde9fe933952a2661ee1419f13c8577605d`. C04 closure is effective only
+after this closeout commit receives successful exact-SHA publication proof
+and final local/tracking/direct-remote/PR synchronization passes. The closeout
+SHA and CI run are reported in the Codex handoff under the immutable-record
+rule. C05 remains unauthorized; the next governance step is only GPT W03-C05
+authorization/contract review.
+
+```text
+W03-C04: CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING
+GPT C04 R2: PASS
+HUMAN C04 ACCEPTANCE: ACCEPTED
+CLOSEOUT AUTHORIZATION: APPROVED
+R1 MEDIUM-01: CLOSED
+R1 MEDIUM-02: CLOSED
+R1 LOW-01: CLOSED
+R1 LOW-02: CLOSED
+C1 SOURCE CHANGES: NONE
+C1 TEST CHANGES: NONE
+C04 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
+C05 AUTHORIZED: NO
+NEXT: GPT W03-C05 AUTHORIZATION / CONTRACT REVIEW
 ```
