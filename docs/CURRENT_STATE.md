@@ -3,17 +3,21 @@
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C04 IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW; W03-C03 CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+**Current Project Phase / 当前阶段:** W03-C04-R1 HARNESS REPAIR IMPLEMENTED / CODEX VERIFIED / PENDING GPT R2 RE-REVIEW; W03-C03 CLOSED / VERIFIED / GITHUB SYNCHRONIZED
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 IMPLEMENTED / CODEX VERIFIED
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 IMPLEMENTED; W03-C04-R1 HARNESS REPAIR CODEX VERIFIED
 
-**Codex Readiness / Codex 开发就绪:** W03-C04 REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE; C05 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** W03-C04 REVIEW_READY_FOR_GPT_R2 ONLY AFTER R1 REPORT PUBLICATION GATE; C05 NOT AUTHORIZED
 
 **C04 Implementation SHA / C04 实现 SHA:** `62405d7169b1aaea321290749395ab077792f86f`
 
 **C04 Implementation Exact-SHA / C04 实现精确 SHA:** PASS — Run #55 / `36227210323` — `I / FULL_EXACT_SHA`
 
-**GPT C04 Review / GPT C04 审查:** PENDING
+**C04 R1 Repair SHA / C04 R1 修复 SHA:** `ae54dbc23effedf59566306d209a03b7290a299e`
+
+**C04 R1 Repair Exact-SHA / C04 R1 修复精确 SHA:** PASS — Run #57 / `36244584464` — `I / FULL_EXACT_SHA`
+
+**GPT C04 R2 Re-review / GPT C04 R2 复审:** PENDING
 
 **Human C04 Acceptance / C04 人工验收:** PENDING
 
@@ -21,11 +25,11 @@
 
 **C05 Authorized / C05 授权:** NO
 
-**Next / 下一步:** GPT C04 INDEPENDENT REVIEW
+**Next / 下一步:** GPT C04 R2 INDEPENDENT RE-REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：W03-C04 implementation and the complete H1-H17 harness are Codex-verified at exact SHA `62405d7169b1aaea321290749395ab077792f86f`. MEDIUM-01 is closed, the runtime remains HGT-free and closed-observation-only, and the report publication gate is pending. GPT C04 review and Human acceptance remain pending; C04 is not closed and C05 is not authorized. / W03-C04 实现及完整 H1-H17 harness 已在精确 SHA `62405d7169b1aaea321290749395ab077792f86f` 上通过 Codex 验证。MEDIUM-01 已关闭，运行时继续保持无 HGT 且仅允许闭合观测窗口；当前等待报告发布门。GPT C04 审查与人工验收仍待进行；C04 尚未关闭，C05 未获授权。
+> Current state / 当前状态：W03-C04-R1 closes all four GPT R1 evidence findings through test/harness-only proof at exact repair SHA `ae54dbc23effedf59566306d209a03b7290a299e`. Supplier, Quality and Capacity successful wrapper paths, full SimulationBundle fresh-process replay, Capacity-created-row semantic diff, and all four Capacity compatibility modes pass. Runtime source is unchanged; HGT isolation and the closed-observation boundary remain intact. GPT C04 R2 re-review and Human acceptance remain pending; C04 is not closed and C05 is not authorized. / W03-C04-R1 已在精确修复 SHA `ae54dbc23effedf59566306d209a03b7290a299e` 上通过纯测试/harness 证据关闭全部四项 GPT R1 发现。Supplier、Quality、Capacity 成功包装路径、完整 SimulationBundle 新进程重放、Capacity 新建行语义差异及四种 Capacity 兼容模式均通过。运行时源码未变，HGT 隔离与闭合观测边界保持不变。GPT C04 R2 复审与人工验收仍待进行；C04 尚未关闭，C05 未获授权。
 
 ---
 
@@ -3177,4 +3181,69 @@ HUMAN C04 ACCEPTANCE: PENDING
 C04 CLOSED: NO
 C05 AUTHORIZED: NO
 STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
+
+---
+
+## 46. W03-C04-R1 — Harness Evidence Hardening
+
+**Date:** 2026-09-26
+
+**Entry C04 report SHA:** `4e9a52af845d44e0166a855e9d4c0259bca4be7b`
+
+**Accepted C04 implementation SHA:** `62405d7169b1aaea321290749395ab077792f86f`
+
+**R1 harness repair SHA:** `ae54dbc23effedf59566306d209a03b7290a299e`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C04-R1` as a bounded review-repair and
+harness-evidence-hardening lifecycle. The repair changes exactly
+`tests/test_c04_simulation.py`, `tests/test_c04_harness.py`, and
+`tests/test_c04_scenario_adapter_compat.py`. No runtime source, frozen C04/W2
+semantic contract, C03 behavior, HGT behavior, schema, migration, dependency,
+CI/control-plane, or C05 surface changed.
+
+All four GPT R1 findings are closed for R2 re-review. The harness directly
+proves successful canonical C04 wrapper execution for Supplier, Quality and
+Capacity; byte-identical same-process and twice-independent fresh-process
+replay of the full successful SimulationBundle; independent ownership-free
+semantic diff inclusion of Capacity-created business rows; and business-only
+adapter equivalence with legacy W2 behavior for Capacity combined,
+arrival-only, queue-only and neutral modes. Existing NO_ACTION, temporal,
+binding, mutation, typed-error, sanitization, HGT-isolation, capability-denial
+and regression assertions remain intact.
+
+Local verification passed 31 focused C04 tests, 77 C03 tests, 26 C02 tests,
+39 C01 tests, 154 W2 scenario/HGT tests and 525 non-integration tests. Ruff,
+strict mypy over 98 source files, diff checks and Compose configuration passed.
+The local PostgreSQL guard was unset. Exact repair-SHA
+[Run #57](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36244584464)
+(`36244584464`) classified the exact delta `I / FULL_EXACT_SHA` and passed
+Quality, Docker Compose and Verification with Publication proof skipped; the
+Quality gate supplied 48 guarded integration passes and the complete 525-test
+non-integration proof.
+
+The full evidence is in
+[`W03_C04_R1_HARNESS_REPAIR_REPORT.md`](w03/reports/W03_C04_R1_HARNESS_REPAIR_REPORT.md).
+This entry and that report are the exact two-file publication commit. Its SHA
+and `P / PUBLICATION_EXACT_SHA` proof are reported in the final Codex handoff.
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged. GPT C04 R2 re-review and Human acceptance remain pending. C04 is not
+closed and C05 is not authorized.
+
+```text
+W03-C04-R1: IMPLEMENTED / CODEX VERIFIED
+R1 MEDIUM-01: CLOSED
+R1 MEDIUM-02: CLOSED
+R1 LOW-01: CLOSED
+R1 LOW-02: CLOSED
+RUNTIME SOURCE CHANGES: NONE
+REPAIR FULL EXACT-SHA: PASS — RUN #57 / 36244584464
+REPAIR REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C04 R2 RE-REVIEW: PENDING
+HUMAN C04 ACCEPTANCE: PENDING
+C04 CLOSED: NO
+C05 AUTHORIZED: NO
+STATUS: REVIEW_READY_FOR_GPT_R2 ONLY AFTER PUBLICATION GATE
 ```
