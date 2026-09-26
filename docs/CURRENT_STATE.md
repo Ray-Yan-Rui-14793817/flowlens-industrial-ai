@@ -3,29 +3,29 @@
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C03 CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING; W03-DEVCTRL-01 CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+**Current Project Phase / 当前阶段:** W03-C04 IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW; W03-C03 CLOSED / VERIFIED / GITHUB SYNCHRONIZED
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 HUMAN-ACCEPTED / CLOSEOUT PUBLICATION PENDING
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 IMPLEMENTED / CODEX VERIFIED
 
-**Codex Readiness / Codex 开发就绪:** W03-C03 CLOSEOUT PUBLICATION AND FINAL GITHUB SYNCHRONIZATION PENDING; C04 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** W03-C04 REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE; C05 NOT AUTHORIZED
 
-**Repair Implementation SHA / 修复实现 SHA:** `398ecde6f35fdd5773e6b4bb29ed5b9d0a662991`
+**C04 Implementation SHA / C04 实现 SHA:** `62405d7169b1aaea321290749395ab077792f86f`
 
-**Repair Implementation Exact-SHA / 修复实现精确 SHA:** PASS — Run #51 / `36142738931`
+**C04 Implementation Exact-SHA / C04 实现精确 SHA:** PASS — Run #55 / `36227210323` — `I / FULL_EXACT_SHA`
 
-**GPT C03 Review / GPT C03 审查:** PASS
+**GPT C04 Review / GPT C04 审查:** PENDING
 
-**Human C03 Acceptance / C03 人工验收:** ACCEPTED
+**Human C04 Acceptance / C04 人工验收:** PENDING
 
-**C03 Closed / C03 关闭:** YES — EFFECTIVE ONLY AFTER FINAL PUBLICATION GATE
+**C04 Closed / C04 关闭:** NO
 
-**C04 Authorized / C04 授权:** NO
+**C05 Authorized / C05 授权:** NO
 
-**Next / 下一步:** GPT W03-C04-A AUTHORIZATION / CONTRACT REVIEW
+**Next / 下一步:** GPT C04 INDEPENDENT REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：W03-C03 passed GPT Independent Re-Review R2 and was Human-accepted. C03 closure becomes effective only after the final closeout publication gate and Git/GitHub synchronization pass. C04 remains unauthorized; the next governance action is GPT W03-C04-A authorization/contract review. / W03-C03 已通过 GPT 独立复审 R2 并获人工验收。C03 关闭仅在最终关闭发布门和 Git/GitHub 同步验证通过后生效。C04 仍未授权；下一治理动作是 GPT W03-C04-A 授权/契约审查。
+> Current state / 当前状态：W03-C04 implementation and the complete H1-H17 harness are Codex-verified at exact SHA `62405d7169b1aaea321290749395ab077792f86f`. MEDIUM-01 is closed, the runtime remains HGT-free and closed-observation-only, and the report publication gate is pending. GPT C04 review and Human acceptance remain pending; C04 is not closed and C05 is not authorized. / W03-C04 实现及完整 H1-H17 harness 已在精确 SHA `62405d7169b1aaea321290749395ab077792f86f` 上通过 Codex 验证。MEDIUM-01 已关闭，运行时继续保持无 HGT 且仅允许闭合观测窗口；当前等待报告发布门。GPT C04 审查与人工验收仍待进行；C04 尚未关闭，C05 未获授权。
 
 ---
 
@@ -3099,4 +3099,82 @@ R1 LOW-02: CLOSED BY FINAL-STATE NORMALIZATION
 C03 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL PUBLICATION GATE
 C04 AUTHORIZED: NO
 NEXT: GPT W03-C04-A AUTHORIZATION / CONTRACT REVIEW
+```
+
+---
+
+## 45. W03-C04 — Intervention Registry and Counterfactual Simulation Implementation Round
+
+**Date:** 2026-09-26
+
+**Starting C03 closeout SHA:** `1c0f4de6f897d9e377fba63891773bb5970e74b7`
+
+**C04 final implementation SHA:** `62405d7169b1aaea321290749395ab077792f86f`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner supplied `W03-C04 HUMAN AUTHORIZATION: APPROVED` and later
+authorized quota recovery of the same lifecycle without discarding valid
+partial work. The read-only recovery audit classified the state as **A** and
+confirmed synchronized repository/remote/PR heads, a clean Git-operation
+state, authorized paths only, a `LOCKED` C04 Context Lock and exact frozen
+scenario config/HGT hashes before work resumed.
+
+C04 publishes the exact four-family intervention registry and deterministic
+CandidateSet, maps Supplier/Quality/Capacity associations to conservative W2
+stress probes, keeps NO_ACTION as a neutral comparator, and produces
+deterministic SimulationResult/SimulationBundle artifacts with the frozen raw
+measurement schema. Non-NO_ACTION execution is limited to a bound, detached,
+fully closed in-memory observation. The runtime returns `UNAVAILABLE` without
+calling the scenario engine at earlier as-of times and never uses a
+future-containing full dataset for earlier reasoning.
+
+The authorized W2 compatibility refactor adds an HGT-free business-only
+adapter and lazy package boundary while preserving public scenario API,
+business dataset identity/content, HGT identity/hash/payload and all frozen
+Supplier/Quality/Capacity behavior. Every non-NO_ACTION artifact explicitly
+states that the stress probe is not intervention efficacy and that frozen W2
+selection is not guaranteed to target the current order.
+
+Mandatory pre-review finding `MEDIUM-01` is **CLOSED**. Typed
+`ScenarioPreconditionUnavailable` produces `UNAVAILABLE`; unexpected
+`ValueError`, `RuntimeError` and other errors produce sanitized `FAILED`;
+baseline mutation on every error path hard-fails as `C04_BASELINE_MUTATION`.
+The harness also proves exact canonical candidate-parameter to executed
+ScenarioConfig binding for all three scenario families.
+
+Local verification passed 24 focused C04 tests, 39 frozen C01 tests, 26 frozen
+C02 tests, 77 C03 tests, 154 frozen W2 scenario/HGT tests and 518
+non-integration tests. Ruff, strict mypy over 98 source files, diff checks and
+Compose configuration passed. The local PostgreSQL guard was unset; the final
+exact-SHA CI Quality gate supplied the guarded 48-test integration proof and
+the 518-test non-integration proof.
+
+Final implementation SHA
+[`62405d7169b1aaea321290749395ab077792f86f`](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/commit/62405d7169b1aaea321290749395ab077792f86f)
+received exact-SHA [Run #55](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36227210323):
+class `I / FULL_EXACT_SHA`, Quality PASS, Docker Compose PASS, Publication
+skipped, Verification PASS and successful workflow conclusion. The complete
+evidence is in
+[`W03_C04_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C04_R_DEVELOPMENT_ROUND_REPORT.md).
+
+This entry and that Round Report are the exact two-file publication commit.
+Its commit SHA and `P / PUBLICATION_EXACT_SHA` result are reported in the
+Codex handoff after CI. Main remains
+`9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged. GPT review and Human acceptance remain pending. C04 is not closed
+and C05 is not authorized.
+
+```text
+W03-C04: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION FULL EXACT-SHA: PASS — RUN #55 / 36227210323
+QUOTA RECOVERY: RESUMED / STATE A
+MEDIUM-01: CLOSED
+CANDIDATE PARAMETER -> EXECUTED CONFIG BINDING: PASS
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C04 REVIEW: PENDING
+HUMAN C04 ACCEPTANCE: PENDING
+C04 CLOSED: NO
+C05 AUTHORIZED: NO
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
 ```
