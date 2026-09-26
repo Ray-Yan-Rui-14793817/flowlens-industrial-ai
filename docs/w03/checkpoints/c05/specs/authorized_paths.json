@@ -1,0 +1,59 @@
+{
+  "checkpoint": "W03-C05",
+  "implementation_paths": [
+    "docs/sprints/W03_ai_decision_loop.md",
+    "docs/w03/checkpoints/c05/**",
+    "src/flowlens/decision/c05_policy.py",
+    "src/flowlens/decision/c05_validation.py",
+    "src/flowlens/decision/c05_evaluation.py",
+    "src/flowlens/decision/c05_recommendation.py",
+    "src/flowlens/decision/c05_packet.py",
+    "tests/test_c05_policy.py",
+    "tests/test_c05_recommendation.py",
+    "tests/test_c05_packet.py",
+    "tests/test_c05_harness.py"
+  ],
+  "report_paths": [
+    "docs/w03/reports/W03_C05_R_DEVELOPMENT_ROUND_REPORT.md",
+    "docs/CURRENT_STATE.md"
+  ],
+  "frozen_paths": [
+    "src/flowlens/decision/__init__.py",
+    "src/flowlens/decision/contracts.py",
+    "src/flowlens/decision/enums.py",
+    "src/flowlens/decision/primitives.py",
+    "src/flowlens/decision/serialization.py",
+    "src/flowlens/decision/c03_policy.py",
+    "src/flowlens/decision/c03_validation.py",
+    "src/flowlens/decision/signals.py",
+    "src/flowlens/decision/diagnosis.py",
+    "src/flowlens/decision/c04_registry.py",
+    "src/flowlens/decision/c04_validation.py",
+    "src/flowlens/decision/c04_simulation.py",
+    "pyproject.toml",
+    "uv.lock",
+    ".github/workflows/**",
+    "scripts/ci/**"
+  ],
+  "forbidden_capabilities": [
+    "post_c02_database_read",
+    "filesystem",
+    "network",
+    "model",
+    "runtime_subprocess",
+    "random",
+    "wall_clock",
+    "scenario_execution",
+    "runtime_hgt",
+    "operational_mutation"
+  ],
+  "forbidden_scope": [
+    "HumanDecisionEvent",
+    "ExplanationRecord",
+    "RecommendationEvaluation",
+    "OutcomeEvaluation",
+    "C06",
+    "C07",
+    "C08"
+  ]
+}

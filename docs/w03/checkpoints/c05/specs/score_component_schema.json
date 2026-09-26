@@ -1,0 +1,37 @@
+{
+  "schema_version": "w03-c05-evaluation-v1",
+  "ordering": "name_ascending",
+  "family_fields": [
+    "relevance_class",
+    "simulation_status",
+    "stress_effect",
+    "decision_eligible"
+  ],
+  "families": [
+    "NO_ACTION",
+    "SUPPLIER_INTERVENTION",
+    "QUALITY_INTERVENTION",
+    "CAPACITY_INTERVENTION"
+  ],
+  "summary_components": [
+    "policy.active_family_count",
+    "policy.active_succeeded_count",
+    "policy.neutral_no_action_eligible",
+    "policy.partial_active_comparison",
+    "policy.top_tie_count"
+  ],
+  "allowed_relevance": ["BASELINE", "ACTIVE", "NOT_ESTABLISHED"],
+  "allowed_simulation_status": ["SUCCEEDED", "UNAVAILABLE", "FAILED"],
+  "allowed_stress_effect": ["BASELINE", "WORSENED", "UNCHANGED", "MIXED", "IMPROVED", "NOT_COMPARABLE"],
+  "allowed_value_types": ["bool", "int", "str"],
+  "forbidden_names": [
+    "confidence",
+    "probability",
+    "utility",
+    "benefit",
+    "expected_gain",
+    "action_success_probability",
+    "root_cause_score",
+    "aggregate_score"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "decision_policy_version": "w03-c05-decision-v1",
+  "evaluation_schema_version": "w03-c05-evaluation-v1",
+  "packet_policy_version": "w03-c05-packet-v1",
+  "families": [
+    "NO_ACTION",
+    "SUPPLIER_INTERVENTION",
+    "QUALITY_INTERVENTION",
+    "CAPACITY_INTERVENTION"
+  ],
+  "decision_metrics": [
+    {"name": "target_delivered_quantity", "worse": "LOWER"},
+    {"name": "target_remaining_quantity", "worse": "HIGHER"},
+    {"name": "target_delivery_lag_seconds", "worse": "HIGHER"},
+    {"name": "target_failed_quantity", "worse": "HIGHER"},
+    {"name": "target_rework_quantity", "worse": "HIGHER"},
+    {"name": "target_max_operation_start_slippage_seconds", "worse": "HIGHER"},
+    {"name": "target_max_work_order_completion_slippage_seconds", "worse": "HIGHER"}
+  ],
+  "excluded_metrics": [
+    "affected_entity_count",
+    "business_row_count_delta",
+    "target_last_delivery_at"
+  ],
+  "metric_effects": ["WORSE", "EQUAL", "BETTER", "NOT_COMPARABLE"],
+  "stress_effects": ["BASELINE", "WORSENED", "UNCHANGED", "MIXED", "IMPROVED", "NOT_COMPARABLE"],
+  "relevance_classes": ["BASELINE", "ACTIVE", "NOT_ESTABLISHED"],
+  "emitted_dispositions": ["NO_ACTION", "NO_RECOMMENDATION", "INVESTIGATION_ONLY", "DEFER_TO_HUMAN"],
+  "prohibited_disposition": "CANDIDATE_RECOMMENDED",
+  "tie_break": "DEFER_TO_HUMAN",
+  "candidate_id_tie_break_allowed": false,
+  "aggregate_numeric_score_allowed": false,
+  "active_availability": {
+    "all_not_succeeded": "NO_RECOMMENDATION",
+    "partial_succeeded": "DEFER_TO_HUMAN",
+    "mixed_or_improved": "DEFER_TO_HUMAN"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "w03-c05-limitation-codes-v1",
+  "limitations": [
+    {"code": "C05_HUMAN_AUTHORITY_REQUIRED", "message": "This artifact requires human review and grants no execution authority."},
+    {"code": "C05_INVESTIGATION_NOT_EXECUTION", "message": "A selected intervention family is only a bounded investigation focus."},
+    {"code": "C05_NO_ACTION_NOT_OPERATIONAL_EXECUTION", "message": "Neutral NO_ACTION is a human-review result, not an operational instruction."},
+    {"code": "C05_NO_CAUSAL_ROOT_CAUSE", "message": "The available evidence does not establish a causal attribution."},
+    {"code": "C05_NO_OPERATIONAL_ACTION_AUTHORITY", "message": "The recommendation cannot schedule, procure, release, replace, or mutate operational state."},
+    {"code": "C05_NO_STATISTICAL_CONFIDENCE", "message": "The categorical evaluation is not calibrated statistical confidence."},
+    {"code": "C05_NONMONOTONIC_STRESS_RESULT", "message": "The active stress comparison is nonmonotonic and requires human review."},
+    {"code": "C05_PARTIAL_COMPARISON", "message": "The active-family comparison is incomplete and is not auto-resolved."},
+    {"code": "C05_SCENARIO_SCOPE_NOT_ORDER_TARGETED", "message": "Frozen scenario selection is not guaranteed to target the current order."},
+    {"code": "C05_SIMULATION_NOT_DECISION_DISCRIMINATING", "message": "The successful stress comparison does not distinguish the active investigation family."},
+    {"code": "C05_STRESS_PROBE_NOT_INTERVENTION_EFFICACY", "message": "The C04 stress probe does not establish intervention efficacy."},
+    {"code": "C05_TIE_NOT_AUTO_RESOLVED", "message": "A semantic tie is preserved for human review and is not broken by identifier order."}
+  ]
+}
