@@ -202,11 +202,16 @@ def test_affected_entity_diff_ignores_dataset_ownership_and_detects_business_cha
 def test_context_lock_frozen_sources_remain_byte_exact() -> None:
     expected = {
         ROOT / "src/flowlens/data/scenarios/config.py": (
-            "2ec47cdcab56bc5d1439a37a5a29e2c0362bd98bfe2675234eeb726bef84a35c"
+            "03a789130096f10e8f6ed2e0a723d60fa0038f94572d48868e54ae3d857d874b",
+            "2ec47cdcab56bc5d1439a37a5a29e2c0362bd98bfe2675234eeb726bef84a35c",
         ),
         ROOT / "src/flowlens/data/scenarios/ground_truth.py": (
-            "6b6671d568b404506da094785e8bde461d54a3754b7884f9f9311f4ac4f0a01e"
+            "3b75e9d301bd5980c2f10051d32a980c03e474758032bf35c0bf1063159c9cad",
+            "6b6671d568b404506da094785e8bde461d54a3754b7884f9f9311f4ac4f0a01e",
         ),
     }
-    for path, digest in expected.items():
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
+    for path, (repository_digest, locked_windows_digest) in expected.items():
+        normalized = path.read_bytes().replace(b"\r\n", b"\n")
+        locked_windows_bytes = normalized.replace(b"\n", b"\r\n")
+        assert hashlib.sha256(normalized).hexdigest() == repository_digest
+        assert hashlib.sha256(locked_windows_bytes).hexdigest() == locked_windows_digest
