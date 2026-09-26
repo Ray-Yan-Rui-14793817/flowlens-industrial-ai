@@ -81,6 +81,64 @@ def test_business_adapter_exactly_preserves_legacy_dataset_and_hgt_behavior(
     assert baseline.row_count_total == before_count
 
 
+@pytest.mark.parametrize(
+    ("arrival", "queue"),
+    [
+        ("1.5", "1.7"),
+        ("1.5", "1"),
+        ("1", "1.7"),
+        ("1", "1"),
+    ],
+    ids=("combined", "arrival-only", "queue-only", "neutral"),
+)
+def test_capacity_all_accepted_modes_preserve_business_and_hgt_compatibility(
+    arrival: str, queue: str
+) -> None:
+    baseline = _capacity_baseline()
+    config = _accepted_capacity_config(arrival, queue)
+    before_payload = canonical_business_payload(baseline.rows_by_table)
+    before_hash = baseline.content_hash
+    before_count = baseline.row_count_total
+
+    legacy = apply_scenario(baseline, config, generated_at=GENERATED_AT)
+    repeated = apply_scenario(
+        baseline,
+        config,
+        generated_at=GENERATED_AT + timedelta(days=100),
+    )
+    business_only = apply_scenario_business_only(
+        baseline,
+        config,
+        generated_at=GENERATED_AT,
+    )
+
+    assert business_only.dataset_version.dataset_version_id == (
+        legacy.dataset.dataset_version.dataset_version_id
+    )
+    assert business_only.content_hash == legacy.dataset.content_hash
+    assert business_only.row_count_total == legacy.dataset.row_count_total
+    assert canonical_business_payload(business_only.rows_by_table) == (
+        canonical_business_payload(legacy.dataset.rows_by_table)
+    )
+    assert legacy.dataset.dataset_version.dataset_version_id == (
+        repeated.dataset.dataset_version.dataset_version_id
+    )
+    assert legacy.dataset.content_hash == repeated.dataset.content_hash
+    assert legacy.dataset.row_count_total == repeated.dataset.row_count_total
+    assert canonical_business_payload(legacy.dataset.rows_by_table) == (
+        canonical_business_payload(repeated.dataset.rows_by_table)
+    )
+    assert legacy.ground_truth.scenario_id == repeated.ground_truth.scenario_id
+    assert legacy.ground_truth.hgt_id == repeated.ground_truth.hgt_id
+    assert legacy.ground_truth.hgt_hash == repeated.ground_truth.hgt_hash
+    assert canonical_hgt_payload(legacy.ground_truth) == canonical_hgt_payload(
+        repeated.ground_truth
+    )
+    assert canonical_business_payload(baseline.rows_by_table) == before_payload
+    assert baseline.content_hash == before_hash
+    assert baseline.row_count_total == before_count
+
+
 def test_typed_expected_preconditions_preserve_value_error_api_compatibility() -> None:
     config = _supplier_config(affected_supplier_count=999)
     with pytest.raises(ScenarioPreconditionUnavailable) as caught:

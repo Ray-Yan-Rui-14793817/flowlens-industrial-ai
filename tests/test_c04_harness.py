@@ -6,9 +6,10 @@ import ast
 import hashlib
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
 from types import MappingProxyType
-from typing import cast
+from typing import Any, cast
 
 from flowlens.data import Base
 from flowlens.data.generation import GeneratedDataset
@@ -18,11 +19,16 @@ from flowlens.data.generation.canonical import (
     canonicalize_rows,
 )
 from flowlens.data.models import DatasetVersion, Supplier
+from flowlens.data.scenarios.runtime_adapter import apply_scenario_business_only
 from flowlens.data.scenarios.transformer import _clone_row
 from flowlens.decision.c04_simulation import semantic_affected_entities
+from flowlens.decision.enums import InterventionFamily, SimulationStatus
 from flowlens.decision.serialization import canonical_json_bytes
 from test_c04_registry import make_c04_fixture
-from test_c04_simulation import closed_baseline
+from test_c04_simulation import build_with, closed_baseline, successful_fixture
+from test_capacity_scenario import NOW as CAPACITY_GENERATED_AT
+from test_capacity_scenario import _config as _accepted_capacity_config
+from test_capacity_scenario import baseline as _capacity_baseline_fixture
 
 ROOT = Path(__file__).parents[1]
 C04_RUNTIME_FILES = (
@@ -67,6 +73,24 @@ def _ownership_clone(baseline: GeneratedDataset, *, mutate: bool) -> GeneratedDa
         row_count_total=sum(len(items) for items in ordered.values()),
     )
     return GeneratedDataset(metadata, MappingProxyType(ordered))
+
+
+def _capacity_baseline() -> GeneratedDataset:
+    fixture_factory = cast(
+        Callable[[], GeneratedDataset],
+        cast(Any, _capacity_baseline_fixture).__wrapped__,
+    )
+    return fixture_factory()
+
+
+def _independent_business_key(row: Base) -> tuple[str, ...]:
+    key = tuple(
+        str(getattr(row, column.name))
+        for column in row.__mapper__.primary_key
+        if column.name != "dataset_version_id"
+    )
+    assert key
+    return key
 
 
 def test_runtime_import_surface_has_no_hgt_or_forbidden_capability_modules() -> None:
@@ -183,6 +207,44 @@ print(hashlib.sha256(canonical_json_bytes(make_c04_fixture()[-1])).hexdigest())
     assert results == [local_hash, local_hash]
 
 
+def test_successful_simulation_bundle_has_same_and_fresh_process_replay() -> None:
+    baseline, run, fixture = successful_fixture()
+    first, candidates = build_with(baseline, run, fixture)
+    second, _ = build_with(baseline, run, fixture)
+    first_bytes = canonical_json_bytes(first)
+    second_bytes = canonical_json_bytes(second)
+    assert first_bytes == second_bytes
+    assert first == second
+    by_candidate = {item.candidate_id: item.family for item in candidates.candidates}
+    for result in first.results:
+        if by_candidate[result.candidate_id] is not InterventionFamily.NO_ACTION:
+            assert result.status is SimulationStatus.SUCCEEDED
+    local_digest = hashlib.sha256(first_bytes).hexdigest()
+    code = """
+import hashlib
+import sys
+sys.path.insert(0, 'tests')
+from flowlens.decision.serialization import canonical_json_bytes
+from test_c04_simulation import build_with, successful_fixture
+assert 'flowlens.data.scenarios.ground_truth' not in sys.modules
+baseline, run, fixture = successful_fixture()
+bundle, _ = build_with(baseline, run, fixture)
+assert 'flowlens.data.scenarios.ground_truth' not in sys.modules
+print(hashlib.sha256(canonical_json_bytes(bundle)).hexdigest())
+"""
+    fresh_digests = []
+    for _ in range(2):
+        completed = subprocess.run(
+            [sys.executable, "-c", code],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        fresh_digests.append(completed.stdout.strip())
+    assert fresh_digests == [local_digest, local_digest]
+
+
 def test_affected_entity_diff_ignores_dataset_ownership_and_detects_business_change() -> None:
     baseline = closed_baseline()
     ownership_only = _ownership_clone(baseline, mutate=False)
@@ -197,6 +259,38 @@ def test_affected_entity_diff_ignores_dataset_ownership_and_detects_business_cha
             entity_id=supplier.supplier_id,
         ),
     )
+
+
+def test_capacity_created_rows_are_in_independent_semantic_affected_diff() -> None:
+    baseline = _capacity_baseline()
+    scenario = apply_scenario_business_only(
+        baseline,
+        _accepted_capacity_config("1.5", "1.7"),
+        generated_at=CAPACITY_GENERATED_AT,
+    )
+    independently_created: set[tuple[str, str]] = set()
+    for table in CANONICAL_TABLE_ORDER:
+        before = {_independent_business_key(row) for row in baseline.rows_for(table)}
+        after = {_independent_business_key(row) for row in scenario.rows_for(table)}
+        independently_created.update(
+            (table, "|".join(key)) for key in after - before
+        )
+
+    assert independently_created
+    assert {table for table, _ in independently_created} >= {
+        "fact_sales_order",
+        "fact_work_order",
+        "fact_operation",
+        "fact_material_requirement",
+        "fact_purchase_order",
+        "fact_quality_inspection",
+        "fact_delivery",
+    }
+    affected = {
+        (item.entity_type, item.entity_id)
+        for item in semantic_affected_entities(baseline, scenario)
+    }
+    assert independently_created <= affected
 
 
 def test_context_lock_frozen_sources_remain_byte_exact() -> None:

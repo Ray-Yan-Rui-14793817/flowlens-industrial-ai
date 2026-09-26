@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from types import MappingProxyType
 from typing import NoReturn, cast
@@ -19,10 +19,19 @@ from flowlens.data.generation import (
 )
 from flowlens.data.generation.canonical import (
     CANONICAL_TABLE_ORDER,
+    canonical_business_payload,
     canonical_content_hash,
     canonicalize_rows,
 )
-from flowlens.data.models import DatasetVersion, PurchaseOrder, Supplier
+from flowlens.data.models import (
+    DatasetVersion,
+    Delivery,
+    Material,
+    PurchaseOrder,
+    SalesOrder,
+    Supplier,
+    WorkOrder,
+)
 from flowlens.data.scenarios.config import (
     CapacitySurgeConfig,
     QualityDeteriorationConfig,
@@ -33,9 +42,10 @@ from flowlens.data.scenarios.transformer import (
     _clone_row,
 )
 from flowlens.decision import c04_simulation as implementation
+from flowlens.decision.c04_registry import build_candidate_set
 from flowlens.decision.c04_simulation import build_simulation_bundle
 from flowlens.decision.c04_validation import C04BuildError
-from flowlens.decision.context import DecisionContext
+from flowlens.decision.context import DecisionContext, build_decision_context
 from flowlens.decision.contracts import (
     CandidateSet,
     DecisionRun,
@@ -46,10 +56,14 @@ from flowlens.decision.contracts import (
     SimulationResult,
     StateSnapshot,
 )
+from flowlens.decision.diagnosis import evaluate_c03
 from flowlens.decision.enums import InterventionFamily, SimulationStatus
-from flowlens.decision.serialization import canonical_json_bytes
+from flowlens.decision.evidence import build_evidence_bundle
+from flowlens.decision.serialization import canonical_json_bytes, derive_artifact_id
+from flowlens.decision.snapshot import build_state_snapshot, source_unknowns
+from flowlens.decision.temporal import ProjectedSourceField, project_record
 from test_c04_registry import make_c04_fixture
-from test_decision_snapshot import make_run
+from test_decision_snapshot import ORDER_AT, PERIOD_START, make_run, sample_records
 
 MEASUREMENT_NAMES = (
     "affected_entity_count",
@@ -62,6 +76,18 @@ MEASUREMENT_NAMES = (
     "target_max_work_order_completion_slippage_seconds",
     "target_remaining_quantity",
     "target_rework_quantity",
+)
+MEASUREMENT_SCHEMA = (
+    ("affected_entity_count", "count"),
+    ("business_row_count_delta", "count"),
+    ("target_delivered_quantity", "unit"),
+    ("target_delivery_lag_seconds", "s"),
+    ("target_failed_quantity", "unit"),
+    ("target_last_delivery_at", None),
+    ("target_max_operation_start_slippage_seconds", "s"),
+    ("target_max_work_order_completion_slippage_seconds", "s"),
+    ("target_remaining_quantity", "unit"),
+    ("target_rework_quantity", "unit"),
 )
 
 C04Fixture = tuple[
@@ -132,6 +158,151 @@ def closed_fixture() -> tuple[GeneratedDataset, DecisionRun, C04Fixture]:
     return baseline, run, fixture
 
 
+def successful_baseline() -> GeneratedDataset:
+    """Build a closed, contract-valid fixture accepted by all three W2 stress probes."""
+
+    source = generate_baseline(
+        GenerationConfig(
+            profile=GenerationProfile.TEST,
+            seed=20_260_824,
+            period_start=date(2026, 1, 1),
+            generator_version="0.1.0-c03",
+            generated_at=datetime(2026, 8, 24, 9, tzinfo=BUSINESS_TIMEZONE),
+        )
+    )
+    dataset_id = source.dataset_version.dataset_version_id
+    rows: dict[str, list[Base]] = {
+        table: [_clone_row(row, dataset_id) for row in source.rows_for(table)]
+        for table in CANONICAL_TABLE_ORDER
+    }
+
+    sales_orders = cast(list[SalesOrder], rows["fact_sales_order"])
+    source_order_id = sales_orders[0].sales_order_id
+    sales_orders[0].sales_order_id = "SO-1"
+    for work_order in cast(list[WorkOrder], rows["fact_work_order"]):
+        if work_order.sales_order_id == source_order_id:
+            work_order.sales_order_id = "SO-1"
+    for delivery in cast(list[Delivery], rows["fact_delivery"]):
+        if delivery.sales_order_id == source_order_id:
+            delivery.sales_order_id = "SO-1"
+
+    supplier_id = cast(list[Supplier], rows["dim_supplier"])[0].supplier_id
+    history_at = datetime(2025, 12, 1, 9, tzinfo=BUSINESS_TIMEZONE)
+    for ordinal, material in enumerate(cast(list[Material], rows["dim_material"])):
+        rows["fact_purchase_order"].append(
+            PurchaseOrder(
+                dataset_version_id=dataset_id,
+                purchase_order_id=f"po_c04_history_{ordinal:04d}",
+                supplier_id=supplier_id,
+                material_id=material.material_id,
+                ordered_at=history_at,
+                promised_receipt_at=history_at + timedelta(days=1),
+                actual_receipt_at=history_at + timedelta(days=1),
+                ordered_quantity=Decimal("100"),
+                received_quantity=Decimal("100"),
+                status="RECEIVED",
+            )
+        )
+
+    ordered = canonicalize_rows(rows)
+    metadata = source.dataset_version
+    version = DatasetVersion(
+        dataset_version_id=dataset_id,
+        seed=metadata.seed,
+        generator_version=metadata.generator_version,
+        profile=metadata.profile,
+        period_start=metadata.period_start,
+        period_end=date(2026, 4, 2),
+        generated_at=metadata.generated_at,
+        content_hash=canonical_content_hash(ordered),
+        row_count_total=sum(len(items) for items in ordered.values()),
+    )
+    return GeneratedDataset(version, MappingProxyType(ordered))
+
+
+def successful_fixture() -> tuple[GeneratedDataset, DecisionRun, C04Fixture]:
+    baseline = successful_baseline()
+    run, fixture = fixture_for_baseline_order(
+        baseline,
+        "so_9c21c51c1ed7_00000003",
+    )
+    return baseline, run, fixture
+
+
+def fixture_for_baseline_order(
+    baseline: GeneratedDataset, order_id: str
+) -> tuple[DecisionRun, C04Fixture]:
+    """Build canonical C02/C03 artifacts for a real order in a supplied baseline."""
+
+    as_of = datetime.combine(baseline.dataset_version.period_end, time.max, BUSINESS_TIMEZONE)
+    template = make_run(
+        as_of,
+        dataset_version=baseline.dataset_version.dataset_version_id,
+        dataset_hash=baseline.dataset_version.content_hash,
+    )
+    identity = {
+        "order_id": order_id,
+        "as_of_time": as_of,
+        "dataset_version": baseline.dataset_version.dataset_version_id,
+        "dataset_hash": baseline.dataset_version.content_hash,
+        "contract_bundle_version": template.contract_bundle_version,
+        "tool_registry_version": template.tool_registry_version,
+    }
+    run = DecisionRun(
+        run_id=derive_artifact_id("decision-run", "decision-run.v1", identity),
+        schema_version="decision-run.v1",
+        order_id=order_id,
+        as_of_time=as_of,
+        dataset_version=baseline.dataset_version.dataset_version_id,
+        dataset_hash=baseline.dataset_version.content_hash,
+        contract_bundle_version=template.contract_bundle_version,
+        tool_registry_version=template.tool_registry_version,
+        provenance=template.provenance,
+    )
+    projected: list[ProjectedSourceField] = []
+    for entity, record_id, source_fields in sample_records():
+        fields = {
+            name: order_id if value == "SO-1" else value
+            for name, value in source_fields.items()
+        }
+        selected_id = order_id if entity == "fact_sales_order" else record_id
+        projected.extend(
+            project_record(
+                entity,
+                selected_id,
+                fields,
+                as_of_time=as_of,
+                period_start=PERIOD_START,
+                target_order_at=ORDER_AT,
+            )
+        )
+    observed_rows = {(item.source_entity, item.source_record_id) for item in projected}
+    required_materials = tuple(
+        str(item.value)
+        for item in projected
+        if item.source_entity == "fact_material_requirement"
+        and item.source_field == "material_id"
+    )
+    inventory_materials = tuple(
+        str(item.value)
+        for item in projected
+        if item.source_entity == "fact_inventory_snapshot"
+        and item.source_field == "material_id"
+    )
+    unknowns = source_unknowns(
+        sum(entity == "fact_work_order" for entity, _ in observed_rows),
+        sum(entity == "fact_material_requirement" for entity, _ in observed_rows),
+        required_materials,
+        inventory_materials,
+    )
+    snapshot = build_state_snapshot(run, projected, unknowns)
+    evidence = build_evidence_bundle(snapshot)
+    context = build_decision_context(snapshot, evidence)
+    signals, diagnosis = evaluate_c03(evidence, context)
+    candidates = build_candidate_set(evidence, context, signals, diagnosis)
+    return run, (snapshot, evidence, context, signals, diagnosis, candidates)
+
+
 def result_by_family(
     bundle: SimulationBundle, candidates: CandidateSet
 ) -> dict[InterventionFamily, SimulationResult]:
@@ -178,6 +349,58 @@ def test_no_action_is_neutral_stable_and_has_exact_raw_measurement_schema() -> N
         assert {item.code for item in unavailable.limitations} >= {
             "C04_SIMULATION_BASELINE_NOT_SUPPLIED"
         }
+
+
+def test_all_three_stress_probe_families_succeed_with_exact_artifact_bindings() -> None:
+    baseline, run, fixture = successful_fixture()
+    snapshot, _, _, _, _, candidates = fixture
+    before = (
+        baseline.dataset_version.content_hash,
+        baseline.dataset_version.row_count_total,
+        canonical_business_payload(baseline.rows_by_table),
+    )
+
+    first, _ = build_with(baseline, run, fixture)
+    second, _ = build_with(baseline, run, fixture)
+
+    assert first == second
+    assert canonical_json_bytes(first) == canonical_json_bytes(second)
+    assert first.run_id == run.run_id
+    assert first.snapshot_id == snapshot.snapshot_id
+    assert tuple((item.candidate_id, item.simulation_id) for item in first.results) == tuple(
+        sorted((item.candidate_id, item.simulation_id) for item in first.results)
+    )
+    by_family = result_by_family(first, candidates)
+    candidate_by_family = {item.family: item for item in candidates.candidates}
+    for family in (
+        InterventionFamily.SUPPLIER_INTERVENTION,
+        InterventionFamily.QUALITY_INTERVENTION,
+        InterventionFamily.CAPACITY_INTERVENTION,
+    ):
+        result = by_family[family]
+        assert result.status is SimulationStatus.SUCCEEDED
+        assert result.scenario_id is not None
+        assert result.scenario_hash is not None and len(result.scenario_hash) == 64
+        assert result.candidate_id == candidate_by_family[family].candidate_id
+        assert result.run_id == run.run_id
+        assert result.baseline_snapshot_id == snapshot.snapshot_id
+        assert result.baseline_snapshot_hash == snapshot.snapshot_hash
+        assert tuple((item.name, item.unit) for item in result.measurements) == (
+            MEASUREMENT_SCHEMA
+        )
+        assert result.affected_entities == tuple(
+            sorted(
+                result.affected_entities,
+                key=lambda item: (item.entity_type, item.entity_id),
+            )
+        )
+        assert len(result.affected_entities) > 0
+
+    assert (
+        baseline.dataset_version.content_hash,
+        baseline.dataset_version.row_count_total,
+        canonical_business_payload(baseline.rows_by_table),
+    ) == before
 
 
 def test_closed_observation_gate_makes_zero_scenario_calls_at_earlier_as_of(
