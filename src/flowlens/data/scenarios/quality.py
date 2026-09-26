@@ -31,9 +31,13 @@ from flowlens.data.scenarios._deterministic import (
     probability_target_count,
     rank_candidates,
 )
-from flowlens.data.scenarios.config import QualityDeteriorationConfig, scenario_parameters
-from flowlens.data.scenarios.ground_truth import CausalLink, HiddenGroundTruth
-from flowlens.data.scenarios.transformer import ScenarioIdentity
+from flowlens.data.scenarios.config import QualityDeteriorationConfig
+from flowlens.data.scenarios.transformer import (
+    BusinessCausalLink,
+    BusinessScenarioEffects,
+    ScenarioIdentity,
+    ScenarioPreconditionUnavailable,
+)
 
 _DEFECT_CATEGORIES = ("DIMENSIONAL", "SURFACE", "ASSEMBLY", "ELECTRICAL")
 _SEVERITIES = ("LOW", "MEDIUM", "HIGH")
@@ -83,8 +87,8 @@ def apply_quality_deterioration(
     identity: ScenarioIdentity,
     config: QualityDeteriorationConfig,
     rows_by_table: dict[str, list[Base]],
-) -> HiddenGroundTruth:
-    """Mutate only the cloned graph and return exact Quality evaluation truth."""
+) -> BusinessScenarioEffects:
+    """Mutate only the cloned graph and return compatibility effects."""
 
     products = cast(tuple[Product, ...], baseline.rows_for("dim_product"))
     work_centers = cast(tuple[WorkCenter, ...], baseline.rows_for("dim_work_center"))
@@ -161,7 +165,9 @@ def apply_quality_deterioration(
         lambda row: row.work_center_id,
     )[: config.affected_work_center_count]
     if len(selected_work_centers) != config.affected_work_center_count:
-        raise ValueError("insufficient eligible work centers for Quality Deterioration")
+        raise ScenarioPreconditionUnavailable(
+            "insufficient eligible work centers for Quality Deterioration"
+        )
     selected_work_center_ids = {row.work_center_id for row in selected_work_centers}
 
     candidate_product_ids = {
@@ -176,7 +182,9 @@ def apply_quality_deterioration(
         lambda row: row.product_id,
     )[: config.affected_product_count]
     if len(selected_products) != config.affected_product_count:
-        raise ValueError("insufficient eligible products for Quality Deterioration")
+        raise ScenarioPreconditionUnavailable(
+            "insufficient eligible products for Quality Deterioration"
+        )
     selected_product_ids = {row.product_id for row in selected_products}
 
     relevant = [
@@ -185,7 +193,9 @@ def apply_quality_deterioration(
         if item[1] in selected_product_ids and item[2] in selected_work_center_ids
     ]
     if not relevant:
-        raise ValueError("final Quality target graph has no eligible inspection edges")
+        raise ScenarioPreconditionUnavailable(
+            "final Quality target graph has no eligible inspection edges"
+        )
     if {item[2] for item in relevant} != selected_work_center_ids:
         raise ValueError("selected work center has no final Quality graph edge")
     if {item[1] for item in relevant} != selected_product_ids:
@@ -215,7 +225,9 @@ def apply_quality_deterioration(
     baseline_failures = [row for row in relevant_inspections if row.result == "FAIL"]
     failure_count = len(baseline_failures)
     if failure_count == 0:
-        raise ValueError("Quality deterioration requires a nonzero baseline FAIL count")
+        raise ScenarioPreconditionUnavailable(
+            "Quality deterioration requires a nonzero baseline FAIL count"
+        )
     baseline_failure_rate = Decimal(failure_count) / Decimal(population)
     target_failure_rate = min(
         Decimal("1"), baseline_failure_rate * config.failure_probability_multiplier
@@ -229,10 +241,12 @@ def apply_quality_deterioration(
         lambda row: row.inspection_id,
     )[:additional_failures]
     if len(selected_new_failures) != additional_failures:
-        raise ValueError("insufficient PASS inspections for Quality failure target")
+        raise ScenarioPreconditionUnavailable(
+            "insufficient PASS inspections for Quality failure target"
+        )
 
     affected: dict[str, set[str]] = defaultdict(set)
-    links: set[CausalLink] = set()
+    links: set[BusinessCausalLink] = set()
     for inspection in selected_new_failures:
         scenario_inspection = scenario_inspections[inspection.inspection_id]
         scenario_inspection.failed_quantity = 1
@@ -252,7 +266,7 @@ def apply_quality_deterioration(
         )
         affected["fact_quality_inspection"].add(inspection.inspection_id)
         links.add(
-            CausalLink(
+            BusinessCausalLink(
                 source_table="dim_work_center",
                 source_entity_id=resolved_work_center[inspection.inspection_id],
                 target_table="fact_quality_inspection",
@@ -316,7 +330,9 @@ def apply_quality_deterioration(
         lambda row: row.inspection_id,
     )[:additional_reworks]
     if len(selected_new_rework_inspections) != additional_reworks:
-        raise ValueError("insufficient failures without rework for Quality rework target")
+        raise ScenarioPreconditionUnavailable(
+            "insufficient failures without rework for Quality rework target"
+        )
 
     affected_existing_reworks = [
         rework
@@ -340,7 +356,9 @@ def apply_quality_deterioration(
         else None
     )
     if selected_new_rework_inspections and median_reference is None:
-        raise ValueError("new Quality rework requires a valid baseline duration reference")
+        raise ScenarioPreconditionUnavailable(
+            "new Quality rework requires a valid baseline duration reference"
+        )
 
     scenario_affected_reworks_by_work_order: dict[str, list[Rework]] = defaultdict(list)
     for baseline_rework in affected_existing_reworks:
@@ -363,7 +381,7 @@ def apply_quality_deterioration(
         if scenario_rework.rework_end_at != baseline_rework.rework_end_at:
             affected["fact_rework"].add(baseline_rework.rework_id)
             links.add(
-                CausalLink(
+                BusinessCausalLink(
                     source_table="fact_quality_inspection",
                     source_entity_id=baseline_rework.inspection_id,
                     target_table="fact_rework",
@@ -420,7 +438,7 @@ def apply_quality_deterioration(
         )
         affected["fact_rework"].add(rework_id)
         links.add(
-            CausalLink(
+            BusinessCausalLink(
                 source_table="fact_quality_inspection",
                 source_entity_id=inspection.inspection_id,
                 target_table="fact_rework",
@@ -444,7 +462,7 @@ def apply_quality_deterioration(
         for rework in affected_reworks:
             if rework.rework_end_at == required_completion:
                 links.add(
-                    CausalLink(
+                    BusinessCausalLink(
                         source_table="fact_rework",
                         source_entity_id=rework.rework_id,
                         target_table="fact_work_order",
@@ -466,7 +484,7 @@ def apply_quality_deterioration(
             )
             affected["fact_delivery"].add(delivery.delivery_id)
             links.add(
-                CausalLink(
+                BusinessCausalLink(
                     source_table="fact_work_order",
                     source_entity_id=work_order_id,
                     target_table="fact_delivery",
@@ -475,17 +493,7 @@ def apply_quality_deterioration(
                 )
             )
 
-    return HiddenGroundTruth(
-        schema_version="1.0",
-        scenario_id=identity.scenario_id,
-        scenario_type=config.scenario_type,
-        scenario_version=config.scenario_version,
-        scenario_seed=config.scenario_seed,
-        baseline_dataset_version_id=identity.baseline_dataset_version_id,
-        scenario_dataset_version_id=identity.scenario_dataset_version_id,
-        window_start=config.window_start,
-        window_end=config.window_end,
-        parameters=scenario_parameters(config),
+    return BusinessScenarioEffects(
         target_entity_ids=tuple(selected_product_ids | selected_work_center_ids),
         affected_entities_by_table=_affected_mapping(affected),
         causal_chain=tuple(links),

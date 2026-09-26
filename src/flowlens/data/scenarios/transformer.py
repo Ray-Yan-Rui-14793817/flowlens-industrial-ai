@@ -8,6 +8,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import datetime
 from types import MappingProxyType
+from typing import TYPE_CHECKING
 
 from sqlalchemy import inspect as sqlalchemy_inspect
 from sqlalchemy.orm import object_session
@@ -25,7 +26,33 @@ from flowlens.data.scenarios.config import (
     scenario_namespace,
     validate_config_for_baseline_period,
 )
-from flowlens.data.scenarios.ground_truth import HiddenGroundTruth
+
+if TYPE_CHECKING:
+    from flowlens.data.scenarios.ground_truth import HiddenGroundTruth
+
+
+class ScenarioPreconditionUnavailable(ValueError):
+    """A genuine deterministic W2 eligibility insufficiency."""
+
+
+@dataclass(frozen=True, slots=True, order=True)
+class BusinessCausalLink:
+    """Compatibility-only causal edge collected before legacy HGT construction."""
+
+    source_table: str
+    source_entity_id: str
+    target_table: str
+    target_entity_id: str
+    relationship: str
+
+
+@dataclass(frozen=True, slots=True)
+class BusinessScenarioEffects:
+    """Business-transform effects kept independent from protected HGT types."""
+
+    target_entity_ids: tuple[str, ...]
+    affected_entities_by_table: Mapping[str, tuple[str, ...]]
+    causal_chain: tuple[BusinessCausalLink, ...]
 
 
 @dataclass(frozen=True, slots=True)

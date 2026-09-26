@@ -25,9 +25,14 @@ from flowlens.data.models import (
     WorkOrder,
 )
 from flowlens.data.scenarios._deterministic import ceil_duration, rank_candidates
-from flowlens.data.scenarios.config import CapacitySurgeConfig, scenario_parameters
-from flowlens.data.scenarios.ground_truth import CausalLink, HiddenGroundTruth
-from flowlens.data.scenarios.transformer import ScenarioIdentity, _clone_row
+from flowlens.data.scenarios.config import CapacitySurgeConfig
+from flowlens.data.scenarios.transformer import (
+    BusinessCausalLink,
+    BusinessScenarioEffects,
+    ScenarioIdentity,
+    ScenarioPreconditionUnavailable,
+    _clone_row,
+)
 
 
 def _group[T](rows: Iterable[T], key: Callable[[T], str]) -> dict[str, list[T]]:
@@ -146,7 +151,7 @@ class _Effects:
     identity: ScenarioIdentity
     used_ids: set[str]
     affected: dict[str, set[str]] = field(default_factory=lambda: defaultdict(set))
-    links: set[CausalLink] = field(default_factory=set)
+    links: set[BusinessCausalLink] = field(default_factory=set)
 
     def affect(self, row: Base) -> None:
         table, entity_id = _entity(row)
@@ -155,7 +160,9 @@ class _Effects:
     def link(self, source: Base, target: Base, relationship: str) -> None:
         source_table, source_id = _entity(source)
         target_table, target_id = _entity(target)
-        self.links.add(CausalLink(source_table, source_id, target_table, target_id, relationship))
+        self.links.add(
+            BusinessCausalLink(source_table, source_id, target_table, target_id, relationship)
+        )
 
     def add[T: Base](self, row: T) -> T:
         table, entity_id = _entity(row)
@@ -257,7 +264,7 @@ def _create_thread(
             lambda supplier_id: supplier_id,
         )
         if not suppliers:
-            raise ValueError("no eligible historical Capacity supplier")
+            raise ScenarioPreconditionUnavailable("no eligible historical Capacity supplier")
         supplier_id = suppliers[0]
         po = effects.add(
             PurchaseOrder(
@@ -453,8 +460,8 @@ def apply_capacity_surge(
     identity: ScenarioIdentity,
     config: CapacitySurgeConfig,
     rows_by_table: dict[str, list[Base]],
-) -> HiddenGroundTruth:
-    """Transform only detached scenario rows and return in-memory evaluation truth."""
+) -> BusinessScenarioEffects:
+    """Transform only detached scenario rows and return compatibility effects."""
 
     threads = [
         thread
@@ -474,7 +481,7 @@ def apply_capacity_surge(
         lambda row: row.work_center_id,
     )[: config.affected_work_center_count]
     if len(selected) != config.affected_work_center_count:
-        raise ValueError("insufficient candidate Capacity WorkCenters")
+        raise ScenarioPreconditionUnavailable("insufficient candidate Capacity WorkCenters")
     centers = {row.work_center_id: row for row in selected}
     qualifying = [
         thread
@@ -482,7 +489,9 @@ def apply_capacity_surge(
         if thread.complete() and any(op.work_center_id in centers for op in thread.operations)
     ]
     if not qualifying:
-        raise ValueError("Capacity N == 0: no complete reusable selected order threads")
+        raise ScenarioPreconditionUnavailable(
+            "Capacity N == 0: no complete reusable selected order threads"
+        )
     for thread in qualifying:
         thread.validate()
     templates = rank_candidates(
@@ -519,17 +528,7 @@ def apply_capacity_surge(
     for thread in [*templates, *added]:
         _propagate(thread, config, centers, effects)
     _validate_hgt(effects, centers)
-    return HiddenGroundTruth(
-        schema_version="1.0",
-        scenario_id=identity.scenario_id,
-        scenario_type=config.scenario_type,
-        scenario_version=config.scenario_version,
-        scenario_seed=config.scenario_seed,
-        baseline_dataset_version_id=identity.baseline_dataset_version_id,
-        scenario_dataset_version_id=identity.scenario_dataset_version_id,
-        window_start=config.window_start,
-        window_end=config.window_end,
-        parameters=scenario_parameters(config),
+    return BusinessScenarioEffects(
         target_entity_ids=tuple(centers),
         affected_entities_by_table={
             table: tuple(sorted(ids)) for table, ids in effects.affected.items() if ids

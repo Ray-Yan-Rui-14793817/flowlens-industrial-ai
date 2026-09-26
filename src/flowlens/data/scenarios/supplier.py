@@ -28,9 +28,13 @@ from flowlens.data.scenarios._deterministic import (
     probability_target_count,
     rank_candidates,
 )
-from flowlens.data.scenarios.config import SupplierDegradationConfig, scenario_parameters
-from flowlens.data.scenarios.ground_truth import CausalLink, HiddenGroundTruth
-from flowlens.data.scenarios.transformer import ScenarioIdentity
+from flowlens.data.scenarios.config import SupplierDegradationConfig
+from flowlens.data.scenarios.transformer import (
+    BusinessCausalLink,
+    BusinessScenarioEffects,
+    ScenarioIdentity,
+    ScenarioPreconditionUnavailable,
+)
 
 
 def _affected_mapping(
@@ -48,8 +52,8 @@ def apply_supplier_degradation(
     identity: ScenarioIdentity,
     config: SupplierDegradationConfig,
     rows_by_table: dict[str, list[Base]],
-) -> HiddenGroundTruth:
-    """Mutate only the cloned graph and return exact Supplier evaluation truth."""
+) -> BusinessScenarioEffects:
+    """Mutate only the cloned graph and return compatibility effects."""
 
     suppliers = cast(tuple[Supplier, ...], baseline.rows_for("dim_supplier"))
     materials = cast(tuple[Material, ...], baseline.rows_for("dim_material"))
@@ -134,7 +138,9 @@ def apply_supplier_degradation(
         lambda row: row.supplier_id,
     )[: config.affected_supplier_count]
     if len(selected_suppliers) != config.affected_supplier_count:
-        raise ValueError("insufficient eligible suppliers for Supplier Degradation")
+        raise ScenarioPreconditionUnavailable(
+            "insufficient eligible suppliers for Supplier Degradation"
+        )
     selected_supplier_ids = {row.supplier_id for row in selected_suppliers}
 
     candidate_material_ids = {
@@ -149,7 +155,9 @@ def apply_supplier_degradation(
         lambda row: row.material_id,
     )[: config.affected_critical_material_count]
     if len(selected_materials) != config.affected_critical_material_count:
-        raise ValueError("insufficient eligible critical materials for Supplier Degradation")
+        raise ScenarioPreconditionUnavailable(
+            "insufficient eligible critical materials for Supplier Degradation"
+        )
     selected_material_ids = {row.material_id for row in selected_materials}
 
     for material_id in selected_material_ids:
@@ -168,7 +176,9 @@ def apply_supplier_degradation(
         and row.material_id in selected_material_ids
     ]
     if not final_purchase_orders:
-        raise ValueError("final Supplier target graph has no eligible PO edges")
+        raise ScenarioPreconditionUnavailable(
+            "final Supplier target graph has no eligible PO edges"
+        )
     if {row.supplier_id for row in final_purchase_orders} != selected_supplier_ids:
         raise ValueError("selected supplier has no final Supplier graph edge")
     if {row.material_id for row in final_purchase_orders} != selected_material_ids:
@@ -207,10 +217,12 @@ def apply_supplier_degradation(
         lambda row: row.purchase_order_id,
     )[:additional_late]
     if len(selected_new_late) != additional_late:
-        raise ValueError("insufficient materializable new-late purchase orders")
+        raise ScenarioPreconditionUnavailable(
+            "insufficient materializable new-late purchase orders"
+        )
 
     affected: dict[str, set[str]] = defaultdict(set)
-    links: set[CausalLink] = set()
+    links: set[BusinessCausalLink] = set()
     delayed_receipts: dict[str, tuple[PurchaseOrder, datetime]] = {}
     for purchase_order in selected_new_late:
         baseline_receipt = purchase_order.actual_receipt_at
@@ -233,7 +245,7 @@ def apply_supplier_degradation(
         )
         affected["fact_purchase_order"].add(purchase_order.purchase_order_id)
         links.add(
-            CausalLink(
+            BusinessCausalLink(
                 source_table="dim_supplier",
                 source_entity_id=purchase_order.supplier_id,
                 target_table="fact_purchase_order",
@@ -255,7 +267,7 @@ def apply_supplier_degradation(
                     (purchase_order, requirement, scenario_receipt)
                 )
                 links.add(
-                    CausalLink(
+                    BusinessCausalLink(
                         source_table="fact_purchase_order",
                         source_entity_id=purchase_order.purchase_order_id,
                         target_table="fact_material_requirement",
@@ -302,7 +314,7 @@ def apply_supplier_degradation(
         for _, requirement, scenario_receipt_value in shortage_links:
             if scenario_receipt_value == required_available_at:
                 links.add(
-                    CausalLink(
+                    BusinessCausalLink(
                         source_table="fact_material_requirement",
                         source_entity_id=requirement.material_requirement_id,
                         target_table="fact_work_order",
@@ -323,7 +335,7 @@ def apply_supplier_degradation(
             if changed:
                 affected["fact_operation"].add(operation.operation_id)
                 links.add(
-                    CausalLink(
+                    BusinessCausalLink(
                         source_table="fact_work_order",
                         source_entity_id=work_order_id,
                         target_table="fact_operation",
@@ -338,7 +350,7 @@ def apply_supplier_degradation(
             )
             affected["fact_quality_inspection"].add(inspection.inspection_id)
             links.add(
-                CausalLink(
+                BusinessCausalLink(
                     source_table="fact_work_order",
                     source_entity_id=work_order_id,
                     target_table="fact_quality_inspection",
@@ -358,7 +370,7 @@ def apply_supplier_degradation(
             scenario_rework.rework_end_at = rework.rework_end_at + causal_shift
             affected["fact_rework"].add(rework.rework_id)
             links.add(
-                CausalLink(
+                BusinessCausalLink(
                     source_table="fact_work_order",
                     source_entity_id=work_order_id,
                     target_table="fact_rework",
@@ -373,7 +385,7 @@ def apply_supplier_degradation(
             )
             affected["fact_delivery"].add(delivery.delivery_id)
             links.add(
-                CausalLink(
+                BusinessCausalLink(
                     source_table="fact_work_order",
                     source_entity_id=work_order_id,
                     target_table="fact_delivery",
@@ -382,17 +394,7 @@ def apply_supplier_degradation(
                 )
             )
 
-    return HiddenGroundTruth(
-        schema_version="1.0",
-        scenario_id=identity.scenario_id,
-        scenario_type=config.scenario_type,
-        scenario_version=config.scenario_version,
-        scenario_seed=config.scenario_seed,
-        baseline_dataset_version_id=identity.baseline_dataset_version_id,
-        scenario_dataset_version_id=identity.scenario_dataset_version_id,
-        window_start=config.window_start,
-        window_end=config.window_end,
-        parameters=scenario_parameters(config),
+    return BusinessScenarioEffects(
         target_entity_ids=tuple(selected_supplier_ids | selected_material_ids),
         affected_entities_by_table=_affected_mapping(affected),
         causal_chain=tuple(links),

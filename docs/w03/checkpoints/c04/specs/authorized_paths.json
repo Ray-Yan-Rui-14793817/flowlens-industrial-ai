@@ -1,0 +1,44 @@
+{
+  "checkpoint": "W03-C04",
+  "implementation_paths": [
+    "docs/sprints/W03_ai_decision_loop.md",
+    "docs/w03/checkpoints/c04/**",
+    "src/flowlens/decision/c04_registry.py",
+    "src/flowlens/decision/c04_validation.py",
+    "src/flowlens/decision/c04_simulation.py",
+    "src/flowlens/data/scenarios/__init__.py",
+    "src/flowlens/data/scenarios/application.py",
+    "src/flowlens/data/scenarios/transformer.py",
+    "src/flowlens/data/scenarios/supplier.py",
+    "src/flowlens/data/scenarios/quality.py",
+    "src/flowlens/data/scenarios/capacity.py",
+    "src/flowlens/data/scenarios/runtime_adapter.py",
+    "tests/test_c04_registry.py",
+    "tests/test_c04_simulation.py",
+    "tests/test_c04_harness.py",
+    "tests/test_c04_scenario_adapter_compat.py"
+  ],
+  "report_paths": [
+    "docs/w03/reports/W03_C04_R_DEVELOPMENT_ROUND_REPORT.md",
+    "docs/CURRENT_STATE.md"
+  ],
+  "forbidden_capabilities": [
+    "database",
+    "filesystem",
+    "network",
+    "model",
+    "subprocess",
+    "random",
+    "wall_clock",
+    "runtime_hgt",
+    "operational_mutation"
+  ],
+  "forbidden_scope": [
+    "scoring",
+    "ranking",
+    "recommendation",
+    "RecommendationRecord",
+    "DecisionPacket",
+    "C05"
+  ]
+}
