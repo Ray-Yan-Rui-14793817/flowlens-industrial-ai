@@ -3,11 +3,11 @@
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C05-R1 HARNESS REPAIR IMPLEMENTED / CODEX VERIFIED / REPORT PUBLICATION GATE PENDING; W03-C05 REMAINS OPEN
+**Current Project Phase / 当前阶段:** W03-C05-C1 FINAL CLOSEOUT AUTHORIZED / DOCUMENTATION PUBLICATION GATE PENDING
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 CLOSED; W03-C05 IMPLEMENTED; W03-C05-R1 TEST/HARNESS REPAIR CODEX VERIFIED
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 CLOSED; W03-C05 HUMAN ACCEPTED; W03-C05 FINAL CLOSEOUT PUBLICATION PENDING
 
-**Codex Readiness / Codex 开发就绪:** W03-C05 REVIEW_READY_FOR_GPT_R2 ONLY AFTER R1 REPORT PUBLICATION GATE; C06 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** W03-C05-C1 CLOSEOUT PUBLICATION AUTHORIZED; C06 NOT AUTHORIZED
 
 **C05 Implementation SHA / C05 实现 SHA:** `9614bb8cf3cfa558b87464b1de81c1905b2d8eec`
 
@@ -17,21 +17,23 @@
 
 **C05 R1 Repair Exact-SHA / C05 R1 修复精确 SHA:** PASS — Run #62 / `36295679230` — `I / FULL_EXACT_SHA`
 
+**C05 R1 Report Exact-SHA / C05 R1 报告精确 SHA:** PASS — Run #63 / `36326834562` — `P / PUBLICATION_EXACT_SHA`
+
 **GPT C05 R1 Review / GPT C05 R1 审查:** REPAIR REQUIRED — MEDIUM-01 HARNESS EVIDENCE
 
-**GPT C05 R2 Re-Review / GPT C05 R2 复审:** PENDING
+**GPT C05 R2 Re-Review / GPT C05 R2 复审:** PASS FOR HUMAN C05 ACCEPTANCE
 
-**Human C05 Acceptance / C05 人工验收:** PENDING
+**Human C05 Acceptance / C05 人工验收:** ACCEPTED
 
-**C05 Closed / C05 关闭:** NO
+**C05 Closed / C05 关闭:** YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
 
 **C06 Authorized / C06 授权:** NO
 
-**Next / 下一步:** GPT C05 INDEPENDENT RE-REVIEW R2 AFTER R1 REPORT PUBLICATION
+**Next / 下一步:** GPT W03-C06 AUTHORIZATION / CONTRACT REVIEW AFTER C05 FINAL CLOSEOUT PUBLICATION
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：W03-C05-R1 closed the mandatory R1 harness-evidence gap for GPT R2 re-review with a test-only repair at exact SHA `b249ee1...`. Run #62 passed as `I / FULL_EXACT_SHA`; 98 focused C05 tests, the complete adversarial matrix, frozen H1-H19 evidence and all required regressions pass. Runtime source changes are none. Runtime HGT, post-C02 database access, scenario execution, external capabilities and operational mutation remain absent. Human C05 acceptance remains pending; C05 is not closed and C06 is not authorized. / W03-C05-R1 已通过精确 SHA `b249ee1...` 的纯测试修复，关闭供 GPT R2 复审的 R1 强制 Harness 证据缺口。Run #62 以 `I / FULL_EXACT_SHA` 通过；98 项 C05 聚焦测试、完整对抗矩阵、冻结 H1-H19 证据及全部必需回归均通过。运行时源码未变更。运行时 HGT、C02 后数据库访问、场景执行、外部能力及业务写入仍均不存在。C05 人工验收仍待定，C05 尚未关闭，C06 未获授权。
+> Current state / 当前状态：GPT C05 Independent Re-Review R2 returned `PASS FOR HUMAN C05 ACCEPTANCE`; the Product Owner separately accepted C05 and authorized the documentation-only W03-C05-C1 closeout. The original implementation, original report, R1 test-only repair and R1 report hold successful exact-SHA evidence in Runs #60-#63. R1 MEDIUM-01 is closed, the adversarial matrix and H1-H19 pass, and no runtime source defect or R1 runtime source change exists. C05 closure becomes effective only after the final closeout publication gate and synchronization pass. C06 remains unauthorized. / GPT C05 独立复审 R2 返回 `PASS FOR HUMAN C05 ACCEPTANCE`；Product Owner 已分别接受 C05 并授权纯文档 W03-C05-C1 关闭。原始实现、原始报告、R1 纯测试修复及 R1 报告均已在 Run #60-#63 获得精确 SHA 成功证据。R1 MEDIUM-01 已关闭，对抗矩阵和 H1-H19 均通过，未发现运行时源码缺陷，R1 亦无运行时源码变更。C05 仅在最终关闭发布门禁和同步通过后正式关闭。C06 仍未获授权。
 
 ---
 
@@ -3449,4 +3451,81 @@ HUMAN C05 ACCEPTANCE: PENDING
 C05 CLOSED: NO
 C06 AUTHORIZED: NO
 STATUS: REVIEW_READY_FOR_GPT_R2 ONLY AFTER PUBLICATION GATE
+```
+
+---
+
+## 50. W03-C05-C1 — Final Closeout
+
+**Date:** 2026-09-27
+
+**Entry SHA:** `575a1d68e67b13cec54a7046ec847463b8bbd721`
+
+**Original C05 implementation SHA:** `9614bb8cf3cfa558b87464b1de81c1905b2d8eec`
+
+**Original C05 report SHA:** `79af66728650b1cf42df0163e3efafb11293e7b1`
+
+**R1 harness repair SHA:** `b249ee1b90140038e8ce13f3cbc6cdd1f50ddef8`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+GPT C05 Independent Re-Review R2 returned **PASS FOR HUMAN C05 ACCEPTANCE**
+with no BLOCKER, HIGH, MEDIUM or LOW finding. R1 MEDIUM-01 is closed. The
+adversarial matrix and frozen H1-H19 evidence pass, no runtime source defect
+was found, and runtime source changes during R1 were none.
+
+The Product Owner separately supplied `W03-C05 HUMAN ACCEPTANCE: ACCEPTED`
+and `W03-C05-C1 CLOSEOUT AUTHORIZATION: APPROVED`. Human acceptance covers
+the reviewed C05 implementation and R1 harness hardening. The second decision
+authorizes only this bounded documentation/governance closeout and does not
+authorize C06 implementation, PR merge, a draft-to-ready transition, or
+auto-merge.
+
+The accepted evidence chain is:
+
+1. Original implementation `9614bb8cf3cfa558b87464b1de81c1905b2d8eec` —
+   Run #60 (`36264633796`) — `I / FULL_EXACT_SHA` — PASS.
+2. Original report `79af66728650b1cf42df0163e3efafb11293e7b1` —
+   Run #61 (`36293313359`) — `P / PUBLICATION_EXACT_SHA` — PASS.
+3. R1 test/harness repair `b249ee1b90140038e8ce13f3cbc6cdd1f50ddef8`
+   — Run #62 (`36295679230`) — `I / FULL_EXACT_SHA` — PASS.
+4. R1 report `575a1d68e67b13cec54a7046ec847463b8bbd721` —
+   Run #63 (`36326834562`) — `P / PUBLICATION_EXACT_SHA` — PASS.
+
+The authoritative GPT result is published in
+[`W03_C05_GPT_INDEPENDENT_REREVIEW_R2.md`](w03/reports/W03_C05_GPT_INDEPENDENT_REREVIEW_R2.md),
+and the closeout record is published in
+[`W03_C05_C1_FINAL_CLOSEOUT.md`](w03/reports/W03_C05_C1_FINAL_CLOSEOUT.md).
+Together with this current-state update, these are the exact three authorized
+closeout paths. C1 changes no runtime source, tests, frozen C05 contract or
+specification, C01-C04, W2, schema, migration, dependency, workflow,
+CI/control-plane, Docker/Compose, API or worker. It introduces neither
+`HumanDecisionEvent` nor C06 capability.
+
+Runtime HGT access, post-C02 database access, C05 scenario execution,
+filesystem/network/model/subprocess/random/wall-clock runtime capability and
+operational mutation remain **NONE**. The frozen C05 categorical policies and
+Human decision authority remain unchanged.
+
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged with auto-merge absent. C05 closure becomes effective only after the
+single closeout commit classifies `P / PUBLICATION_EXACT_SHA`, Publication
+proof and Verification pass, Quality and Compose are skipped, and final
+local/tracking/direct-remote/PR synchronization passes. The closeout SHA and
+CI run are reported in the final Codex handoff under the immutable-record
+rule. C06 remains unauthorized.
+
+```text
+W03-C05: CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING
+GPT C05 R2: PASS
+HUMAN C05 ACCEPTANCE: ACCEPTED
+CLOSEOUT AUTHORIZATION: APPROVED
+R1 MEDIUM-01: CLOSED
+ADVERSARIAL MATRIX: PASS
+H1-H19: PASS
+C1 SOURCE CHANGES: NONE
+C1 TEST CHANGES: NONE
+C05 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
+C06 AUTHORIZED: NO
+NEXT: GPT W03-C06 AUTHORIZATION / CONTRACT REVIEW
 ```
