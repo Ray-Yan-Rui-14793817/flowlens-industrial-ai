@@ -136,6 +136,192 @@ def test_reserved_candidate_recommended_is_never_emitted_across_policy_outcomes(
     )
 
 
+def test_full_disposition_table_preserves_abstention_and_human_authority() -> None:
+    from test_c03_signals import CASES, _records_for_case
+
+    supplier = InterventionFamily.SUPPLIER_INTERVENTION
+    quality = InterventionFamily.QUALITY_INTERVENTION
+    multi_case = next(item for item in CASES if item["case_id"] == "C03-G27")
+    multi = make_fixture(list(_records_for_case(multi_case)))
+
+    cases: list[tuple[str, C05Fixture, RecommendationDisposition, str]] = [
+        (
+            "neutral",
+            make_fixture(neutral_records()),
+            RecommendationDisposition.NO_ACTION,
+            "C05_NEUTRAL_NO_ACTION",
+        ),
+        (
+            "delivery_unknown",
+            make_fixture(),
+            RecommendationDisposition.NO_RECOMMENDATION,
+            "C05_MATERIAL_UNCERTAINTY_BLOCKS_NO_ACTION",
+        ),
+        (
+            "all_active_unavailable",
+            make_fixture(records_for_active(supplier)),
+            RecommendationDisposition.NO_RECOMMENDATION,
+            "C05_ACTIVE_SIMULATION_EVIDENCE_UNAVAILABLE",
+        ),
+    ]
+    for family in (
+        InterventionFamily.SUPPLIER_INTERVENTION,
+        InterventionFamily.QUALITY_INTERVENTION,
+        InterventionFamily.CAPACITY_INTERVENTION,
+    ):
+        cases.append(
+            (
+                f"single_{family.value}",
+                with_simulations(
+                    make_fixture(records_for_active(family)),
+                    {family: (SimulationStatus.SUCCEEDED, StressEffect.UNCHANGED)},
+                ),
+                RecommendationDisposition.INVESTIGATION_ONLY,
+                "C05_SINGLE_ACTIVE_FAMILY_INVESTIGATION",
+            )
+        )
+    cases.extend(
+        (
+            (
+                "unique_worsened_multi_active",
+                with_simulations(
+                    multi,
+                    {
+                        supplier: (SimulationStatus.SUCCEEDED, StressEffect.WORSENED),
+                        quality: (SimulationStatus.SUCCEEDED, StressEffect.UNCHANGED),
+                    },
+                ),
+                RecommendationDisposition.INVESTIGATION_ONLY,
+                "C05_UNIQUE_STRESS_SENSITIVE_INVESTIGATION",
+            ),
+            (
+                "multi_worsened_tie",
+                with_simulations(
+                    multi,
+                    {
+                        supplier: (SimulationStatus.SUCCEEDED, StressEffect.WORSENED),
+                        quality: (SimulationStatus.SUCCEEDED, StressEffect.WORSENED),
+                    },
+                ),
+                RecommendationDisposition.DEFER_TO_HUMAN,
+                "C05_TOP_TIE_DEFERRED",
+            ),
+            (
+                "multi_unchanged_tie",
+                with_simulations(
+                    multi,
+                    {
+                        supplier: (SimulationStatus.SUCCEEDED, StressEffect.UNCHANGED),
+                        quality: (SimulationStatus.SUCCEEDED, StressEffect.UNCHANGED),
+                    },
+                ),
+                RecommendationDisposition.DEFER_TO_HUMAN,
+                "C05_TOP_TIE_DEFERRED",
+            ),
+            (
+                "partial",
+                with_simulations(
+                    multi,
+                    {
+                        supplier: (SimulationStatus.SUCCEEDED, StressEffect.WORSENED),
+                        quality: (SimulationStatus.FAILED, StressEffect.UNCHANGED),
+                    },
+                ),
+                RecommendationDisposition.DEFER_TO_HUMAN,
+                "C05_PARTIAL_ACTIVE_COMPARISON",
+            ),
+            (
+                "mixed",
+                with_simulations(
+                    multi,
+                    {
+                        supplier: (SimulationStatus.SUCCEEDED, StressEffect.MIXED),
+                        quality: (SimulationStatus.SUCCEEDED, StressEffect.UNCHANGED),
+                    },
+                ),
+                RecommendationDisposition.DEFER_TO_HUMAN,
+                "C05_NONMONOTONIC_STRESS_RESULT",
+            ),
+            (
+                "improved",
+                with_simulations(
+                    multi,
+                    {
+                        supplier: (SimulationStatus.SUCCEEDED, StressEffect.IMPROVED),
+                        quality: (SimulationStatus.SUCCEEDED, StressEffect.UNCHANGED),
+                    },
+                ),
+                RecommendationDisposition.DEFER_TO_HUMAN,
+                "C05_NONMONOTONIC_STRESS_RESULT",
+            ),
+            (
+                "inactive_failure_does_not_block_unique_active",
+                with_simulations(
+                    make_fixture(records_for_active(supplier)),
+                    {
+                        supplier: (SimulationStatus.SUCCEEDED, StressEffect.WORSENED),
+                        quality: (SimulationStatus.FAILED, StressEffect.UNCHANGED),
+                    },
+                ),
+                RecommendationDisposition.INVESTIGATION_ONLY,
+                "C05_UNIQUE_STRESS_SENSITIVE_INVESTIGATION",
+            ),
+        )
+    )
+
+    for name, fixture, expected_disposition, expected_outcome in cases:
+        recommendation = build_recommendation(*fixture.args())
+        assert recommendation.disposition is expected_disposition, name
+        assert expected_outcome in recommendation.reason_codes, name
+        assert (
+            recommendation.disposition
+            is not RecommendationDisposition.CANDIDATE_RECOMMENDED
+        ), name
+        assert "C05_HUMAN_AUTHORITY_REQUIRED" in {
+            item.code for item in recommendation.limitations
+        }, name
+
+
+def test_tie_cannot_be_resolved_by_identifier_or_family_order() -> None:
+    from test_c03_signals import CASES, _records_for_case
+
+    case = next(item for item in CASES if item["case_id"] == "C03-G27")
+    fixture = make_fixture(list(_records_for_case(case)))
+    fixture = with_simulations(
+        fixture,
+        {
+            InterventionFamily.SUPPLIER_INTERVENTION: (
+                SimulationStatus.SUCCEEDED,
+                StressEffect.WORSENED,
+            ),
+            InterventionFamily.QUALITY_INTERVENTION: (
+                SimulationStatus.SUCCEEDED,
+                StressEffect.WORSENED,
+            ),
+        },
+    )
+    recommendation = build_recommendation(*fixture.args())
+    active_order = tuple(
+        candidate.family
+        for candidate_id in recommendation.candidate_order
+        for candidate in fixture.candidates.candidates
+        if candidate.candidate_id == candidate_id
+        and candidate.family
+        in (
+            InterventionFamily.SUPPLIER_INTERVENTION,
+            InterventionFamily.QUALITY_INTERVENTION,
+        )
+    )
+
+    assert set(active_order) == {
+        InterventionFamily.SUPPLIER_INTERVENTION,
+        InterventionFamily.QUALITY_INTERVENTION,
+    }
+    assert recommendation.disposition is RecommendationDisposition.DEFER_TO_HUMAN
+    assert recommendation.selected_candidate_id is None
+    assert "C05_TOP_TIE_DEFERRED" in recommendation.reason_codes
+
+
 def test_recommendation_replays_in_fresh_process() -> None:
     local = build_recommendation(*supplier_fixture().args())
     digest = hashlib.sha256(canonical_json_bytes(local)).hexdigest()

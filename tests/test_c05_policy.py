@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from dataclasses import fields as dataclass_fields
+from datetime import UTC, datetime, timedelta
+from typing import Any, cast
 
 import pytest
 
@@ -75,6 +77,115 @@ class C05Fixture:
             self.candidates,
             self.simulations,
         )
+
+
+def unsafe_replace[T](value: T, **changes: object) -> T:
+    """Clone a frozen contract without running constructors, for hostile-input tests."""
+
+    clone = object.__new__(type(value))
+    for field in dataclass_fields(cast(Any, value)):
+        object.__setattr__(
+            clone,
+            field.name,
+            changes.get(field.name, getattr(value, field.name)),
+        )
+    return clone
+
+
+def rebind_result(result: SimulationResult, **changes: object) -> SimulationResult:
+    """Recompute a result ID after changing exactly the attacked payload field."""
+
+    rebound = unsafe_replace(result, **changes)
+    identity: dict[str, Any] = {
+        "run_id": rebound.run_id,
+        "candidate_id": rebound.candidate_id,
+        "status": rebound.status,
+        "baseline_snapshot_id": rebound.baseline_snapshot_id,
+        "baseline_snapshot_hash": rebound.baseline_snapshot_hash,
+        "scenario_id": rebound.scenario_id,
+        "scenario_hash": rebound.scenario_hash,
+        "affected_entities": rebound.affected_entities,
+        "measurements": rebound.measurements,
+    }
+    provenance = unsafe_replace(
+        rebound.provenance,
+        input_artifact_ids=tuple(
+            sorted(
+                (
+                    rebound.run_id,
+                    rebound.baseline_snapshot_id,
+                    rebound.candidate_id,
+                )
+            )
+        ),
+    )
+    return unsafe_replace(
+        rebound,
+        simulation_id=derive_artifact_id(
+            "simulation-result", "simulation-result.v1", identity
+        ),
+        provenance=provenance,
+    )
+
+
+def rebind_simulation_bundle(
+    fixture: C05Fixture,
+    results: tuple[SimulationResult, ...],
+    *,
+    run_id: str | None = None,
+    snapshot_id: str | None = None,
+) -> SimulationBundle:
+    """Recompute bundle identity/provenance while preserving hostile result order."""
+
+    actual_run_id = fixture.run.run_id if run_id is None else run_id
+    actual_snapshot_id = (
+        fixture.snapshot.snapshot_id if snapshot_id is None else snapshot_id
+    )
+    identity = {
+        "run_id": actual_run_id,
+        "snapshot_id": actual_snapshot_id,
+        "candidate_simulation_ids": tuple(
+            (item.candidate_id, item.simulation_id) for item in results
+        ),
+    }
+    provenance = unsafe_replace(
+        fixture.simulations.provenance,
+        input_artifact_ids=tuple(
+            sorted(
+                (
+                    actual_run_id,
+                    actual_snapshot_id,
+                    fixture.candidates.candidate_set_id,
+                    *(item.simulation_id for item in results),
+                )
+            )
+        ),
+    )
+    return unsafe_replace(
+        fixture.simulations,
+        simulation_bundle_id=derive_artifact_id(
+            "simulation-bundle", "simulation-bundle.v1", identity
+        ),
+        run_id=actual_run_id,
+        snapshot_id=actual_snapshot_id,
+        results=results,
+        provenance=provenance,
+    )
+
+
+def replace_simulation_result(
+    fixture: C05Fixture,
+    original: SimulationResult,
+    replacement: SimulationResult,
+) -> C05Fixture:
+    results = tuple(
+        replacement if item is original else item
+        for item in fixture.simulations.results
+    )
+    return unsafe_replace(
+        fixture,
+        simulations=rebind_simulation_bundle(fixture, results),
+    )
 
 
 def neutral_records() -> list[Record]:
@@ -371,6 +482,112 @@ def test_strict_neutral_allows_capacity_unknown_only_and_selects_no_action() -> 
     assert evaluation.disposition is RecommendationDisposition.NO_ACTION
     assert evaluation.selected_candidate_id == no_action.candidate_id
     assert evaluation.candidate_order[0] == no_action.candidate_id
+
+
+def _neutral_variant(kind: str) -> list[Record]:
+    records = neutral_records()
+    if kind == "delivery_active":
+        for entity, _, values in records:
+            if entity == "fact_sales_order":
+                values["promised_delivery_at"] = datetime(2026, 1, 18, tzinfo=UTC)
+            elif entity == "fact_delivery":
+                values["delivered_quantity"] = 4
+    elif kind == "delivery_unknown":
+        records = [item for item in records if item[0] != "fact_delivery"]
+    elif kind == "supplier_relevance":
+        for entity, _, values in records:
+            if entity == "fact_purchase_order":
+                values["promised_receipt_at"] = datetime(2026, 1, 18, tzinfo=UTC)
+                values["actual_receipt_at"] = datetime(2026, 1, 22, tzinfo=UTC)
+    elif kind == "quality_relevance":
+        for entity, _, values in records:
+            if entity == "fact_quality_inspection":
+                values.update(
+                    passed_quantity=7,
+                    failed_quantity=3,
+                    result="FAIL",
+                    defect_category="SURFACE",
+                    severity="MEDIUM",
+                )
+    elif kind == "capacity_relevance":
+        for entity, _, values in records:
+            if entity == "fact_operation":
+                values["actual_start_at"] = datetime(2026, 1, 20, tzinfo=UTC)
+    elif kind == "supplier_uncertainty":
+        records = [item for item in records if item[0] != "fact_purchase_order"]
+    elif kind == "quality_uncertainty":
+        records = [item for item in records if item[0] != "fact_quality_inspection"]
+    elif kind == "queue_uncertainty":
+        records = [item for item in records if item[0] != "fact_operation"]
+    else:
+        raise AssertionError(f"unknown neutral variant: {kind}")
+    return records
+
+
+@pytest.mark.parametrize(
+    "kind",
+    (
+        "delivery_active",
+        "delivery_unknown",
+        "supplier_relevance",
+        "quality_relevance",
+        "capacity_relevance",
+        "supplier_uncertainty",
+        "quality_uncertainty",
+        "queue_uncertainty",
+    ),
+)
+def test_strict_neutral_blocker_matrix_is_fail_closed(kind: str) -> None:
+    """Every frozen blocker independently prevents the neutral NO_ACTION path.
+
+    Supplier/quality/queue unknowns can canonically propagate into DELIVERY_RISK
+    UNKNOWN; that dependency is part of the frozen C03 signal graph, not a C05
+    test shortcut.
+    """
+
+    evaluation = evaluate_c05(*make_fixture(_neutral_variant(kind)).args())
+    assert not evaluation.neutral_no_action_eligible
+    assert evaluation.disposition is not RecommendationDisposition.NO_ACTION
+
+
+def test_excluded_measurements_cannot_influence_categorical_policy() -> None:
+    family = InterventionFamily.SUPPLIER_INTERVENTION
+    fixture = with_simulations(
+        make_fixture(records_for_active(family)),
+        {family: (SimulationStatus.SUCCEEDED, StressEffect.WORSENED)},
+    )
+    baseline = evaluate_c05(*fixture.args())
+    target = next(
+        item
+        for item in fixture.simulations.results
+        if next(
+            candidate.family
+            for candidate in fixture.candidates.candidates
+            if candidate.candidate_id == item.candidate_id
+        )
+        is family
+    )
+    replacements = {
+        "affected_entity_count": 999,
+        "business_row_count_delta": -999,
+        "target_last_delivery_at": AS_OF - timedelta(days=30),
+    }
+    measurements = tuple(
+        NamedValue(
+            name=item.name,
+            value=cast(ScalarValue, replacements.get(item.name, item.value)),
+            unit=item.unit,
+        )
+        for item in target.measurements
+    )
+    changed = rebind_result(target, measurements=measurements)
+    attacked = replace_simulation_result(fixture, target, changed)
+    observed = evaluate_c05(*attacked.args())
+
+    assert observed.disposition is baseline.disposition
+    assert observed.selected_candidate_id == baseline.selected_candidate_id
+    assert observed.outcome_code == baseline.outcome_code
+    assert observed.candidates == baseline.candidates
 
 
 def test_delivery_unknown_and_all_active_unavailable_abstain() -> None:
