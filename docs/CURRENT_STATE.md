@@ -1,35 +1,31 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-26
+**Last Updated / 最后更新:** 2026-09-27
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C04 GPT R2 PASSED / HUMAN ACCEPTED / FINAL CLOSEOUT PUBLICATION GATE PENDING; W03-C03 CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+**Current Project Phase / 当前阶段:** W03-C05 IMPLEMENTED / CODEX VERIFIED / REPORT PUBLICATION GATE PENDING; W03-C04 CLOSED / VERIFIED / GITHUB SYNCHRONIZED
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 IMPLEMENTED AND ACCEPTED; W03-C04-R1 HARNESS REPAIR ACCEPTED
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 CLOSED; W03-C05 IMPLEMENTED / CODEX VERIFIED
 
-**Codex Readiness / Codex 开发就绪:** W03-C04 CLOSEOUT EFFECTIVE ONLY AFTER FINAL PUBLICATION GATE; C05 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** W03-C05 REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE; C06 NOT AUTHORIZED
 
-**C04 Implementation SHA / C04 实现 SHA:** `62405d7169b1aaea321290749395ab077792f86f`
+**C05 Implementation SHA / C05 实现 SHA:** `9614bb8cf3cfa558b87464b1de81c1905b2d8eec`
 
-**C04 Implementation Exact-SHA / C04 实现精确 SHA:** PASS — Run #55 / `36227210323` — `I / FULL_EXACT_SHA`
+**C05 Implementation Exact-SHA / C05 实现精确 SHA:** PASS — Run #60 / `36264633796` — `I / FULL_EXACT_SHA`
 
-**C04 R1 Repair SHA / C04 R1 修复 SHA:** `ae54dbc23effedf59566306d209a03b7290a299e`
+**GPT C05 Review / GPT C05 审查:** PENDING
 
-**C04 R1 Repair Exact-SHA / C04 R1 修复精确 SHA:** PASS — Run #57 / `36244584464` — `I / FULL_EXACT_SHA`
+**Human C05 Acceptance / C05 人工验收:** PENDING
 
-**GPT C04 R2 Re-review / GPT C04 R2 复审:** PASS FOR HUMAN C04 ACCEPTANCE
+**C05 Closed / C05 关闭:** NO
 
-**Human C04 Acceptance / C04 人工验收:** ACCEPTED
+**C06 Authorized / C06 授权:** NO
 
-**C04 Closed / C04 关闭:** YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
-
-**C05 Authorized / C05 授权:** NO
-
-**Next / 下一步:** GPT W03-C05 AUTHORIZATION / CONTRACT REVIEW
+**Next / 下一步:** GPT C05 INDEPENDENT REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：GPT C04 Independent Re-Review R2 passed the accepted runtime implementation and test-only R1 harness repair for Human acceptance, with all four R1 findings closed and no blocker. The Product Owner separately accepted C04 and authorized this documentation-only final closeout. Runtime source remains unchanged; HGT isolation, the closed-observation boundary, baseline immutability and no post-C02 runtime database access remain intact. C04 closure becomes effective only after the exact closeout publication gate and final synchronization pass. C05 remains unauthorized. / GPT C04 独立复审 R2 已通过所验收的运行时实现与纯测试 R1 harness 修复，供人工验收；四项 R1 发现全部关闭且无阻断项。Product Owner 已分别接受 C04 并授权本次纯文档最终关闭。运行时源码保持不变；HGT 隔离、闭合观测边界、基线不可变性及 C02 后无运行时数据库访问均保持有效。C04 关闭仅在精确关闭发布门与最终同步通过后生效。C05 仍未获授权。
+> Current state / 当前状态：W03-C05 deterministic evaluation, recommendation and DecisionPacket assembly are implemented and Codex-verified at exact SHA `9614bb8...`. Run #60 passed as `I / FULL_EXACT_SHA`; focused C05 and accepted W2 regressions pass. Runtime HGT, post-C02 database access, scenario execution, external capabilities and operational mutation remain absent. This report publication gate precedes independent GPT review. Human C05 acceptance remains pending; C05 is not closed and C06 is not authorized. / W03-C05 确定性评估、建议与 DecisionPacket 组装已在精确 SHA `9614bb8...` 完成实现并经 Codex 验证。Run #60 以 `I / FULL_EXACT_SHA` 通过；C05 聚焦测试与已接受的 W2 回归均通过。运行时 HGT、C02 后数据库访问、场景执行、外部能力及业务写入仍均不存在。本次报告发布门完成后进入 GPT 独立审查。C05 人工验收仍待定，C05 尚未关闭，C06 未获授权。
 
 ---
 
@@ -3316,4 +3312,67 @@ C1 TEST CHANGES: NONE
 C04 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
 C05 AUTHORIZED: NO
 NEXT: GPT W03-C05 AUTHORIZATION / CONTRACT REVIEW
+```
+
+---
+
+## 48. W03-C05 — Deterministic Recommendation and DecisionPacket
+
+**Date:** 2026-09-27
+
+**Starting C04 closeout SHA:** `c47c6e6d2088bf024ee7bccb9c6e8746c1e49466`
+
+**C05 implementation SHA:** `9614bb8cf3cfa558b87464b1de81c1905b2d8eec`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C05-I/H/R`. The Context Lock was published
+before implementation and remains `LOCKED`. The final implementation commit
+contains exactly the authorized 24-path C05 contract, specification, runtime
+and test delta. No C01-C04 or W2 source, dependency, schema, migration,
+CI/control-plane, Docker/Compose, API/worker or C06 surface changed.
+
+C05 validates canonical upstream C01-C04 artifacts, applies deterministic
+categorical evaluation policy, freezes a grounded RecommendationRecord and
+assembles an immutable DecisionPacket. No aggregate numeric score exists and
+`CANDIDATE_RECOMMENDED` is not emitted. `NO_ACTION`, `NO_RECOMMENDATION`,
+`INVESTIGATION_ONLY`, `DEFER_TO_HUMAN`, tie, partial-comparison and
+stress-effect-direction policies pass. Same-process and independent
+fresh-process replay pass for both RecommendationRecord and DecisionPacket.
+
+Runtime HGT access, post-C02 database access, C05 scenario execution,
+filesystem/network/model/subprocess/random/wall-clock capability and
+operational mutation are all **NONE**. Candidate invention and causal claims
+remain prohibited; Human decision authority remains final.
+
+Local recovery verification passed 32 focused C05 tests and the accepted 154
+test W2 scenario/HGT regression pack. Ruff, strict mypy over 107 source files,
+diff checks and Compose configuration passed. Exact implementation SHA
+[Run #60](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36264633796)
+(`36264633796`) classified the exact 24-path delta `I / FULL_EXACT_SHA` and
+passed Quality, Docker Compose and Verification with Publication proof
+skipped. CI supplied 48 integration passes with 557 deselected and 557
+non-integration passes with 48 deselected.
+
+The complete evidence is in
+[`W03_C05_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C05_R_DEVELOPMENT_ROUND_REPORT.md).
+This entry and that report are the exact two-file publication commit. Its SHA
+and `P / PUBLICATION_EXACT_SHA` proof are reported in the final Codex handoff.
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged with auto-merge absent/disabled. GPT C05 review and Human acceptance
+remain pending. C05 is not closed and C06 is not authorized.
+
+```text
+W03-C05: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION FULL EXACT-SHA: PASS — RUN #60 / 36264633796
+RECOVERY STATE: A / IMPLEMENTATION PROOF COMPLETE — REPORT PHASE RESUMED
+FOCUSED C05: 32 PASS
+W2 REGRESSION: 154 PASS
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C05 REVIEW: PENDING
+HUMAN C05 ACCEPTANCE: PENDING
+C05 CLOSED: NO
+C06 AUTHORIZED: NO
+NEXT: GPT C05 INDEPENDENT REVIEW
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
 ```
