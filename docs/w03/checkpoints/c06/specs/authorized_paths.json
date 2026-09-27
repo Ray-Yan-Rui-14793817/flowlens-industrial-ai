@@ -1,0 +1,44 @@
+{
+  "checkpoint": "W03-C06",
+  "implementation_paths": [
+    "docs/sprints/W03_ai_decision_loop.md",
+    "docs/w03/checkpoints/c06/W03_C06_AUTHORIZATION_CONTRACT.md",
+    "docs/w03/checkpoints/c06/W03_C06_HUMAN_AUTHORIZATION.md",
+    "docs/w03/checkpoints/c06/W03_C06_CONTEXT_LOCK.md",
+    "docs/w03/checkpoints/c06/W03_C06_HUMAN_DECISION_CONTRACT.md",
+    "docs/w03/checkpoints/c06/W03_C06_APPEND_ONLY_STORE_CONTRACT.md",
+    "docs/w03/checkpoints/c06/W03_C06_WORKFLOW_CONTRACT.md",
+    "docs/w03/checkpoints/c06/W03_C06_DEVCTRL_INTEGRATION_CONTRACT.md",
+    "docs/w03/checkpoints/c06/W03_C06_HARNESS_ACCEPTANCE_SPEC.md",
+    "docs/w03/checkpoints/c06/W03_C06_GPT_REVIEW_CHECKLIST.md",
+    "docs/w03/checkpoints/c06/specs/authorized_paths.json",
+    "docs/w03/checkpoints/c06/specs/human_decision_policy.json",
+    "docs/w03/checkpoints/c06/specs/store_policy.json",
+    "src/flowlens/decision/c06_policy.py",
+    "src/flowlens/decision/c06_validation.py",
+    "src/flowlens/decision/c06_human.py",
+    "src/flowlens/decision/c06_store.py",
+    "tests/test_c06_policy.py",
+    "tests/test_c06_human.py",
+    "tests/test_c06_store.py",
+    "tests/test_c06_harness.py"
+  ],
+  "report_paths": [
+    "docs/w03/reports/W03_C06_R_DEVELOPMENT_ROUND_REPORT.md",
+    "docs/CURRENT_STATE.md"
+  ],
+  "forbidden_capabilities": [
+    "postgresql",
+    "operational_database_write",
+    "runtime_hgt",
+    "scenario_execution",
+    "network",
+    "model",
+    "runtime_subprocess",
+    "random",
+    "ambient_wall_clock",
+    "operational_mutation",
+    "c07_evaluation",
+    "c08_explanation"
+  ]
+}

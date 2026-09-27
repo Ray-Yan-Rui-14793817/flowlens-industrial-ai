@@ -1,0 +1,23 @@
+{
+  "policy_version": "w03-c06-human-v1",
+  "schema_version": "human-decision-event.v1",
+  "decisions": ["ACCEPT", "REJECT", "DEFER"],
+  "allowed_c05_dispositions": [
+    "NO_ACTION",
+    "NO_RECOMMENDATION",
+    "INVESTIGATION_ONLY",
+    "DEFER_TO_HUMAN"
+  ],
+  "forbidden_c05_dispositions": ["CANDIDATE_RECOMMENDED"],
+  "structured_reason_code_source": "DecisionPacket.recommendation.reason_codes",
+  "accepted_rejected_overlap": "FORBIDDEN",
+  "omitted_reason_code_semantics": "NOT_EXPLICITLY_ADJUDICATED",
+  "actor_id": "OPAQUE_TRUSTED_CALLER_ID",
+  "decided_at": "EXPLICIT_CALLER_SUPPLIED_AWARE_DATETIME",
+  "comment": "UNTRUSTED_AUDIT_TEXT_ONLY",
+  "investigation_priority": "OPAQUE_AUDIT_LABEL_ONLY",
+  "operational_execution": false,
+  "runtime_hgt": false,
+  "model_access": false,
+  "network_access": false
+}

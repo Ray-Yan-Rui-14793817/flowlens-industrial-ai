@@ -1,10 +1,10 @@
 # FlowLens Industrial AI — W03 Sprint Specification
 
-**Current checkpoint:** W03-C05-I/H/R\
+**Current checkpoint:** W03-C06-I/H/R\
 **Sprint:** Week 3 — Industrial AI Decision Loop Foundation\
 **Baseline:** `main@9d18ddde9fe933952a2661ee1419f13c8577605d`\
 **G0 Status:** CLOSED / VERIFIED / GITHUB SYNCHRONIZED\
-**Implementation:** C01/C02/C03/C04 CLOSED / VERIFIED / GITHUB SYNCHRONIZED; C05-A GPT CONTRACT FREEZE COMPLETE / HUMAN IMPLEMENTATION AUTHORIZATION APPROVED; C05 IMPLEMENTATION AUTHORIZED / NOT CLOSED; C06 NOT AUTHORIZED
+**Implementation:** C01/C02/C03/C04/C05 CLOSED / VERIFIED / GITHUB SYNCHRONIZED; C06 GPT CONTRACT FREEZE COMPLETE / HUMAN IMPLEMENTATION AUTHORIZATION APPROVED; C06 IMPLEMENTATION AUTHORIZED / NOT CLOSED; C07 NOT AUTHORIZED
 
 ---
 
@@ -382,6 +382,17 @@ and `HumanDecisionEvent` semantics.
 
 Implement append-only human decision records/workflow.
 
+Frozen C06 policy versions:
+
+```text
+human decision = w03-c06-human-v1
+store = w03-c06-store-v1
+workflow = w03-c06-workflow-v1
+```
+
+The workflow consumes one canonical frozen C05 `DecisionPacket`, records
+append-only `HumanDecisionEvent` history, and never executes a recommendation.
+
 ## Non-goal
 
 Operational execution.
@@ -637,17 +648,20 @@ CLOSED / VERIFIED / GITHUB SYNCHRONIZED
 W03-C04:
 CLOSED / VERIFIED / GITHUB SYNCHRONIZED
 
-W03-C05-A:
+W03-C05:
+CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+
+W03-C06-A:
 GPT CONTRACT FREEZE COMPLETE / HUMAN IMPLEMENTATION AUTHORIZATION APPROVED
 
-W03-C05:
+W03-C06:
 IMPLEMENTATION AUTHORIZED / NOT CLOSED
 
-C06:
+C07:
 NOT AUTHORIZED
 
 NEXT:
-W03-C05-I/H/R
+W03-C06-I/H/R
 ```
 
 ---
