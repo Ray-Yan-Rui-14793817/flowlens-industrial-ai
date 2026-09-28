@@ -127,16 +127,22 @@ def test_three_event_chain_preserves_historical_bytes(tmp_path: Path) -> None:
 def test_exact_retry_is_idempotent_and_does_not_rewrite(tmp_path: Path) -> None:
     packet = _packet()
     journal = HumanDecisionJournal(tmp_path)
-    kwargs = {
-        "decision": HumanDecisionType.ACCEPT,
-        "actor_id": "reviewer",
-        "decided_at": packet.run.as_of_time,
-        "comment": "same explicit request",
-    }
-    first = journal.record(packet, **kwargs)
+    first = journal.record(
+        packet,
+        decision=HumanDecisionType.ACCEPT,
+        actor_id="reviewer",
+        decided_at=packet.run.as_of_time,
+        comment="same explicit request",
+    )
     path = _event_path(tmp_path, first)
     before = path.read_bytes()
-    second = journal.record(packet, **kwargs)
+    second = journal.record(
+        packet,
+        decision=HumanDecisionType.ACCEPT,
+        actor_id="reviewer",
+        decided_at=packet.run.as_of_time,
+        comment="same explicit request",
+    )
     assert second == first
     assert path.read_bytes() == before
     assert len(tuple((tmp_path / packet.packet_id).glob("*.json"))) == 1

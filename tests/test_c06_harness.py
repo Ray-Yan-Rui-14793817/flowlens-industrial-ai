@@ -19,6 +19,7 @@ from flowlens.decision.c05_packet import build_decision_packet
 from flowlens.decision.c05_recommendation import build_recommendation
 from flowlens.decision.c06_human import build_human_decision_event
 from flowlens.decision.c06_store import HumanDecisionJournal
+from flowlens.decision.contracts import DecisionPacket
 from flowlens.decision.enums import HumanDecisionType
 from flowlens.decision.serialization import canonical_json_bytes
 from test_c05_recommendation import supplier_fixture
@@ -49,7 +50,7 @@ _FROZEN_HASHES = {
 }
 
 
-def _packet():  # type: ignore[no-untyped-def]
+def _packet() -> DecisionPacket:
     fixture = supplier_fixture()
     recommendation = build_recommendation(*fixture.args())
     return build_decision_packet(*fixture.args(), recommendation=recommendation)
