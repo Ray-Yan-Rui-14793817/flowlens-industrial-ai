@@ -3529,3 +3529,85 @@ C05 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
 C06 AUTHORIZED: NO
 NEXT: GPT W03-C06 AUTHORIZATION / CONTRACT REVIEW
 ```
+
+---
+
+## 51. W03-C06 — Human Decision Workflow and Recovered Exact-SHA Proof
+
+**Date:** 2026-09-28
+
+**Entry SHA:** `e2c0030f7af3c345b302b3c4b104a46b15519189`
+
+**Original C06 implementation SHA:** `f240fcb2c19fa4c0df70db9bb57c52b6ebd19aba`
+
+**Repair SHA:** `21794d926bae45140767e1a5164d75f04ef8a944`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C06-I/H/R`, and the C06 Context Lock was
+published before implementation with status `LOCKED`. The original
+implementation introduced the authorized Human decision workflow: exact C05
+`DecisionPacket` validation, deterministic frozen C01 `HumanDecisionEvent`
+construction, and an API-append-only, canonical, chain-validating audit
+journal beneath one explicit trusted root.
+
+Original exact-SHA
+[Run #65](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36331915543)
+(`36331915543`) correctly classified the implementation
+`I / FULL_EXACT_SHA`. Integration passed 48 tests, non-integration passed 689
+with 48 deselected, Ruff passed and Docker Compose passed, but Quality and the
+workflow failed at strict mypy with 11 test-typing errors in exactly
+`tests/test_c06_store.py` and `tests/test_c06_harness.py`.
+
+The Product Owner separately authorized `W03-C06-REPAIR-01`. Repair SHA
+`21794d926bae45140767e1a5164d75f04ef8a944` changes only those two test files:
+explicit typed arguments replace heterogeneous kwargs in the exact-retry
+test, and the harness packet helper gains its `DecisionPacket` return type.
+Runtime source, contracts, policy, store semantics and assertion semantics are
+unchanged.
+
+Repair exact-SHA
+[Run #66](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36365175320)
+(`36365175320`) classified the exact two-path delta
+`I / FULL_EXACT_SHA` and passed Quality, Docker Compose and Verification with
+Publication proof skipped. Remote CI supplied 48 integration passes with 689
+deselected and 689 non-integration passes with 48 deselected; Ruff and strict
+mypy passed. Local focused C06 verification passed 66 tests; the frozen C05,
+C04, C03, C02, C01 and W2 regression baselines remain 98, 31, 77, 26, 39 and
+154 passes respectively.
+
+C06 preserves `ACCEPT`, `REJECT`, and `DEFER` as non-operational Human audit
+outcomes. Canonical event identity, exact C05 packet binding, append-only
+history, narrow readback, idempotent retry, corruption/fork/cycle rejection,
+packet locking, filesystem confinement and inert comment/priority semantics
+pass. Runtime HGT access, post-C02 operational database access, network,
+model/LLM, scenario execution, subprocess/random/ambient-wall-clock use, C07
+evaluation, C08 explanation and operational mutation are all **NONE**.
+
+The complete evidence and known store limitations are in
+[`W03_C06_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C06_R_DEVELOPMENT_ROUND_REPORT.md).
+This entry and that report are the exact two-file publication commit. Its SHA
+and `P / PUBLICATION_EXACT_SHA` proof are reported in the final Codex handoff.
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged with auto-merge absent/disabled. GPT C06 review and Human acceptance
+remain pending. C06 is not closed and C07 is not authorized.
+
+```text
+W03-C06: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+ORIGINAL C06 SHA: f240fcb2c19fa4c0df70db9bb57c52b6ebd19aba
+ORIGINAL C06 CI: RUN #65 / FAILED / MYPY TEST-TYPING ONLY
+REPAIR SHA: 21794d926bae45140767e1a5164d75f04ef8a944
+REPAIR CI: PASS / I / FULL_EXACT_SHA — RUN #66 / 36365175320
+RUNTIME SOURCE REPAIR: NONE
+TEST ASSERTION SEMANTICS CHANGED: NO
+FOCUSED C06: 66 PASS
+INTEGRATION: 48 PASS / 689 DESELECTED
+NON-INTEGRATION: 689 PASS / 48 DESELECTED
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C06 REVIEW: PENDING
+HUMAN C06 ACCEPTANCE: PENDING
+C06 CLOSED: NO
+C07 AUTHORIZED: NO
+NEXT: GPT C06 INDEPENDENT REVIEW
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
