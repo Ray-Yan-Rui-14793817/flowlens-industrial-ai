@@ -24,7 +24,12 @@ from flowlens.decision.serialization import canonical_json_bytes
 from flowlens.evaluation import C07EvaluationError, evaluate_recommendation
 from flowlens.evaluation.c07_replay import dataset_order_ids, derive_affected_order_ids
 from test_c05_policy import unsafe_replace
-from test_c07_replay import ReplayCase, _packet, replay_case
+from test_c07_replay import (
+    ReplayCase,
+    adversarial_packet_fixture,
+    packet_from_dataset,
+    replay_case,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 EVALUATION_SOURCE = ROOT / "src" / "flowlens" / "evaluation"
@@ -265,16 +270,14 @@ def test_h13_effectful_packet_for_unaffected_order_fails_closed() -> None:
         derive_affected_order_ids(case.scenario.dataset, case.scenario.ground_truth)
     )
     order_id = next(item for item in dataset_order_ids(case.baseline) if item not in affected)
-    scenario_packet = _packet(
+    scenario_packet = packet_from_dataset(
         case.scenario.dataset,
         order_id,
-        None,
         case.scenario_packet.run.as_of_time,
     )
-    baseline_packet = _packet(
+    baseline_packet = packet_from_dataset(
         case.baseline,
         order_id,
-        None,
         case.scenario_packet.run.as_of_time,
     )
     with pytest.raises(C07EvaluationError, match="C07_EFFECTFUL_ORDER_NOT_AFFECTED"):
@@ -295,21 +298,19 @@ def test_h14_h17_baseline_pair_attacks_fail_closed(attack: str) -> None:
             for item in dataset_order_ids(case.baseline)
             if item != case.scenario_packet.run.order_id
         )
-        baseline_packet = _packet(
+        baseline_packet = packet_from_dataset(
             case.baseline,
             order_id,
-            None,
             case.scenario_packet.run.as_of_time,
         )
     elif attack == "H15":
-        baseline_packet = _packet(
+        baseline_packet = packet_from_dataset(
             case.baseline,
             case.scenario_packet.run.order_id,
-            None,
             case.scenario_packet.run.as_of_time - timedelta(seconds=1),
         )
     elif attack == "H16":
-        baseline_packet = _packet(
+        baseline_packet = adversarial_packet_fixture(
             case.baseline,
             case.scenario_packet.run.order_id,
             None,
