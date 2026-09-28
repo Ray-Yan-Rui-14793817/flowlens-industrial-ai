@@ -1,0 +1,13 @@
+{
+  "schema_version": "w03-c07-limitation-codes-v1",
+  "universal": {
+    "C07_CASE_LEVEL_ONLY": "C07 v1 emits deterministic case-level evaluation artifacts; aggregate corpus rates belong only to the harness/report.",
+    "C07_NO_STATISTICAL_ACCURACY": "A case-level protected evaluation is not calibrated accuracy, probability or confidence.",
+    "C07_OUTCOME_EVALUATION_DEFERRED": "C07 v1 evaluates the frozen recommendation; operational outcome evaluation is not implemented.",
+    "C07_STRESS_PROBE_NOT_EFFICACY": "C04 stress probes do not establish intervention efficacy or operational benefit.",
+    "C07_SYNTHETIC_HGT_ONLY": "The protected truth is synthetic scenario evaluation truth and is not production causal truth."
+  },
+  "conditional": {
+    "C07_CAPACITY_ARRIVAL_ONLY_NOT_IDENTIFIABLE": "C03 v1 does not expose a causal capacity-arrival signal; HGT cannot be used to retroactively grant runtime causal knowledge."
+  }
+}

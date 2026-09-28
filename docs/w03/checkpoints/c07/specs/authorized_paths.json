@@ -1,0 +1,45 @@
+{
+  "checkpoint": "W03-C07",
+  "implementation_paths": [
+    "docs/sprints/W03_ai_decision_loop.md",
+    "docs/w03/checkpoints/c07/W03_C07_AUTHORIZATION_CONTRACT.md",
+    "docs/w03/checkpoints/c07/W03_C07_CONTEXT_LOCK.md",
+    "docs/w03/checkpoints/c07/W03_C07_EVALUATION_POLICY.md",
+    "docs/w03/checkpoints/c07/W03_C07_HGT_BINDING_CONTRACT.md",
+    "docs/w03/checkpoints/c07/W03_C07_REPLAY_HARNESS_SPEC.md",
+    "docs/w03/checkpoints/c07/W03_C07_GPT_REVIEW_CHECKLIST.md",
+    "docs/w03/checkpoints/c07/W03_C07_HUMAN_AUTHORIZATION.md",
+    "docs/w03/checkpoints/c07/specs/authorized_paths.json",
+    "docs/w03/checkpoints/c07/specs/c07_metric_schema.json",
+    "docs/w03/checkpoints/c07/specs/limitation_codes.json",
+    "docs/w03/checkpoints/c07/specs/reason_codes.json",
+    "src/flowlens/evaluation/__init__.py",
+    "src/flowlens/evaluation/c07_policy.py",
+    "src/flowlens/evaluation/c07_recommendation.py",
+    "src/flowlens/evaluation/c07_replay.py",
+    "src/flowlens/evaluation/c07_validation.py",
+    "tests/test_c07_harness.py",
+    "tests/test_c07_policy.py",
+    "tests/test_c07_recommendation.py",
+    "tests/test_c07_replay.py"
+  ],
+  "report_paths": [
+    "docs/CURRENT_STATE.md",
+    "docs/w03/reports/W03_C07_R_DEVELOPMENT_ROUND_REPORT.md"
+  ],
+  "forbidden_capabilities": [
+    "ambient_wall_clock",
+    "c08_explanation",
+    "database_engine_or_session",
+    "filesystem_or_manifest_io",
+    "model_or_llm",
+    "network_or_http",
+    "operational_mutation",
+    "outcome_evaluation",
+    "random",
+    "runtime_hgt",
+    "runtime_subprocess",
+    "scenario_execution_inside_evaluator",
+    "tool_execution"
+  ]
+}
