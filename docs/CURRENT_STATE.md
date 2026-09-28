@@ -3,35 +3,39 @@
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C06-C1 FINAL CLOSEOUT AUTHORIZED / DOCUMENTATION PUBLICATION GATE PENDING
+**Current Project Phase / 当前阶段:** W03-C07 IMPLEMENTED / REPLAY-PROOF REPAIRED / CODEX VERIFIED / PENDING GPT REVIEW
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 CLOSED; W03-C05 CLOSED; W03-C06 HUMAN ACCEPTED; W03-C06 FINAL CLOSEOUT PUBLICATION PENDING
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 CLOSED; W03-C05 CLOSED; W03-C06 CLOSED; W03-C07 IMPLEMENTED / REPLAY-PROOF REPAIRED / CODEX VERIFIED / REPORT PUBLICATION GATE PENDING
 
-**Codex Readiness / Codex 开发就绪:** W03-C06-C1 CLOSEOUT PUBLICATION AUTHORIZED; C07 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** W03-C07 REVIEW_READY EFFECTIVE ONLY AFTER REPORT PUBLICATION; C08 NOT AUTHORIZED
 
-**Original C06 Implementation SHA / 原始 C06 实现 SHA:** `f240fcb2c19fa4c0df70db9bb57c52b6ebd19aba`
+**Original C07 Implementation SHA / 原始 C07 实现 SHA:** `90f159bf444bd1a0541fbc7fdb48188825ac53e4`
 
-**Original C06 Exact-SHA / 原始 C06 精确 SHA:** Run #65 / `36331915543` / FAILED — MYPY TEST-TYPING ONLY — `I / FULL_EXACT_SHA`
+**Original C07 Exact-SHA / 原始 C07 精确 SHA:** Run #69 / `36377688015` / PASS — `I / FULL_EXACT_SHA`
 
-**C06 Repair SHA / C06 修复 SHA:** `21794d926bae45140767e1a5164d75f04ef8a944`
+**C07 Pre-Report Semantic Audit / C07 报告前语义审计:** `W03_C07_REPLAY_PROOF_MISMATCH`
 
-**C06 Repair Exact-SHA / C06 修复精确 SHA:** Run #66 / `36365175320` / PASS — `I / FULL_EXACT_SHA`
+**C07 Repair SHA / C07 修复 SHA:** `3c5df35528fbe9cd0f77d299a394da265d7ec9db`
 
-**C06 Report Exact-SHA / C06 报告精确 SHA:** Run #67 / `36366558197` / PASS — `P / PUBLICATION_EXACT_SHA`
+**C07 Repair Exact-SHA / C07 修复精确 SHA:** Run #70 / `36424098689` / PASS — `I / FULL_EXACT_SHA`
 
-**GPT C06 Independent Review R1 / GPT C06 独立审查 R1:** PASS FOR HUMAN C06 ACCEPTANCE
+**C07 Report SHA / C07 报告 SHA:** PENDING ON THIS COMMIT — RECORDED IN FINAL HANDOFF
 
-**Human C06 Acceptance / C06 人工验收:** ACCEPTED
+**C07 Report Exact-SHA / C07 报告精确 SHA:** PENDING — `P / PUBLICATION_EXACT_SHA` REQUIRED
 
-**C06 Closed / C06 关闭:** YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
+**GPT C07 Independent Review / GPT C07 独立审查:** PENDING
 
-**C07 Authorized / C07 授权:** NO
+**Human C07 Acceptance / C07 人工验收:** PENDING
 
-**Next / 下一步:** GPT W03-C07 AUTHORIZATION / CONTRACT REVIEW AFTER C06 FINAL CLOSEOUT PUBLICATION
+**C07 Closed / C07 关闭:** NO
+
+**C08 Authorized / C08 授权:** NO
+
+**Next / 下一步:** GPT C07 INDEPENDENT REVIEW AFTER REPORT PUBLICATION
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：GPT C06 Independent Review R1 returned `PASS FOR HUMAN C06 ACCEPTANCE`; the Product Owner separately accepted C06 and authorized the documentation-only W03-C06-C1 closeout. Original Run #65 remains immutable strict-mypy test-typing failure evidence; accepted Repair-01 Run #66 and report-publication Run #67 passed their required exact-SHA gates. LOW-01 is closed by this top-level final-state normalization only, with no runtime, contract or store-semantic defect found. C06 closure becomes effective only after the final closeout publication gate and synchronization pass. C07 remains unauthorized. / GPT C06 独立审查 R1 返回 `PASS FOR HUMAN C06 ACCEPTANCE`；Product Owner 已分别接受 C06 并授权纯文档 W03-C06-C1 关闭。原始 Run #65 继续作为严格 mypy 测试类型失败的不可变历史证据；已接受的 Repair-01 Run #66 与报告发布 Run #67 均通过所需精确 SHA 门禁。LOW-01 仅通过本次顶层最终状态规范化关闭，未发现运行时、契约或存储语义缺陷。C06 仅在最终关闭发布门禁和同步通过后正式关闭。C07 仍未获授权。
+> Current state / 当前状态：Original C07 implementation Run #69 passed `I / FULL_EXACT_SHA`, but the mandatory pre-report audit found `W03_C07_REPLAY_PROOF_MISMATCH` in the synthetic six-case replay proof. Product Owner-authorized Repair-01 changes only the test/replay harness. Repair SHA `3c5df355...` binds C01-C05 packets to actual W2 baseline/scenario business rows, removes expected-family and synthetic C05 fixture input from the real path, preserves HGT post-freeze, and passed Run #70. Runtime and evaluator source changes are none. C07 becomes `REVIEW_READY` only after this two-file report publication and final synchronization pass; GPT review and Human acceptance remain pending, C07 is not closed, and C08 is not authorized. / 原始 C07 实现 Run #69 通过 `I / FULL_EXACT_SHA`，但强制报告前审计在合成六案例回放证明中发现 `W03_C07_REPLAY_PROOF_MISMATCH`。经 Product Owner 授权的 Repair-01 仅修改测试/回放 harness。修复 SHA `3c5df355...` 将 C01-C05 数据包绑定到真实 W2 基线/场景业务行，从真实路径移除预期族和合成 C05 fixture 输入，保持 HGT 在冻结后使用，并通过 Run #70。运行时和评估器源代码均无修改。C07 仅在本次双文件报告发布及最终同步通过后进入 `REVIEW_READY`；GPT 审查和人工验收仍待处理，C07 未关闭，C08 未获授权。
 
 ---
 
@@ -3686,4 +3690,96 @@ C1 TEST CHANGES: NONE
 C06 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
 C07 AUTHORIZED: NO
 NEXT: GPT W03-C07 AUTHORIZATION / CONTRACT REVIEW
+```
+
+---
+
+## 53. W03-C07 — Protected Evaluation and Replay-Proof Repair
+
+**Date:** 2026-09-28
+
+**Round entry SHA:** `6e44af5159af50f4e69871425fed462ccb80adf9`
+
+**Original C07 implementation SHA:** `90f159bf444bd1a0541fbc7fdb48188825ac53e4`
+
+**Repair-01 SHA:** `3c5df35528fbe9cd0f77d299a394da265d7ec9db`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C07-I/H/R`. Original implementation SHA
+`90f159bf444bd1a0541fbc7fdb48188825ac53e4` introduced the protected offline
+`RecommendationEvaluation` plane and passed exact-SHA Run #69
+(`36377688015`) as `I / FULL_EXACT_SHA`.
+
+The mandatory pre-report semantic audit then returned
+`W03_C07_REPLAY_PROOF_MISMATCH`. Although the replay invoked real frozen W2
+scenarios and selected protected HGT-affected orders, its C01-C05 packet facts
+were manufactured from family-selected synthetic test fixtures. Dataset
+metadata/hash checks did not independently prove business-row-to-packet
+correspondence. The Round Report was therefore withheld.
+
+The Product Owner separately authorized `W03-C07-REPAIR-01`. Repair SHA
+`3c5df35528fbe9cd0f77d299a394da265d7ec9db` changes exactly four test/replay
+harness files and no runtime or evaluator source. The repaired real builder
+accepts only a `GeneratedDataset`, `order_id`, and `as_of_time`; resolves the
+actual selected Sales Order and deterministic direct/associative row closure;
+projects actual whitelisted values with actual source-record identities and
+the actual Sales Order `order_at`; and passes the resulting facts through the
+unchanged C02-C05 builder chain before protected C07 evaluation.
+
+Expected intervention family, scenario type, HGT, truth mode, expected signal
+and recommendation do not enter real packet construction.
+`neutral_records` and `records_for_active` are absent from the real six-case
+path. Synthetic fixtures are isolated to adversarial negative tests. Baseline
+and scenario packets are independently derived from their corresponding
+datasets, dataset payloads remain byte-identical, and HGT remains post-freeze
+and offline only.
+
+Repair exact-SHA
+[Run #70](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36424098689)
+(`36424098689`) classified the four-file test repair
+`I / FULL_EXACT_SHA` and passed Quality, Docker Compose and Verification with
+Publication proof skipped. Remote CI supplied 48 integration passes with 764
+deselected and 764 non-integration passes with 48 deselected; Ruff and strict
+mypy passed. Local focused C07 verification passed 75 tests. The C06, C05,
+C04, C03, C02, C01 and W2 regression counts are 66, 98, 31, 77, 26, 39 and
+154 passes respectively. H1-H38 and R1-G1 through R1-G8 pass.
+
+The six replay executions pass as semantic measurements. Their descriptive
+metrics are published without coercion or aggregate scoring in
+[`W03_C07_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C07_R_DEVELOPMENT_ROUND_REPORT.md).
+Observed `False` and `None` values remain valid frozen-policy results;
+`CAPACITY_PRESSURE` remains `UNKNOWN`. C07 still produces
+`RecommendationEvaluation` only and does not produce OutcomeEvaluation.
+
+This current-state update and the Development Round Report are the exact two
+authorized publication paths. The report commit's own SHA and successful
+`P / PUBLICATION_EXACT_SHA` run cannot be embedded in itself and are recorded
+in the final Codex handoff. Main remains
+`9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged with auto-merge absent/disabled. GPT C07 review and Human acceptance
+remain pending. C07 is not closed and C08 is not authorized.
+
+```text
+W03-C07: IMPLEMENTED / REPLAY-PROOF REPAIRED / CODEX VERIFIED / PENDING GPT REVIEW
+ORIGINAL IMPLEMENTATION SHA: 90f159bf444bd1a0541fbc7fdb48188825ac53e4
+ORIGINAL IMPLEMENTATION EXACT-SHA: RUN #69 / 36377688015 / PASS / I / FULL_EXACT_SHA
+PRE-REPORT AUDIT: W03_C07_REPLAY_PROOF_MISMATCH
+REPAIR SHA: 3c5df35528fbe9cd0f77d299a394da265d7ec9db
+REPAIR EXACT-SHA: RUN #70 / 36424098689 / PASS / I / FULL_EXACT_SHA
+REPAIR SCOPE: TEST / REPLAY HARNESS ONLY
+RUNTIME SOURCE CHANGES: NONE
+EVALUATOR SOURCE CHANGES: NONE
+REAL DATASET -> PACKET BINDING: PASS
+EXPECTED-FAMILY INJECTION: ABSENT
+HGT PRE-FREEZE RUNTIME ACCESS: NONE
+H1-H38: PASS
+R1-G1 THROUGH R1-G8: PASS
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C07 REVIEW: PENDING
+HUMAN C07 ACCEPTANCE: PENDING
+C07 CLOSED: NO
+C08 AUTHORIZED: NO
+NEXT: GPT C07 INDEPENDENT REVIEW
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
 ```
