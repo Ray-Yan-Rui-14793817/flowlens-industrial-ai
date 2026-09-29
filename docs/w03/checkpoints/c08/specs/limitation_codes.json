@@ -1,0 +1,11 @@
+{
+  "schema_version": "w03-c08-limitation-codes-v1",
+  "codes": {
+    "C08_EXPLANATION_NOT_DECISION_AUTHORITY": "This explanation has no decision, candidate, scoring, or recommendation authority.",
+    "C08_LLM_FALLBACK_USED": "The provider result was unavailable or rejected; deterministic packet-only fallback was used.",
+    "C08_LLM_SEMANTIC_NOT_BYTE_DETERMINISTIC": "Accepted LLM wording is semantically bounded but is not byte-deterministic.",
+    "C08_NO_CAUSAL_UPGRADE": "The explanation must not strengthen association or uncertainty into causal truth.",
+    "C08_NO_OPERATIONAL_ACTION_AUTHORITY": "This explanation grants no authority to execute or mutate operational state.",
+    "C08_SIMULATION_NOT_OPERATIONAL_EFFICACY": "Simulation output is a modeled comparison and does not establish real-world intervention efficacy."
+  }
+}

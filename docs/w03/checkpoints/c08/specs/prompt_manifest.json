@@ -1,0 +1,10 @@
+{
+  "prompt_version": "w03-c08-runtime-prompt-v1",
+  "sha256": "426b061d79d2a8dfa4ac2959a604e77e6ef8dbcc04759bf7860ec9f012d185fc",
+  "byte_length": 2479,
+  "encoding": "utf-8",
+  "line_endings": "LF",
+  "terminal_newline": true,
+  "context_schema": "w03-c08-context-v1",
+  "output_schema": "w03-c08-output-v1"
+}

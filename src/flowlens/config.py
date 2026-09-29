@@ -8,6 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ApplicationEnvironment = Literal["development", "test", "staging", "production"]
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+C08ExplainerMode = Literal["template", "openai"]
 
 
 class Settings(BaseSettings):
@@ -26,6 +27,8 @@ class Settings(BaseSettings):
     app_environment: ApplicationEnvironment = "development"
     log_level: LogLevel = "INFO"
     database_url: Annotated[SecretStr, Field(min_length=1)]
+    c08_explainer_mode: C08ExplainerMode = "template"
+    openai_api_key: SecretStr | None = None
 
 
 @lru_cache
