@@ -1,41 +1,37 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-28
+**Last Updated / 最后更新:** 2026-09-29
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C07-C1 FINAL CLOSEOUT
+**Current Project Phase / 当前阶段:** W03-C08 DEVELOPMENT ROUND REPORT PUBLICATION
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 CLOSED; W03-C05 CLOSED; W03-C06 CLOSED; W03-C07 IMPLEMENTED / REPLAY-PROOF REPAIRED / CODEX VERIFIED / GPT REVIEW PASSED / HUMAN ACCEPTED / FINAL CLOSEOUT PUBLICATION PENDING
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 CLOSED; W03-C05 CLOSED; W03-C06 CLOSED; W03-C07 CLOSED; W03-C08 IMPLEMENTED / PRE-COMMIT HARDENED / CODEX VERIFIED / GPT REVIEW PENDING
 
-**Codex Readiness / Codex 开发就绪:** W03-C07-C1 CLOSEOUT PUBLICATION AUTHORIZED; C08 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** W03-C08 DEVELOPMENT REPORT PUBLICATION AUTHORIZED; C09 NOT AUTHORIZED
 
-**Original C07 Implementation SHA / 原始 C07 实现 SHA:** `90f159bf444bd1a0541fbc7fdb48188825ac53e4`
+**C08 Implementation SHA / C08 实现 SHA:** `4e999faea8ec78539c800f67d7c901421848b3ab`
 
-**Original C07 Exact-SHA / 原始 C07 精确 SHA:** Run #69 / `36377688015` / PASS — `I / FULL_EXACT_SHA`
+**C08 Implementation Exact-SHA / C08 实现精确 SHA:** Run #73 / `36518365941` / PASS — `I / FULL_EXACT_SHA`
 
-**C07 Pre-Report Semantic Audit / C07 报告前语义审计:** `W03_C07_REPLAY_PROOF_MISMATCH`
+**C08 Pre-Commit Hardening / C08 提交前加固:** HIGH-01 CLOSED; MEDIUM-01 CLOSED; MEDIUM-02 CLOSED
 
-**C07 Repair SHA / C07 修复 SHA:** `3c5df35528fbe9cd0f77d299a394da265d7ec9db`
+**C08 Pre-Report Semantic Audit / C08 报告前语义审计:** PASS
 
-**C07 Repair Exact-SHA / C07 修复精确 SHA:** Run #70 / `36424098689` / PASS — `I / FULL_EXACT_SHA`
+**C08 Development Report Publication / C08 开发报告发布:** PENDING ON THIS COMMIT
 
-**C07 Development Report SHA / C07 开发报告 SHA:** `5be074a0891a06d06dca48d55d79a2406bdd9b73`
+**GPT C08 Independent Review / GPT C08 独立审查:** PENDING
 
-**C07 Development Report Exact-SHA / C07 开发报告精确 SHA:** Run #71 / `36426266399` / PASS — `P / PUBLICATION_EXACT_SHA`
+**Human C08 Acceptance / C08 人工验收:** PENDING
 
-**GPT C07 Independent Review / GPT C07 独立审查:** PASS FOR HUMAN C07 ACCEPTANCE
+**C08 Closed / C08 关闭:** NO
 
-**Human C07 Acceptance / C07 人工验收:** ACCEPTED
+**C09 Authorized / C09 授权:** NO
 
-**C07 Closed / C07 关闭:** YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
-
-**C08 Authorized / C08 授权:** NO
-
-**Next / 下一步:** GPT W03-C08 AUTHORIZATION / CONTRACT REVIEW
+**Next / 下一步:** GPT W03-C08 INDEPENDENT REVIEW
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：GPT C07 Independent Review R1 returned `PASS FOR HUMAN C07 ACCEPTANCE`; the Product Owner separately accepted the reviewed C07 implementation plus Repair-01 and authorized the documentation-only W03-C07-C1 closeout. Original Run #69, Repair-01 Run #70 and Development Report Run #71 passed their required exact-SHA gates. The pre-report replay-proof mismatch was resolved by Repair-01 without runtime or evaluator source changes. LOW-01 is closed only by this top-level final-state normalization; historical Section 53 remains unchanged. C07 closure becomes effective only after the final closeout publication gate and synchronization pass. C08 remains unauthorized. / GPT C07 独立审查 R1 返回 `PASS FOR HUMAN C07 ACCEPTANCE`；Product Owner 已分别接受经审查的 C07 实现与 Repair-01，并授权纯文档 W03-C07-C1 关闭。原始 Run #69、Repair-01 Run #70 和开发报告 Run #71 均通过所需精确 SHA 门禁。报告前回放证明不匹配已由 Repair-01 解决，运行时与评估器源代码均无修改。LOW-01 仅通过本次顶层最终状态规范化关闭；历史 Section 53 保持不变。C07 仅在最终关闭发布门禁和同步通过后正式关闭。C08 仍未获授权。
+> Current state / 当前状态：W03-C08 bounded explanation implementation SHA `4e999faea8ec78539c800f67d7c901421848b3ab` passed exact-SHA Run #73 as `I / FULL_EXACT_SHA`. The pre-commit continuation closed HIGH-01, MEDIUM-01 and MEDIUM-02 before the first implementation commit. The mandatory post-CI semantic audit passed. This current-state update and the C08 Development Round Report are the exact two-file publication delta. GPT C08 review and Human acceptance remain pending; C08 is not closed and C09 is not authorized. / W03-C08 有界解释实现 SHA `4e999faea8ec78539c800f67d7c901421848b3ab` 已通过 Run #73 的 `I / FULL_EXACT_SHA` 精确门禁。首次实现提交前的延续加固已关闭 HIGH-01、MEDIUM-01 和 MEDIUM-02，强制 CI 后语义审计通过。本状态更新与 C08 开发轮次报告构成精确的双文件发布增量。GPT C08 审查与人工验收仍待完成；C08 尚未关闭，C09 未获授权。
 
 ---
 
@@ -3781,5 +3777,103 @@ HUMAN C07 ACCEPTANCE: PENDING
 C07 CLOSED: NO
 C08 AUTHORIZED: NO
 NEXT: GPT C07 INDEPENDENT REVIEW
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
+
+---
+
+## 54. W03-C08 — Bounded LLM Explanation and Pre-Commit Hardening
+
+**Date:** 2026-09-29
+
+**Entry SHA:** `c89a2cc5b24a53897ec0d8085293445c18fd2675`
+
+**Implementation SHA:** `4e999faea8ec78539c800f67d7c901421848b3ab`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C08-I/H/R` and then the bounded
+`W03-C08-I/H/R-CONTINUE-01` pre-commit hardening continuation. This was not a
+new checkpoint and not a Repair-01 round. The existing dirty C08 worktree was
+preserved. The separately authorized local `tmp/c08-uv/` bootstrap directory
+was removed exactly; the repeated preflight then proved the expected C07
+entry, main, PR #6 and Run #72 state, with every remaining path inside the
+original C08 authorization.
+
+C08 adds a deterministic `DecisionPacket`-only explanation context, exact
+provider output schema, frozen 2,479-byte runtime prompt, deterministic
+template, bounded official OpenAI Responses adapter, one schema-repair retry,
+fail-closed grounding/injection validation, deterministic degraded fallback
+and frozen C01 `ExplanationRecord` construction. Requested model remains
+`gpt-5.6-terra`, reasoning effort is `none`, temperature is omitted, tools are
+empty, streaming/storage are off, application timeout is 15 seconds, SDK
+automatic retries are zero and total provider calls are bounded at two. The
+official SDK is locked at `openai==2.54.0`.
+
+The continuation closed all three pre-commit findings:
+
+```text
+HIGH-01: CLOSED
+UNRELATED NEGATION NO LONGER BYPASSES FORBIDDEN CLAIM VALIDATION
+
+MEDIUM-01: CLOSED
+EXPECTED PROVIDER FAILURE IS DISTINCT FROM PROGRAMMING FAILURE
+
+MEDIUM-02: CLOSED
+DYNAMIC OPENAI IMPORT IS A SINGLE LITERAL PROVIDER-ADAPTER EXCEPTION
+```
+
+Local focused C08 passed 77 tests. C07, C06, C05, C04, C03, C02, C01 and W2
+regressions passed 75, 66, 98, 31, 77, 26, 39 and 154 tests respectively.
+Local non-integration passed 841 tests with 48 deselected. Ruff, strict mypy
+over 137 source files, dependency lock verification, `git diff --check`,
+Compose configuration and the 31-path authorization audit passed. Guarded
+local PostgreSQL was not run because its safety variables were unset and the
+Docker engine pipe was inaccessible.
+
+Implementation exact-SHA
+[Run #73](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36518365941)
+(`36518365941`) classified SHA
+`4e999faea8ec78539c800f67d7c901421848b3ab` as
+`I / FULL_EXACT_SHA`. Quality, Docker Compose and Verification passed;
+Publication proof was skipped. Protected CI passed 48 PostgreSQL integration
+tests with 841 deselected, 841 non-integration tests with 48 deselected, Ruff,
+strict mypy over 137 source files and dependency-lock verification.
+
+The mandatory post-CI pre-report semantic audit passed all 22 required proofs.
+It reran all 77 focused C08 tests and confirmed packet-only provider input, no
+C07 evaluation/HGT/DB/filesystem/RAG input, empty tools, exact prompt/schema,
+fail-closed high-risk matches, no grounding repair, typed expected-provider
+fallback, programming-error propagation, one literal OpenAI dynamic import,
+two-call maximum, zero SDK retry, packet/recommendation/trust immutability,
+deterministic template/fallback, system-generated Human boundary, no
+operational writes and no C09 work.
+
+The complete evidence is in
+[`W03_C08_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C08_R_DEVELOPMENT_ROUND_REPORT.md).
+This current-state update and that report are the exact two authorized
+publication paths. The publication commit SHA and CI run are immutable
+post-push facts and are recorded in the final Codex handoff.
+
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains
+open, draft and unmerged with auto-merge absent/disabled. GPT C08 review and
+Human acceptance remain pending. C08 is not closed and C09 is not authorized.
+
+```text
+W03-C08: IMPLEMENTED / PRE-COMMIT HARDENED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION SHA: 4e999faea8ec78539c800f67d7c901421848b3ab
+IMPLEMENTATION EXACT-SHA: RUN #73 / 36518365941 / PASS / I / FULL_EXACT_SHA
+PROMPT SHA256: 426b061d79d2a8dfa4ac2959a604e77e6ef8dbcc04759bf7860ec9f012d185fc
+OPENAI SDK LOCKED VERSION: 2.54.0
+HIGH-01: CLOSED
+MEDIUM-01: CLOSED
+MEDIUM-02: CLOSED
+PRE-REPORT SEMANTIC AUDIT: PASS
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C08 REVIEW: PENDING
+HUMAN C08 ACCEPTANCE: PENDING
+C08 CLOSED: NO
+C09 AUTHORIZED: NO
+NEXT: GPT W03-C08 INDEPENDENT REVIEW
 STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
 ```
