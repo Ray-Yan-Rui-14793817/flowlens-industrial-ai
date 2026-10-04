@@ -1,0 +1,223 @@
+{
+  "schema_version": "w03-c09-regression-manifest-v1.1",
+  "gate_version": "w03-c09-ai-loop-gate-v1",
+  "checkpoint": "W03-C09",
+  "contract_entry_sha": "d71d5baeb0862f2706358c26e182554b3807e8f6",
+  "selector_semantics": "EXACT_FUNCTION_SELECTOR_WITH_FROZEN_EXPANDED_CASE_COUNT",
+  "total_selectors": 38,
+  "total_cases": 85,
+  "families": [
+    {
+      "id": "F01 CORE_CONTRACTS",
+      "expected_cases": 3,
+      "targets": [
+        {
+          "selector": "tests/test_decision_contracts.py::test_every_schema_constructs_and_is_deeply_immutable",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_decision_contracts.py::test_bundle_and_packet_cross_references_reject_mismatch",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_decision_contracts.py::test_no_runtime_hgt_import_or_operational_side_effect",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F02 TEMPORAL_SEMANTIC_TRUST",
+      "expected_cases": 7,
+      "targets": [
+        {
+          "selector": "tests/test_decision_temporal.py::test_cross_dataset_future_tail_preserves_normalized_semantics",
+          "expected_cases": 5
+        },
+        {
+          "selector": "tests/test_decision_context.py::test_three_critical_conflicts_are_preserved",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_decision_evidence.py::test_association_derivation_and_quality_unknowns",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F03 SIGNAL_DIAGNOSIS_FAIL_CLOSED",
+      "expected_cases": 10,
+      "targets": [
+        {
+          "selector": "tests/test_c03_harness.py::test_all_critical_conflicts_fail_closed",
+          "expected_cases": 3
+        },
+        {
+          "selector": "tests/test_c03_harness.py::test_cross_dataset_normalized_future_tail_replay",
+          "expected_cases": 5
+        },
+        {
+          "selector": "tests/test_c03_harness.py::test_runtime_ast_has_no_forbidden_side_effect_surface",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c03_policy_contract.py::test_compiled_policy_exactly_matches_published_json",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F04 COUNTERFACTUAL_ISOLATION",
+      "expected_cases": 5,
+      "targets": [
+        {
+          "selector": "tests/test_c04_harness.py::test_hgt_free_runtime_adapter_import_and_execution_in_fresh_process",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c04_simulation.py::test_baseline_mutation_on_every_error_path_is_a_hard_fail",
+          "expected_cases": 3
+        },
+        {
+          "selector": "tests/test_c04_simulation.py::test_no_action_is_neutral_stable_and_has_exact_raw_measurement_schema",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F05 RECOMMENDATION_ABSTENTION",
+      "expected_cases": 11,
+      "targets": [
+        {
+          "selector": "tests/test_c05_policy.py::test_delivery_unknown_and_all_active_unavailable_abstain",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c05_policy.py::test_strict_neutral_blocker_matrix_is_fail_closed",
+          "expected_cases": 8
+        },
+        {
+          "selector": "tests/test_c05_policy.py::test_multi_active_matrix_preserves_unique_focus_ties_partial_and_nonmonotonic",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c05_harness.py::test_runtime_capability_traps_and_input_immutability",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F06 HUMAN_AUTHORITY_AUDIT",
+      "expected_cases": 6,
+      "targets": [
+        {
+          "selector": "tests/test_c06_human.py::test_canonical_event_construction_for_every_decision",
+          "expected_cases": 3
+        },
+        {
+          "selector": "tests/test_c06_human.py::test_all_current_c05_dispositions_are_reviewable_without_execution",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c06_harness.py::test_journal_has_no_overwrite_or_delete_api",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c06_store.py::test_three_event_chain_preserves_historical_bytes",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F07 PROTECTED_EVALUATION_REPLAY",
+      "expected_cases": 11,
+      "targets": [
+        {
+          "selector": "tests/test_c07_replay.py::test_required_replay_matrix",
+          "expected_cases": 6
+        },
+        {
+          "selector": "tests/test_c07_replay.py::test_r1_g4_g5_and_g7_real_builder_is_family_and_hgt_blind",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c07_harness.py::test_h31_fresh_runtime_imports_do_not_reach_evaluation_or_hgt",
+          "expected_cases": 4
+        }
+      ]
+    },
+    {
+      "id": "F08 LLM_GROUNDING_SCHEMA_INJECTION",
+      "expected_cases": 6,
+      "targets": [
+        {
+          "selector": "tests/test_c08_provider.py::test_openai_adapter_uses_exact_bounded_responses_request",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c08_harness.py::test_injection_value_reaches_context_but_cannot_change_behavior",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c08_harness.py::test_grounding_failure_never_receives_schema_repair",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c08_validation.py::test_numeric_token_cannot_be_rebound_to_another_measurement",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c08_validation.py::test_context_time_cannot_be_rebound_to_another_evidence_field",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c08_validation.py::test_allowlisted_evidence_id_cannot_ground_unrelated_prose",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F09 REAL_DATASET_BINDING_DIRECTION",
+      "expected_cases": 6,
+      "targets": [
+        {
+          "selector": "tests/integration/test_decision_snapshot_database.py::test_read_only_replay_and_bounded_sql",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/integration/test_c03_decision_database.py::test_c03_database_handoff_is_pure_replayed_and_zero_mutation",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/integration/test_c03_decision_database.py::test_scenario_business_facts_direction_smoke",
+          "expected_cases": 4
+        }
+      ]
+    },
+    {
+      "id": "F10 RUNTIME_CAPABILITY_ISOLATION",
+      "expected_cases": 20,
+      "targets": [
+        {
+          "selector": "tests/test_c03_harness.py::test_runtime_source_audit_rejects_fully_qualified_forbidden_surface",
+          "expected_cases": 16
+        },
+        {
+          "selector": "tests/test_c04_harness.py::test_runtime_import_surface_has_no_hgt_or_forbidden_capability_modules",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c05_harness.py::test_runtime_import_surface_has_no_forbidden_capabilities_or_scenario_engine",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c06_harness.py::test_build_and_record_deny_external_capabilities",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_c08_harness.py::test_runtime_import_surface_has_only_authorized_provider_network_boundary",
+          "expected_cases": 1
+        }
+      ]
+    }
+  ]
+}

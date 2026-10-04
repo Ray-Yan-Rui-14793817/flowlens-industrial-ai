@@ -242,6 +242,83 @@ jobs:
           assert not Path("data/hidden_ground_truth/scenario_manifest.yaml").exists()
           PY
 
+  w03-ai-loop-gate:
+    name: W03 AI loop gate
+    # Order semantic proof after the existing proof jobs; always() keeps failures visible.
+    needs: [classify-change, quality, compose-smoke, publication-proof]
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.6-pg17-bookworm
+        env:
+          POSTGRES_DB: flowlens_test
+          POSTGRES_USER: flowlens_ci
+          POSTGRES_PASSWORD: flowlens_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowlens_ci -d flowlens_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_DB: flowlens_test
+      POSTGRES_USER: flowlens_ci
+      POSTGRES_PASSWORD: flowlens_ci
+      FLOWLENS_SERVICE_NAME: flowlens-api
+      FLOWLENS_APP_ENVIRONMENT: test
+      FLOWLENS_LOG_LEVEL: INFO
+      FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Verify PostgreSQL readiness
+        run: >-
+          uv run python -c "from flowlens.config import get_settings;
+          from flowlens.db import check_database_connectivity, create_database_engine;
+          engine = create_database_engine(get_settings());
+          assert check_database_connectivity(engine); engine.dispose()"
+
+      - name: Apply database migrations
+        run: uv run alembic upgrade head
+
+      - name: Run frozen W03 semantic regression gate
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          uv run python scripts/ci/run_w03_ai_loop_gate.py \
+            --manifest docs/w03/checkpoints/c09/specs/c09_gate_manifest.json \
+            --expected-head "$EXPECTED_HEAD" \
+            --output-json "$RUNNER_TEMP/w03-ai-loop-gate.json"
+
   compose-smoke:
     name: Docker Compose smoke
     needs: classify-change
@@ -359,7 +436,7 @@ jobs:
 
   verification-gate:
     name: Verification gate
-    needs: [classify-change, quality, compose-smoke, publication-proof]
+    needs: [classify-change, quality, compose-smoke, publication-proof, w03-ai-loop-gate]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -369,6 +446,7 @@ jobs:
           CLASS_RESULT: ${{ needs['classify-change'].result }}
           QUALITY_RESULT: ${{ needs.quality.result }}
           COMPOSE_RESULT: ${{ needs['compose-smoke'].result }}
+          W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}
           PUBLICATION_RESULT: ${{ needs['publication-proof'].result }}
         run: |
           test "$CLASS_RESULT" = success
@@ -376,9 +454,11 @@ jobs:
             test "$PUBLICATION_RESULT" = success
             test "$QUALITY_RESULT" = skipped
             test "$COMPOSE_RESULT" = skipped
+            test "$W03_RESULT" = skipped
           else
             test "$CHANGE_CLASS" = C -o "$CHANGE_CLASS" = I -o "$CHANGE_CLASS" = F -o "$CHANGE_CLASS" = UNKNOWN
             test "$QUALITY_RESULT" = success
             test "$COMPOSE_RESULT" = success
+            test "$W03_RESULT" = success
             test "$PUBLICATION_RESULT" = skipped
           fi
