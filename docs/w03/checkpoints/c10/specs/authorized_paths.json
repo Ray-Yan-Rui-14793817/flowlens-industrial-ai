@@ -1,0 +1,22 @@
+{
+  "schema_version": "w03-c10-authorized-paths-v1",
+  "checkpoint": "W03-C10",
+  "implementation_phase": [
+    "docs/w03/checkpoints/c10/W03_C10_AUTHORIZATION_CONTRACT.md",
+    "docs/w03/checkpoints/c10/W03_C10_HUMAN_AUTHORIZATION.md",
+    "docs/w03/checkpoints/c10/W03_C10_CONTEXT_LOCK.md",
+    "docs/w03/checkpoints/c10/W03_C10_BUSINESS_ACCEPTANCE_SPEC.md",
+    "docs/w03/checkpoints/c10/W03_C10_EVIDENCE_MATRIX.md",
+    "docs/w03/checkpoints/c10/W03_C10_HUMAN_ACCEPTANCE_FORM.md",
+    "docs/w03/checkpoints/c10/W03_C10_HARNESS_SPEC.md",
+    "docs/w03/checkpoints/c10/W03_C10_GPT_REVIEW_CHECKLIST.md",
+    "docs/w03/checkpoints/c10/W03_C10_BUSINESS_ACCEPTANCE_DOSSIER.md",
+    "docs/w03/checkpoints/c10/specs/c10_acceptance_manifest.json",
+    "docs/w03/checkpoints/c10/specs/authorized_paths.json",
+    "docs/sprints/W03_ai_decision_loop.md"
+  ],
+  "report_publication_phase": [
+    "docs/w03/reports/W03_C10_R_BUSINESS_ACCEPTANCE_READINESS_REPORT.md",
+    "docs/CURRENT_STATE.md"
+  ]
+}
