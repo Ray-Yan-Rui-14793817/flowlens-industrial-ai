@@ -1,25 +1,31 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-29
+**Last Updated / 最后更新:** 2026-10-04
 
 **Sprint / Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase / 当前阶段:** W03-C08 DEVELOPMENT ROUND REPORT PUBLICATION
+**Current Project Phase / 当前阶段:** W03-C08-REPAIR-01 REPORT PUBLICATION
 
-**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 CLOSED; W03-C05 CLOSED; W03-C06 CLOSED; W03-C07 CLOSED; W03-C08 IMPLEMENTED / PRE-COMMIT HARDENED / CODEX VERIFIED / GPT REVIEW PENDING
+**Implementation Status / 工程实现状态:** WEEK 2 CLOSED / VERIFIED / MERGED; W03-C01 CLOSED; W03-C02 CLOSED; W03-DEVCTRL-01 CLOSED; W03-C03 CLOSED; W03-C04 CLOSED; W03-C05 CLOSED; W03-C06 CLOSED; W03-C07 CLOSED; W03-C08 R1 REPAIR IMPLEMENTED / CODEX VERIFIED / GPT R2 RE-REVIEW PENDING
 
-**Codex Readiness / Codex 开发就绪:** W03-C08 DEVELOPMENT REPORT PUBLICATION AUTHORIZED; C09 NOT AUTHORIZED
+**Codex Readiness / Codex 开发就绪:** W03-C08-REPAIR-01 REPORT PUBLICATION AUTHORIZED; C09 NOT AUTHORIZED
 
-**C08 Implementation SHA / C08 实现 SHA:** `4e999faea8ec78539c800f67d7c901421848b3ab`
+**Original C08 Implementation SHA / 原始 C08 实现 SHA:** `4e999faea8ec78539c800f67d7c901421848b3ab`
 
-**C08 Implementation Exact-SHA / C08 实现精确 SHA:** Run #73 / `36518365941` / PASS — `I / FULL_EXACT_SHA`
+**Original C08 Publication SHA / 原始 C08 发布 SHA:** `6e88bedc884f211f4826f4bb82e96d9c86411ec0`
 
-**C08 Pre-Commit Hardening / C08 提交前加固:** HIGH-01 CLOSED; MEDIUM-01 CLOSED; MEDIUM-02 CLOSED
+**GPT C08 Independent Review R1 / GPT C08 独立审查 R1:** REPAIR REQUIRED
 
-**C08 Pre-Report Semantic Audit / C08 报告前语义审计:** PASS
+**C08 Repair Implementation SHA / C08 修复实现 SHA:** `eefca6322ae3fdf3aa652edc77703189e5c35c95`
 
-**C08 Development Report Publication / C08 开发报告发布:** PENDING ON THIS COMMIT
+**C08 Repair Exact-SHA / C08 修复精确 SHA:** Run #75 / `37185441717` / PASS — `I / FULL_EXACT_SHA`
 
-**GPT C08 Independent Review / GPT C08 独立审查:** PENDING
+**C08 R1 Findings / C08 R1 发现项:** HIGH-01 CLOSED; MEDIUM-01 CLOSED; MEDIUM-02 CLOSED; MEDIUM-03 CLOSED
+
+**C08 Post-CI Semantic Audit / C08 CI 后语义审计:** 28 / 28 PASS
+
+**C08 Repair Report Publication / C08 修复报告发布:** PENDING ON THIS COMMIT
+
+**GPT C08 R2 Re-Review / GPT C08 R2 复审:** PENDING
 
 **Human C08 Acceptance / C08 人工验收:** PENDING
 
@@ -27,11 +33,11 @@
 
 **C09 Authorized / C09 授权:** NO
 
-**Next / 下一步:** GPT W03-C08 INDEPENDENT REVIEW
+**Next / 下一步:** GPT W03-C08 INDEPENDENT RE-REVIEW R2
 
 **Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
 
-> Current state / 当前状态：W03-C08 bounded explanation implementation SHA `4e999faea8ec78539c800f67d7c901421848b3ab` passed exact-SHA Run #73 as `I / FULL_EXACT_SHA`. The pre-commit continuation closed HIGH-01, MEDIUM-01 and MEDIUM-02 before the first implementation commit. The mandatory post-CI semantic audit passed. This current-state update and the C08 Development Round Report are the exact two-file publication delta. GPT C08 review and Human acceptance remain pending; C08 is not closed and C09 is not authorized. / W03-C08 有界解释实现 SHA `4e999faea8ec78539c800f67d7c901421848b3ab` 已通过 Run #73 的 `I / FULL_EXACT_SHA` 精确门禁。首次实现提交前的延续加固已关闭 HIGH-01、MEDIUM-01 和 MEDIUM-02，强制 CI 后语义审计通过。本状态更新与 C08 开发轮次报告构成精确的双文件发布增量。GPT C08 审查与人工验收仍待完成；C08 尚未关闭，C09 未获授权。
+> Current state / 当前状态：GPT C08 Independent Review R1 required repair. The authorized `W03-C08-REPAIR-01` implementation SHA `eefca6322ae3fdf3aa652edc77703189e5c35c95` closed HIGH-01 and MEDIUM-01 through MEDIUM-03, then passed exact-SHA Run #75 as `I / FULL_EXACT_SHA`. The mandatory post-CI semantic audit passed 28 / 28. This current-state update and the R1 Semantic Grounding Repair Report are the exact two-file publication delta. GPT C08 R2 re-review and Human acceptance remain pending; C08 is not closed and C09 is not authorized. / GPT C08 独立审查 R1 要求修复。获授权的 `W03-C08-REPAIR-01` 实现 SHA `eefca6322ae3fdf3aa652edc77703189e5c35c95` 已关闭 HIGH-01 以及 MEDIUM-01 至 MEDIUM-03，并通过 Run #75 的 `I / FULL_EXACT_SHA` 精确门禁。强制 CI 后语义审计为 28 / 28 通过。本状态更新与 R1 语义落地修复报告构成精确的双文件发布增量。GPT C08 R2 复审与人工验收仍待完成；C08 尚未关闭，C09 未获授权。
 
 ---
 
@@ -3877,3 +3883,130 @@ C09 AUTHORIZED: NO
 NEXT: GPT W03-C08 INDEPENDENT REVIEW
 STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
 ```
+
+---
+
+## 55. W03-C08-REPAIR-01 — R1 Semantic Grounding Hardening
+
+**Date:** 2026-10-04
+
+**GPT C08 Independent Review R1:** `REPAIR REQUIRED`
+
+**Original C08 implementation SHA:** `4e999faea8ec78539c800f67d7c901421848b3ab`
+
+**Original C08 implementation CI:** Run #73 / `36518365941` / PASS /
+`I / FULL_EXACT_SHA`
+
+**Original C08 publication SHA:** `6e88bedc884f211f4826f4bb82e96d9c86411ec0`
+
+**Original publication CI:** Run #74 / `36520572239` / PASS /
+`P / PUBLICATION_EXACT_SHA`
+
+**Repair SHA:** `eefca6322ae3fdf3aa652edc77703189e5c35c95`
+
+**Repair CI:** Run #75 / `37185441717` / PASS / `I / FULL_EXACT_SHA`
+
+The Product Owner authorized only `W03-C08-REPAIR-01`. The repair changed the
+following exact implementation paths:
+
+```text
+src/flowlens/decision/c08_validation.py
+tests/test_c08_explanation.py
+tests/test_c08_harness.py
+tests/test_c08_validation.py
+```
+
+The repair replaces open-ended provider prose acceptance with a deterministic,
+closed, section-specific statement grammar bound to exact
+`ExplanationContextV1` fields and exact statement references. Arbitrary prose,
+causal/probability/efficacy paraphrases, uncertainty-resolution paraphrases,
+numeric/temporal cross-field rebinding and allowlisted-evidence/unrelated-prose
+misbinding are nonrepairable grounding failures. They receive no schema repair
+and degrade immediately to the deterministic packet-only template. A valid
+mechanically grounded response still reaches `BOUNDED_LLM`; schema invalidity
+alone remains eligible for one second provider call.
+
+```text
+HIGH-01: CLOSED
+MEDIUM-01: CLOSED
+MEDIUM-02: CLOSED
+MEDIUM-03: CLOSED
+CLOSED SECTION-SPECIFIC STATEMENT GRAMMAR: PASS
+ARBITRARY UNSUPPORTED PROSE: REJECTED / NONREPAIRABLE
+CAUSAL PARAPHRASE ATTACKS: REJECTED / NONREPAIRABLE
+PROBABILITY / EFFICACY PARAPHRASE ATTACKS: REJECTED / NONREPAIRABLE
+UNKNOWN / INSUFFICIENT RESOLUTION PARAPHRASES: REJECTED / NONREPAIRABLE
+NUMERIC CROSS-FIELD REBINDING: REJECTED
+TEMPORAL CROSS-FIELD REBINDING: REJECTED
+ALLOWLISTED EVIDENCE / UNRELATED PROSE MISBINDING: REJECTED
+VALID MECHANICALLY GROUNDED OUTPUT: BOUNDED_LLM
+SCHEMA-ONLY REPAIR: MAXIMUM TWO PROVIDER CALLS
+GROUNDING FAILURE: NO SCHEMA REPAIR
+SAME / FRESH-PROCESS DEGRADED FALLBACK: PASS
+PACKET IMMUTABILITY: PASS
+RECOMMENDATION IMMUTABILITY: PASS
+POST-CI SEMANTIC AUDIT: 28 / 28 PASS
+```
+
+Local C08 passed 92 tests. C07, C06, C05, C04, C03, C02 and C01 regressions
+passed 75, 66, 98, 31, 77, 26 and 39 tests respectively; the broader W2
+scenario/HGT regression set passed 173. Complete local non-integration passed
+856 tests with 48 deselected and the existing Starlette/httpx warning. Ruff,
+strict mypy over 137 source files, the 43-package lock check, Docker Compose,
+`git diff --check`, prompt/hash, embedded/published schema equality and the
+authorized-path audit passed. Local PostgreSQL integration remained safely
+unavailable because the safety variables were unset and the Docker engine pipe
+was absent.
+
+Exact-SHA [Run #75](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/37185441717)
+observed 48 integration tests passing with 856 deselected and one existing
+warning, then 856 non-integration tests passing with 48 deselected and one
+existing warning. Ruff, strict mypy over 137 source files, Docker Compose,
+dependency lock and Verification passed; Publication proof was correctly
+skipped for the implementation commit.
+
+```text
+RUNTIME SYSTEM PROMPT CHANGE: NONE
+PROMPT VERSION / SHA CHANGE: NONE
+CONTEXT SCHEMA CHANGE: NONE
+OUTPUT SCHEMA CHANGE: NONE
+PROVIDER / MODEL CHANGE: NONE
+DEPENDENCY CHANGE: NONE
+C01-C07 SEMANTIC CHANGE: NONE
+OPERATIONAL MUTATION: NONE
+C09 WORK: NONE
+```
+
+Known limitation: accepted `BOUNDED_LLM` wording is intentionally constrained
+to a closed packet-derived statement grammar; expressive paraphrase breadth is
+traded for mechanical grounding and fail-closed semantics.
+
+Immediately before this two-file publication delta, local, tracking,
+direct-remote and PR #6 heads all matched repair SHA
+`eefca6322ae3fdf3aa652edc77703189e5c35c95`; the working tree was clean and
+ahead/behind was `0 / 0`. Main remained
+`9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remained open, draft and
+unmerged with auto-merge absent/disabled.
+
+The complete repair evidence is in
+[`W03_C08_R1_SEMANTIC_GROUNDING_REPAIR_REPORT.md`](w03/reports/W03_C08_R1_SEMANTIC_GROUNDING_REPAIR_REPORT.md).
+This current-state update and that report are the exact two authorized
+publication paths. The publication commit SHA, exact-SHA publication CI and
+final synchronization are recorded in the final Codex handoff.
+
+```text
+TASK: W03-C08-REPAIR-01
+GPT C08 R1: REPAIR REQUIRED
+REPAIR IMPLEMENTATION SHA: eefca6322ae3fdf3aa652edc77703189e5c35c95
+REPAIR IMPLEMENTATION CI: RUN #75 / 37185441717 / PASS / I / FULL_EXACT_SHA
+POST-CI SEMANTIC AUDIT: 28 / 28 PASS
+REPAIR REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C08 R2 RE-REVIEW: PENDING
+HUMAN C08 ACCEPTANCE: PENDING
+C08 CLOSED: NO
+C09 AUTHORIZED: NO
+NEXT: GPT W03-C08 INDEPENDENT RE-REVIEW R2
+STATUS: REVIEW_READY_FOR_GPT_R2 ONLY AFTER PUBLICATION GATE
+```
+
+Do not begin C09. Do not self-review or Human-accept C08. Do not close C08.
