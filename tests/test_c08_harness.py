@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -222,6 +225,56 @@ def test_grounding_failure_never_receives_schema_repair() -> None:
 
     assert result.mode is ExplanationMode.DEGRADED_TEMPLATE
     assert len(provider.calls) == 1
+
+
+def test_semantic_fallback_is_identical_in_same_and_fresh_process() -> None:
+    from test_c08_explanation import make_packet
+
+    packet = make_packet()
+    context = build_explanation_context(packet)
+    payload = json.loads(valid_output(context))
+    payload["sections"][1]["text"] = "The supplier is overseas."
+    raw = json.dumps(payload, separators=(",", ":"))
+    first = explain_decision_packet(
+        packet,
+        provider=FakeProvider(responses([raw])),
+        mode="openai",
+    )
+    second = explain_decision_packet(
+        packet,
+        provider=FakeProvider(responses([raw])),
+        mode="openai",
+    )
+    digest = hashlib.sha256(canonical_json_bytes(first)).hexdigest()
+    code = """
+import hashlib
+import json
+import sys
+sys.path.insert(0, 'tests')
+from flowlens.decision.c08_context import build_explanation_context
+from flowlens.decision.c08_explanation import explain_decision_packet
+from flowlens.decision.serialization import canonical_json_bytes
+from test_c08_explanation import FakeProvider, make_packet, responses, valid_output
+packet = make_packet()
+context = build_explanation_context(packet)
+payload = json.loads(valid_output(context))
+payload['sections'][1]['text'] = 'The supplier is overseas.'
+provider = FakeProvider(responses([json.dumps(payload, separators=(',', ':'))]))
+result = explain_decision_packet(packet, provider=provider, mode='openai')
+print(result.explanation_id)
+print(hashlib.sha256(canonical_json_bytes(result)).hexdigest())
+"""
+
+    completed = subprocess.run(
+        [sys.executable, "-c", code],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert first == second
+    assert first.mode is ExplanationMode.DEGRADED_TEMPLATE
+    assert completed.stdout.splitlines() == [first.explanation_id, digest]
 
 
 def test_no_operational_database_schema_or_migration_surface_changed() -> None:

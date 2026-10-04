@@ -11,20 +11,17 @@ from flowlens.decision.c03_validation import source_refs_for
 from flowlens.decision.c05_policy import PACKET_POLICY_VERSION
 from flowlens.decision.c08_context import ExplanationContextV1
 from flowlens.decision.c08_policy import (
-    ARTIFACT_ID_PATTERN,
     CAUSAL_CLAIM_PATTERN,
     FORBIDDEN_INFERENCE_PATTERN,
     INJECTION_OR_CAPABILITY_PATTERN,
     MAX_SECTION_TEXT_CHARS,
     MAX_TOTAL_MODEL_TEXT_CHARS,
     MODEL_SECTION_KEYS,
-    NUMERIC_OR_TEMPORAL_PATTERN,
     OUTPUT_SCHEMA_VERSION,
     PROBABILITY_CLAIM_PATTERN,
     SIMULATION_EFFICACY_PATTERN,
 )
 from flowlens.decision.contracts import DecisionPacket
-from flowlens.decision.enums import InterventionFamily, RecommendationDisposition
 from flowlens.decision.primitives import VersionRef
 from flowlens.decision.serialization import canonical_json_bytes, canonical_json_text
 
@@ -46,9 +43,9 @@ _HGT_TOKENS: Final = (
     "outcome_evaluation",
     "outcomeevaluation",
 )
-_UNKNOWN_RESOLUTION_PATTERN: Final = re.compile(
-    r"\b(?:is|was|has been|now)\s+(?:resolved|confirmed|known|established|certain)\b",
-    re.IGNORECASE,
+_SIMULATION_SAFE_STATEMENT: Final = "Simulations are modeled comparisons for human review."
+_UNCERTAINTY_SAFE_STATEMENT: Final = (
+    "Uncertainties and limitations require human review."
 )
 
 
@@ -74,6 +71,13 @@ class ValidatedSection:
 class ValidatedProviderOutput:
     schema_version: str
     sections: tuple[ValidatedSection, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _GroundedStatement:
+    text: str
+    evidence_ids: tuple[str, ...] = ()
+    reason_codes: tuple[str, ...] = ()
 
 
 def _schema_fail(code: str = "C08_OUTPUT_SCHEMA_INVALID") -> Never:
@@ -221,55 +225,207 @@ def _parse_schema(raw_output: str) -> ValidatedProviderOutput:
     )
 
 
-def _known_identifiers(context: ExplanationContextV1) -> set[str]:
-    return {
-        context.run_id,
-        context.packet_id,
-        *context.allowed_evidence_ids,
-        *context.recommendation.candidate_order,
-        *(item.candidate_id for item in context.simulations),
-    }
-
-
-def _numeric_tokens(value: object) -> set[str]:
-    return set(NUMERIC_OR_TEMPORAL_PATTERN.findall(canonical_json_text(value)))
-
-
 def _assert_no_high_risk_match(pattern: re.Pattern[str], text: str, code: str) -> None:
     if pattern.search(text):
         _grounding_fail(code)
 
 
-def _validate_recommendation_summary(
+def _json_token(value: object) -> str:
+    return canonical_json_text(value)
+
+
+def _recommendation_grammar(
+    context: ExplanationContextV1,
+) -> tuple[tuple[_GroundedStatement, ...], frozenset[str]]:
+    recommendation = context.recommendation
+    disposition = _GroundedStatement(
+        text=f"Recommendation disposition: {recommendation.disposition.value}.",
+        reason_codes=recommendation.reason_codes,
+    )
+    if recommendation.selected_candidate_id is None:
+        selection = _GroundedStatement(text="Selected candidate: none.")
+    else:
+        if (
+            recommendation.selected_candidate_family is None
+            or recommendation.selected_candidate_registry_key is None
+        ):
+            _grounding_fail("C08_RECOMMENDATION_CONTEXT_INCOMPLETE")
+        selection = _GroundedStatement(
+            text=(
+                f"Selected candidate: id {_json_token(recommendation.selected_candidate_id)}; "
+                f"family {recommendation.selected_candidate_family.value}; registry "
+                f"{_json_token(recommendation.selected_candidate_registry_key)}."
+            )
+        )
+    candidate_order = _GroundedStatement(
+        text=f"Candidate order: {_json_token(recommendation.candidate_order)}."
+    )
+    return (disposition, selection, candidate_order), frozenset(
+        {disposition.text, selection.text}
+    )
+
+
+def _diagnosis_grammar(
+    context: ExplanationContextV1,
+) -> tuple[tuple[_GroundedStatement, ...], frozenset[str]]:
+    diagnosis = _GroundedStatement(
+        text=f"Diagnosis problem code: {_json_token(context.diagnosis.problem_code)}."
+    )
+    claims = tuple(
+        _GroundedStatement(
+            text=(
+                f"Claim: code {_json_token(claim.claim_code)}; "
+                f"type {claim.claim_type.value}."
+            ),
+            evidence_ids=claim.evidence_ids,
+        )
+        for claim in context.diagnosis.claims
+    )
+    signals = tuple(
+        _GroundedStatement(
+            text=f"Signal: type {signal.signal_type.value}; state {signal.state.value}.",
+            evidence_ids=signal.evidence_ids,
+            reason_codes=signal.reason_codes,
+        )
+        for signal in context.signals
+    )
+    evidence = tuple(
+        _GroundedStatement(
+            text=(
+                f"Evidence: id {_json_token(item.evidence_id)}; "
+                f"source entity {_json_token(item.source_entity)}; "
+                f"source record {_json_token(item.source_record_id)}; "
+                f"source field {_json_token(item.source_field)}; "
+                f"value {_json_token(item.value)}; "
+                f"observed at {_json_token(item.observed_at)}; "
+                f"available at {_json_token(item.available_at)}; "
+                f"relationship {item.relationship_type}; trust {item.trust_level.value}; "
+                f"freshness {item.freshness_status.value}."
+            ),
+            evidence_ids=(item.evidence_id,),
+        )
+        for item in context.evidence
+    )
+    return (diagnosis, *claims, *signals, *evidence), frozenset({diagnosis.text})
+
+
+def _simulation_grammar(
+    context: ExplanationContextV1,
+) -> tuple[tuple[_GroundedStatement, ...], frozenset[str]]:
+    safe = _GroundedStatement(text=_SIMULATION_SAFE_STATEMENT)
+    simulations = tuple(
+        _GroundedStatement(
+            text=(
+                f"Simulation: candidate {_json_token(item.candidate_id)}; "
+                f"family {item.family.value}; status {item.status.value}."
+            )
+        )
+        for item in context.simulations
+    )
+    measurements = tuple(
+        _GroundedStatement(
+            text=(
+                f"Measurement: candidate {_json_token(simulation.candidate_id)}; "
+                f"name {_json_token(measurement.name)}; value "
+                f"{_json_token(measurement.value)}; unit {_json_token(measurement.unit)}."
+            )
+        )
+        for simulation in context.simulations
+        for measurement in simulation.measurements
+    )
+    return (safe, *simulations, *measurements), frozenset({safe.text})
+
+
+def _uncertainty_grammar(
+    context: ExplanationContextV1,
+) -> tuple[tuple[_GroundedStatement, ...], frozenset[str]]:
+    safe = _GroundedStatement(text=_UNCERTAINTY_SAFE_STATEMENT)
+    uncertainties = tuple(
+        _GroundedStatement(
+            text=(
+                f"Uncertainty: code {_json_token(item.code)}; status {item.status.value}."
+            ),
+            evidence_ids=item.evidence_ids,
+        )
+        for item in context.uncertainties
+    )
+    limitations = tuple(
+        _GroundedStatement(text=f"Limitation: code {_json_token(item.code)}.")
+        for item in context.limitations
+    )
+    return (safe, *uncertainties, *limitations), frozenset({safe.text})
+
+
+def _section_grammar(
+    section_key: str,
+    context: ExplanationContextV1,
+) -> tuple[tuple[_GroundedStatement, ...], frozenset[str]]:
+    if section_key == "recommendation_summary":
+        return _recommendation_grammar(context)
+    if section_key == "evidence_and_diagnosis":
+        return _diagnosis_grammar(context)
+    if section_key == "simulation_context":
+        return _simulation_grammar(context)
+    if section_key == "uncertainties_and_limitations":
+        return _uncertainty_grammar(context)
+    raise AssertionError(f"unexpected C08 section key: {section_key}")
+
+
+def _parse_grounded_statements(
+    section: ValidatedSection,
+    allowed: tuple[_GroundedStatement, ...],
+) -> tuple[_GroundedStatement, ...]:
+    statements_by_text: dict[str, _GroundedStatement] = {}
+    for statement in allowed:
+        previous = statements_by_text.setdefault(statement.text, statement)
+        if previous != statement:
+            _grounding_fail("C08_AMBIGUOUS_CONTEXT_STATEMENT")
+
+    remaining = section.text
+    parsed: list[_GroundedStatement] = []
+    ordered = tuple(
+        sorted(statements_by_text.values(), key=lambda item: len(item.text), reverse=True)
+    )
+    while remaining:
+        matched = next(
+            (
+                statement
+                for statement in ordered
+                if remaining == statement.text or remaining.startswith(f"{statement.text} ")
+            ),
+            None,
+        )
+        if matched is None:
+            _grounding_fail("C08_UNPARSED_PROVIDER_STATEMENT")
+        if matched in parsed:
+            _grounding_fail("C08_DUPLICATE_PROVIDER_STATEMENT")
+        parsed.append(matched)
+        remaining = remaining[len(matched.text) :]
+        if remaining:
+            remaining = remaining[1:]
+    return tuple(parsed)
+
+
+def _validate_closed_section_grammar(
     section: ValidatedSection,
     context: ExplanationContextV1,
 ) -> None:
-    text = section.text
-    recommendation = context.recommendation
-    dispositions = {item.value for item in RecommendationDisposition}
-    present_dispositions = {item for item in dispositions if item in text}
-    if recommendation.disposition.value not in present_dispositions or present_dispositions != {
-        recommendation.disposition.value
-    }:
-        _grounding_fail("C08_RECOMMENDATION_DRIFT")
+    allowed, required = _section_grammar(section.section_key, context)
+    parsed = _parse_grounded_statements(section, allowed)
+    parsed_text = {item.text for item in parsed}
+    if not required.issubset(parsed_text):
+        _grounding_fail("C08_REQUIRED_STATEMENT_MISSING")
 
-    selected_id = recommendation.selected_candidate_id
-    candidate_ids = set(recommendation.candidate_order)
-    mentioned_ids = candidate_ids & set(ARTIFACT_ID_PATTERN.findall(text))
-    if selected_id is None:
-        if mentioned_ids:
-            _grounding_fail("C08_RECOMMENDATION_DRIFT")
-    elif mentioned_ids - {selected_id}:
-        _grounding_fail("C08_RECOMMENDATION_DRIFT")
-
-    family_values = {item.value for item in InterventionFamily}
-    mentioned_families = {item for item in family_values if item in text}
-    selected_family = recommendation.selected_candidate_family
-    allowed_families = {selected_family.value} if selected_family is not None else set()
-    if recommendation.disposition is RecommendationDisposition.NO_ACTION:
-        allowed_families.add(InterventionFamily.NO_ACTION.value)
-    if mentioned_families - allowed_families:
-        _grounding_fail("C08_RECOMMENDATION_DRIFT")
+    grounded_evidence = tuple(
+        sorted({evidence_id for item in parsed for evidence_id in item.evidence_ids})
+    )
+    grounded_reasons = tuple(
+        sorted({reason_code for item in parsed for reason_code in item.reason_codes})
+    )
+    if section.evidence_ids != grounded_evidence:
+        _grounding_fail("C08_EVIDENCE_REFERENCE_MISBOUND")
+    if section.reason_codes != grounded_reasons:
+        _grounding_fail("C08_REASON_REFERENCE_MISBOUND")
 
 
 def validate_provider_output(
@@ -281,8 +437,6 @@ def validate_provider_output(
     output = _parse_schema(raw_output)
     allowed_evidence = set(context.allowed_evidence_ids)
     allowed_reasons = set(context.allowed_reason_codes)
-    known_ids = _known_identifiers(context)
-    allowed_numeric = _numeric_tokens(context)
 
     for section in output.sections:
         if not set(section.evidence_ids).issubset(allowed_evidence):
@@ -305,17 +459,7 @@ def validate_provider_output(
             section.text,
             "C08_FORBIDDEN_OPERATIONAL_INFERENCE",
         )
-        identifiers = set(ARTIFACT_ID_PATTERN.findall(section.text))
-        if not identifiers.issubset(known_ids):
-            _grounding_fail("C08_UNKNOWN_IDENTIFIER")
-        if not set(NUMERIC_OR_TEMPORAL_PATTERN.findall(section.text)).issubset(allowed_numeric):
-            _grounding_fail("C08_UNSUPPORTED_NUMERIC_OR_TEMPORAL_CLAIM")
         if INJECTION_OR_CAPABILITY_PATTERN.search(section.text):
             _grounding_fail("C08_PROMPT_INJECTION_OR_CAPABILITY_REQUEST")
-
-    _validate_recommendation_summary(output.sections[0], context)
-    if any(
-        item.status.value in {"UNKNOWN", "INSUFFICIENT_EVIDENCE"} for item in context.uncertainties
-    ) and any(_UNKNOWN_RESOLUTION_PATTERN.search(item.text) for item in output.sections):
-        _grounding_fail("C08_UNKNOWN_RESOLUTION")
+        _validate_closed_section_grammar(section, context)
     return output

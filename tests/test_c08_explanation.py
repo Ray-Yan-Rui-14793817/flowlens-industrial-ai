@@ -21,7 +21,7 @@ from flowlens.decision.c08_provider import (
 )
 from flowlens.decision.contracts import DecisionPacket, ExplanationRecord
 from flowlens.decision.enums import ExplanationMode
-from flowlens.decision.serialization import canonical_json_bytes
+from flowlens.decision.serialization import canonical_json_bytes, canonical_json_text
 from test_c05_recommendation import supplier_fixture
 
 
@@ -31,46 +31,111 @@ def make_packet() -> DecisionPacket:
     return build_decision_packet(*fixture.args(), recommendation=recommendation)
 
 
+def _token(value: object) -> str:
+    return canonical_json_text(value)
+
+
 def valid_output(context: ExplanationContextV1) -> str:
-    selected = context.recommendation.selected_candidate_id
-    family = context.recommendation.selected_candidate_family
-    selected_text = "No selected candidate."
-    if selected is not None and family is not None:
-        selected_text = f"Selected candidate {selected} with family {family.value}."
-    evidence_ids = list(context.allowed_evidence_ids[:1])
-    reason_codes = list(context.allowed_reason_codes[:1])
+    recommendation = context.recommendation
+    if recommendation.selected_candidate_id is None:
+        selection = "Selected candidate: none."
+    else:
+        assert recommendation.selected_candidate_family is not None
+        assert recommendation.selected_candidate_registry_key is not None
+        selection = (
+            f"Selected candidate: id {_token(recommendation.selected_candidate_id)}; "
+            f"family {recommendation.selected_candidate_family.value}; registry "
+            f"{_token(recommendation.selected_candidate_registry_key)}."
+        )
+    recommendation_text = " ".join(
+        (
+            f"Recommendation disposition: {recommendation.disposition.value}.",
+            selection,
+            f"Candidate order: {_token(recommendation.candidate_order)}.",
+        )
+    )
+
+    claim = context.diagnosis.claims[0]
+    signal = context.signals[0]
+    evidence = context.evidence[0]
+    diagnosis_text = " ".join(
+        (
+            f"Diagnosis problem code: {_token(context.diagnosis.problem_code)}.",
+            f"Claim: code {_token(claim.claim_code)}; type {claim.claim_type.value}.",
+            f"Signal: type {signal.signal_type.value}; state {signal.state.value}.",
+            (
+                f"Evidence: id {_token(evidence.evidence_id)}; "
+                f"source entity {_token(evidence.source_entity)}; "
+                f"source record {_token(evidence.source_record_id)}; "
+                f"source field {_token(evidence.source_field)}; "
+                f"value {_token(evidence.value)}; "
+                f"observed at {_token(evidence.observed_at)}; "
+                f"available at {_token(evidence.available_at)}; "
+                f"relationship {evidence.relationship_type}; trust {evidence.trust_level.value}; "
+                f"freshness {evidence.freshness_status.value}."
+            ),
+        )
+    )
+    diagnosis_evidence_ids = sorted(
+        {*claim.evidence_ids, *signal.evidence_ids, evidence.evidence_id}
+    )
+
+    simulation = next(item for item in context.simulations if item.measurements)
+    measurement = simulation.measurements[0]
+    simulation_text = " ".join(
+        (
+            "Simulations are modeled comparisons for human review.",
+            (
+                f"Simulation: candidate {_token(simulation.candidate_id)}; "
+                f"family {simulation.family.value}; status {simulation.status.value}."
+            ),
+            (
+                f"Measurement: candidate {_token(simulation.candidate_id)}; "
+                f"name {_token(measurement.name)}; value {_token(measurement.value)}; "
+                f"unit {_token(measurement.unit)}."
+            ),
+        )
+    )
+
+    uncertainty = next(
+        item
+        for item in context.uncertainties
+        if item.status.value in {"UNKNOWN", "INSUFFICIENT_EVIDENCE"}
+    )
+    limitation = context.limitations[0]
+    uncertainty_text = " ".join(
+        (
+            "Uncertainties and limitations require human review.",
+            f"Uncertainty: code {_token(uncertainty.code)}; status {uncertainty.status.value}.",
+            f"Limitation: code {_token(limitation.code)}.",
+        )
+    )
     return json.dumps(
         {
             "schema_version": OUTPUT_SCHEMA_VERSION,
             "sections": [
                 {
                     "section_key": "recommendation_summary",
-                    "text": (
-                        f"Frozen disposition: {context.recommendation.disposition.value}. "
-                        f"{selected_text}"
-                    ),
+                    "text": recommendation_text,
                     "evidence_ids": [],
-                    "reason_codes": reason_codes,
+                    "reason_codes": list(recommendation.reason_codes),
                 },
                 {
                     "section_key": "evidence_and_diagnosis",
-                    "text": (
-                        f"Diagnosis remains {context.diagnosis.problem_code} and uses "
-                        "allowed packet evidence."
-                    ),
-                    "evidence_ids": evidence_ids,
-                    "reason_codes": reason_codes,
+                    "text": diagnosis_text,
+                    "evidence_ids": diagnosis_evidence_ids,
+                    "reason_codes": list(signal.reason_codes),
                 },
                 {
                     "section_key": "simulation_context",
-                    "text": "Modeled comparisons remain bounded context for human review.",
+                    "text": simulation_text,
                     "evidence_ids": [],
                     "reason_codes": [],
                 },
                 {
                     "section_key": "uncertainties_and_limitations",
-                    "text": ("Uncertainties and limitations remain unresolved for human review."),
-                    "evidence_ids": [],
+                    "text": uncertainty_text,
+                    "evidence_ids": list(uncertainty.evidence_ids),
                     "reason_codes": [],
                 },
             ],
@@ -149,6 +214,25 @@ def test_one_schema_repair_can_succeed() -> None:
     assert "C08_SCHEMA_REPAIR_USED" in result.reason_codes
 
 
+def test_schema_repair_followed_by_ungrounded_output_degrades_at_two_calls() -> None:
+    packet = make_packet()
+    context = build_explanation_context(packet)
+    payload = json.loads(valid_output(context))
+    payload["sections"][1]["text"] = "The supplier is overseas."
+    provider = FakeProvider(
+        responses(["not-json", json.dumps(payload, separators=(",", ":"))])
+    )
+    before = canonical_json_bytes(packet)
+    frozen_recommendation = packet.recommendation
+
+    result = explain_decision_packet(packet, provider=provider, mode="openai")
+
+    assert result.mode is ExplanationMode.DEGRADED_TEMPLATE
+    assert len(provider.calls) == 2
+    assert canonical_json_bytes(packet) == before
+    assert packet.recommendation == frozen_recommendation
+
+
 def test_second_schema_failure_degrades_after_exactly_two_calls() -> None:
     provider = FakeProvider(responses(["not-json", "still-not-json"]))
 
@@ -205,6 +289,15 @@ def test_expected_provider_failure_during_schema_repair_degrades_at_two_calls() 
 @pytest.mark.parametrize(
     "text",
     (
+        "The supplier is overseas.",
+        "Supplier delay led to the late delivery.",
+        "The delay resulted from the supplier issue.",
+        "The delivery was late because of the supplier.",
+        "The intervention is likely to succeed.",
+        "There is a high chance the intervention will work.",
+        "The uncertainty has cleared.",
+        "No ambiguity remains.",
+        "The supplier status is now understood.",
         "There is no uncertainty in the packet. The root cause is supplier delay.",
         "The packet is not empty. Supplier delay caused the outcome.",
         "There is no missing evidence. Confidence is 90%.",
@@ -213,7 +306,7 @@ def test_expected_provider_failure_during_schema_repair_degrades_at_two_calls() 
         "There is no allocation today. Use order-specific procurement allocation.",
     ),
 )
-def test_unrelated_negation_cannot_bypass_high_risk_claims(text: str) -> None:
+def test_arbitrary_or_high_risk_prose_degrades_without_schema_repair(text: str) -> None:
     packet = make_packet()
     context = build_explanation_context(packet)
     payload = json.loads(valid_output(context))
@@ -236,11 +329,14 @@ def test_unrelated_negation_cannot_bypass_high_risk_claims(text: str) -> None:
         assert selected in result.sections[0].text
 
 
-def test_safe_causality_boundary_is_accepted() -> None:
+def test_fixed_safe_uncertainty_boundary_is_accepted() -> None:
     packet = make_packet()
     context = build_explanation_context(packet)
     payload = json.loads(valid_output(context))
-    payload["sections"][3]["text"] = "Causality remains unresolved."
+    payload["sections"][3]["text"] = (
+        "Uncertainties and limitations require human review."
+    )
+    payload["sections"][3]["evidence_ids"] = []
     provider = FakeProvider(responses([json.dumps(payload, separators=(",", ":"))]))
 
     result = explain_decision_packet(packet, provider=provider, mode="openai")
