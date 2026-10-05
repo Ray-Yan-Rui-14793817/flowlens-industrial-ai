@@ -519,4 +519,20 @@ def test_classifier_publication_and_runtime_frozen_materials_unchanged() -> None
         "docker-compose.yml",
     ):
         assert (ROOT / path).read_text(encoding="utf-8") == git("show", f"{gate.ENTRY}:{path}")
-    assert not git("diff", "--name-only", gate.ENTRY, "HEAD", "--", "src", "migrations", "apps")
+    # Clarification-01 freezes every W03 source path while allowing only the
+    # three explicitly authorized W04-C01 additions. Disabling rename detection
+    # exposes renames as D+A; exact NUL-delimited statuses reject all M/D/T and
+    # mode changes, unexpected additions, and missing authorized additions.
+    w03_anchor = "af61bdfd5f7cf7961811c4c2dc8e554dd7eed509"
+    additions = (
+        "src/flowlens/investigation/__init__.py",
+        "src/flowlens/investigation/contracts.py",
+        "src/flowlens/investigation/enums.py",
+    )
+    source_delta = git(
+        "diff", "--name-status", "--no-renames", "-z", w03_anchor, "HEAD", "--", "src"
+    )
+    assert source_delta == "".join(f"A\0{path}\0" for path in additions)
+    assert not git("diff", "--name-only", "HEAD", "--", "src")
+    assert not git("ls-files", "--others", "--exclude-standard", "-z", "--", "src")
+    assert not git("diff", "--name-only", gate.ENTRY, "HEAD", "--", "migrations", "apps")
