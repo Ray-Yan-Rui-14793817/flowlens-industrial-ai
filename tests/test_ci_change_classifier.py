@@ -19,6 +19,7 @@ from classify_change import (  # noqa: E402
     classify_event,
     classify_path,
     classify_paths,
+    is_publication_path,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -93,11 +94,136 @@ def test_path_classes(path: str, expected: str) -> None:
         (["docs/w03/reports/a.md", "pyproject.toml"], "F"),
         (["src/x.py", "migrations/versions/x.py"], "F"),
         (["docs/CURRENT_STATE.md", "new/unknown.md"], "UNKNOWN"),
+        (
+            ["docs/w04/checkpoints/c02/W04_C02_FINAL_CLOSEOUT_REPORT.md", "docs/CURRENT_STATE.md"],
+            "P",
+        ),
+        (
+            [
+                "docs/w04/checkpoints/c02/W04_C02_FINAL_CLOSEOUT_REPORT.md",
+                "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
+            ],
+            "C",
+        ),
+        (
+            [
+                "docs/w04/checkpoints/c02/W04_C02_FINAL_CLOSEOUT_REPORT.md",
+                "src/flowlens/investigation/contracts.py",
+            ],
+            "I",
+        ),
+        (["docs/w04/W04_FINAL_CLOSEOUT_REPORT.md", "uv.lock"], "F"),
+        (["docs/w04/W04_FINAL_CLOSEOUT_REPORT.md", "new/unknown.md"], "UNKNOWN"),
+        (["docs/w04/W04_FINAL_CLOSEOUT_REPORT.md"] * 2, "UNKNOWN"),
         ([], "UNKNOWN"),
     ],
 )
 def test_mixed_classes_fail_closed(paths: list[str], expected: str) -> None:
     assert classify_paths(paths) == expected
+
+
+@pytest.mark.parametrize(
+    ("path", "expected"),
+    [
+        ("docs/w04/checkpoints/c02/W04_C02_R_DEVELOPMENT_ROUND_REPORT.md", "P"),
+        ("docs/w04/checkpoints/c02/W04_C02_GPT_INDEPENDENT_REVIEW_R1.md", "P"),
+        ("docs/w04/checkpoints/c02/W04_C02_GPT_INDEPENDENT_DEEP_REVIEW_R12.md", "P"),
+        ("docs/w04/checkpoints/c02/W04_C02_FINAL_CLOSEOUT_REPORT.md", "P"),
+        ("docs/w04/devctrl/W04_DEVCTRL_01_R_DEVELOPMENT_ROUND_REPORT.md", "P"),
+        ("docs/w04/W04_GPT_INDEPENDENT_REVIEW_R10.md", "P"),
+        ("docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json", "C"),
+        ("docs/w04/checkpoints/c02/W04_C02_HUMAN_AUTHORIZATION.md", "C"),
+        ("docs/w04/checkpoints/c02/W04_C02_CONTEXT_LOCK.md", "C"),
+        ("docs/w04/checkpoints/c02/W04_C02_CODEX_TASK.md", "C"),
+        ("docs/w04/checkpoints/c02/W04_C02_GPT_DESIGN_REVIEW_R1.md", "C"),
+        ("docs/w04/checkpoints/c02/report.md", "C"),
+        ("docs/w04/W04_SOURCE_EVOLUTION_MANIFEST_FINAL_CLOSEOUT_REPORT.json", "C"),
+        ("docs/w04/W04_FINAL_CLOSEOUT_REPORT.md.bak", "C"),
+        ("docs/w04/W04_FINAL_CLOSEOUT_REPORT.MD", "C"),
+        ("docs/w04/W04_GPT_INDEPENDENT_REVIEW_R.md", "C"),
+        ("docs/w04/W04_GPT_INDEPENDENT_REVIEW_Rone.md", "C"),
+        ("docs/w04/W04_GPT_INDEPENDENT_REVIEW_R١.md", "C"),
+        ("docs/w04/W04_GPT_INDEPENDENT_REVIEW_R1_extra.md", "C"),
+        ("docs/w04/W04_GPT_INDEPENDENT_DEEP_REVIEW_R1.txt", "C"),
+        ("docs/w04/W04_r_DEVELOPMENT_ROUND_REPORT.md", "C"),
+        ("docs/w04/nested/pyproject.toml", "C"),
+        ("docs/w04/nested/uv.lock", "C"),
+        ("docs/w04/nested/Dockerfile", "C"),
+        ("docs/w04/nested/Dockerfile_FINAL_CLOSEOUT_REPORT.md", "P"),
+        ("src/flowlens/investigation/contracts.py", "I"),
+        ("src/flowlens/investigation/nested/module.py", "I"),
+        ("src/flowlens/investigation/pyproject.toml", "I"),
+        ("src/flowlens/investigation/Dockerfile", "I"),
+        ("pyproject.toml", "F"),
+        ("uv.lock", "F"),
+        ("docker-compose.yml", "F"),
+        ("migrations/versions/new.py", "F"),
+        ("other/W04_FINAL_CLOSEOUT_REPORT.md", "UNKNOWN"),
+        ("docs/w040/W04_FINAL_CLOSEOUT_REPORT.md", "UNKNOWN"),
+    ],
+)
+def test_w04_path_grammar_and_control_boundary(path: str, expected: str) -> None:
+    assert classify_path(path) == expected
+    assert is_publication_path(path) is (expected == "P")
+
+
+@pytest.mark.parametrize(
+    "path",
+    [
+        "",
+        "/docs/w04/W04_FINAL_CLOSEOUT_REPORT.md",
+        "docs\\w04\\W04_FINAL_CLOSEOUT_REPORT.md",
+        "docs/w04/../w04/W04_FINAL_CLOSEOUT_REPORT.md",
+        "docs/w04/./W04_FINAL_CLOSEOUT_REPORT.md",
+        "docs/w04//W04_FINAL_CLOSEOUT_REPORT.md",
+        "docs/w04/W04_FINAL_CLOSEOUT_REPORT.md/",
+        "docs/w04/\x00W04_FINAL_CLOSEOUT_REPORT.md",
+    ],
+)
+def test_w04_malformed_paths_rejected_by_shared_helper(path: str) -> None:
+    assert classify_path(path) == "UNKNOWN"
+    assert not is_publication_path(path)
+
+
+@pytest.mark.parametrize(
+    ("path", "expected"),
+    [
+        ("docs/w04/W04_R_DEVELOPMENT_ROUND_REPORT.md", "P"),
+        ("docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json", "C"),
+        ("src/flowlens/investigation/fixture.py", "I"),
+        ("uv.lock", "F"),
+        ("unknown/file.md", "UNKNOWN"),
+    ],
+)
+def test_w04_current_git_delta_routes_each_class(
+    tmp_path: Path, path: str, expected: str
+) -> None:
+    repo, base = repository(tmp_path)
+    head = commit(repo, path, "fixture\n")
+    actual = classify_event(event(base, head), "pull_request", head, repo)
+    assert actual["class"] == expected
+    assert actual["gate"] == (PUBLICATION if expected == "P" else FULL)
+    assert actual["base_sha"] == base and actual["head_sha"] == head
+    assert actual["changed_paths"] == [path]
+
+
+@pytest.mark.parametrize("boundary", ["push", "opened", "missing_before", "head_mismatch"])
+def test_w04_publication_ambiguous_boundary_keeps_full(tmp_path: Path, boundary: str) -> None:
+    repo, base = repository(tmp_path)
+    head = commit(repo, "docs/w04/W04_FINAL_CLOSEOUT_REPORT.md", "# Closeout\n")
+    payload = event(base, head)
+    event_name = "pull_request"
+    expected_head = head
+    if boundary == "push":
+        event_name = "push"
+    elif boundary == "opened":
+        payload["action"] = "opened"
+    elif boundary == "missing_before":
+        payload.pop("before")
+    else:
+        expected_head = base
+    actual = classify_event(payload, event_name, expected_head, repo)
+    assert actual["class"] == "UNKNOWN" and actual["gate"] == FULL
 
 
 def test_verified_synchronize_uses_current_delta_and_deterministic_json(tmp_path: Path) -> None:

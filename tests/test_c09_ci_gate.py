@@ -512,27 +512,20 @@ def test_verification_runs_actual_shell_truth_table() -> None:
 
 def test_classifier_publication_and_runtime_frozen_materials_unchanged() -> None:
     for path in (
-        "scripts/ci/classify_change.py",
         "scripts/ci/verify_publication.py",
         "pyproject.toml",
         "uv.lock",
         "docker-compose.yml",
     ):
         assert (ROOT / path).read_text(encoding="utf-8") == git("show", f"{gate.ENTRY}:{path}")
-    # Clarification-01 freezes every W03 source path while allowing only the
-    # three explicitly authorized W04-C01 additions. Disabling rename detection
-    # exposes renames as D+A; exact NUL-delimited statuses reject all M/D/T and
-    # mode changes, unexpected additions, and missing authorized additions.
-    w03_anchor = "af61bdfd5f7cf7961811c4c2dc8e554dd7eed509"
-    additions = (
-        "src/flowlens/investigation/__init__.py",
-        "src/flowlens/investigation/contracts.py",
-        "src/flowlens/investigation/enums.py",
+    # DEVCTRL-01 evolves authorized additions through the versioned manifest
+    # while retaining all W03 source and every closed checkpoint's Git blobs.
+    from verify_w04_source_evolution import verify_source_evolution
+
+    proof = verify_source_evolution(
+        ROOT / "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
+        git("rev-parse", "HEAD").strip(),
+        ROOT,
     )
-    source_delta = git(
-        "diff", "--name-status", "--no-renames", "-z", w03_anchor, "HEAD", "--", "src"
-    )
-    assert source_delta == "".join(f"A\0{path}\0" for path in additions)
-    assert not git("diff", "--name-only", "HEAD", "--", "src")
-    assert not git("ls-files", "--others", "--exclude-standard", "-z", "--", "src")
+    assert proof["overall"] == "PASS"
     assert not git("diff", "--name-only", gate.ENTRY, "HEAD", "--", "migrations", "apps")

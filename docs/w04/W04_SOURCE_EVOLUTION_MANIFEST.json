@@ -1,0 +1,27 @@
+{
+  "schema_version": "w04-source-evolution-manifest-v1",
+  "policy_id": "W04-DEVCTRL-01",
+  "w03_baseline_sha": "af61bdfd5f7cf7961811c4c2dc8e554dd7eed509",
+  "w04_source_root": "src/flowlens/investigation",
+  "checkpoints": [
+    {
+      "checkpoint": "W04-C01",
+      "state": "CLOSED",
+      "source_freeze_sha": "084c2fea93d0e021994de015c986de9ff92bf9a3",
+      "files": [
+        {
+          "path": "src/flowlens/investigation/__init__.py",
+          "blob_oid": "c23929f85dccd78bc72ef3b2b1415c6e8eaf0452"
+        },
+        {
+          "path": "src/flowlens/investigation/contracts.py",
+          "blob_oid": "0f66bd9a0b2f063b318bd6b9dcc47d63b9c83e7e"
+        },
+        {
+          "path": "src/flowlens/investigation/enums.py",
+          "blob_oid": "9c818780423f32f144b18666784ebc9ea3abdccc"
+        }
+      ]
+    }
+  ]
+}

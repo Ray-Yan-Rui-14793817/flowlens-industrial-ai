@@ -64,6 +64,92 @@ def test_report_and_state_pass_exact_publication_proof(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize(
+    "name",
+    [
+        "W04_FIXTURE_R_DEVELOPMENT_ROUND_REPORT.md",
+        "W04_FIXTURE_GPT_INDEPENDENT_REVIEW_R1.md",
+        "W04_FIXTURE_GPT_INDEPENDENT_DEEP_REVIEW_R10.md",
+        "W04_FIXTURE_FINAL_CLOSEOUT_REPORT.md",
+    ],
+)
+def test_w04_narrow_report_grammars_pass_exact_publication(tmp_path: Path, name: str) -> None:
+    repo, base = repository(tmp_path)
+    path = f"docs/w04/checkpoints/fixture/{name}"
+    head = commit(repo, {path: "# Report\n\n```text\nPASS\n```\n"})
+    result = verify_publication(event(base, head), "pull_request", head, repo)
+    assert result["class"] == "P" and result["gate"] == "PUBLICATION_EXACT_SHA"
+    assert result["base_sha"] == base and result["head_sha"] == head
+    assert result["changed_paths"] == [path]
+
+
+@pytest.mark.parametrize(
+    "extra_path",
+    [
+        "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
+        "docs/w04/devctrl/W04_FIXTURE_HUMAN_AUTHORIZATION.md",
+        "docs/w04/devctrl/W04_FIXTURE_CONTEXT_LOCK.md",
+        "docs/w04/W04_FIXTURE_GPT_DESIGN_REVIEW_R1.md",
+        "docs/w04/W04_FIXTURE_FINAL_CLOSEOUT_REPORT.md.bak",
+        "src/flowlens/investigation/fixture.py",
+        "tests/test_fixture.py",
+        "pyproject.toml",
+        "unknown/file.md",
+    ],
+)
+def test_w04_report_mixed_delta_rejects_publication(tmp_path: Path, extra_path: str) -> None:
+    repo, base = repository(tmp_path)
+    head = commit(
+        repo,
+        {"docs/w04/W04_FIXTURE_FINAL_CLOSEOUT_REPORT.md": "# Report\n", extra_path: "fixture\n"},
+    )
+    with pytest.raises(ValueError, match="not publication-only"):
+        verify_publication(event(base, head), "pull_request", head, repo)
+
+
+@pytest.mark.parametrize(
+    ("content", "message"),
+    [
+        ("# Report\n\n```text\nunclosed\n", "unbalanced Markdown fence"),
+        ("# Report\n<<<<<<< HEAD\n", "merge-conflict marker"),
+        ("# Report\n=======\n", "merge-conflict marker"),
+        ("# Report\n>>>>>>> branch\n", "merge-conflict marker"),
+    ],
+)
+def test_w04_publication_content_defects_fail(
+    tmp_path: Path, content: str, message: str
+) -> None:
+    repo, base = repository(tmp_path)
+    head = commit(repo, {"docs/w04/W04_FIXTURE_R_DEVELOPMENT_ROUND_REPORT.md": content})
+    with pytest.raises((ValueError, subprocess.CalledProcessError)) as caught:
+        verify_publication(event(base, head), "pull_request", head, repo)
+    if isinstance(caught.value, ValueError):
+        assert message in str(caught.value)
+    else:
+        assert isinstance(caught.value, subprocess.CalledProcessError)
+        assert message == "merge-conflict marker"
+        assert b"leftover conflict marker" in caught.value.stdout
+
+
+@pytest.mark.parametrize("boundary", ["missing_base", "push", "opened", "checkout_mismatch"])
+def test_w04_publication_invalid_boundary_rejected(tmp_path: Path, boundary: str) -> None:
+    repo, base = repository(tmp_path)
+    head = commit(repo, {"docs/w04/W04_FIXTURE_FINAL_CLOSEOUT_REPORT.md": "# Report\n"})
+    payload = event(base, head)
+    event_name = "pull_request"
+    expected_head = head
+    if boundary == "missing_base":
+        payload["before"] = "0" * 40
+    elif boundary == "push":
+        event_name = "push"
+    elif boundary == "opened":
+        payload["action"] = "opened"
+    else:
+        expected_head = base
+    with pytest.raises(ValueError, match="not publication-only"):
+        verify_publication(payload, event_name, expected_head, repo)
+
+
+@pytest.mark.parametrize(
     "extra_path",
     [
         "src/flowlens/decision/signals.py",
