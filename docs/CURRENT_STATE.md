@@ -1,17 +1,74 @@
 # FlowLens Industrial AI — Current State / 当前状态
-**Last Updated / 最后更新:** 2026-09-23
 
-**Sprint / Sprint:** Week 2 — Industrial Data Foundation
+**Last Updated:** 2026-10-05 (Asia/Shanghai)
 
-**Current Project Phase / 当前阶段:** WEEK 2 CLOSED / VERIFIED / GITHUB SYNCHRONIZED (effective after Section 33 publication gate)
+**Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Implementation Status / 工程实现状态:** WEEK 2 COMPLETE; C01–C06 CLOSED / VERIFIED
+**Current Project Phase:** POST-W03 PR #6 MERGE / POST-MERGE VERIFICATION
 
-**Codex Readiness / Codex 开发就绪:** READY FOR WEEK-3 AUTHORIZATION REVIEW ONLY; WEEK 3 IMPLEMENTATION NOT AUTHORIZED
+**W03:** CLOSED / COMPLETE / VERIFIED / GITHUB SYNCHRONIZED
 
-**Week 1 Baseline / Week 1 基线:** CLOSED / VERIFIED
+**C01-C10:** CLOSED / VERIFIED / GITHUB SYNCHRONIZED
 
-> Important / 重要：C01–C06 are CLOSED / VERIFIED; C04–C06 are GITHUB SYNCHRONIZED. C06 exact-SHA CI Run #28 succeeded, independent ChatGPT review passed, and the Product Owner accepted bounded business evidence **with documented limitations**. Week 2 is CLOSED / VERIFIED / GITHUB SYNCHRONIZED only after the Section 33 publication gate. The accepted limitations and pre-Week-3 semantic-trust backlog remain unresolved by design. Week 3 implementation is NOT AUTHORIZED / NOT STARTED; only its architecture / AI-readiness / semantic-trust authorization review is ready. Sections 10 and 33 define the latest state; Sections 11–32 are historical evidence. / C01–C06 已关闭并验证，C04–C06 已与 GitHub 同步。C06 精确 SHA 的 CI Run #28 成功，独立 ChatGPT 审查通过，Product Owner 在记录限制的前提下接受了限定范围的业务证据。Week 2 仅在第 33 节发布门通过后视为已关闭、验证并与 GitHub 同步。已接受的限制及 Week 3 前的语义信任待办事项仍未解决。Week 3 实施尚未授权或开始；仅架构、AI 就绪性和语义信任授权审查已就绪。当前最新状态以第 10、33 节为准，第 11–32 节保留为历史证据。
+**GPT C10 Independent Review R1:** PASS FOR HUMAN W03-C10 BUSINESS ACCEPTANCE REVIEW
+
+**Human C10 Acceptance:** ACCEPTED — `W03-C10 HUMAN ACCEPTANCE: ACCEPTED`
+
+**Business Acceptance:** ACCEPTED by the Product Owner's overall gate; no separate A01-A10 notes/scores supplied or invented
+
+**W03 Final Closeout:** EFFECTIVE; final publication proof and synchronization PASS
+
+**C10 Implementation SHA / CI:** `57dd12db02b5650b5c04e1d1007ffc22810a74a1` / Run #81 / 37224461190 / PASS / C / FULL_EXACT_SHA
+
+**C10 Readiness Publication SHA / CI:** `dade594d3ba67825775577f46408689b733f089d` / Run #82 / 37227376986 / PASS / P / PUBLICATION_EXACT_SHA
+
+**Closeout Control SHA / CI:** `85c5e5ec19eb6db7a2921656138a9c9817702bcc` / Run #83 / 37252248950 / PASS / UNKNOWN / FULL_EXACT_SHA
+
+**Final W03 Publication SHA / CI:** `a24e2e0587f11114edd5718eb10081797e303087` / Run #84 / 37254705531 / PASS / P / PUBLICATION_EXACT_SHA
+
+**Final Publication Jobs:** Publication proof / Verification PASS; Quality / Compose / W03 SKIPPED
+
+**Accepted W03 AI Loop Gate:** F01-F10 / 38 selectors / 85 expanded cases PASS
+
+**C10 Technical Evidence / Harness:** A01-A10 10/10 EVIDENCE_READY; H01-H34 34/34 PASS
+
+**Closeout Audit:** K01-K20 20/20 PASS
+
+**C10 Closed / W03 Sprint Closed / W03 Complete:** YES / YES / YES
+
+**GPT Merge Review:** PASS FOR HUMAN W03 PR #6 MERGE AUTHORIZATION
+
+**Human Merge Authorization:** APPROVED — `W03 PR #6 MERGE AUTHORIZATION: APPROVED`
+
+**Merge Context Lock:** LOCKED in W03_PR6_MERGE_PREPARATION.md before other writes
+
+**Entry Feature Local / Tracking / Direct Remote / PR Head:** `a24e2e0587f11114edd5718eb10081797e303087`
+
+**Main / Merge Base:** `9d18ddde9fe933952a2661ee1419f13c8577605d` / unchanged before authorized GitHub merge
+
+**Entry Feature Ahead/Behind Main / Tracking:** 54/0 / 0/0; worktree/staging CLEAN
+
+**PR #6:** OPEN / DRAFT / NOT MERGED / CLEAN; auto-merge ABSENT / DISABLED
+
+**PR #6 Merge Authorized:** YES — PENDING PRE-MERGE FULL PROOF
+
+**Merge Preparation Exact-SHA CI:** PENDING ON THIS COMMIT; expected UNKNOWN / FULL_EXACT_SHA; Quality / Compose / W03 / Verification must PASS; Publication SKIPPED
+
+**Merge Method / Feature Branch:** GITHUB MERGE COMMIT ONLY / RETAINED
+
+**Post-Merge Main Proof:** REQUIRED on exact merge commit; UNKNOWN / FULL_EXACT_SHA and F01-F10 / 38 / 85 PASS
+
+**Post-W03 Implementation:** NOT AUTHORIZED
+
+**Next:** PR #6 MERGE COMMIT + POST-MERGE MAIN VERIFICATION
+
+**After Verified Merge:** GPT POST-W03 CAPABILITY-GAP / SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW
+
+**Status:** W03_MERGE_PREPARATION_PENDING_FULL_PROOF
+
+**Week 1 / Week 2 Baselines:** CLOSED / VERIFIED
+
+> OBSERVED: Final W03 publication and synchronization passed on the entry head. The supplied GPT merge review passed for Human authorization; the active Product Owner request approved the bounded PR #6 merge task. All 13 package checksums and read-only entry facts matched. Current status is normalized; historical Sections 1-60 and C01-C10 semantics are preserved. This seven-path preparation still requires its own exact-SHA full proof before PR body/ready changes and guarded GitHub merge. Future merge completion/main CI facts belong in the final handoff after verification.
 
 ---
 
@@ -2497,3 +2554,2020 @@ WEEK 3 AUTHORIZATION REVIEW: READY
 ```
 
 **Next Engineering Checkpoint:** CHATGPT W03 ARCHITECTURE / AI-READINESS / SEMANTIC-TRUST AUTHORIZATION REVIEW
+
+---
+
+## 34. W03-G0-P1 — Governance Repository Publication
+
+**Date:** 2026-09-24\
+**Starting main baseline:** `9d18ddde9fe933952a2661ee1419f13c8577605d`\
+**Branch:** `feat/w03-ai-decision-loop`\
+**Governance publication SHA:** `1a5d54d691304f3eefbb82863682ac8bcde39f29`\
+**Primary loop:** Order Delivery Risk Decision Loop\
+**Product mode:** OFFLINE / SHADOW / HUMAN-IN-THE-LOOP
+
+The Product Owner authorized this governance publication and creation of the
+W03 feature branch from the verified main baseline. The task-level branch
+sequence governs this publication; it does not authorize W03-C01 implementation
+or alter the W1/W2 frozen contracts. The supplied V2 ZIP is the file payload,
+and all selected ZIP artifacts were found verbatim in the V2 Master. The
+repository copies differ only where Markdown hard breaks were normalized for
+Git whitespace validation. The aggregate Master and ZIP remain handoff inputs
+outside the repository.
+
+This publication projects the G0 controls into `docs/w03/`, the W03 sprint spec
+into `docs/sprints/`, and the Context Index and Material Registry into
+`docs/context/`. Root `AGENTS.md` is now the W03 agent router; root `LOOP.md` is
+only a router to the authoritative contracts. `skills/` contains admission
+policy only, with no executable project Skill. The V2 G0 review and
+authorization artifacts are published under `docs/w03/reports/`.
+
+Local pre-publication verification found all referenced W03 paths in
+`AGENTS.md`, `LOOP.md`, `docs/context/CONTEXT_INDEX.md`, and the W03 sprint spec.
+The existing non-integration regression suite passed (306 passed,
+35 integration tests deselected, one accepted third-party deprecation warning).
+Ruff and strict mypy passed. Docker Compose configuration validation passed
+with a local Docker config access warning. No runtime code, tests, schema,
+migrations, dependencies, or CI workflow semantics were changed.
+
+The first governance commit was normally pushed and the direct remote W03 ref
+matched its exact SHA; remote `main` remained at the starting baseline. GitHub
+displayed the expected governance paths. The existing CI workflow does not
+include W03 in its push branch filters, and the GitHub Actions W03 branch query
+showed zero runs. The separate W03-G0-P1 publication report records this
+evidence, limitations, and reviewer questions.
+
+```text
+WEEK 1: CLOSED / PRESERVED
+WEEK 2: CLOSED / VERIFIED / MERGED TO MAIN / PRESERVED
+WEEK 3: G0 GOVERNANCE PUBLICATION COMPLETE
+G0 GPT ARCHITECTURE: COMPLETE IN SUPPLIED V2 GOVERNANCE PACKAGE
+G0 REPOSITORY PROJECTION: PUBLISHED ON feat/w03-ai-decision-loop
+CI: NOT TRIGGERED FOR W03 GOVERNANCE BRANCH
+GPT INDEPENDENT REPOSITORY REVIEW: PENDING
+HUMAN G0 CLOSEOUT: PENDING
+G0 CLOSED: NO
+W03-C01: NOT AUTHORIZED
+W03 IMPLEMENTATION: NOT STARTED
+OPERATIONAL MUTATION: NONE
+NEXT: GPT INDEPENDENT G0-P1 REPOSITORY REVIEW
+```
+
+---
+
+## 35. W03-G0-C1 — Final Governance Closeout
+
+**Date:** 2026-09-24
+**Starting main:** `9d18ddde9fe933952a2661ee1419f13c8577605d`
+**Starting W03 HEAD:** `1d552b26bd43437c28a946abba06e7b0ccf82813`
+**Governance publication:** `1a5d54d691304f3eefbb82863682ac8bcde39f29`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner supplied a PASS result for the independent W03-G0-P1 GPT
+repository review and the Human G0 decision ACCEPT. These are separate
+evidence records. The review found no BLOCKER, HIGH, or MEDIUM findings; its
+two LOW findings are documented in
+`docs/w03/reports/W03_G0_P1_GPT_INDEPENDENT_REVIEW.md`. The Human decision
+accepts G0 governance and those prescribed dispositions, not C01
+implementation or a PR merge.
+
+Draft PR [#6](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/pull/6)
+was created from `feat/w03-ai-decision-loop` to `main` as OPEN / DRAFT / NOT
+MERGED. It activated the existing `pull_request` CI path without changing the
+workflow. Initial PR CI Run #32 (`35952434600`) passed for the starting W03
+HEAD, including `Quality gate` and `Docker Compose smoke`.
+
+The Sprint Spec now identifies the actual authorized G0 transition from the
+verified main baseline through W03 branch creation, governance publication,
+independent review, Human acceptance, and G0-C1 closeout. Its original G0-R1
+candidate sequence remains explicitly labeled as historical design evidence.
+The AGENTS router, LOOP router, and skills policy remain unchanged.
+
+W1/W2 frozen contracts and historical evidence remain preserved. There is no
+runtime code, test, schema, migration, dependency, CI workflow, Docker, or
+operational-data mutation. The W2 semantic-trust backlog remains unresolved:
+post-rework release is not formalized; procurement/inventory have material/time
+association rather than order allocation; the opening inventory snapshot does
+not prove later availability; 387/800 orders fail the preferred-route
+heuristic; and 34 fully delivered orders have failed quantities not fully
+covered by recorded rework. These are W03 Semantic Trust inputs and limits.
+
+The exact final G0-C1 commit SHA and its final exact-SHA CI run are recorded in
+the Codex handoff after push. The closeout below becomes effective only when
+that commit is normally pushed, the Draft-PR synchronize CI run passes on the
+same SHA, local/tracking/direct-remote/PR HEADs match, `main` is unchanged,
+tracking is 0 ahead / 0 behind, the working tree is clean, and PR #6 stays
+OPEN / DRAFT / NOT MERGED with auto-merge disabled. If the gate fails, G0
+remains open.
+
+```text
+WEEK 1: CLOSED / PRESERVED
+WEEK 2: CLOSED / VERIFIED / MERGED TO MAIN / PRESERVED
+W03-G0 GOVERNANCE: CLOSED / VERIFIED / GITHUB SYNCHRONIZED (ONLY AFTER FINAL GATE)
+W03-G0-P1 GPT INDEPENDENT REVIEW: PASS
+W03-G0 HUMAN ACCEPTANCE: ACCEPTED
+W03 REPOSITORY PROJECTION: VERIFIED
+W03 DRAFT PR: OPEN / DRAFT / NOT MERGED
+EXACT-SHA CI PATH: ACTIVE THROUGH PULL_REQUEST TO MAIN
+W03-C01-A: NEXT GPT ARCHITECTURE / CONTRACT AUTHORIZATION CHECKPOINT
+W03-C01 IMPLEMENTATION: NOT AUTHORIZED
+W03 RUNTIME IMPLEMENTATION: NOT STARTED
+OPERATIONAL MUTATION: NONE
+```
+
+**Next authorized checkpoint after final gate:** W03-C01-A — Core AI Loop
+Contracts Authorization. G0-C1 does not authorize or start C01 implementation.
+
+---
+
+## 36. W03-C01 — Immutable Core Contracts Implementation Round
+
+**Date:** 2026-09-24
+**Starting G0 SHA:** `08c8d62b635ae5162ecbfed8be308b93006ac94d`
+**Implementation SHA:** `f779c9fd77f617e6050d5eefa91f711851c86a4f`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner supplied explicit C01 implementation authorization in the Codex
+task. The C01 Context Lock was published before the first source write. The
+implementation commit adds only the authorized C01 contract documents, immutable
+`flowlens.decision` type package, and two focused test files. It does not change
+W1/W2 source, operational schema, migrations, dependencies, CI, Docker, Compose,
+API or worker behavior. No runtime HGT or operational mutation capability was added.
+
+The focused C01 tests passed (36), the non-integration regression passed
+(342 passed, 35 integration tests deselected), Ruff and strict mypy passed,
+`git diff --check` passed, and Compose configuration validation passed. The
+exact implementation-SHA PR CI Run [#34](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/35958005313)
+(`35958005313`) completed successfully with `Quality gate` and
+`Docker Compose smoke` both successful. The full evidence is in
+`docs/w03/reports/W03_C01_R_DEVELOPMENT_ROUND_REPORT.md`.
+
+This is an implementation and evidence record, not a GPT independent review or
+Human acceptance. It becomes the current C01 review state after the separate
+report commit is published and Git/PR synchronization is verified.
+
+```text
+W03-C01: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+
+C01 IMPLEMENTATION SHA: f779c9fd77f617e6050d5eefa91f711851c86a4f
+
+C01 EXACT-SHA CI: PASS — RUN #34 / 35958005313
+
+GPT C01 REVIEW: PENDING
+
+HUMAN C01 ACCEPTANCE: PENDING
+
+C01 CLOSED: NO
+
+C02: NOT AUTHORIZED
+
+STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
+
+---
+
+## 37. W03-C01-REPAIR-01 — Independent Review Findings Repair
+
+**Date:** 2026-09-24
+**Reviewed implementation SHA:** `f779c9fd77f617e6050d5eefa91f711851c86a4f`
+**Starting report SHA:** `abc9bf6e8ea01d73373b3a4caaa976f737bd4b1b`
+**Repair implementation SHA:** `889f29a5b5a9444c0eaa6514b027edb9715ec8f0`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner supplied `HUMAN AUTHORIZATION: APPROVED` for the bounded
+same-checkpoint repair specified by the GPT independent C01 review R1 and
+`W03-C01-REPAIR-01` execution contract. The repair addresses exactly HIGH-01
+(40/64-character lowercase implementation Git OID), HIGH-02 (snapshot unknowns
+cannot reference downstream Evidence IDs), and MEDIUM-01 (selected candidate
+must occur in candidate order). It adds structural validation, focused tests,
+and C01 contract clarifications in eight authorized files. No W1/W2 baseline,
+G0 control document, schema/migration, dependency, CI workflow, or operational
+behavior changed.
+
+Focused tests passed (39), non-integration regression passed (345 passed,
+35 deselected), Ruff and strict mypy passed, diff whitespace check passed, and
+Compose configuration validation passed. Exact repair-SHA PR
+[CI Run #36](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/35981909766)
+(`35981909766`) completed successfully on
+`889f29a5b5a9444c0eaa6514b027edb9715ec8f0`; both `Quality gate` and
+`Docker Compose smoke` succeeded. The full record is in
+`docs/w03/reports/W03_C01_REPAIR_01_DELTA_REPORT.md`.
+
+This is an implementation and evidence record. GPT independent re-review and
+Human C01 acceptance remain separate pending decisions. PR #6 stays open,
+draft and unmerged; C01 remains open and C02 is unauthorized. Final
+report-commit synchronization is verified in the Codex handoff after push.
+
+```text
+W03-C01 REPAIR-01: IMPLEMENTED
+REPAIR HARNESS: PASS
+REPAIR EXACT-SHA CI: PASS — RUN #36 / 35981909766
+GPT RE-REVIEW: PENDING
+HUMAN C01 ACCEPTANCE: PENDING
+C01 CLOSED: NO
+C02 AUTHORIZED: NO
+STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
+
+---
+
+## 38. W03-C01-C1 — Final Governance Closeout
+
+**Date:** 2026-09-24
+**Starting HEAD:** `0930da1d30e170b955e32d5ec3d8adb79112c998`
+**Reviewed Repair-01 implementation:** `889f29a5b5a9444c0eaa6514b027edb9715ec8f0`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner's explicit chat message `W03-C01 HUMAN ACCEPTANCE: ACCEPTED`
+accepts the C01 implementation, Repair-01, GPT Independent Re-Review R2 PASS,
+and deferred limitations. R2 is published in
+`docs/w03/reports/W03_C01_GPT_INDEPENDENT_REREVIEW_R2.md`. The separate
+`docs/w03/reports/W03_C01_C1_FINAL_CLOSEOUT.md` records the evidence chain,
+accepted C01 capability, deferred C02–C08 boundaries, and publication gate.
+R1 findings HIGH-01, HIGH-02 and MEDIUM-01 are CLOSED by R2.
+
+The starting report-head CI Run #37 (`35983039655`) succeeded on
+`0930da1d30e170b955e32d5ec3d8adb79112c998`; repair exact-SHA CI Run #36
+(`35981909766`) succeeded on the reviewed repair implementation. This
+documentation-only closeout makes no implementation or test change, preserves
+W1/W2/G0 and historical C01 evidence, leaves `main` unchanged, and keeps
+PR #6 open, draft and unmerged with auto-merge disabled.
+
+C01 CLOSED is conditional in this committed record. It becomes effective only
+after the one closeout commit is normally pushed, its exact-SHA PR CI passes
+both required jobs, and final local/tracking/direct-remote/PR synchronization
+and clean-tree gates pass. The final commit SHA and CI run are reported in the
+Codex handoff; no second evidence commit is required.
+
+```text
+GPT C01 RE-REVIEW: PASS
+HUMAN C01 ACCEPTANCE: ACCEPTED
+C01 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL PUBLICATION GATE
+PR #6: OPEN / DRAFT / NOT MERGED
+main: UNCHANGED
+C02-A: NEXT GPT CHECKPOINT
+C02 IMPLEMENTATION: NOT AUTHORIZED
+STATUS: C01_CLOSED ONLY AFTER FINAL PUBLICATION GATE
+```
+
+---
+
+## 39. W03-C02 — Trusted Snapshot and DecisionContext Implementation Round
+
+**Date:** 2026-09-24
+**Starting C01 closeout SHA:** `c626126a81fe07b5d1f670deaeaadc809f6bea55`
+**C02 implementation/harness SHA:** `d0e6e598afb1d380331619ba02fae95fd872479f`
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner explicitly authorized W03-C02-I/H/R. The C02 Context Lock was
+published as `LOCKED` before source changes. The authorized implementation adds
+pure temporal Snapshot, Evidence, Semantic Trust, derivation and DecisionContext
+modules and one PostgreSQL `REPEATABLE READ` / `READ ONLY` snapshot adapter.
+It preserves frozen C01 and W2 contracts, schema, migrations, canonical hash,
+scenario semantics, dependencies and the runtime HGT boundary. It adds no C03
+capability or operational write.
+
+Focused C02 tests (22), frozen C01 regression (39), non-integration regression
+(367), all PostgreSQL integration tests (43, including 8 C02), Ruff, strict
+mypy, Compose configuration and the C01-to-C02 diff check passed. Temporal and
+future-tail, Semantic Trust, inventory freshness, quality unknown, replay,
+HGT isolation and no-mutation checks are recorded in
+[`W03_C02_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C02_R_DEVELOPMENT_ROUND_REPORT.md).
+Exact implementation/harness SHA
+[CI Run #41](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/35998586313)
+(`35998586313`) succeeded; `Quality gate` and `Docker Compose smoke` both passed.
+
+The recovery audit confirmed clean local/tracking/direct-remote/PR synchronization
+at the implementation/harness SHA before the separate report commit. PR #6
+remained open, draft and unmerged, and `main` stayed at
+`9d18ddde9fe933952a2661ee1419f13c8577605d`. This reporting commit changes
+only this historical/current entry and the C02 Development Round Report.
+Independent GPT review and Human acceptance remain pending. C02 is not closed;
+C03 remains unauthorized.
+
+```text
+W03-C02: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+C02 IMPLEMENTATION/HARNESS SHA: d0e6e598afb1d380331619ba02fae95fd872479f
+C02 EXACT-SHA CI: PASS — RUN #41 / 35998586313
+GPT C02 REVIEW: PENDING
+HUMAN C02 ACCEPTANCE: PENDING
+C02 CLOSED: NO
+C03: NOT AUTHORIZED
+STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
+
+### W03-C02-REPAIR-01 — R1 MEDIUM-01 harness repair
+
+GPT Independent Review R1 found that the cross-dataset future-tail harness
+did not yet compare uncertainty and DecisionContext semantics. The Product
+Owner explicitly authorized this bounded repair. Starting report HEAD was
+`af742b7bbc602a66eaea89774e94a69e7825d814`. The new harness-only
+repair commit is `90767ae555178db3d7af4cc6555fa7593ac056bf`; it changes
+only `tests/test_decision_temporal.py`. It compares normalized source,
+Evidence, EvidenceBundle uncertainty and DecisionContext semantics across
+different future tails and dataset hashes, including missing inventory,
+quality and procurement evidence and a conflict case. No runtime source or
+frozen contract changed.
+
+Focused C02 tests (26), C01 regression (39), non-integration tests (371),
+guarded C02 PostgreSQL integration (8), Ruff, strict mypy, diff check and
+Compose configuration passed. Exact repair-SHA
+[CI Run #43](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36018976342)
+(`36018976342`) succeeded with both `Quality gate` and `Docker Compose smoke`
+passing. The full evidence and remaining review boundary are recorded in
+[`W03_C02_REPAIR_01_DELTA_REPORT.md`](w03/reports/W03_C02_REPAIR_01_DELTA_REPORT.md).
+GPT C02 re-review and Human acceptance remain pending. C02 is not closed;
+C03 is not authorized. R1 `LOW-01` top metadata cleanup remains deferred to
+final C02 closeout.
+
+```text
+W03-C02-REPAIR-01: IMPLEMENTED / CODEX VERIFIED / PENDING GPT RE-REVIEW
+C02 REPAIR IMPLEMENTATION SHA: 90767ae555178db3d7af4cc6555fa7593ac056bf
+C02 EXACT REPAIR-SHA CI: PASS — RUN #43 / 36018976342
+GPT C02 RE-REVIEW: PENDING
+HUMAN C02 ACCEPTANCE: PENDING
+C02 CLOSED: NO
+C03: NOT AUTHORIZED
+STATUS: REVIEW_READY AFTER REPORT-COMMIT PUBLICATION
+```
+
+---
+
+## 40. W03-C02-C1 — Final Closeout
+
+**Date:** 2026-09-24
+
+**Starting repair report SHA:** `e222b85f85ef3d419f22b761457973a167f34231`
+
+**Reviewed repair implementation SHA:** `90767ae555178db3d7af4cc6555fa7593ac056bf`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+GPT Independent Re-Review R2 returned **PASS** and closed R1 `MEDIUM-01`.
+The Product Owner separately supplied `W03-C02 HUMAN ACCEPTANCE: ACCEPTED`
+and `W03-C02-C1 CLOSEOUT AUTHORIZATION: APPROVED` in chat. Run #44
+(`36020407915`) succeeded on the exact starting report SHA with both Quality
+gate and Docker Compose smoke successful. The authorized documentation-only
+closeout publishes the [R2 review](w03/reports/W03_C02_GPT_INDEPENDENT_REREVIEW_R2.md)
+and the [final closeout report](w03/reports/W03_C02_C1_FINAL_CLOSEOUT.md).
+The top current-state metadata and the W03 Sprint Spec current-status surface
+are normalized, closing R1 `LOW-01` without modifying source or tests.
+
+Historical sections remain unchanged. C02 adds no C03 capability. PR #6
+remains open, draft and unmerged; main remains at
+`9d18ddde9fe933952a2661ee1419f13c8577605d`. Final closure is effective
+only after the closeout commit's exact-SHA CI and final Git/PR synchronization
+gates pass; the final SHA and CI run are reported in the Codex handoff.
+
+```text
+W03-C02: CLOSED / VERIFIED / GITHUB SYNCHRONIZED — EFFECTIVE ONLY AFTER FINAL PUBLICATION GATE
+GPT C02 RE-REVIEW: PASS
+HUMAN C02 ACCEPTANCE: ACCEPTED
+R1 MEDIUM-01: CLOSED
+R1 LOW-01: CLOSED BY DOCUMENTATION NORMALIZATION
+C02 CONTRACT BLOCKER: NONE
+C03: NOT STARTED / NOT AUTHORIZED
+NEXT: GPT W03-C03-A AUTHORIZATION / CONTRACT FREEZE
+```
+
+---
+
+## 41. W03-DEVCTRL-01 — Development Verification Latency Hardening
+
+**Date:** 2026-09-25
+
+**Starting C02 closeout SHA:** `28173582661bc4bba5f254928ab8a9bbb5de63a0`
+
+**DEVCTRL-01 implementation SHA:** `c8ee00e172d116512d25e7c642ecd11ec45e3c73`
+
+The Product Owner explicitly authorized W03-DEVCTRL-01-I/H/R. The three
+authorization artifacts were checked for readability and consistency; the
+[DEVCTRL-01 Context Lock](w03/checkpoints/devctrl01/W03_DEVCTRL_01_CONTEXT_LOCK.md)
+was published as `LOCKED` before implementation. The change adds a
+deterministic P/C/I/F classifier, a publication-only verifier and a stable
+`Verification gate` in the existing CI workflow. Unknown and unproven
+boundaries require the full gate. The full Quality and Docker Compose jobs
+remain required for control, implementation and foundation changes.
+
+The exact implementation SHA received
+[CI Run #46](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36094916122)
+(`36094916122`): class `C / FULL_EXACT_SHA`, Quality PASS, Compose PASS,
+Publication skipped, Verification gate PASS. Local classifier/publication
+tests, 417 non-integration tests, 43 guarded PostgreSQL integration tests,
+Ruff, strict mypy and Compose configuration also passed. The full evidence
+and authorized file list are in the
+[DEVCTRL-01 Development Round Report](w03/reports/W03_DEVCTRL_01_R_DEVELOPMENT_ROUND_REPORT.md).
+No runtime source, schema, migration, dependency, Docker/Compose, Sprint,
+W1/W2 or C01/C02 contract changed. Main remains at
+`9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open,
+draft and unmerged. C03 implementation has not started.
+
+This entry and the Round Report form the first publication-only commit under
+the new policy. Its exact SHA and proof result will be recorded in the Codex
+handoff after CI finishes. GPT independent review and Human acceptance are
+pending. DEVCTRL-01 is not closed.
+
+```text
+W03-DEVCTRL-01: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION EXACT-SHA CI: PASS — RUN #46 / 36094916122
+REPORT PUBLICATION EXACT-SHA CI: PENDING ON THIS COMMIT
+GPT REVIEW: PENDING
+HUMAN ACCEPTANCE: PENDING
+DEVCTRL-01 CLOSED: NO
+C03 IMPLEMENTATION AUTHORIZED: NO
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
+
+---
+
+## 42. W03-DEVCTRL-01-C1 — Final Closeout
+
+**Date:** 2026-09-25
+
+**Starting C02 closeout SHA:** `28173582661bc4bba5f254928ab8a9bbb5de63a0`
+
+**DEVCTRL-01 implementation SHA:** `c8ee00e172d116512d25e7c642ecd11ec45e3c73`
+
+**DEVCTRL-01 Round Report SHA:** `f66246789919c17ca567344ca033edc991806279`
+
+GPT Independent Review R1 returned **PASS FOR HUMAN ACCEPTANCE**, with no
+BLOCKER, HIGH or MEDIUM finding and no repair requirement. The Product Owner
+separately supplied `W03-DEVCTRL-01 HUMAN ACCEPTANCE: ACCEPTED` and
+`W03-DEVCTRL-01-C1 CLOSEOUT AUTHORIZATION: APPROVED` in chat.
+
+The accepted implementation received full exact-SHA proof in Run #46
+(`36094916122`) on `c8ee00e172d116512d25e7c642ecd11ec45e3c73`:
+class `C / FULL_EXACT_SHA`, Quality PASS, Docker Compose PASS, Publication
+proof skipped and Verification gate PASS. The separate Round Report commit
+received publication exact-SHA proof in Run #47 (`36095516535`) on
+`f66246789919c17ca567344ca033edc991806279`: class
+`P / PUBLICATION_EXACT_SHA`, Publication proof PASS, Quality and Docker
+Compose skipped, and Verification gate PASS.
+
+This authorized closeout publishes the
+[GPT Independent Review R1](w03/reports/W03_DEVCTRL_01_GPT_INDEPENDENT_REVIEW_R1.md)
+and the
+[final closeout report](w03/reports/W03_DEVCTRL_01_C1_FINAL_CLOSEOUT.md),
+and updates only this current-state document. It freezes the accepted mapping
+`P -> PUBLICATION_EXACT_SHA`; `C / I / F / UNKNOWN -> FULL_EXACT_SHA`;
+unknown or ambiguous deltas -> FULL; and the stable final job ->
+`Verification gate`. The reviewed limitations remain recorded in the closeout
+report.
+
+No implementation, workflow, script, test, runtime source, checkpoint
+contract, harness specification, Sprint document, AGENTS.md, LOOP.md, skill,
+schema, migration, dependency, lock file, Docker or Compose surface changes.
+PR #6 remains open, draft and unmerged; main remains at
+`9d18ddde9fe933952a2661ee1419f13c8577605d`. Final GitHub synchronization is
+effective only after the closeout commit receives its exact-SHA publication
+proof and local/tracking/direct-remote/PR synchronization passes. The final
+SHA and CI run are reported in the Codex handoff.
+
+```text
+W03-DEVCTRL-01: CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING
+GPT REVIEW: PASS
+HUMAN ACCEPTANCE: ACCEPTED
+OPTIMIZED DEVELOPMENT VERIFICATION: ACCEPTED
+C03 IMPLEMENTATION: NOT STARTED / NOT AUTHORIZED BY THIS CLOSEOUT
+NEXT: GPT W03-C03-A PACKAGE NORMALIZATION / AUTHORIZATION
+```
+
+---
+
+## 43. W03-C03 — Deterministic Signal and Structured Diagnosis Implementation Round
+
+**Date:** 2026-09-25
+
+**Starting DEVCTRL-01 closeout SHA:** `2e84a6dfdbdbd81cf5ea9ad0b555fdf1707db978`
+
+**C03 implementation SHA:** `00af5f9dbe292e2b0f7bb4a551a15c00a65c1f75`
+
+The Product Owner supplied `W03-C03 HUMAN AUTHORIZATION: APPROVED` and later
+authorized recovery of the same checkpoint without discarding valid work. A
+read-only recovery audit preserved the existing authorized delta and confirmed
+the branch, remote, PR and frozen-main boundaries before execution resumed.
+The [C03 Context Lock](w03/checkpoints/c03/W03_C03_CONTEXT_LOCK.md) remained
+`LOCKED`.
+
+C03 adds four pure deterministic decision modules and five C03 test files,
+along with the authorized checkpoint contracts/specifications. Runtime input
+is limited to `EvidenceBundle + DecisionContext`. The implementation emits
+exactly eight frozen Signal types, keeps `CAPACITY_PRESSURE` UNKNOWN-only,
+uses the explicitly limited QUEUE_DELAY start-slippage proxy and narrow
+non-probabilistic DELIVERY_RISK rule, and synthesizes only fixed structured
+non-causal Diagnosis claims. It adds no database, filesystem, network, model,
+HGT, scenario, clock, random, subprocess, recommendation or operational-write
+capability.
+
+Local verification passed 51 focused C03 tests, 39 C01 regression tests, 26
+C02 regression tests, 468 non-integration tests, five guarded C03 PostgreSQL
+tests, Ruff, strict mypy, diff checks and Compose configuration. All 36 golden
+acceptance vectors, future-tail mutation families, critical-conflict and
+tamper cases, scenario-backed direction smoke, route variance and forbidden
+inference negatives passed. Exact implementation-SHA
+[CI Run #49](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36133208015)
+(`36133208015`) classified the delta `I / FULL_EXACT_SHA` and completed with
+Quality PASS, Docker Compose PASS, Publication skipped and Verification PASS.
+Remote Quality passed 48 integration and 468 non-integration tests.
+
+The complete evidence is in the
+[W03-C03 Development Round Report](w03/reports/W03_C03_R_DEVELOPMENT_ROUND_REPORT.md).
+This entry and that report are the exact two-file publication commit. The
+commit's own SHA and `P / PUBLICATION_EXACT_SHA` result are reported in the
+Codex handoff after CI completes. PR #6 remains open, draft and unmerged; main
+remains `9d18ddde9fe933952a2661ee1419f13c8577605d`. GPT review and Human
+acceptance remain pending. C03 is not closed and C04 is not authorized.
+
+```text
+W03-C03: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION FULL EXACT-SHA: PASS — RUN #49 / 36133208015
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C03 REVIEW: PENDING
+HUMAN C03 ACCEPTANCE: PENDING
+C03 CLOSED: NO
+C04 AUTHORIZED: NO
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
+
+---
+
+## 44. W03-C03-C1 — Final Closeout
+
+**Date:** 2026-09-26
+
+**Starting repair report SHA:** `6b67c84043d305977711e9a5d55ba5fd28acbce2`
+
+**Reviewed repair implementation SHA:** `398ecde6f35fdd5773e6b4bb29ed5b9d0a662991`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+GPT Independent Re-Review R2 returned **PASS FOR HUMAN C03 ACCEPTANCE** and
+closed R1 `HIGH-01`, `MEDIUM-01`, `LOW-01`, and `LOW-02` for review. The
+Product Owner separately supplied `W03-C03 HUMAN ACCEPTANCE: ACCEPTED` and
+`W03-C03-C1 CLOSEOUT AUTHORIZATION: APPROVED` in chat. The authorized
+documentation/governance-only closeout publishes the
+[GPT R2 review](w03/reports/W03_C03_GPT_INDEPENDENT_REREVIEW_R2.md) and the
+[final closeout report](w03/reports/W03_C03_C1_FINAL_CLOSEOUT.md).
+
+The accepted repair implementation received full exact-SHA proof in Run #51
+(`36142738931`) on `398ecde6f35fdd5773e6b4bb29ed5b9d0a662991` as
+`I / FULL_EXACT_SHA`: Quality PASS, Docker Compose PASS, Publication skipped
+and Verification PASS. The separate repair report received publication
+exact-SHA proof in Run #52 (`36218585878`) on
+`6b67c84043d305977711e9a5d55ba5fd28acbce2` as
+`P / PUBLICATION_EXACT_SHA`: Publication proof PASS, Verification PASS, and
+Quality/Docker Compose skipped.
+
+R1 `LOW-02` final-state normalization is completed only in the top current
+fields and this new authoritative section. Historical Sections 1–43,
+including Section 43's implementation-round pending-review evidence, remain
+preserved. No source, tests, W03 Sprint Spec, AGENTS.md, LOOP.md, skills,
+workflow, CI script, schema, migration, dependency, lock file, Docker/Compose,
+API or worker surface changes. No C04 capability is authorized or started.
+
+PR #6 remains open, draft and unmerged; main remains
+`9d18ddde9fe933952a2661ee1419f13c8577605d`. C03 closure is effective only
+after this closeout commit receives successful exact-SHA publication proof and
+final local/tracking/direct-remote/PR synchronization passes. The closeout SHA
+and CI run are reported in the Codex handoff under the immutable-record rule.
+
+```text
+W03-C03: CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING
+GPT C03 RE-REVIEW: PASS
+HUMAN C03 ACCEPTANCE: ACCEPTED
+R1 HIGH-01: CLOSED
+R1 MEDIUM-01: CLOSED
+R1 LOW-01: CLOSED
+R1 LOW-02: CLOSED BY FINAL-STATE NORMALIZATION
+C03 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL PUBLICATION GATE
+C04 AUTHORIZED: NO
+NEXT: GPT W03-C04-A AUTHORIZATION / CONTRACT REVIEW
+```
+
+---
+
+## 45. W03-C04 — Intervention Registry and Counterfactual Simulation Implementation Round
+
+**Date:** 2026-09-26
+
+**Starting C03 closeout SHA:** `1c0f4de6f897d9e377fba63891773bb5970e74b7`
+
+**C04 final implementation SHA:** `62405d7169b1aaea321290749395ab077792f86f`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner supplied `W03-C04 HUMAN AUTHORIZATION: APPROVED` and later
+authorized quota recovery of the same lifecycle without discarding valid
+partial work. The read-only recovery audit classified the state as **A** and
+confirmed synchronized repository/remote/PR heads, a clean Git-operation
+state, authorized paths only, a `LOCKED` C04 Context Lock and exact frozen
+scenario config/HGT hashes before work resumed.
+
+C04 publishes the exact four-family intervention registry and deterministic
+CandidateSet, maps Supplier/Quality/Capacity associations to conservative W2
+stress probes, keeps NO_ACTION as a neutral comparator, and produces
+deterministic SimulationResult/SimulationBundle artifacts with the frozen raw
+measurement schema. Non-NO_ACTION execution is limited to a bound, detached,
+fully closed in-memory observation. The runtime returns `UNAVAILABLE` without
+calling the scenario engine at earlier as-of times and never uses a
+future-containing full dataset for earlier reasoning.
+
+The authorized W2 compatibility refactor adds an HGT-free business-only
+adapter and lazy package boundary while preserving public scenario API,
+business dataset identity/content, HGT identity/hash/payload and all frozen
+Supplier/Quality/Capacity behavior. Every non-NO_ACTION artifact explicitly
+states that the stress probe is not intervention efficacy and that frozen W2
+selection is not guaranteed to target the current order.
+
+Mandatory pre-review finding `MEDIUM-01` is **CLOSED**. Typed
+`ScenarioPreconditionUnavailable` produces `UNAVAILABLE`; unexpected
+`ValueError`, `RuntimeError` and other errors produce sanitized `FAILED`;
+baseline mutation on every error path hard-fails as `C04_BASELINE_MUTATION`.
+The harness also proves exact canonical candidate-parameter to executed
+ScenarioConfig binding for all three scenario families.
+
+Local verification passed 24 focused C04 tests, 39 frozen C01 tests, 26 frozen
+C02 tests, 77 C03 tests, 154 frozen W2 scenario/HGT tests and 518
+non-integration tests. Ruff, strict mypy over 98 source files, diff checks and
+Compose configuration passed. The local PostgreSQL guard was unset; the final
+exact-SHA CI Quality gate supplied the guarded 48-test integration proof and
+the 518-test non-integration proof.
+
+Final implementation SHA
+[`62405d7169b1aaea321290749395ab077792f86f`](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/commit/62405d7169b1aaea321290749395ab077792f86f)
+received exact-SHA [Run #55](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36227210323):
+class `I / FULL_EXACT_SHA`, Quality PASS, Docker Compose PASS, Publication
+skipped, Verification PASS and successful workflow conclusion. The complete
+evidence is in
+[`W03_C04_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C04_R_DEVELOPMENT_ROUND_REPORT.md).
+
+This entry and that Round Report are the exact two-file publication commit.
+Its commit SHA and `P / PUBLICATION_EXACT_SHA` result are reported in the
+Codex handoff after CI. Main remains
+`9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged. GPT review and Human acceptance remain pending. C04 is not closed
+and C05 is not authorized.
+
+```text
+W03-C04: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION FULL EXACT-SHA: PASS — RUN #55 / 36227210323
+QUOTA RECOVERY: RESUMED / STATE A
+MEDIUM-01: CLOSED
+CANDIDATE PARAMETER -> EXECUTED CONFIG BINDING: PASS
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C04 REVIEW: PENDING
+HUMAN C04 ACCEPTANCE: PENDING
+C04 CLOSED: NO
+C05 AUTHORIZED: NO
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
+
+---
+
+## 46. W03-C04-R1 — Harness Evidence Hardening
+
+**Date:** 2026-09-26
+
+**Entry C04 report SHA:** `4e9a52af845d44e0166a855e9d4c0259bca4be7b`
+
+**Accepted C04 implementation SHA:** `62405d7169b1aaea321290749395ab077792f86f`
+
+**R1 harness repair SHA:** `ae54dbc23effedf59566306d209a03b7290a299e`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C04-R1` as a bounded review-repair and
+harness-evidence-hardening lifecycle. The repair changes exactly
+`tests/test_c04_simulation.py`, `tests/test_c04_harness.py`, and
+`tests/test_c04_scenario_adapter_compat.py`. No runtime source, frozen C04/W2
+semantic contract, C03 behavior, HGT behavior, schema, migration, dependency,
+CI/control-plane, or C05 surface changed.
+
+All four GPT R1 findings are closed for R2 re-review. The harness directly
+proves successful canonical C04 wrapper execution for Supplier, Quality and
+Capacity; byte-identical same-process and twice-independent fresh-process
+replay of the full successful SimulationBundle; independent ownership-free
+semantic diff inclusion of Capacity-created business rows; and business-only
+adapter equivalence with legacy W2 behavior for Capacity combined,
+arrival-only, queue-only and neutral modes. Existing NO_ACTION, temporal,
+binding, mutation, typed-error, sanitization, HGT-isolation, capability-denial
+and regression assertions remain intact.
+
+Local verification passed 31 focused C04 tests, 77 C03 tests, 26 C02 tests,
+39 C01 tests, 154 W2 scenario/HGT tests and 525 non-integration tests. Ruff,
+strict mypy over 98 source files, diff checks and Compose configuration passed.
+The local PostgreSQL guard was unset. Exact repair-SHA
+[Run #57](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36244584464)
+(`36244584464`) classified the exact delta `I / FULL_EXACT_SHA` and passed
+Quality, Docker Compose and Verification with Publication proof skipped; the
+Quality gate supplied 48 guarded integration passes and the complete 525-test
+non-integration proof.
+
+The full evidence is in
+[`W03_C04_R1_HARNESS_REPAIR_REPORT.md`](w03/reports/W03_C04_R1_HARNESS_REPAIR_REPORT.md).
+This entry and that report are the exact two-file publication commit. Its SHA
+and `P / PUBLICATION_EXACT_SHA` proof are reported in the final Codex handoff.
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged. GPT C04 R2 re-review and Human acceptance remain pending. C04 is not
+closed and C05 is not authorized.
+
+```text
+W03-C04-R1: IMPLEMENTED / CODEX VERIFIED
+R1 MEDIUM-01: CLOSED
+R1 MEDIUM-02: CLOSED
+R1 LOW-01: CLOSED
+R1 LOW-02: CLOSED
+RUNTIME SOURCE CHANGES: NONE
+REPAIR FULL EXACT-SHA: PASS — RUN #57 / 36244584464
+REPAIR REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C04 R2 RE-REVIEW: PENDING
+HUMAN C04 ACCEPTANCE: PENDING
+C04 CLOSED: NO
+C05 AUTHORIZED: NO
+STATUS: REVIEW_READY_FOR_GPT_R2 ONLY AFTER PUBLICATION GATE
+```
+
+---
+
+## 47. W03-C04-C1 — Final Closeout
+
+**Date:** 2026-09-26
+
+**Entry R1 report SHA:** `933aada93d1db91cce0165e794d41dc759d8dc74`
+
+**Accepted C04 implementation SHA:** `62405d7169b1aaea321290749395ab077792f86f`
+
+**Accepted R1 harness repair SHA:** `ae54dbc23effedf59566306d209a03b7290a299e`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+GPT C04 Independent Re-Review R2 returned **PASS FOR HUMAN C04 ACCEPTANCE**
+and closed R1 `MEDIUM-01`, `MEDIUM-02`, `LOW-01`, and `LOW-02`. It reported
+no BLOCKER, HIGH, MEDIUM or contract blocker. The Product Owner separately
+supplied `W03-C04 HUMAN ACCEPTANCE: ACCEPTED` and `W03-C04-C1 CLOSEOUT
+AUTHORIZATION: APPROVED` in chat.
+
+The accepted C04 implementation received full exact-SHA proof in Run #55
+(`36227210323`) on `62405d7169b1aaea321290749395ab077792f86f` as
+`I / FULL_EXACT_SHA`: Quality PASS, Docker Compose PASS, Publication skipped
+and Verification PASS. The test-only R1 harness repair received full
+exact-SHA proof in Run #57 (`36244584464`) on
+`ae54dbc23effedf59566306d209a03b7290a299e` as `I / FULL_EXACT_SHA`, with the
+same required job disposition. The separate R1 report received publication
+exact-SHA proof in Run #58 (`36245190187`) on
+`933aada93d1db91cce0165e794d41dc759d8dc74` as
+`P / PUBLICATION_EXACT_SHA`: Publication proof PASS, Verification PASS, and
+Quality/Docker Compose skipped.
+
+This authorized documentation/governance-only closeout publishes the
+[GPT C04 R2 review](w03/reports/W03_C04_GPT_INDEPENDENT_REREVIEW_R2.md) and
+the [final closeout report](w03/reports/W03_C04_C1_FINAL_CLOSEOUT.md). It
+changes exactly those two new reports and this current-state document. No
+source, test, runtime, frozen C04 contract, C03, W2, W03 Sprint Spec, workflow,
+CI/control-plane, schema, migration, dependency, lock file, Docker/Compose,
+API, worker or C05 surface changes.
+
+Runtime HGT access, post-C02 runtime database access and operational mutation
+remain **NONE**. Recommendation, scoring and ranking remain outside C04. The
+three non-`NO_ACTION` simulations remain stress probes for human investigation
+rather than modeled intervention efficacy, and frozen W2 scenario selection
+remains not guaranteed to target the current order.
+
+PR #6 remains open, draft and unmerged; main remains
+`9d18ddde9fe933952a2661ee1419f13c8577605d`. C04 closure is effective only
+after this closeout commit receives successful exact-SHA publication proof
+and final local/tracking/direct-remote/PR synchronization passes. The closeout
+SHA and CI run are reported in the Codex handoff under the immutable-record
+rule. C05 remains unauthorized; the next governance step is only GPT W03-C05
+authorization/contract review.
+
+```text
+W03-C04: CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING
+GPT C04 R2: PASS
+HUMAN C04 ACCEPTANCE: ACCEPTED
+CLOSEOUT AUTHORIZATION: APPROVED
+R1 MEDIUM-01: CLOSED
+R1 MEDIUM-02: CLOSED
+R1 LOW-01: CLOSED
+R1 LOW-02: CLOSED
+C1 SOURCE CHANGES: NONE
+C1 TEST CHANGES: NONE
+C04 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
+C05 AUTHORIZED: NO
+NEXT: GPT W03-C05 AUTHORIZATION / CONTRACT REVIEW
+```
+
+---
+
+## 48. W03-C05 — Deterministic Recommendation and DecisionPacket
+
+**Date:** 2026-09-27
+
+**Starting C04 closeout SHA:** `c47c6e6d2088bf024ee7bccb9c6e8746c1e49466`
+
+**C05 implementation SHA:** `9614bb8cf3cfa558b87464b1de81c1905b2d8eec`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C05-I/H/R`. The Context Lock was published
+before implementation and remains `LOCKED`. The final implementation commit
+contains exactly the authorized 24-path C05 contract, specification, runtime
+and test delta. No C01-C04 or W2 source, dependency, schema, migration,
+CI/control-plane, Docker/Compose, API/worker or C06 surface changed.
+
+C05 validates canonical upstream C01-C04 artifacts, applies deterministic
+categorical evaluation policy, freezes a grounded RecommendationRecord and
+assembles an immutable DecisionPacket. No aggregate numeric score exists and
+`CANDIDATE_RECOMMENDED` is not emitted. `NO_ACTION`, `NO_RECOMMENDATION`,
+`INVESTIGATION_ONLY`, `DEFER_TO_HUMAN`, tie, partial-comparison and
+stress-effect-direction policies pass. Same-process and independent
+fresh-process replay pass for both RecommendationRecord and DecisionPacket.
+
+Runtime HGT access, post-C02 database access, C05 scenario execution,
+filesystem/network/model/subprocess/random/wall-clock capability and
+operational mutation are all **NONE**. Candidate invention and causal claims
+remain prohibited; Human decision authority remains final.
+
+Local recovery verification passed 32 focused C05 tests and the accepted 154
+test W2 scenario/HGT regression pack. Ruff, strict mypy over 107 source files,
+diff checks and Compose configuration passed. Exact implementation SHA
+[Run #60](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36264633796)
+(`36264633796`) classified the exact 24-path delta `I / FULL_EXACT_SHA` and
+passed Quality, Docker Compose and Verification with Publication proof
+skipped. CI supplied 48 integration passes with 557 deselected and 557
+non-integration passes with 48 deselected.
+
+The complete evidence is in
+[`W03_C05_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C05_R_DEVELOPMENT_ROUND_REPORT.md).
+This entry and that report are the exact two-file publication commit. Its SHA
+and `P / PUBLICATION_EXACT_SHA` proof are reported in the final Codex handoff.
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged with auto-merge absent/disabled. GPT C05 review and Human acceptance
+remain pending. C05 is not closed and C06 is not authorized.
+
+```text
+W03-C05: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION FULL EXACT-SHA: PASS — RUN #60 / 36264633796
+RECOVERY STATE: A / IMPLEMENTATION PROOF COMPLETE — REPORT PHASE RESUMED
+FOCUSED C05: 32 PASS
+W2 REGRESSION: 154 PASS
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C05 REVIEW: PENDING
+HUMAN C05 ACCEPTANCE: PENDING
+C05 CLOSED: NO
+C06 AUTHORIZED: NO
+NEXT: GPT C05 INDEPENDENT REVIEW
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
+
+---
+
+## 49. W03-C05-R1 — Harness Evidence Hardening
+
+**Date:** 2026-09-27
+
+**Entry C05 report SHA:** `79af66728650b1cf42df0163e3efafb11293e7b1`
+
+**Original C05 implementation SHA:** `9614bb8cf3cfa558b87464b1de81c1905b2d8eec`
+
+**R1 harness repair SHA:** `b249ee1b90140038e8ce13f3cbc6cdd1f50ddef8`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+GPT C05 Independent Review R1 returned **REPAIR REQUIRED** with no BLOCKER,
+no HIGH finding and one mandatory MEDIUM-01 harness-evidence gap. The Product
+Owner authorized `W03-C05-R1` as a bounded TEST/HARNESS-only repair. The
+single repair implementation commit changes exactly the four C05 test files;
+runtime source, frozen C01-C05 contracts, C01-C04 behavior, W1/W2 source and
+tests, schema, migrations, dependencies, CI/control-plane, Docker/Compose,
+API/worker and C06-C08 surfaces are unchanged.
+
+The hardened suite directly attacks canonical C03 Signals/Diagnosis, C04
+CandidateSet and SimulationBundle/result bindings and schemas, the 21-field
+categorical evaluation envelope, semantic ties, strict-neutral blockers,
+excluded metric influence, Evidence grounding, uncertainty/limitation
+preservation, every required disposition, runtime capability boundaries and
+forbidden DecisionPacket content. Canonical result/bundle identities are
+recomputed around targeted attacks. No new test exposed a runtime defect.
+
+Local verification passed 98 focused C05 tests, 31 C04 tests, 77 C03 tests,
+65 C01/C02 decision tests, the accepted 154-test W2 scenario/HGT pack and 623
+non-integration tests with 48 integration tests deselected. Ruff, strict mypy
+over 107 source files, diff checks and Compose configuration passed. The one
+warning remains the existing Starlette/httpx deprecation. Local guarded
+PostgreSQL was not run because both safety variables were unset.
+
+Exact repair-SHA
+[Run #62](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36295679230)
+(`36295679230`) classified the exact four-path delta `I / FULL_EXACT_SHA` and
+passed Quality, Docker Compose and Verification with Publication proof
+skipped. CI supplied 48 guarded integration passes with 623 deselected and a
+successful 623-test non-integration partition.
+
+The full evidence is in
+[`W03_C05_R1_HARNESS_REPAIR_REPORT.md`](w03/reports/W03_C05_R1_HARNESS_REPAIR_REPORT.md).
+This entry and that report are the exact two-file publication commit. Its SHA
+and `P / PUBLICATION_EXACT_SHA` proof are reported in the final Codex handoff.
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged with auto-merge absent/disabled. GPT C05 R2 re-review and Human
+acceptance remain pending. C05 is not closed and C06 is not authorized.
+
+```text
+W03-C05-R1: IMPLEMENTED / CODEX VERIFIED
+R1 MEDIUM-01: CLOSED FOR GPT R2 RE-REVIEW
+REPAIR CLASS: TEST/HARNESS ONLY
+RUNTIME SOURCE CHANGES: NONE
+ADVERSARIAL MATRIX: PASS
+H1-H19 EVIDENCE: PASS
+REPAIR FULL EXACT-SHA: PASS — RUN #62 / 36295679230
+REPAIR REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C05 R2 RE-REVIEW: PENDING
+HUMAN C05 ACCEPTANCE: PENDING
+C05 CLOSED: NO
+C06 AUTHORIZED: NO
+STATUS: REVIEW_READY_FOR_GPT_R2 ONLY AFTER PUBLICATION GATE
+```
+
+---
+
+## 50. W03-C05-C1 — Final Closeout
+
+**Date:** 2026-09-27
+
+**Entry SHA:** `575a1d68e67b13cec54a7046ec847463b8bbd721`
+
+**Original C05 implementation SHA:** `9614bb8cf3cfa558b87464b1de81c1905b2d8eec`
+
+**Original C05 report SHA:** `79af66728650b1cf42df0163e3efafb11293e7b1`
+
+**R1 harness repair SHA:** `b249ee1b90140038e8ce13f3cbc6cdd1f50ddef8`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+GPT C05 Independent Re-Review R2 returned **PASS FOR HUMAN C05 ACCEPTANCE**
+with no BLOCKER, HIGH, MEDIUM or LOW finding. R1 MEDIUM-01 is closed. The
+adversarial matrix and frozen H1-H19 evidence pass, no runtime source defect
+was found, and runtime source changes during R1 were none.
+
+The Product Owner separately supplied `W03-C05 HUMAN ACCEPTANCE: ACCEPTED`
+and `W03-C05-C1 CLOSEOUT AUTHORIZATION: APPROVED`. Human acceptance covers
+the reviewed C05 implementation and R1 harness hardening. The second decision
+authorizes only this bounded documentation/governance closeout and does not
+authorize C06 implementation, PR merge, a draft-to-ready transition, or
+auto-merge.
+
+The accepted evidence chain is:
+
+1. Original implementation `9614bb8cf3cfa558b87464b1de81c1905b2d8eec` —
+   Run #60 (`36264633796`) — `I / FULL_EXACT_SHA` — PASS.
+2. Original report `79af66728650b1cf42df0163e3efafb11293e7b1` —
+   Run #61 (`36293313359`) — `P / PUBLICATION_EXACT_SHA` — PASS.
+3. R1 test/harness repair `b249ee1b90140038e8ce13f3cbc6cdd1f50ddef8`
+   — Run #62 (`36295679230`) — `I / FULL_EXACT_SHA` — PASS.
+4. R1 report `575a1d68e67b13cec54a7046ec847463b8bbd721` —
+   Run #63 (`36326834562`) — `P / PUBLICATION_EXACT_SHA` — PASS.
+
+The authoritative GPT result is published in
+[`W03_C05_GPT_INDEPENDENT_REREVIEW_R2.md`](w03/reports/W03_C05_GPT_INDEPENDENT_REREVIEW_R2.md),
+and the closeout record is published in
+[`W03_C05_C1_FINAL_CLOSEOUT.md`](w03/reports/W03_C05_C1_FINAL_CLOSEOUT.md).
+Together with this current-state update, these are the exact three authorized
+closeout paths. C1 changes no runtime source, tests, frozen C05 contract or
+specification, C01-C04, W2, schema, migration, dependency, workflow,
+CI/control-plane, Docker/Compose, API or worker. It introduces neither
+`HumanDecisionEvent` nor C06 capability.
+
+Runtime HGT access, post-C02 database access, C05 scenario execution,
+filesystem/network/model/subprocess/random/wall-clock runtime capability and
+operational mutation remain **NONE**. The frozen C05 categorical policies and
+Human decision authority remain unchanged.
+
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged with auto-merge absent. C05 closure becomes effective only after the
+single closeout commit classifies `P / PUBLICATION_EXACT_SHA`, Publication
+proof and Verification pass, Quality and Compose are skipped, and final
+local/tracking/direct-remote/PR synchronization passes. The closeout SHA and
+CI run are reported in the final Codex handoff under the immutable-record
+rule. C06 remains unauthorized.
+
+```text
+W03-C05: CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING
+GPT C05 R2: PASS
+HUMAN C05 ACCEPTANCE: ACCEPTED
+CLOSEOUT AUTHORIZATION: APPROVED
+R1 MEDIUM-01: CLOSED
+ADVERSARIAL MATRIX: PASS
+H1-H19: PASS
+C1 SOURCE CHANGES: NONE
+C1 TEST CHANGES: NONE
+C05 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
+C06 AUTHORIZED: NO
+NEXT: GPT W03-C06 AUTHORIZATION / CONTRACT REVIEW
+```
+
+---
+
+## 51. W03-C06 — Human Decision Workflow and Recovered Exact-SHA Proof
+
+**Date:** 2026-09-28
+
+**Entry SHA:** `e2c0030f7af3c345b302b3c4b104a46b15519189`
+
+**Original C06 implementation SHA:** `f240fcb2c19fa4c0df70db9bb57c52b6ebd19aba`
+
+**Repair SHA:** `21794d926bae45140767e1a5164d75f04ef8a944`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C06-I/H/R`, and the C06 Context Lock was
+published before implementation with status `LOCKED`. The original
+implementation introduced the authorized Human decision workflow: exact C05
+`DecisionPacket` validation, deterministic frozen C01 `HumanDecisionEvent`
+construction, and an API-append-only, canonical, chain-validating audit
+journal beneath one explicit trusted root.
+
+Original exact-SHA
+[Run #65](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36331915543)
+(`36331915543`) correctly classified the implementation
+`I / FULL_EXACT_SHA`. Integration passed 48 tests, non-integration passed 689
+with 48 deselected, Ruff passed and Docker Compose passed, but Quality and the
+workflow failed at strict mypy with 11 test-typing errors in exactly
+`tests/test_c06_store.py` and `tests/test_c06_harness.py`.
+
+The Product Owner separately authorized `W03-C06-REPAIR-01`. Repair SHA
+`21794d926bae45140767e1a5164d75f04ef8a944` changes only those two test files:
+explicit typed arguments replace heterogeneous kwargs in the exact-retry
+test, and the harness packet helper gains its `DecisionPacket` return type.
+Runtime source, contracts, policy, store semantics and assertion semantics are
+unchanged.
+
+Repair exact-SHA
+[Run #66](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36365175320)
+(`36365175320`) classified the exact two-path delta
+`I / FULL_EXACT_SHA` and passed Quality, Docker Compose and Verification with
+Publication proof skipped. Remote CI supplied 48 integration passes with 689
+deselected and 689 non-integration passes with 48 deselected; Ruff and strict
+mypy passed. Local focused C06 verification passed 66 tests; the frozen C05,
+C04, C03, C02, C01 and W2 regression baselines remain 98, 31, 77, 26, 39 and
+154 passes respectively.
+
+C06 preserves `ACCEPT`, `REJECT`, and `DEFER` as non-operational Human audit
+outcomes. Canonical event identity, exact C05 packet binding, append-only
+history, narrow readback, idempotent retry, corruption/fork/cycle rejection,
+packet locking, filesystem confinement and inert comment/priority semantics
+pass. Runtime HGT access, post-C02 operational database access, network,
+model/LLM, scenario execution, subprocess/random/ambient-wall-clock use, C07
+evaluation, C08 explanation and operational mutation are all **NONE**.
+
+The complete evidence and known store limitations are in
+[`W03_C06_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C06_R_DEVELOPMENT_ROUND_REPORT.md).
+This entry and that report are the exact two-file publication commit. Its SHA
+and `P / PUBLICATION_EXACT_SHA` proof are reported in the final Codex handoff.
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged with auto-merge absent/disabled. GPT C06 review and Human acceptance
+remain pending. C06 is not closed and C07 is not authorized.
+
+```text
+W03-C06: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+ORIGINAL C06 SHA: f240fcb2c19fa4c0df70db9bb57c52b6ebd19aba
+ORIGINAL C06 CI: RUN #65 / FAILED / MYPY TEST-TYPING ONLY
+REPAIR SHA: 21794d926bae45140767e1a5164d75f04ef8a944
+REPAIR CI: PASS / I / FULL_EXACT_SHA — RUN #66 / 36365175320
+RUNTIME SOURCE REPAIR: NONE
+TEST ASSERTION SEMANTICS CHANGED: NO
+FOCUSED C06: 66 PASS
+INTEGRATION: 48 PASS / 689 DESELECTED
+NON-INTEGRATION: 689 PASS / 48 DESELECTED
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C06 REVIEW: PENDING
+HUMAN C06 ACCEPTANCE: PENDING
+C06 CLOSED: NO
+C07 AUTHORIZED: NO
+NEXT: GPT C06 INDEPENDENT REVIEW
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
+
+---
+
+## 52. W03-C06-C1 — Final Closeout
+
+**Date:** 2026-09-28
+
+**Entry SHA:** `b6d42b1bb277414d51301f8386be04a5872fae8a`
+
+**Original C06 implementation SHA:** `f240fcb2c19fa4c0df70db9bb57c52b6ebd19aba`
+
+**Repair-01 SHA:** `21794d926bae45140767e1a5164d75f04ef8a944`
+
+**C06 development report SHA:** `b6d42b1bb277414d51301f8386be04a5872fae8a`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+GPT C06 Independent Review R1 returned **PASS FOR HUMAN C06 ACCEPTANCE**
+with no BLOCKER, HIGH or MEDIUM finding. No runtime, contract or store-semantic
+defect was found and no further repair is required. LOW-01 identified only
+stale top-level `CURRENT_STATE` metadata and is closed by the final-state
+normalization in this section's three-file closeout commit. Historical Section
+51 remains unchanged.
+
+The Product Owner separately supplied `W03-C06 HUMAN ACCEPTANCE: ACCEPTED`
+and `W03-C06-C1 CLOSEOUT AUTHORIZATION: APPROVED`. Human acceptance covers
+the reviewed original implementation and accepted Repair-01 evidence. The
+second decision authorizes only this bounded documentation/governance
+closeout and does not authorize C07/C08 implementation, PR merge, a
+draft-to-ready transition or auto-merge.
+
+The accepted evidence chain is:
+
+1. Original C06 implementation
+   `f240fcb2c19fa4c0df70db9bb57c52b6ebd19aba` — Run #65
+   (`36331915543`) — `I / FULL_EXACT_SHA` — FAILED only at strict mypy
+   test typing after integration, non-integration, Ruff and Compose passed.
+2. Repair-01 `21794d926bae45140767e1a5164d75f04ef8a944` — Run #66
+   (`36365175320`) — `I / FULL_EXACT_SHA` — PASS.
+3. C06 development report
+   `b6d42b1bb277414d51301f8386be04a5872fae8a` — Run #67
+   (`36366558197`) — `P / PUBLICATION_EXACT_SHA` — PASS.
+
+The authoritative GPT result is published in
+[`W03_C06_GPT_INDEPENDENT_REVIEW_R1.md`](w03/reports/W03_C06_GPT_INDEPENDENT_REVIEW_R1.md),
+and the closeout record is published in
+[`W03_C06_C1_FINAL_CLOSEOUT.md`](w03/reports/W03_C06_C1_FINAL_CLOSEOUT.md).
+Together with this current-state update, these are the exact three authorized
+closeout paths. C1 changes no runtime source, tests, frozen C06 contract or
+specification, C01-C05, W2, W03 Sprint semantic definition, schema, migration,
+dependency, workflow, CI/control-plane, Docker/Compose, API or worker.
+
+`ACCEPT`, `REJECT` and `DEFER` remain non-operational Human audit outcomes.
+Runtime HGT access, post-C02 operational database access, network, model/LLM,
+scenario execution, subprocess/random/ambient-wall-clock use and operational
+mutation remain **NONE**. C07 evaluation and C08 explanation were not
+introduced.
+
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains
+open, draft and unmerged with auto-merge absent/disabled. C06 closure becomes
+effective only after this single closeout commit classifies
+`P / PUBLICATION_EXACT_SHA`, Publication proof and Verification pass, Quality
+and Compose are skipped, and final local/tracking/direct-remote/PR
+synchronization passes. The closeout SHA and CI run are reported in the final
+Codex handoff under the immutable-record rule. C07 remains unauthorized.
+
+```text
+W03-C06: CLOSED / VERIFIED / GITHUB SYNCHRONIZATION PENDING
+GPT C06 REVIEW: PASS
+HUMAN C06 ACCEPTANCE: ACCEPTED
+CLOSEOUT AUTHORIZATION: APPROVED
+LOW-01: CLOSED BY FINAL-STATE NORMALIZATION
+C1 SOURCE CHANGES: NONE
+C1 TEST CHANGES: NONE
+C06 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
+C07 AUTHORIZED: NO
+NEXT: GPT W03-C07 AUTHORIZATION / CONTRACT REVIEW
+```
+
+---
+
+## 53. W03-C07 — Protected Evaluation and Replay-Proof Repair
+
+**Date:** 2026-09-28
+
+**Round entry SHA:** `6e44af5159af50f4e69871425fed462ccb80adf9`
+
+**Original C07 implementation SHA:** `90f159bf444bd1a0541fbc7fdb48188825ac53e4`
+
+**Repair-01 SHA:** `3c5df35528fbe9cd0f77d299a394da265d7ec9db`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C07-I/H/R`. Original implementation SHA
+`90f159bf444bd1a0541fbc7fdb48188825ac53e4` introduced the protected offline
+`RecommendationEvaluation` plane and passed exact-SHA Run #69
+(`36377688015`) as `I / FULL_EXACT_SHA`.
+
+The mandatory pre-report semantic audit then returned
+`W03_C07_REPLAY_PROOF_MISMATCH`. Although the replay invoked real frozen W2
+scenarios and selected protected HGT-affected orders, its C01-C05 packet facts
+were manufactured from family-selected synthetic test fixtures. Dataset
+metadata/hash checks did not independently prove business-row-to-packet
+correspondence. The Round Report was therefore withheld.
+
+The Product Owner separately authorized `W03-C07-REPAIR-01`. Repair SHA
+`3c5df35528fbe9cd0f77d299a394da265d7ec9db` changes exactly four test/replay
+harness files and no runtime or evaluator source. The repaired real builder
+accepts only a `GeneratedDataset`, `order_id`, and `as_of_time`; resolves the
+actual selected Sales Order and deterministic direct/associative row closure;
+projects actual whitelisted values with actual source-record identities and
+the actual Sales Order `order_at`; and passes the resulting facts through the
+unchanged C02-C05 builder chain before protected C07 evaluation.
+
+Expected intervention family, scenario type, HGT, truth mode, expected signal
+and recommendation do not enter real packet construction.
+`neutral_records` and `records_for_active` are absent from the real six-case
+path. Synthetic fixtures are isolated to adversarial negative tests. Baseline
+and scenario packets are independently derived from their corresponding
+datasets, dataset payloads remain byte-identical, and HGT remains post-freeze
+and offline only.
+
+Repair exact-SHA
+[Run #70](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36424098689)
+(`36424098689`) classified the four-file test repair
+`I / FULL_EXACT_SHA` and passed Quality, Docker Compose and Verification with
+Publication proof skipped. Remote CI supplied 48 integration passes with 764
+deselected and 764 non-integration passes with 48 deselected; Ruff and strict
+mypy passed. Local focused C07 verification passed 75 tests. The C06, C05,
+C04, C03, C02, C01 and W2 regression counts are 66, 98, 31, 77, 26, 39 and
+154 passes respectively. H1-H38 and R1-G1 through R1-G8 pass.
+
+The six replay executions pass as semantic measurements. Their descriptive
+metrics are published without coercion or aggregate scoring in
+[`W03_C07_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C07_R_DEVELOPMENT_ROUND_REPORT.md).
+Observed `False` and `None` values remain valid frozen-policy results;
+`CAPACITY_PRESSURE` remains `UNKNOWN`. C07 still produces
+`RecommendationEvaluation` only and does not produce OutcomeEvaluation.
+
+This current-state update and the Development Round Report are the exact two
+authorized publication paths. The report commit's own SHA and successful
+`P / PUBLICATION_EXACT_SHA` run cannot be embedded in itself and are recorded
+in the final Codex handoff. Main remains
+`9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains open, draft and
+unmerged with auto-merge absent/disabled. GPT C07 review and Human acceptance
+remain pending. C07 is not closed and C08 is not authorized.
+
+```text
+W03-C07: IMPLEMENTED / REPLAY-PROOF REPAIRED / CODEX VERIFIED / PENDING GPT REVIEW
+ORIGINAL IMPLEMENTATION SHA: 90f159bf444bd1a0541fbc7fdb48188825ac53e4
+ORIGINAL IMPLEMENTATION EXACT-SHA: RUN #69 / 36377688015 / PASS / I / FULL_EXACT_SHA
+PRE-REPORT AUDIT: W03_C07_REPLAY_PROOF_MISMATCH
+REPAIR SHA: 3c5df35528fbe9cd0f77d299a394da265d7ec9db
+REPAIR EXACT-SHA: RUN #70 / 36424098689 / PASS / I / FULL_EXACT_SHA
+REPAIR SCOPE: TEST / REPLAY HARNESS ONLY
+RUNTIME SOURCE CHANGES: NONE
+EVALUATOR SOURCE CHANGES: NONE
+REAL DATASET -> PACKET BINDING: PASS
+EXPECTED-FAMILY INJECTION: ABSENT
+HGT PRE-FREEZE RUNTIME ACCESS: NONE
+H1-H38: PASS
+R1-G1 THROUGH R1-G8: PASS
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C07 REVIEW: PENDING
+HUMAN C07 ACCEPTANCE: PENDING
+C07 CLOSED: NO
+C08 AUTHORIZED: NO
+NEXT: GPT C07 INDEPENDENT REVIEW
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
+
+---
+
+## 54. W03-C08 — Bounded LLM Explanation and Pre-Commit Hardening
+
+**Date:** 2026-09-29
+
+**Entry SHA:** `c89a2cc5b24a53897ec0d8085293445c18fd2675`
+
+**Implementation SHA:** `4e999faea8ec78539c800f67d7c901421848b3ab`
+
+**Branch:** `feat/w03-ai-decision-loop`
+
+The Product Owner authorized `W03-C08-I/H/R` and then the bounded
+`W03-C08-I/H/R-CONTINUE-01` pre-commit hardening continuation. This was not a
+new checkpoint and not a Repair-01 round. The existing dirty C08 worktree was
+preserved. The separately authorized local `tmp/c08-uv/` bootstrap directory
+was removed exactly; the repeated preflight then proved the expected C07
+entry, main, PR #6 and Run #72 state, with every remaining path inside the
+original C08 authorization.
+
+C08 adds a deterministic `DecisionPacket`-only explanation context, exact
+provider output schema, frozen 2,479-byte runtime prompt, deterministic
+template, bounded official OpenAI Responses adapter, one schema-repair retry,
+fail-closed grounding/injection validation, deterministic degraded fallback
+and frozen C01 `ExplanationRecord` construction. Requested model remains
+`gpt-5.6-terra`, reasoning effort is `none`, temperature is omitted, tools are
+empty, streaming/storage are off, application timeout is 15 seconds, SDK
+automatic retries are zero and total provider calls are bounded at two. The
+official SDK is locked at `openai==2.54.0`.
+
+The continuation closed all three pre-commit findings:
+
+```text
+HIGH-01: CLOSED
+UNRELATED NEGATION NO LONGER BYPASSES FORBIDDEN CLAIM VALIDATION
+
+MEDIUM-01: CLOSED
+EXPECTED PROVIDER FAILURE IS DISTINCT FROM PROGRAMMING FAILURE
+
+MEDIUM-02: CLOSED
+DYNAMIC OPENAI IMPORT IS A SINGLE LITERAL PROVIDER-ADAPTER EXCEPTION
+```
+
+Local focused C08 passed 77 tests. C07, C06, C05, C04, C03, C02, C01 and W2
+regressions passed 75, 66, 98, 31, 77, 26, 39 and 154 tests respectively.
+Local non-integration passed 841 tests with 48 deselected. Ruff, strict mypy
+over 137 source files, dependency lock verification, `git diff --check`,
+Compose configuration and the 31-path authorization audit passed. Guarded
+local PostgreSQL was not run because its safety variables were unset and the
+Docker engine pipe was inaccessible.
+
+Implementation exact-SHA
+[Run #73](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/36518365941)
+(`36518365941`) classified SHA
+`4e999faea8ec78539c800f67d7c901421848b3ab` as
+`I / FULL_EXACT_SHA`. Quality, Docker Compose and Verification passed;
+Publication proof was skipped. Protected CI passed 48 PostgreSQL integration
+tests with 841 deselected, 841 non-integration tests with 48 deselected, Ruff,
+strict mypy over 137 source files and dependency-lock verification.
+
+The mandatory post-CI pre-report semantic audit passed all 22 required proofs.
+It reran all 77 focused C08 tests and confirmed packet-only provider input, no
+C07 evaluation/HGT/DB/filesystem/RAG input, empty tools, exact prompt/schema,
+fail-closed high-risk matches, no grounding repair, typed expected-provider
+fallback, programming-error propagation, one literal OpenAI dynamic import,
+two-call maximum, zero SDK retry, packet/recommendation/trust immutability,
+deterministic template/fallback, system-generated Human boundary, no
+operational writes and no C09 work.
+
+The complete evidence is in
+[`W03_C08_R_DEVELOPMENT_ROUND_REPORT.md`](w03/reports/W03_C08_R_DEVELOPMENT_ROUND_REPORT.md).
+This current-state update and that report are the exact two authorized
+publication paths. The publication commit SHA and CI run are immutable
+post-push facts and are recorded in the final Codex handoff.
+
+Main remains `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remains
+open, draft and unmerged with auto-merge absent/disabled. GPT C08 review and
+Human acceptance remain pending. C08 is not closed and C09 is not authorized.
+
+```text
+W03-C08: IMPLEMENTED / PRE-COMMIT HARDENED / CODEX VERIFIED / PENDING GPT REVIEW
+IMPLEMENTATION SHA: 4e999faea8ec78539c800f67d7c901421848b3ab
+IMPLEMENTATION EXACT-SHA: RUN #73 / 36518365941 / PASS / I / FULL_EXACT_SHA
+PROMPT SHA256: 426b061d79d2a8dfa4ac2959a604e77e6ef8dbcc04759bf7860ec9f012d185fc
+OPENAI SDK LOCKED VERSION: 2.54.0
+HIGH-01: CLOSED
+MEDIUM-01: CLOSED
+MEDIUM-02: CLOSED
+PRE-REPORT SEMANTIC AUDIT: PASS
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C08 REVIEW: PENDING
+HUMAN C08 ACCEPTANCE: PENDING
+C08 CLOSED: NO
+C09 AUTHORIZED: NO
+NEXT: GPT W03-C08 INDEPENDENT REVIEW
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE
+```
+
+---
+
+## 55. W03-C08-REPAIR-01 — R1 Semantic Grounding Hardening
+
+**Date:** 2026-10-04
+
+**GPT C08 Independent Review R1:** `REPAIR REQUIRED`
+
+**Original C08 implementation SHA:** `4e999faea8ec78539c800f67d7c901421848b3ab`
+
+**Original C08 implementation CI:** Run #73 / `36518365941` / PASS /
+`I / FULL_EXACT_SHA`
+
+**Original C08 publication SHA:** `6e88bedc884f211f4826f4bb82e96d9c86411ec0`
+
+**Original publication CI:** Run #74 / `36520572239` / PASS /
+`P / PUBLICATION_EXACT_SHA`
+
+**Repair SHA:** `eefca6322ae3fdf3aa652edc77703189e5c35c95`
+
+**Repair CI:** Run #75 / `37185441717` / PASS / `I / FULL_EXACT_SHA`
+
+The Product Owner authorized only `W03-C08-REPAIR-01`. The repair changed the
+following exact implementation paths:
+
+```text
+src/flowlens/decision/c08_validation.py
+tests/test_c08_explanation.py
+tests/test_c08_harness.py
+tests/test_c08_validation.py
+```
+
+The repair replaces open-ended provider prose acceptance with a deterministic,
+closed, section-specific statement grammar bound to exact
+`ExplanationContextV1` fields and exact statement references. Arbitrary prose,
+causal/probability/efficacy paraphrases, uncertainty-resolution paraphrases,
+numeric/temporal cross-field rebinding and allowlisted-evidence/unrelated-prose
+misbinding are nonrepairable grounding failures. They receive no schema repair
+and degrade immediately to the deterministic packet-only template. A valid
+mechanically grounded response still reaches `BOUNDED_LLM`; schema invalidity
+alone remains eligible for one second provider call.
+
+```text
+HIGH-01: CLOSED
+MEDIUM-01: CLOSED
+MEDIUM-02: CLOSED
+MEDIUM-03: CLOSED
+CLOSED SECTION-SPECIFIC STATEMENT GRAMMAR: PASS
+ARBITRARY UNSUPPORTED PROSE: REJECTED / NONREPAIRABLE
+CAUSAL PARAPHRASE ATTACKS: REJECTED / NONREPAIRABLE
+PROBABILITY / EFFICACY PARAPHRASE ATTACKS: REJECTED / NONREPAIRABLE
+UNKNOWN / INSUFFICIENT RESOLUTION PARAPHRASES: REJECTED / NONREPAIRABLE
+NUMERIC CROSS-FIELD REBINDING: REJECTED
+TEMPORAL CROSS-FIELD REBINDING: REJECTED
+ALLOWLISTED EVIDENCE / UNRELATED PROSE MISBINDING: REJECTED
+VALID MECHANICALLY GROUNDED OUTPUT: BOUNDED_LLM
+SCHEMA-ONLY REPAIR: MAXIMUM TWO PROVIDER CALLS
+GROUNDING FAILURE: NO SCHEMA REPAIR
+SAME / FRESH-PROCESS DEGRADED FALLBACK: PASS
+PACKET IMMUTABILITY: PASS
+RECOMMENDATION IMMUTABILITY: PASS
+POST-CI SEMANTIC AUDIT: 28 / 28 PASS
+```
+
+Local C08 passed 92 tests. C07, C06, C05, C04, C03, C02 and C01 regressions
+passed 75, 66, 98, 31, 77, 26 and 39 tests respectively; the broader W2
+scenario/HGT regression set passed 173. Complete local non-integration passed
+856 tests with 48 deselected and the existing Starlette/httpx warning. Ruff,
+strict mypy over 137 source files, the 43-package lock check, Docker Compose,
+`git diff --check`, prompt/hash, embedded/published schema equality and the
+authorized-path audit passed. Local PostgreSQL integration remained safely
+unavailable because the safety variables were unset and the Docker engine pipe
+was absent.
+
+Exact-SHA [Run #75](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/37185441717)
+observed 48 integration tests passing with 856 deselected and one existing
+warning, then 856 non-integration tests passing with 48 deselected and one
+existing warning. Ruff, strict mypy over 137 source files, Docker Compose,
+dependency lock and Verification passed; Publication proof was correctly
+skipped for the implementation commit.
+
+```text
+RUNTIME SYSTEM PROMPT CHANGE: NONE
+PROMPT VERSION / SHA CHANGE: NONE
+CONTEXT SCHEMA CHANGE: NONE
+OUTPUT SCHEMA CHANGE: NONE
+PROVIDER / MODEL CHANGE: NONE
+DEPENDENCY CHANGE: NONE
+C01-C07 SEMANTIC CHANGE: NONE
+OPERATIONAL MUTATION: NONE
+C09 WORK: NONE
+```
+
+Known limitation: accepted `BOUNDED_LLM` wording is intentionally constrained
+to a closed packet-derived statement grammar; expressive paraphrase breadth is
+traded for mechanical grounding and fail-closed semantics.
+
+Immediately before this two-file publication delta, local, tracking,
+direct-remote and PR #6 heads all matched repair SHA
+`eefca6322ae3fdf3aa652edc77703189e5c35c95`; the working tree was clean and
+ahead/behind was `0 / 0`. Main remained
+`9d18ddde9fe933952a2661ee1419f13c8577605d`; PR #6 remained open, draft and
+unmerged with auto-merge absent/disabled.
+
+The complete repair evidence is in
+[`W03_C08_R1_SEMANTIC_GROUNDING_REPAIR_REPORT.md`](w03/reports/W03_C08_R1_SEMANTIC_GROUNDING_REPAIR_REPORT.md).
+This current-state update and that report are the exact two authorized
+publication paths. The publication commit SHA, exact-SHA publication CI and
+final synchronization are recorded in the final Codex handoff.
+
+```text
+TASK: W03-C08-REPAIR-01
+GPT C08 R1: REPAIR REQUIRED
+REPAIR IMPLEMENTATION SHA: eefca6322ae3fdf3aa652edc77703189e5c35c95
+REPAIR IMPLEMENTATION CI: RUN #75 / 37185441717 / PASS / I / FULL_EXACT_SHA
+POST-CI SEMANTIC AUDIT: 28 / 28 PASS
+REPAIR REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C08 R2 RE-REVIEW: PENDING
+HUMAN C08 ACCEPTANCE: PENDING
+C08 CLOSED: NO
+C09 AUTHORIZED: NO
+NEXT: GPT W03-C08 INDEPENDENT RE-REVIEW R2
+STATUS: REVIEW_READY_FOR_GPT_R2 ONLY AFTER PUBLICATION GATE
+```
+
+Do not begin C09. Do not self-review or Human-accept C08. Do not close C08.
+
+---
+
+## 56. W03-C08-C1 — Final Closeout
+
+**Date:** 2026-10-04
+
+**Entry SHA:** `d7c6d34888d07d0b529c82937bc49d20bbfc86ee`
+
+**Human C08 Acceptance:** `ACCEPTED`
+
+**W03-C08-C1 Closeout Authorization:** `APPROVED`
+
+The Product Owner separately supplied Human acceptance of the reviewed C08
+implementation and `W03-C08-REPAIR-01`, then authorized only this bounded
+documentation/governance closeout. GPT C08 Independent Re-Review R2 returned
+`PASS FOR HUMAN C08 ACCEPTANCE` with `BLOCKER: NONE`, `HIGH: NONE`,
+`MEDIUM: NONE` and `LOW: NONE REQUIRING REPAIR`.
+
+The complete accepted evidence chain is:
+
+```text
+ORIGINAL C08 IMPLEMENTATION SHA: 4e999faea8ec78539c800f67d7c901421848b3ab
+ORIGINAL C08 IMPLEMENTATION CI: RUN #73 / 36518365941 / PASS
+ORIGINAL C08 IMPLEMENTATION CLASS: I / FULL_EXACT_SHA
+
+ORIGINAL C08 PUBLICATION SHA: 6e88bedc884f211f4826f4bb82e96d9c86411ec0
+ORIGINAL C08 PUBLICATION CI: RUN #74 / 36520572239 / PASS
+ORIGINAL C08 PUBLICATION CLASS: P / PUBLICATION_EXACT_SHA
+
+GPT C08 R1: REPAIR REQUIRED
+R1 REPAIR SHA: eefca6322ae3fdf3aa652edc77703189e5c35c95
+R1 REPAIR CI: RUN #75 / 37185441717 / PASS
+R1 REPAIR CLASS: I / FULL_EXACT_SHA
+POST-CI SEMANTIC AUDIT: 28 / 28 PASS
+
+R1 REPAIR REPORT SHA: d7c6d34888d07d0b529c82937bc49d20bbfc86ee
+R1 REPAIR REPORT CI: RUN #76 / 37206170243 / PASS
+R1 REPAIR REPORT CLASS: P / PUBLICATION_EXACT_SHA
+PUBLICATION PROOF: PASS
+VERIFICATION: PASS
+QUALITY: SKIPPED
+DOCKER COMPOSE: SKIPPED
+```
+
+R2 accepted closed-grammar mechanical grounding. Valid mechanically grounded
+output still reaches `BOUNDED_LLM`; grounding/semantic failure receives no
+schema repair; schema-only failure remains eligible for one repair call; and
+packet/recommendation immutability passes. R1 `HIGH-01`, `MEDIUM-01`,
+`MEDIUM-02` and `MEDIUM-03` are closed.
+
+The accepted non-blocking limitation remains that `BOUNDED_LLM` wording is
+intentionally constrained to a closed packet-derived statement grammar.
+Expressive paraphrase breadth is traded for mechanical grounding and
+fail-closed semantics. C08 implementation is not reopened for this limitation.
+
+This C1 closeout creates the GPT R2 report and final closeout report and
+normalizes only the authoritative top-level current state. Historical Sections
+54 and 55 remain unchanged. No source, tests, prompt, context/output schema,
+provider, model, dependency, C01-C07 semantic, operational or C09 path changes.
+
+The closeout commit SHA and CI run are immutable post-push facts and are
+reported in the final Codex handoff. Closure becomes effective only after that
+commit classifies `P / PUBLICATION_EXACT_SHA`, Publication proof and
+Verification pass, Quality and Docker Compose are skipped, and final
+local/tracking/direct-remote/PR synchronization passes. PR #6 must remain open,
+draft and unmerged with auto-merge absent/disabled; main must remain unchanged.
+
+```text
+TASK: W03-C08-C1
+GPT C08 INDEPENDENT RE-REVIEW R2: PASS FOR HUMAN C08 ACCEPTANCE
+HUMAN C08 ACCEPTANCE: ACCEPTED
+CLOSEOUT AUTHORIZATION: APPROVED
+R1 HIGH-01: CLOSED
+R1 MEDIUM-01: CLOSED
+R1 MEDIUM-02: CLOSED
+R1 MEDIUM-03: CLOSED
+C1 SOURCE CHANGES: NONE
+C1 TEST CHANGES: NONE
+C08 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
+C09 AUTHORIZED: NO
+NEXT: GPT W03-C09 AUTHORIZATION / CONTRACT REVIEW
+STATUS: C08_CLOSED ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE
+```
+
+
+---
+
+## 57. W03-C09-I/H/R — Development Round
+
+**Date:** 2026-10-05
+
+**Contract:** W03-C09-A-v1.1 / approved Clarification-01
+
+**OBSERVED:** Both exact Product Owner approval lines were supplied. Mandatory
+read-only preflight matched branch, entry/local/tracking/direct-remote/PR HEAD
+`d71d5baeb0862f2706358c26e182554b3807e8f6`, frozen main
+`9d18ddde9fe933952a2661ee1419f13c8577605d`, clean worktree/staging, 0/0,
+open/draft/unmerged PR #6, absent/disabled auto-merge and successful entry
+Run #77 / `37212002075`. C08 closure became effective through that publication;
+its historical closeout did not itself authorize C09.
+
+The initial V1 selector/count conflict stopped the read-only attempt before
+mutation. Human-approved V1.1 freezes 38 exact function selectors and their
+85 expanded cases, including 10 parameterized selectors. The checkpoint package
+was published with `context_lock_status = LOCKED` and both actual approval
+records before workflow, script or test writes.
+
+One normal implementation commit adds the fail-closed development-plane runner,
+79 C09 contract test cases, the frozen manifest and exactly one named W03 gate
+job. Verification includes that job and enforces P skip/non-P success. Original
+Classify change, Quality, Compose and Publication blocks, trigger scope,
+classifier semantics, full pytest partitions, Ruff, strict mypy and lock proof
+remain intact. Sprint changes affect only current status; historical semantics
+remain unchanged.
+
+```text
+IMPLEMENTATION SHA: f214b20e54e2ff6ad3c1227ebb53e4aadaa204c9
+IMPLEMENTATION CI: Run #78 / 37216528805 / PASS
+CLASS: I / FULL_EXACT_SHA
+QUALITY: PASS — 48 integration + 935 non-integration tests
+COMPOSE: PASS
+W03 AI LOOP GATE: PASS — F01-F10 / 38 selectors / 85 expanded cases
+VERIFICATION: PASS
+PUBLICATION PROOF: SKIPPED
+POST-CI AUDIT: H01-H42 / 42 OF 42 PASS
+GATE VERSION: w03-c09-ai-loop-gate-v1
+MANIFEST SCHEMA: w03-c09-regression-manifest-v1.1
+MANIFEST SHA256: bce35059fdaeb49a5598b3144f481996774bbaee68fcc3096d621a1296ebd990
+```
+
+Local focused tests (79) and full non-integration tests (935), Ruff, strict mypy,
+lock/configuration and path/frozen-material checks passed. Local PostgreSQL/Docker
+was unavailable: the gate correctly hard-failed F09's six skips. F09 was not
+waived; the exact-SHA remote gate executed and passed all six cases. CI pytest
+partitions retain one existing Starlette/httpx deprecation warning each.
+
+No `src/**` change, C01–C08 or W2 semantic change, C08 prompt/schema/provider/model
+change, dependency/action/image/schema/migration/API/worker/runtime/Docker
+semantic change, live model call/provider secret read, operational mutation or
+C10 work occurred. C08's accepted closed-grammar wording limitation is inherited.
+
+[Development Round Report](w03/reports/W03_C09_R_DEVELOPMENT_ROUND_REPORT.md)
+contains the family counts, H01–H42 evidence table, exact job IDs/log links,
+protected identities, local limitations and independent reviewer questions.
+
+After green implementation CI, local/tracking/direct-remote/PR heads matched the
+implementation SHA, staging/worktree were clean, ahead/behind was 0/0, main was
+unchanged and PR #6 remained open/draft/unmerged with no enabled auto-merge notice.
+This separate report commit changes only the Round Report and CURRENT_STATE.
+Its immutable SHA/run and final synchronization are post-push facts supplied in
+the final handoff; this document does not pre-claim that publication evidence.
+
+```text
+TASK: W03-C09-I/H/R
+W03-C09: IMPLEMENTED / CODEX VERIFIED / PENDING GPT REVIEW
+C09 EXACT-SHA CI: PASS — RUN #78 / 37216528805
+W03 AI LOOP GATE: PASS
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C09 REVIEW: PENDING
+HUMAN C09 ACCEPTANCE: PENDING
+C09 CLOSED: NO
+C10 AUTHORIZED: NO
+NEXT: GPT W03-C09 INDEPENDENT IMPLEMENTATION REVIEW
+STATUS: REVIEW_READY ONLY AFTER REPORT PUBLICATION GATE AND SYNCHRONIZATION
+```
+
+
+---
+
+## 58. W03-C09-C1 — Final Closeout
+
+**Date:** 2026-10-05
+
+**Entry SHA:** `330241be4039711e32d631a6d83eb36edd1f2888`
+
+**Human C09 Acceptance:** `ACCEPTED`
+
+**W03-C09-C1 Closeout Authorization:** `APPROVED`
+
+The Product Owner supplied both exact active-request gates after the supplied GPT
+C09 Independent Review R1 returned `PASS FOR HUMAN C09 ACCEPTANCE`, with
+`REPAIR REQUIRED: NO`, `BLOCKER: NONE`, `HIGH: NONE`, `MEDIUM: NONE` and
+`LOW: NONE REQUIRING REPAIR`. Human acceptance is recorded directly from the
+Product Owner request and is not inferred from the review document.
+
+The accepted evidence chain remains:
+
+```text
+C09 IMPLEMENTATION SHA: f214b20e54e2ff6ad3c1227ebb53e4aadaa204c9
+C09 IMPLEMENTATION CI: RUN #78 / 37216528805 / PASS
+C09 IMPLEMENTATION CLASS: I / FULL_EXACT_SHA
+QUALITY / COMPOSE / W03 AI LOOP GATE / VERIFICATION: PASS
+PUBLICATION PROOF ON IMPLEMENTATION SHA: SKIPPED
+F01-F10: PASS
+FROZEN SELECTORS / EXPANDED CASES: 38 / 85 PASS
+POST-CI SEMANTIC AUDIT: H01-H42 / 42 OF 42 PASS
+
+C09 REPORT PUBLICATION SHA: 330241be4039711e32d631a6d83eb36edd1f2888
+C09 REPORT PUBLICATION CI: RUN #79 / 37218374366 / PASS
+C09 REPORT PUBLICATION CLASS: P / PUBLICATION_EXACT_SHA
+PUBLICATION PROOF / VERIFICATION: PASS
+QUALITY / COMPOSE / W03 AI LOOP GATE: SKIPPED
+
+GPT C09 INDEPENDENT REVIEW R1: PASS FOR HUMAN C09 ACCEPTANCE
+HUMAN C09 ACCEPTANCE: ACCEPTED
+CLOSEOUT AUTHORIZATION: APPROVED
+```
+
+Mandatory read-only preflight matched every expected entry fact before writes:
+branch, all four entry HEADs, clean worktree/staging, 0/0, frozen main, open/draft/
+unmerged PR #6, absent/disabled auto-merge and successful exact-SHA Run #79 with
+P classification and its required job results. The separately attached review
+exactly matches the packaged review; all eight package checksums passed.
+
+This documentation/governance-only closeout publishes the supplied GPT review
+faithfully, creates the final closeout record from the semantic template, and
+normalizes only the current top state plus this new Section 58. Historical
+Sections 1–57 and the Development Round Report are unchanged. No source, tests,
+workflows, scripts, sprint/checkpoint implementation materials, dependency,
+schema/migration, API/worker/Docker/runtime semantics, C08 prompt/schema/provider/
+model controls, C01-C09 semantics, operational truth or C10 work changes.
+
+Accepted non-blocking observations remain the local PostgreSQL/Docker limitation
+subsequently covered by complete remote proof, the existing dependency warning,
+C08's closed-grammar wording constraint and unchanged branch-protection scope.
+They do not reopen implementation or authorize repairs or repository settings.
+
+[GPT Independent Review R1](w03/reports/W03_C09_GPT_INDEPENDENT_REVIEW_R1.md)
+and [Final Closeout](w03/reports/W03_C09_C1_FINAL_CLOSEOUT.md) are the new closeout
+records. The closeout commit SHA and CI run are post-push facts supplied in the
+immutable final handoff. Closure becomes effective only after its exact SHA
+classifies `P / PUBLICATION_EXACT_SHA`, Publication proof and Verification pass,
+Quality/Compose/W03 are skipped, and final local/tracking/direct-remote/PR HEADs
+match with clean staging/worktree, 0/0, unchanged main, and PR #6 still open/draft/
+unmerged with auto-merge absent/disabled.
+
+```text
+TASK: W03-C09-C1
+GPT C09 REVIEW: PASS
+HUMAN C09 ACCEPTANCE: ACCEPTED
+CLOSEOUT AUTHORIZATION: APPROVED
+SOURCE / TEST / WORKFLOW CHANGES: NONE
+C01-C09 SEMANTIC CHANGES: NONE
+OPERATIONAL MUTATION: NONE
+C09 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+C10 AUTHORIZED: NO
+NEXT: GPT W03-C10 AUTHORIZATION / CONTRACT REVIEW
+STATUS: C09_CLOSED ONLY AFTER FINAL CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+```
+
+This closeout does not authorize C10, PR merge, ready-for-review or auto-merge.
+
+
+---
+
+## 59. W03-C10 — Business Acceptance Readiness
+
+**Date:** 2026-10-05 (Asia/Shanghai)
+
+**Task / Contract:** W03-C10-I/H/R / W03-C10-A-v1
+
+**Entry SHA:** `147cefae890d3a450052298f0a331e1528e1f856`
+
+**Human C10 Implementation Authorization:** APPROVED
+
+The active Product Owner request supplied `W03-C10 HUMAN AUTHORIZATION: APPROVED`.
+This authorized a bounded evidence/readiness round. It did not authorize Human
+business acceptance, checkpoint/sprint closeout or a new runtime capability.
+
+**OBSERVED:** Before repository mutation, local/tracking/direct-remote/PR #6
+heads matched entry SHA; main remained `9d18ddde9fe933952a2661ee1419f13c8577605d`; tree/staging
+were clean and ahead/behind 0/0; PR was OPEN / DRAFT / NOT MERGED with auto-merge
+ABSENT / DISABLED. Run #80 / 37220934558 passed P / PUBLICATION_EXACT_SHA,
+Publication proof and Verification, with Quality/Compose/W03 SKIPPED. Accepted
+C09 closeout was effective; historical Section 58 is preserved unchanged.
+
+All 19 package checksums passed before copying. The faithful Human authorization
+record and LOCKED Context Lock preceded dossier/sprint writes. One normal C10
+implementation/control commit changed exactly the twelve authorized docs paths.
+The dossier covers exactly A01-A10, W01-W06 and all eleven W3 exit criteria from
+accepted repository evidence. It retains proof/non-proof statements, limitations,
+and all ten Product Owner assessments/notes pending. The Human Acceptance form
+remains unchanged and uncompleted. Only Sprint's current-status surface changed;
+authoritative goals, dimensions, exit criteria and history are unchanged.
+
+```text
+IMPLEMENTATION SHA: 57dd12db02b5650b5c04e1d1007ffc22810a74a1
+IMPLEMENTATION CI: Run #81 / 37224461190 / PASS
+CLASS: C / FULL_EXACT_SHA
+QUALITY: PASS — 48 integration + 935 non-integration tests; Ruff / strict mypy / lock PASS
+COMPOSE: PASS
+W03 AI LOOP GATE: PASS — F01-F10 / 38 selectors / 85 expanded cases
+VERIFICATION: PASS
+PUBLICATION PROOF ON IMPLEMENTATION SHA: SKIPPED
+POST-CI C10 HARNESS: H01-H34 / 34 OF 34 PASS
+A01-A10: 10 / 10 EVIDENCE_READY
+TECHNICAL ACCEPTANCE READINESS: PASS
+MANIFEST SHA256: bce35059fdaeb49a5598b3144f481996774bbaee68fcc3096d621a1296ebd990
+```
+
+Local non-integration (935), Ruff, strict mypy over 139 source files, Compose
+configuration and scope/protected-material checks passed. Local Docker daemon
+and uv executable were unavailable; no tool/dependency was installed. Required
+remote exact-SHA CI passed integration, Compose smoke, lock and all 85 W03 cases
+without a waiver. The existing Starlette/httpx warning remains.
+
+No source/test/workflow/script/dependency/lock/schema/migration/API/worker/Docker
+change, C01-C09 or W1/W2 semantic change, C08 prompt/schema/provider/model change,
+new score/weight/business threshold, capability, live provider call, provider
+secret read, runtime HGT, future leakage or operational mutation occurred.
+C04 stress probes are not remedy efficacy or order-targeted interventions.
+C05 investigation/abstention does not grant execution authority. C07 protected
+evaluation does not feed original runtime recommendation; OutcomeEvaluation
+remains deferred. C08's accepted closed packet-derived grammar is intentionally
+constrained. A09 is artifact review, not a production UI claim. Branch protection
+is unchanged and outside scope.
+
+The [Business Acceptance Readiness Dossier](w03/checkpoints/c10/W03_C10_BUSINESS_ACCEPTANCE_DOSSIER.md)
+and [Readiness Report](w03/reports/W03_C10_R_BUSINESS_ACCEPTANCE_READINESS_REPORT.md)
+provide concrete anchors, walkthroughs, eleven-criterion mapping, exact CI job
+links, H01-H34 evidence, frozen identities and reviewer questions.
+
+Immediately before this two-file publication delta, all four heads matched
+implementation SHA, worktree/staging were clean and ahead/behind 0/0; main
+remained unchanged and PR #6 remained open/draft/unmerged with auto-merge
+absent/disabled. Publication SHA/run and final synchronization are immutable
+post-push facts supplied in the final handoff. The exact publication commit must
+classify P / PUBLICATION_EXACT_SHA, Publication proof and Verification must PASS,
+and Quality/Compose/W03 must be SKIPPED. No future result or backfill commit is
+claimed here.
+
+```text
+TASK: W03-C10-I/H/R
+W03-C10: ACCEPTANCE EVIDENCE PREPARED / CODEX VERIFIED / PENDING GPT REVIEW
+TECHNICAL ACCEPTANCE READINESS: PASS
+A01-A10: 10 / 10 EVIDENCE_READY
+H01-H34: 34 / 34 PASS
+BUSINESS ACCEPTANCE: PENDING PRODUCT OWNER DECISION
+HUMAN C10 ACCEPTANCE: PENDING
+C10 CLOSED: NO
+W03 SPRINT CLOSED: NO
+PR #6 MERGE AUTHORIZED: NO
+NEXT: GPT W03-C10 INDEPENDENT ACCEPTANCE-READINESS REVIEW
+REPORT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+GPT C10 INDEPENDENT REVIEW: PENDING
+STATUS: BUSINESS_ACCEPTANCE_REVIEW_READY ONLY AFTER PUBLICATION GATE AND FINAL SYNCHRONIZATION
+```
+
+Stop there. No self-review, Human acceptance, C10/W3 closeout, PR merge,
+draft-to-ready, auto-merge enablement or post-W3 work is authorized.
+
+
+---
+
+## 60. W03-C10-C1 / W03 Final Closeout
+
+**Date:** 2026-10-05 (Asia/Shanghai)
+
+**Entry SHA:** `dade594d3ba67825775577f46408689b733f089d`
+
+**Human C10 Acceptance:** ACCEPTED
+
+**W03 Final Closeout Authorization:** APPROVED
+
+The active Product Owner request supplied both exact binding lines after the
+supplied independent GPT review returned PASS FOR HUMAN W03-C10 BUSINESS
+ACCEPTANCE REVIEW. Codex faithfully records the overall Human decision and
+publishes the supplied GPT R1 byte-identically. No separate A01-A10 notes or
+numeric scores were supplied; the ten dimension rows/blank notes remain unchanged.
+
+Mandatory read-only preflight matched branch, all four entry heads, main,
+CLEAN worktree/staging, 0/0, open/draft/unmerged PR #6, absent/disabled auto-merge
+and successful exact-SHA Run #82. All twelve package checksums and thirty-three
+entry identities passed. The supplied Context Lock was LOCKED before writes.
+
+The accepted chain remains:
+
+```text
+C09 EFFECTIVE CLOSEOUT:
+147cefae890d3a450052298f0a331e1528e1f856
+Run #80 / 37220934558 / PASS / P / PUBLICATION_EXACT_SHA
+
+C10 IMPLEMENTATION:
+57dd12db02b5650b5c04e1d1007ffc22810a74a1
+Run #81 / 37224461190 / PASS / C / FULL_EXACT_SHA
+Quality / Compose / W03 / Verification PASS; Publication SKIPPED
+F01-F10 / 38 selectors / 85 cases PASS
+H01-H34 34/34 PASS
+A01-A10 10/10 EVIDENCE_READY
+
+C10 READINESS PUBLICATION:
+dade594d3ba67825775577f46408689b733f089d
+Run #82 / 37227376986 / PASS / P / PUBLICATION_EXACT_SHA
+Publication / Verification PASS; Quality / Compose / W03 SKIPPED
+
+GPT C10 REVIEW:
+PASS FOR HUMAN W03-C10 BUSINESS ACCEPTANCE REVIEW
+
+HUMAN C10 ACCEPTANCE:
+ACCEPTED
+
+CLOSEOUT CONTROL:
+85c5e5ec19eb6db7a2921656138a9c9817702bcc
+Run #83 / 37252248950 / PASS / UNKNOWN / FULL_EXACT_SHA
+Quality / Compose / W03 / Verification PASS; Publication SKIPPED
+F01-F10 / 38 selectors / 85 cases PASS
+K01-K20 20/20 PASS
+```
+
+The normal control commit changes exactly README, AGENTS, Context Index, Sprint
+current status, Human Acceptance Form and the supplied GPT R1 publication.
+Stale current Week 3/G0/implementation-unauthorized claims are normalized with
+conditional closeout wording. W1/W2 content, AGENTS invariant/routing semantics,
+Context Index authority/runtime rules, Sprint goals/architecture/non-goals/roles/
+stops/exit criteria/history and ten Human dimension rows remain unchanged.
+README remains intentionally unclassified and UNKNOWN safely requires FULL proof;
+classifier/gate/workflow semantics are unchanged.
+
+Actual control CI proves 48 integration and 935 non-integration tests, Ruff,
+strict mypy over 139 source files, the 43-package dependency lock, Compose smoke
+and all 85 frozen W03 cases. The existing Starlette/httpx warning remains.
+
+No source/tests/.github/scripts/migrations/apps/dependency/lock/Docker,
+C01-C10 product/runtime semantics, C08 prompt/schema/provider/model, C09 gate,
+live provider/secret/runtime HGT/future leakage/operational mutation,
+main/PR settings or post-W03 implementation changes occurred.
+
+The accepted bounded W3 v0 limitations remain: synthetic evidence is not a real
+enterprise outcome; C04 families are stress probes, not remedy efficacy;
+C05 investigation/abstention is not optimization or action authority; A09 is
+artifact review, not production UX; C08 closed grammar is intentionally
+constrained; OutcomeEvaluation is deferred and HumanDecisionEvent is not a
+business outcome; production deployment, ERP/MES integration, autonomous action
+and operational mutation remain out of scope; branch protection is unchanged.
+
+[GPT C10 Independent Review R1](w03/reports/W03_C10_GPT_INDEPENDENT_ACCEPTANCE_READINESS_REVIEW_R1.md)
+and [Final W03 Closeout](w03/reports/W03_C10_C1_W03_FINAL_CLOSEOUT.md) bind the
+authority, accepted evidence, actual control FULL proof, K01-K20 and limitations.
+
+Immediately before this final two-file publication delta, local/tracking/
+direct-remote/PR #6 heads matched control SHA, tree/staging were CLEAN and 0/0.
+Main stayed `9d18ddde9fe933952a2661ee1419f13c8577605d`; PR remained open/draft/
+unmerged with auto-merge absent/disabled. Final publication SHA/run and final
+synchronization are immutable post-push facts supplied in the final handoff.
+Historical Sections 1-59 remain unchanged; this commit modifies only CURRENT_STATE's
+current surface and this new Section 60 plus the final closeout report.
+
+```text
+TASK: W03-C10-C1 / W03 FINAL CLOSEOUT
+GPT C10 REVIEW: PASS
+W03-C10 HUMAN ACCEPTANCE: ACCEPTED
+W03 FINAL CLOSEOUT AUTHORIZATION: APPROVED
+K01-K20: 20/20 PASS
+FINAL CLOSEOUT PUBLICATION EXACT-SHA: PENDING ON THIS COMMIT
+C10 CLOSED: YES — EFFECTIVE ONLY AFTER FINAL W03 CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+W03 SPRINT CLOSED: YES — EFFECTIVE ONLY AFTER FINAL W03 CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+W03 COMPLETE: YES — EFFECTIVE ONLY AFTER FINAL W03 CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+PR #6 MERGE AUTHORIZED: NO
+POST-W03 IMPLEMENTATION AUTHORIZED: NO
+NEXT: GPT POST-W03 NEXT-PHASE / MERGE AUTHORIZATION REVIEW
+STATUS: W03_CLOSED ONLY AFTER FINAL W03 CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+```
+
+Stop after exact P / PUBLICATION_EXACT_SHA proof (Publication + Verification PASS,
+Quality/Compose/W03 SKIPPED) and final synchronization. No PR merge,
+draft-to-ready, auto-merge, main write or post-W03 implementation is authorized.
+
+---
+
+## 61. Post-W03 PR #6 Merge Preparation
+
+**Date:** 2026-10-05 (Asia/Shanghai)
+
+**Entry SHA:** `a24e2e0587f11114edd5718eb10081797e303087`
+
+**Pre-Merge Main / Merge Base:** `9d18ddde9fe933952a2661ee1419f13c8577605d`
+
+W03/C10 closure is effective through Run #84 / 37254705531 and synchronization.
+Supplied GPT review: PASS FOR HUMAN W03 PR #6 MERGE AUTHORIZATION.
+Active Product Owner gate: `W03 PR #6 MERGE AUTHORIZATION: APPROVED`.
+
+Read-only preflight matched local/tracking/direct-remote/PR head, branch,
+main/merge base, 54/0 relative to main, clean tree/staging, tracking 0/0,
+OPEN / DRAFT / NOT MERGED PR, CLEAN mergeability, absent auto-merge and Run #84 PASS.
+Merge commits are allowed; automatic head-branch deletion is disabled.
+All 13 payload hashes passed. Context was LOCKED in the Merge Preparation report
+before any other authorized repository write.
+
+Exactly seven paths: README, AGENTS, Context Index, Sprint current status,
+CURRENT_STATE, supplied GPT merge review and Merge Preparation report.
+Historical Sections 1-60, Sprint Sections 1-20/22, frozen invariants and accepted
+C01-C10 semantics are unchanged. No source/tests/workflow/runtime/dependency/
+schema/migration/checkpoint/operational change occurs.
+
+[GPT Post-W03 Merge Review R1](w03/reports/POST_W03_GPT_NEXT_PHASE_MERGE_AUTHORIZATION_REVIEW_R1.md)
+and [PR #6 Merge Preparation](w03/reports/W03_PR6_MERGE_PREPARATION.md) bind the
+authority, lock, entry evidence and required integration proof.
+
+Preparation requires UNKNOWN / FULL_EXACT_SHA because README is intentionally
+unclassified. Classify, Quality, Compose, W03 and Verification must PASS;
+Publication SKIPPED; F01-F10 / 38 selectors / 85 cases PASS.
+Actual preparation SHA/run are pending on this commit and supplied after push.
+Prior CI cannot substitute.
+
+After full proof, normalize PR body with frozen template and actual preparation
+SHA, preserve title, mark ready, re-check head/base/body/CLEAN, then GitHub merge
+using MERGE COMMIT only with exact-head guard. Require two parents: old main first,
+preparation head second. Squash/rebase merge/auto-merge/branch deletion are forbidden.
+
+Require exact merge-commit main push CI with UNKNOWN / FULL proof and F01-F10 /
+38 / 85 PASS. Failure: STOP without main hotfix. Final local/tracking/direct-remote
+main must match PR merge commit, clean tree/staging, 0/0 and CLOSED / MERGED PR.
+Retain remote feature branch at preparation SHA. No extra publication commit.
+
+```text
+W03: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C10: CLOSED
+GPT MERGE REVIEW: PASS FOR HUMAN AUTHORIZATION
+HUMAN MERGE AUTHORIZATION: APPROVED
+PR #6 MERGE: AUTHORIZED / PENDING PRE-MERGE FULL PROOF
+PRE-MERGE FULL PROOF: PENDING ON THIS COMMIT
+POST-W03 IMPLEMENTATION: NOT AUTHORIZED
+NEXT: PR #6 MERGE COMMIT + POST-MERGE MAIN VERIFICATION
+STATUS: W03_MERGE_PREPARATION_PENDING_FULL_PROOF
+```
+
+Only after merge and exact main CI PASS may final handoff state
+W03_MERGED_POST_MERGE_VERIFIED. Next: GPT POST-W03 CAPABILITY-GAP /
+SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW; no next phase is selected here.

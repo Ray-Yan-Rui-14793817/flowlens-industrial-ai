@@ -1,457 +1,406 @@
 # FlowLens Industrial AI — AGENTS.md
-> Week 2 Industrial Data Foundation / 第二周工业数据基础规则
+> Week 3 Repository Agent Router / W03 仓库级 Agent 执行路由
 
-This file defines repository-wide rules for Codex and any engineering agent working in this repository.  
-本文件定义 Codex 及任何工程代理在本仓库中必须遵守的全局规则。
+**Activation:** This file becomes authoritative when the W03-G0 governance package is human-approved and published to the repository.
 
----
-
-## 1. 项目使命 / Project Mission
-
-**中文**
-
-FlowLens Industrial AI 是一个面向高压电气装备制造场景的、以证据为基础的工业 AI 决策智能平台。首个纵向闭环聚焦 **Production Delivery Intelligence（生产交付智能）**，逐步形成：
-
-**DESCRIBE → PREDICT → INVESTIGATE → TRANSFORM**
-
-系统的核心目标不是“做一个制造业聊天机器人”，而是通过确定性数据分析、延期风险预测、企业知识检索和受控 LLM 调查工作流，帮助制造运营人员更早识别交付风险信号、调查问题并形成可执行的改进建议。
-
-**English**
-
-FlowLens Industrial AI is an evidence-grounded Industrial AI Decision Intelligence platform for high-voltage electrical equipment manufacturing scenarios. Its first vertical focuses on **Production Delivery Intelligence** and evolves through:
-
-**DESCRIBE → PREDICT → INVESTIGATE → TRANSFORM**
-
-The goal is not to build a generic manufacturing chatbot. The system should combine deterministic analytics, delivery-risk prediction, enterprise knowledge retrieval, and controlled LLM investigation workflows to help manufacturing operations teams identify delivery-risk signals earlier, investigate problems, and generate actionable improvement recommendations.
+This file is intentionally concise. It is a persistent execution router, not the full Week 3 architecture specification.
 
 ---
 
-## 2. 唯一事实源 / Source of Truth
+## 1. Current Phase
 
-**中文**
+```text
+PROJECT:
+FlowLens Industrial AI
 
-Git 仓库是唯一事实源。关键业务定义、数据契约、指标定义、架构决策、Sprint Spec、评估规则和当前状态必须写入仓库文档，而不能只存在于聊天记录中。
+PHASE:
+Week 3 — Industrial AI Decision Loop Foundation
 
-任何已批准的业务契约不得为了工程实现方便而被静默修改。若实现与契约冲突，Codex 必须报告冲突并等待确认。
+PRIMARY LOOP:
+Order Delivery Risk Decision Loop
 
-**English**
+MODE:
+OFFLINE / SHADOW / HUMAN-IN-THE-LOOP
 
-The Git repository is the single source of truth. Business definitions, data contracts, metric definitions, architecture decisions, sprint specifications, evaluation rules, and current-state records must be stored in repository documents rather than only in chat history.
+CORE:
+DETERMINISTIC-FIRST
 
-Approved business contracts must not be silently changed for implementation convenience. If implementation conflicts with a contract, Codex must report the conflict and wait for a decision.
+OPERATIONAL MUTATION:
+PROHIBITED
 
----
+RUNTIME HGT:
+PROHIBITED
 
-## 3. 当前阶段 / Current Phase
+W03 IMPLEMENTATION / EVIDENCE WORK:
+COMPLETE
 
-**中文**
+GPT C10 REVIEW:
+PASS FOR HUMAN W03-C10 BUSINESS ACCEPTANCE REVIEW
 
-当前阶段：**Week 2 — Industrial Data Foundation**
+HUMAN C10 ACCEPTANCE:
+ACCEPTED
 
-**Week 1 — Project Foundation：CLOSED / POST-MERGE VERIFIED**
+W03 FINAL CLOSEOUT:
+EFFECTIVE
 
-Week 2 建立：
+W03:
+CLOSED / VERIFIED / GITHUB SYNCHRONIZED
 
-- canonical manufacturing data contracts；
-- manufacturing SQLAlchemy models；
-- Alembic manufacturing schema；
-- deterministic synthetic-data generation；
-- dataset versioning；
-- fixed random seed；
-- scenario injection；
-- Hidden Ground Truth isolation；
-- referential / temporal / quantity data-quality validation；
-- Week 2 unit / integration / CI validation。
+C10:
+CLOSED
 
-已冻结的 Week 2 控制契约：
+GPT MERGE REVIEW:
+PASS FOR HUMAN W03 PR #6 MERGE AUTHORIZATION
 
-- `docs/03_data_contracts.md`
-- `docs/sprints/W02_industrial_data_foundation.md`
+HUMAN MERGE AUTHORIZATION:
+APPROVED — W03 PR #6 MERGE AUTHORIZATION: APPROVED
 
-所有 Week 2 实现必须遵守这些契约。不得提前实现 Week 3 或更晚阶段的能力。
+POST-W03 IMPLEMENTATION:
+NOT AUTHORIZED
 
-**English**
+PR #6 MERGE:
+AUTHORIZED / PENDING PRE-MERGE FULL PROOF
 
-Current phase: **Week 2 — Industrial Data Foundation**
+MERGE METHOD:
+GITHUB MERGE COMMIT ONLY
 
-**Week 1 — Project Foundation: CLOSED / POST-MERGE VERIFIED**
+FEATURE BRANCH:
+RETAINED
 
-Week 2 establishes:
+NEXT:
+PR #6 MERGE COMMIT + POST-MERGE MAIN VERIFICATION
+```
 
-- canonical manufacturing data contracts;
-- manufacturing SQLAlchemy models;
-- Alembic manufacturing schema;
-- deterministic synthetic-data generation;
-- dataset versioning;
-- fixed random seed;
-- scenario injection;
-- Hidden Ground Truth isolation;
-- referential / temporal / quantity data-quality validation;
-- Week 2 unit / integration / CI validation.
+Week 1 and Week 2 are closed baselines.
 
-Frozen Week 2 control contracts:
-
-- `docs/03_data_contracts.md`
-- `docs/sprints/W02_industrial_data_foundation.md`
-
-All Week 2 implementation must conform to those contracts. Do not implement Week 3 or later capabilities early.
+Do not reopen or silently reinterpret accepted W1/W2 contracts, history, schema, hashing, scenario semantics, or HGT isolation.
 
 ---
 
-## 4. 当前业务范围 / Current Business Scope
+## 2. Repository Source of Truth
 
-**中文**
+The Git repository is the source of truth.
 
-- 行业域：高压电气装备制造参考场景
-- 数据属性：Synthetic / anonymized / industry-inspired
-- 首个业务场景：Production Delivery Intelligence
-- Primary User：Production / Delivery Operations Manager
-- 核心问题：**Why are production orders delayed, and how can data and AI support earlier intervention?**
-- 决策问题：**How can an operations manager identify delivery-risk signals early enough to decide where investigation or intervention should begin?**
+For W03 work, read the current authorized task contract first, then the following control documents as applicable:
 
-不得把模拟数据、模拟流程或行业参考内容描述为某家真实企业的生产数据或正式部署。
+```text
+docs/w03/AI_LOOP_CONSTITUTION.md
+docs/sprints/W03_ai_decision_loop.md
+docs/w03/SEMANTIC_TRUST_CONTRACT.md
+docs/w03/CONTEXT_AND_MATERIAL_MANAGEMENT.md
+docs/w03/PROMPT_AND_TOOL_EXECUTION_CONTRACT.md
+docs/w03/LOOP_EXECUTION_STATE_MACHINE.md
+docs/w03/FAILURE_AND_DEGRADATION_POLICY.md
+docs/w03/AI_LOOP_HARNESS_AND_REPORTING_SPEC.md
+docs/context/CONTEXT_INDEX.md
+docs/context/MATERIAL_REGISTRY.md
+LOOP.md
+```
 
-**English**
+Frozen W1/W2 upstream contracts remain authoritative unless an explicitly authorized W03 architecture decision changes them.
 
-- Domain: high-voltage electrical equipment manufacturing inspired scenario
-- Data status: synthetic / anonymized / industry-inspired
-- First use case: Production Delivery Intelligence
-- Primary user: Production / Delivery Operations Manager
-- Core question: **Why are production orders delayed, and how can data and AI support earlier intervention?**
-- Decision question: **How can an operations manager identify delivery-risk signals early enough to decide where investigation or intervention should begin?**
-
-Do not describe synthetic data, synthetic processes, or industry-inspired materials as the production data or official deployment of a real company.
-
----
-
-## 5. 架构原则 / Architecture Principles
-
-### 5.1 Modular Monolith First
-
-**中文**
-
-优先使用模块化单体架构。除非存在明确的 P0 需求，否则不得主动引入微服务、Kafka、RabbitMQ、Kubernetes 或其他分布式复杂度。
-
-**English**
-
-Prefer a modular monolith. Do not introduce microservices, Kafka, RabbitMQ, Kubernetes, or other distributed-system complexity unless a concrete P0 requirement justifies it.
-
-### 5.2 One Primary Database
-
-**中文**
-
-第一版使用 PostgreSQL 作为主要数据库。Week 2 只能创建 `docs/03_data_contracts.md` 明确批准的制造 Schema。pgvector 仍然仅作为基础设施存在；Week 2 不得实现 Embedding、Vector Search、Semantic Retrieval 或 RAG。
-
-**English**
-
-Use PostgreSQL as the primary database. Week 2 may create only the manufacturing schema explicitly approved by `docs/03_data_contracts.md`. pgvector remains infrastructure-only; Week 2 must not implement embeddings, vector search, semantic retrieval, or RAG.
-
-### 5.3 Deterministic Numbers
-
-**中文**
-
-所有业务指标必须由 SQL 或 Python 确定性计算。未来的 LLM 只能理解、编排、综合和解释，不得成为数值事实来源。
-
-**English**
-
-All business metrics must be calculated deterministically with SQL or Python. Future LLM components may understand, orchestrate, synthesize, and explain, but must never become the source of numeric truth.
-
-### 5.4 Evidence First
-
-**中文**
-
-后续所有重要 Observed Fact 必须能够追踪到数据、模型或文档证据。不得把没有证据支持的推测包装成事实。
-
-**English**
-
-Future observed facts must be traceable to data, model, or document evidence. Unsupported assumptions must never be presented as facts.
-
-### 5.5 Correlation Is Not Causation
-
-**中文**
-
-使用“风险信号”“关联”“与……同时出现”等语言。除非有明确因果设计，否则不得使用“导致”“造成”等因果表述。
-
-**English**
-
-Use language such as “risk signal,” “association,” or “co-occurs with.” Do not use causal wording such as “caused” unless a valid causal design supports the claim.
-
-### 5.6 Contracts Before Implementation
-
-**中文**
-
-数据契约、指标定义、API 契约或 Sprint Spec 一旦冻结，Codex 不得为了实现方便自行修改。若发现不可实现、矛盾或遗漏，应报告 conflict。
-
-**English**
-
-Once data contracts, metric definitions, API contracts, or sprint specifications are frozen, Codex must not modify them for convenience. If they are impossible, contradictory, or incomplete, report the conflict.
+Repository control documents outrank chat history.
 
 ---
 
-## 6. Week 2 禁止事项 / Week 2 Prohibitions
+## 3. Authority Hierarchy
 
-**中文**
+```text
+1. Current authorized task contract
+2. AI_LOOP_CONSTITUTION.md
+3. W03_ai_decision_loop.md
+4. SEMANTIC_TRUST_CONTRACT.md
+5. CONTEXT_AND_MATERIAL_MANAGEMENT.md
+6. PROMPT_AND_TOOL_EXECUTION_CONTRACT.md
+7. LOOP_EXECUTION_STATE_MACHINE.md
+8. FAILURE_AND_DEGRADATION_POLICY.md
+9. AI_LOOP_HARNESS_AND_REPORTING_SPEC.md
+10. Frozen W1/W2 contracts
+11. CURRENT_STATE.md
+12. Most recent closed W03 Round Report
+13. Historical reports / chat
+```
 
-Week 2 不得实现：
-
-- Manufacturing metrics
-- On-Time Delivery / Delay Rate
-- Cycle Time / WIP analytics
-- Material Availability metric
-- Supplier On-Time Rate
-- FPY / Rework Rate
-- Analytics API
-- Dashboard business functionality
-- Plotly business analytics
-- Feature engineering
-- Delivery Risk ML
-- Model training or inference
-- Embeddings
-- Vector search
-- Semantic retrieval
-- RAG
-- LLM API calls
-- Prompt engineering
-- Agents
-- LangChain
-- LangGraph
-- Real ERP / MES integration
-- Predictive maintenance
-- Computer vision
-- Multi-agent systems
-- Fine-tuning
-- New message brokers
-- Unnecessary distributed infrastructure
-
-Week 2 operational tables 不得存储：
-
-- `is_delayed`
-- `delay_days`
-- `delivery_delay_rate`
-- `supplier_on_time_rate`
-- `material_availability_ratio`
-- `first_pass_yield`
-- `rework_rate`
-- `delivery_risk_probability`
-- `scenario_id`
-- `scenario_name`
-- `true_root_cause`
-
-**English**
-
-Do not implement the following during Week 2:
-
-- manufacturing metrics;
-- On-Time Delivery / Delay Rate;
-- Cycle Time / WIP analytics;
-- Material Availability metric;
-- Supplier On-Time Rate;
-- FPY / Rework Rate;
-- analytics API;
-- dashboard business functionality;
-- Plotly business analytics;
-- feature engineering;
-- Delivery Risk ML;
-- model training or inference;
-- embeddings;
-- vector search;
-- semantic retrieval;
-- RAG;
-- LLM API calls;
-- prompt engineering;
-- agents;
-- LangChain;
-- LangGraph;
-- real ERP / MES integration;
-- predictive maintenance;
-- computer vision;
-- multi-agent systems;
-- fine-tuning;
-- new message brokers;
-- unnecessary distributed infrastructure.
-
-Week 2 operational tables must not store:
-
-- `is_delayed`
-- `delay_days`
-- `delivery_delay_rate`
-- `supplier_on_time_rate`
-- `material_availability_ratio`
-- `first_pass_yield`
-- `rework_rate`
-- `delivery_risk_probability`
-- `scenario_id`
-- `scenario_name`
-- `true_root_cause`
+A lower-authority source may narrow a task but may not silently weaken a higher-authority invariant.
 
 ---
 
-## 7. Week 2 允许事项 / Week 2 Allowed Work
+## 4. W03 Frozen Invariants
 
-**中文**
+Always preserve:
 
-Week 2 可以实现：
+```text
+CONTRACT FIRST
+ONE CHECKPOINT AT A TIME
 
-- `docs/03_data_contracts.md` 批准的 manufacturing schema；
-- canonical SQLAlchemy Base / metadata；
-- manufacturing SQLAlchemy models；
-- Alembic manufacturing-domain migrations；
-- deterministic synthetic manufacturing data generator；
-- test / ci / demo dataset profiles；
-- fixed seed；
-- dataset version；
-- generator version；
-- canonical content hashing；
-- three approved scenario injectors；
-- Hidden Ground Truth manifest / runtime isolation；
-- referential integrity validation；
-- temporal integrity validation；
-- quantity integrity validation；
-- reproducibility validation；
-- scenario distribution validation；
-- dataset manifest；
-- data-quality report；
-- Week 2 unit tests；
-- PostgreSQL integration tests；
-- Week 2 CI seed/data-quality smoke；
-- required Week 2 documentation。
+DEVELOPMENT CONTEXT != RUNTIME CONTEXT
+CONTEXT LOCK BEFORE IMPLEMENTATION
 
-所有实现必须遵守：
+SNAPSHOT BEFORE REASONING
+ONE RUN = ONE IMMUTABLE SNAPSHOT
 
-- `docs/03_data_contracts.md`
-- `docs/sprints/W02_industrial_data_foundation.md`
+EVIDENCE BEFORE CLAIM
+ASSOCIATION != CAUSALITY
+UNKNOWN IS VALID
 
-**English**
+TOOLS DENY BY DEFAULT
+MODEL EXPLAINS, SYSTEM DECIDES
 
-Week 2 may implement:
+NO RUNTIME HGT
+NO FUTURE LEAKAGE
+NO OPERATIONAL MUTATION
 
-- the manufacturing schema approved by `docs/03_data_contracts.md`;
-- canonical SQLAlchemy Base / metadata;
-- manufacturing SQLAlchemy models;
-- Alembic manufacturing-domain migrations;
-- deterministic synthetic manufacturing data generator;
-- test / ci / demo dataset profiles;
-- fixed seed;
-- dataset version;
-- generator version;
-- canonical content hashing;
-- the three approved scenario injectors;
-- Hidden Ground Truth manifest / runtime isolation;
-- referential-integrity validation;
-- temporal-integrity validation;
-- quantity-integrity validation;
-- reproducibility validation;
-- scenario-distribution validation;
-- dataset manifest;
-- data-quality report;
-- Week 2 unit tests;
-- PostgreSQL integration tests;
-- Week 2 CI seed/data-quality smoke;
-- required Week 2 documentation.
+HUMAN DECISION AUTHORITY
 
-All implementation must conform to:
+HARNESS = DETECTION + ENFORCEMENT + EVIDENCE
 
-- `docs/03_data_contracts.md`
-- `docs/sprints/W02_industrial_data_foundation.md`
+REPORT BEFORE REVIEW
+REVIEW BEFORE ACCEPTANCE
+ACCEPTANCE BEFORE CLOSEOUT
+NO CHECKPOINT AUTO-ADVANCE
+```
 
 ---
 
-## 8. 数据与安全规则 / Data and Security Rules
+## 5. W1/W2 Baseline Protection
 
-**中文**
+Do not silently change:
 
-- 不得提交 `.env`、API key、密码或其他 secret。
-- 必须提供 `.env.example`。
-- Manufacturing tables 只能在冻结的数据契约明确规定时创建。
-- 不得静默引入新的字段、业务标签、指标或语义。
-- `data/hidden_ground_truth/` 必须与 runtime application code 隔离。
-- API、Worker、Analytics、未来 ML、RAG 和 orchestration runtime code 不得读取 Hidden Ground Truth。
-- Runtime Docker images 不得包含 Hidden Ground Truth。
-- Public manifests 不得暴露 scenario names、affected entities、true root causes 或 evaluation answers。
-- Synthetic assumptions 不得表述为浙江恒博的真实内部运营参数或真实生产数据。
-- 不得引入真实 customer、supplier、employee、commercial 或 confidential identifiers。
-- 不得在日志中输出敏感凭据。
+```text
+W2 operational schema
+Alembic migration semantics
+canonical dataset hash semantics
+deterministic generator semantics
+Supplier scenario semantics
+Quality scenario semantics
+Capacity scenario semantics
+HGT identity/isolation
+accepted Week 2 historical evidence
+```
 
-**English**
+If implementation appears to require one of these changes:
 
-- Never commit `.env`, API keys, passwords, or other secrets.
-- Provide `.env.example`.
-- Manufacturing tables may be created only when explicitly defined by the frozen data contract.
-- Do not silently introduce new fields, business labels, metrics, or semantics.
-- `data/hidden_ground_truth/` must remain isolated from runtime application code.
-- API, Worker, Analytics, future ML, RAG, and orchestration runtime code must not read Hidden Ground Truth.
-- Runtime Docker images must not contain Hidden Ground Truth.
-- Public manifests must not reveal scenario names, affected entities, true root causes, or evaluation answers.
-- Synthetic assumptions must not be represented as real Zhejiang Hengbo internal operating parameters or real production data.
-- Do not introduce real customer, supplier, employee, commercial, or confidential identifiers.
-- Do not log sensitive credentials.
+```text
+STOP
+REPORT CONTRACT CONFLICT
+WAIT FOR AUTHORIZATION
+```
 
 ---
 
-## 9. 工程行为 / Engineering Behaviour
+## 6. Runtime AI Boundary
 
-**中文**
+W03 v0 Runtime AI may:
 
-每个 Codex 任务必须：
+```text
+READ authorized operational facts through bounded builders
+BUILD decision-time snapshots
+DERIVE deterministic evidence/signals
+SIMULATE isolated counterfactuals
+RECOMMEND for human review
+EXPLAIN frozen DecisionPackets
+RECORD HumanDecisionEvent
+EVALUATE offline in the protected evaluation plane
+```
 
-1. 先读取本文件和对应 Sprint Spec。
-2. 在修改代码前检查现有仓库结构。
-3. 只修改任务允许范围。
-4. 不进行无关重构。
-5. 不增加无明确理由的依赖。
-6. 新增逻辑必须有适当测试。
-7. 实际运行要求的测试和质量检查。
-8. 不得隐藏失败结果。
-9. 测试通过后再更新 `docs/CURRENT_STATE.md`。
-10. 完成后返回变更摘要、命令、测试结果和已知限制。
+W03 v0 Runtime AI may not:
 
-**English**
-
-Every Codex task must:
-
-1. Read this file and the relevant Sprint Spec first.
-2. Inspect the existing repository before editing.
-3. Modify only the allowed scope.
-4. Avoid unrelated refactoring.
-5. Avoid adding dependencies without clear justification.
-6. Add appropriate tests for new logic.
-7. Actually run the required tests and quality checks.
-8. Never hide failed results.
-9. Update `docs/CURRENT_STATE.md` only after checks pass.
-10. Return a change summary, commands run, test results, and known limitations.
+```text
+write operational truth
+modify SO / WO / PO / Delivery
+schedule production automatically
+procure automatically
+replace suppliers automatically
+release quality automatically
+read runtime HGT
+use future evidence
+invent intervention candidates
+invent causal truth
+```
 
 ---
 
-## 10. Definition of Done
+## 7. LLM Boundary
 
-**中文**
+For W03 v0:
 
-任务只有在以下条件全部满足时才算完成：
+```text
+LLM ROLE:
+EXPLAINER ONLY
 
-- Acceptance Criteria 已满足。
-- 必要单元/集成测试已新增或更新。
-- pytest 通过。
-- lint 通过。
-- type checking 通过。
-- Docker / infrastructure 检查按 Spec 通过。
-- 未违反 Scope 与 Non-goals。
-- 未静默修改业务契约。
-- 必要文档已更新。
-- `docs/CURRENT_STATE.md` 准确记录真实状态。
-- 已知限制明确列出。
+LLM TOOL ACCESS:
+NONE
 
-**English**
+LLM DATABASE ACCESS:
+NONE
 
-A task is complete only when:
+LLM HGT ACCESS:
+NONE
 
-- Acceptance criteria are satisfied.
-- Required unit/integration tests are added or updated.
-- pytest passes.
-- lint passes.
-- type checking passes.
-- Docker/infrastructure checks required by the spec pass.
-- Scope and non-goals are respected.
-- No business contract is silently changed.
-- Required documentation is updated.
-- `docs/CURRENT_STATE.md` reflects the real state.
-- Known limitations are explicitly listed.
+LLM CANDIDATE AUTHORITY:
+NONE
+
+LLM RECOMMENDATION AUTHORITY:
+NONE
+
+LLM OPERATIONAL WRITE:
+NONE
+```
+
+Recommendation must be frozen before LLM explanation.
+
+---
+
+## 8. Codex Development Workflow
+
+For each implementation checkpoint:
+
+```text
+AUTHORIZED TASK CONTRACT
+↓
+PRE-FLIGHT / BASELINE CHECK
+↓
+CONTEXT LOCK
+↓
+IMPLEMENT ONLY AUTHORIZED SCOPE
+↓
+FOCUSED TESTS
+↓
+AUTO-REPAIR TYPE-A IMPLEMENTATION FAILURES ONLY
+↓
+INTEGRATION / REGRESSION
+↓
+SEMANTIC + SAFETY HARNESS
+↓
+IMPLEMENTATION COMMIT
+↓
+NORMAL PUSH
+↓
+EXACT-SHA CI
+↓
+DEVELOPMENT ROUND REPORT
+↓
+STOP AT REVIEW_READY
+```
+
+Codex must not self-authorize the next checkpoint.
+
+---
+
+## 9. Failure Handling
+
+### AUTO-REPAIR ALLOWED
+
+```text
+ordinary implementation bug
+typing error
+serialization defect
+test defect
+bounded CI/config defect
+```
+
+### STOP / ESCALATE
+
+```text
+contract conflict
+semantic/product decision
+schema/migration change requirement
+canonical hash change requirement
+scenario semantic change requirement
+new dependency outside authorization
+```
+
+### IMMEDIATE ABORT
+
+```text
+HGT runtime leakage
+future leakage
+operational mutation
+protected material exposure
+unauthorized tool/action
+```
+
+---
+
+## 10. Git Rules
+
+Unless the current task explicitly authorizes otherwise:
+
+```text
+NO DIRECT MAIN WRITE
+NO FORCE PUSH
+NO HISTORY REWRITE
+NO W2 BRANCH REUSE FOR W3
+NO CHECKPOINT AUTO-ADVANCE
+```
+
+W03 implementation branch:
+
+```text
+feat/w03-ai-decision-loop
+```
+
+may be created only after G0 Human Approval and repository publication authorization.
+
+---
+
+## 11. Skills Policy
+
+Project-local `skills/` content is procedural automation, not architectural truth.
+
+Rules:
+
+```text
+NO SKILL MAY OVERRIDE A CONTRACT
+NO SKILL MAY CHANGE TOOL PERMISSIONS
+NO SKILL MAY READ RUNTIME HGT
+NO SKILL MAY AUTHORIZE A CHECKPOINT
+NO SKILL MAY SELF-APPROVE REVIEW/CLOSEOUT
+```
+
+During G0:
+
+```text
+NO EXECUTABLE PROJECT SKILL IS REQUIRED
+```
+
+Skill candidates may be evaluated after repeated C01/C02 workflows demonstrate stable repetition.
+
+See:
+
+```text
+skills/README.md
+skills/SKILL_ADMISSION_POLICY.md
+```
+
+---
+
+## 12. Completion Boundary
+
+Codex final implementation-round status is at most:
+
+```text
+IMPLEMENTATION: COMPLETE
+HARNESS: PASS
+CI: PASS
+CHATGPT REVIEW: PENDING
+HUMAN ACCEPTANCE: PENDING
+CHECKPOINT CLOSED: NO
+STATUS: REVIEW_READY
+```
+
+A task is not closed until independent GPT review and Human acceptance are recorded.
+
+---
+
+## 13. When in Doubt
+
+```text
+DO NOT GUESS THE CONTRACT
+DO NOT REPAIR SEMANTICS SILENTLY
+DO NOT EXPAND SCOPE
+
+STOP
+SURFACE THE CONFLICT
+ASK FOR ARCHITECTURE / PRODUCT DECISION
+```

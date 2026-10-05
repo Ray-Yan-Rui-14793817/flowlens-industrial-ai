@@ -174,6 +174,25 @@ The Week 1 Docker Compose smoke remains a separate required regression gate.
 Week 2 Industrial Data Foundation is COMPLETE / CLOSED / VERIFIED. C06 exact-SHA
 GitHub CI is VERIFIED; independent review passed, and Product-Owner acceptance
 is ACCEPTED WITH DOCUMENTED LIMITATIONS. C06 is CLOSED / VERIFIED; known
-limitations remain documented. Week 3 is NOT STARTED / NOT AUTHORIZED. The next
-checkpoint is a Week 3 architecture / AI-readiness / semantic-trust
-authorization review only.
+limitations remain documented.
+
+## Week 3 current governance status
+
+W03 is CLOSED / VERIFIED / GITHUB SYNCHRONIZED; C10 is CLOSED. GPT C10 independent
+review passed, the Product Owner supplied `W03-C10 HUMAN ACCEPTANCE: ACCEPTED`,
+and final closeout is effective through exact-SHA Run #84 / 37254705531 on
+`a24e2e0587f11114edd5718eb10081797e303087` plus final synchronization.
+
+GPT Post-W03 merge review returned PASS FOR HUMAN W03 PR #6 MERGE AUTHORIZATION.
+The Product Owner supplied `W03 PR #6 MERGE AUTHORIZATION: APPROVED`.
+PR #6 merge is AUTHORIZED / PENDING PRE-MERGE FULL PROOF. It is currently
+OPEN / DRAFT / NOT MERGED with auto-merge absent/disabled. The authorized sequence
+is one bounded seven-path preparation commit, exact-SHA full CI, final PR body,
+ready-state transition, GitHub merge commit and exact merge-commit main push proof.
+The feature branch is retained.
+
+The bounded W3 v0 surface remains OFFLINE / SHADOW / HUMAN-IN-THE-LOOP /
+NO OPERATIONAL MUTATION; accepted limitations and C01-C10 semantics remain frozen.
+Post-W03 implementation is NOT AUTHORIZED.
+Next: PR #6 MERGE COMMIT + POST-MERGE MAIN VERIFICATION. After verified integration:
+GPT POST-W03 CAPABILITY-GAP / SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW.

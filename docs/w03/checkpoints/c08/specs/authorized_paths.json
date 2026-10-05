@@ -1,0 +1,35 @@
+{
+  "checkpoint": "W03-C08",
+  "contract_version": "W03-C08-A-v1",
+  "authorized_paths": [
+    "docs/CURRENT_STATE.md",
+    "docs/sprints/W03_ai_decision_loop.md",
+    "docs/w03/checkpoints/c08/**",
+    "docs/w03/reports/W03_C08_R_DEVELOPMENT_ROUND_REPORT.md",
+    "pyproject.toml",
+    "src/flowlens/config.py",
+    "src/flowlens/decision/c08_context.py",
+    "src/flowlens/decision/c08_explanation.py",
+    "src/flowlens/decision/c08_policy.py",
+    "src/flowlens/decision/c08_provider.py",
+    "src/flowlens/decision/c08_template.py",
+    "src/flowlens/decision/c08_validation.py",
+    "tests/test_c08_context.py",
+    "tests/test_c08_explanation.py",
+    "tests/test_c08_harness.py",
+    "tests/test_c08_prompt.py",
+    "tests/test_c08_provider.py",
+    "tests/test_c08_template.py",
+    "tests/test_c08_validation.py",
+    "uv.lock"
+  ],
+  "forbidden_path_families": [
+    "src/flowlens/decision/contracts.py",
+    "src/flowlens/decision/enums.py",
+    "src/flowlens/decision/primitives.py",
+    "src/flowlens/decision/serialization.py",
+    "src/flowlens/evaluation/**",
+    "docs/w03/checkpoints/c07/**",
+    "migrations/**"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "measurement_schema_version": "w03-c04-measurements-v1",
+  "measurements": [
+    {"name": "affected_entity_count", "unit": "count"},
+    {"name": "business_row_count_delta", "unit": "count"},
+    {"name": "target_delivered_quantity", "unit": "unit"},
+    {"name": "target_delivery_lag_seconds", "unit": "s"},
+    {"name": "target_failed_quantity", "unit": "unit"},
+    {"name": "target_last_delivery_at", "unit": null},
+    {"name": "target_max_operation_start_slippage_seconds", "unit": "s"},
+    {"name": "target_max_work_order_completion_slippage_seconds", "unit": "s"},
+    {"name": "target_remaining_quantity", "unit": "unit"},
+    {"name": "target_rework_quantity", "unit": "unit"}
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": "w03-c08-reason-codes-v1",
+  "codes": {
+    "C08_BOUNDED_EXPLANATION_V1": "The explanation passed the W03-C08 bounded explanation contract.",
+    "C08_DETERMINISTIC_TEMPLATE": "The explanation was rendered by the deterministic packet-only template.",
+    "C08_EVIDENCE_GROUNDED": "Every accepted explanation reference is grounded in the allowed packet evidence.",
+    "C08_EXPLANATION_DEGRADED": "The provider result was rejected or unavailable and deterministic fallback was used.",
+    "C08_FROZEN_RECOMMENDATION": "The explanation preserves the already-frozen recommendation.",
+    "C08_HUMAN_REVIEW_REQUIRED": "Human review remains required and authoritative.",
+    "C08_SCHEMA_REPAIR_USED": "One bounded schema-repair call was used before acceptance."
+  }
+}

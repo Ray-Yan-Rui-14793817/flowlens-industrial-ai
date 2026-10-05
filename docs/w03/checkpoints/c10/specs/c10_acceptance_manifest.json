@@ -1,0 +1,211 @@
+{
+  "schema_version": "w03-c10-business-acceptance-manifest-v1",
+  "checkpoint": "W03-C10",
+  "contract_version": "W03-C10-A-v1",
+  "contract_entry_sha": "147cefae890d3a450052298f0a331e1528e1f856",
+  "product_mode": [
+    "OFFLINE",
+    "SHADOW",
+    "HUMAN_IN_THE_LOOP",
+    "NO_OPERATIONAL_MUTATION"
+  ],
+  "technical_evidence_status_values": [
+    "EVIDENCE_READY",
+    "EVIDENCE_GAP"
+  ],
+  "codex_may_decide_business_acceptance": false,
+  "gpt_may_decide_business_acceptance": false,
+  "human_acceptance_required": true,
+  "human_acceptance_gate": "W03-C10 HUMAN ACCEPTANCE: ACCEPTED",
+  "dimensions": [
+    {
+      "id": "A01",
+      "name": "STATE_INTERPRETABILITY",
+      "question": "Can the Product Owner understand the decision-time order state, time boundary, trust labels, provenance, limitations and unresolved state without hidden inference?",
+      "w3_stages": [
+        "OBSERVE",
+        "TRUST"
+      ],
+      "evidence_families": [
+        "F01 CORE_CONTRACTS",
+        "F02 TEMPORAL_SEMANTIC_TRUST"
+      ],
+      "primary_artifacts": [
+        "StateSnapshot",
+        "EvidenceBundle",
+        "DecisionPacket"
+      ]
+    },
+    {
+      "id": "A02",
+      "name": "RISK_USEFULNESS",
+      "question": "Do the frozen risk signals and structured diagnosis help a Production / Delivery Operations Manager identify where investigation should begin without claiming unsupported root cause?",
+      "w3_stages": [
+        "DETECT",
+        "DIAGNOSE"
+      ],
+      "evidence_families": [
+        "F03 SIGNAL_DIAGNOSIS_FAIL_CLOSED"
+      ],
+      "primary_artifacts": [
+        "SignalBundle",
+        "DiagnosisRecord"
+      ]
+    },
+    {
+      "id": "A03",
+      "name": "EVIDENCE_USEFULNESS",
+      "question": "Is decision-relevant evidence traceable, bounded by time/trust/provenance, and useful for human investigation while associative evidence remains visibly associative?",
+      "w3_stages": [
+        "TRUST",
+        "DIAGNOSE"
+      ],
+      "evidence_families": [
+        "F02 TEMPORAL_SEMANTIC_TRUST",
+        "F03 SIGNAL_DIAGNOSIS_FAIL_CLOSED"
+      ],
+      "primary_artifacts": [
+        "Evidence",
+        "EvidenceBundle",
+        "DiagnosisRecord"
+      ]
+    },
+    {
+      "id": "A04",
+      "name": "HONESTY_OF_UNCERTAINTY",
+      "question": "Are UNKNOWN, conflict, insufficiency, abstention and degraded explanation states visible rather than silently resolved or converted into confidence?",
+      "w3_stages": [
+        "TRUST",
+        "RECOMMEND",
+        "EXPLAIN"
+      ],
+      "evidence_families": [
+        "F02 TEMPORAL_SEMANTIC_TRUST",
+        "F05 RECOMMENDATION_ABSTENTION",
+        "F08 LLM_GROUNDING_SCHEMA_INJECTION"
+      ],
+      "primary_artifacts": [
+        "EvidenceBundle",
+        "RecommendationRecord",
+        "ExplanationRecord"
+      ]
+    },
+    {
+      "id": "A05",
+      "name": "INTERVENTION_USEFULNESS",
+      "question": "Are the authorized intervention families useful as bounded investigation options while remaining registry-constrained and non-executing?",
+      "w3_stages": [
+        "SIMULATE",
+        "RECOMMEND"
+      ],
+      "evidence_families": [
+        "F04 COUNTERFACTUAL_ISOLATION",
+        "F05 RECOMMENDATION_ABSTENTION"
+      ],
+      "primary_artifacts": [
+        "InterventionCandidate",
+        "CandidateSet",
+        "SimulationBundle"
+      ]
+    },
+    {
+      "id": "A06",
+      "name": "COUNTERFACTUAL_CLARITY",
+      "question": "Can the Product Owner clearly distinguish baseline from modeled counterfactual outcomes, neutral controls and partial/unobservable effects without reading simulations as operational guarantees?",
+      "w3_stages": [
+        "SIMULATE",
+        "EVALUATE"
+      ],
+      "evidence_families": [
+        "F04 COUNTERFACTUAL_ISOLATION",
+        "F07 PROTECTED_EVALUATION_REPLAY"
+      ],
+      "primary_artifacts": [
+        "SimulationResult",
+        "SimulationBundle",
+        "RecommendationEvaluation"
+      ]
+    },
+    {
+      "id": "A07",
+      "name": "RECOMMENDATION_USEFULNESS",
+      "question": "Is the deterministic recommendation or abstention useful for human review, with candidate basis, modeled comparison, reasons and uncertainty preserved?",
+      "w3_stages": [
+        "RECOMMEND"
+      ],
+      "evidence_families": [
+        "F05 RECOMMENDATION_ABSTENTION"
+      ],
+      "primary_artifacts": [
+        "RecommendationRecord",
+        "DecisionPacket"
+      ]
+    },
+    {
+      "id": "A08",
+      "name": "EXPLANATION_FAITHFULNESS",
+      "question": "Does the bounded explanation faithfully restate the frozen packet and its limitations without changing recommendation authority, inventing evidence or resolving uncertainty?",
+      "w3_stages": [
+        "EXPLAIN",
+        "PROTECT"
+      ],
+      "evidence_families": [
+        "F08 LLM_GROUNDING_SCHEMA_INJECTION",
+        "F10 RUNTIME_CAPABILITY_ISOLATION"
+      ],
+      "primary_artifacts": [
+        "ExplanationRecord",
+        "DecisionPacket"
+      ]
+    },
+    {
+      "id": "A09",
+      "name": "HUMAN_REVIEW_ERGONOMICS",
+      "question": "Is the artifact-level review package usable for a Human ACCEPT / REJECT / DEFER decision in OFFLINE / SHADOW / HUMAN-IN-THE-LOOP mode without operational execution?",
+      "w3_stages": [
+        "REVIEW"
+      ],
+      "evidence_families": [
+        "F06 HUMAN_AUTHORITY_AUDIT"
+      ],
+      "primary_artifacts": [
+        "DecisionPacket",
+        "ExplanationRecord",
+        "HumanDecisionEvent"
+      ]
+    },
+    {
+      "id": "A10",
+      "name": "REPLAYABILITY",
+      "question": "Can an accepted decision run be reproduced and audited from frozen identities while evaluation/HGT remains isolated and runtime behavior remains deterministic-first?",
+      "w3_stages": [
+        "EVALUATE",
+        "REPRODUCE",
+        "PROTECT"
+      ],
+      "evidence_families": [
+        "F07 PROTECTED_EVALUATION_REPLAY",
+        "F09 REAL_DATASET_BINDING_DIRECTION",
+        "F10 RUNTIME_CAPABILITY_ISOLATION"
+      ],
+      "primary_artifacts": [
+        "DecisionRun",
+        "RecommendationEvaluation",
+        "HumanDecisionEvent"
+      ]
+    }
+  ],
+  "w3_exit_criteria": [
+    "OBSERVE",
+    "TRUST",
+    "DETECT",
+    "DIAGNOSE",
+    "SIMULATE",
+    "RECOMMEND",
+    "EXPLAIN",
+    "REVIEW",
+    "EVALUATE",
+    "REPRODUCE",
+    "PROTECT"
+  ]
+}

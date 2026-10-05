@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://flowlens.local/schemas/w03-c08-output-v1.json",
+  "title": "FlowLens W03-C08 bounded provider output",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "sections"],
+  "properties": {
+    "schema_version": {"const": "w03-c08-output-v1"},
+    "sections": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["section_key", "text", "evidence_ids", "reason_codes"],
+        "properties": {
+          "section_key": {
+            "enum": [
+              "recommendation_summary",
+              "evidence_and_diagnosis",
+              "simulation_context",
+              "uncertainties_and_limitations"
+            ]
+          },
+          "text": {"type": "string", "minLength": 1, "maxLength": 800},
+          "evidence_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^ev_[0-9a-f]{64}$"}
+          },
+          "reason_codes": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    }
+  }
+}

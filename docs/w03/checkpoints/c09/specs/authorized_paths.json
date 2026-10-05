@@ -1,0 +1,23 @@
+{
+  "schema_version": "w03-c09-authorized-paths-v1",
+  "checkpoint": "W03-C09",
+  "implementation_phase": [
+    ".github/workflows/ci.yml",
+    "scripts/ci/run_w03_ai_loop_gate.py",
+    "tests/test_c09_ci_gate.py",
+    "docs/w03/checkpoints/c09/W03_C09_AUTHORIZATION_CONTRACT.md",
+    "docs/w03/checkpoints/c09/W03_C09_CONTRACT_CLARIFICATION_01.md",
+    "docs/w03/checkpoints/c09/W03_C09_CONTEXT_LOCK.md",
+    "docs/w03/checkpoints/c09/W03_C09_CI_REGRESSION_CONTRACT.md",
+    "docs/w03/checkpoints/c09/W03_C09_HARNESS_SPEC.md",
+    "docs/w03/checkpoints/c09/W03_C09_GPT_REVIEW_CHECKLIST.md",
+    "docs/w03/checkpoints/c09/W03_C09_HUMAN_AUTHORIZATION.md",
+    "docs/w03/checkpoints/c09/specs/c09_gate_manifest.json",
+    "docs/w03/checkpoints/c09/specs/authorized_paths.json",
+    "docs/sprints/W03_ai_decision_loop.md"
+  ],
+  "report_publication_phase": [
+    "docs/w03/reports/W03_C09_R_DEVELOPMENT_ROUND_REPORT.md",
+    "docs/CURRENT_STATE.md"
+  ]
+}

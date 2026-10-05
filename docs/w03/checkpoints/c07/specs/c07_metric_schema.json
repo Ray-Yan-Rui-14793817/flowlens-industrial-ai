@@ -1,0 +1,40 @@
+{
+  "schema_version": "w03-c07-metric-schema-v1",
+  "evaluator_version": "w03-c07-evaluator-v1",
+  "metric_policy_version": "w03-c07-metrics-v1",
+  "producer": "flowlens.evaluation.c07_recommendation",
+  "truth_effect_modes": [
+    "EFFECTFUL_NOT_OBSERVABLE",
+    "EFFECTFUL_OBSERVABLE",
+    "NEUTRAL_CONTROL"
+  ],
+  "metrics": [
+    {"name": "evaluation.applicable", "type": "bool"},
+    {"name": "evaluation.candidate_relevance", "type": "bool|null"},
+    {"name": "evaluation.cause_direction_correct", "type": "bool|null"},
+    {"name": "evaluation.false_positive", "type": "bool|null"},
+    {"name": "evaluation.neutral_stability", "type": "bool|null"},
+    {"name": "evaluation.recommendation_coverage", "type": "bool|null"},
+    {"name": "recommendation.disposition", "type": "str"},
+    {"name": "recommendation.selected_family", "type": "str|null"},
+    {"name": "truth.effect_mode", "type": "str"},
+    {"name": "truth.expected_family", "type": "str|null"},
+    {"name": "truth.hgt_hash", "type": "str"},
+    {"name": "truth.hgt_id", "type": "str"},
+    {"name": "truth.observable_by_c03", "type": "bool"},
+    {"name": "truth.order_affected", "type": "bool"},
+    {"name": "truth.scenario_dataset_version_id", "type": "str"},
+    {"name": "truth.scenario_id", "type": "str"},
+    {"name": "truth.scenario_type", "type": "str"}
+  ],
+  "forbidden_value_types": ["float"],
+  "forbidden_metric_concepts": [
+    "accuracy",
+    "benefit",
+    "causal_confidence",
+    "confidence",
+    "probability",
+    "utility",
+    "weighted_score"
+  ]
+}

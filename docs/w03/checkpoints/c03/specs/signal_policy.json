@@ -1,0 +1,257 @@
+{
+  "aggregation": "positive witness > incomplete/empty scope > observed negative; DELIVERY_RISK and CAPACITY_PRESSURE have explicit overrides",
+  "capacity_v1_policy": "UNKNOWN only; no fabricated utilization proxy",
+  "ci_mutation_authorized": false,
+  "current_run_contract_bundle": "w03-c01-v1",
+  "devctrl_inherited": true,
+  "identity_reason_marker": "C03_POLICY_V1",
+  "limitations": {
+    "C03_ACCOUNTING_NOT_RELEASE": "Failed-quantity accounting does not establish formal quality release or a specific disposition.",
+    "C03_ASSOCIATION_NOT_ALLOCATION": "Material/time association does not establish order-specific procurement allocation.",
+    "C03_CAPACITY_NOT_IDENTIFIABLE": "An order-centric snapshot lacks complete competing workload, shift calendars, and allocatable capacity.",
+    "C03_CLOSED_WORLD_OBSERVATION_ASSUMPTION": "Absence means absence in the admitted C02 synthetic observation scope; late-arriving real-world records are not modeled.",
+    "C03_INACTIVE_NOT_ALL_CLEAR": "INACTIVE denotes absence of the specified indicator in the admitted observation scope, not an all-clear business decision.",
+    "C03_INSPECTION_NOT_RELEASE": "An inspection result does not establish a formal release event.",
+    "C03_NOT_MATERIAL_AVAILABILITY": "This timing warning does not establish net stock, material consumption, or production-time availability.",
+    "C03_OBSERVED_HISTORY_NOT_CURRENT_CAUSE": "A recorded historical warning may persist after resolution and must not be described as a current causal impediment.",
+    "C03_REWORK_NOT_RELEASE": "Recorded rework does not establish formal quality release.",
+    "C03_RULE_BASED_NOT_CAUSAL": "This is a versioned rule indicator, not causal or root-cause evidence.",
+    "C03_RULE_INDICATOR_NOT_FORECAST": "The rule is a deterministic commitment warning, not a calibrated forecast or probability.",
+    "C03_SCOPE_PARTIALLY_OBSERVED": "Some rule-relevant scope lacks required evidence; a positive witness does not resolve the remaining uncertainty.",
+    "C03_START_SLIPPAGE_NOT_QUEUE_MEASUREMENT": "Planned-versus-observed start slippage is not measured queue residence time; the plan availability includes the C02 synthetic proxy."
+  },
+  "new_runtime_tools": [],
+  "package_version": "w03-c03-gpt-v3-post-devctrl",
+  "policy_version": "w03-c03-v1",
+  "quantity_arithmetic": "int or finite Decimal, no float/coercion",
+  "rule_order": [
+    "CAPACITY_PRESSURE",
+    "DELIVERY_RISK",
+    "MATERIAL_TIMING_RISK",
+    "QUALITY_DISPOSITION_UNKNOWN",
+    "QUALITY_FAILURE",
+    "QUEUE_DELAY",
+    "REWORK_PRESENT",
+    "SUPPLIER_LATE_RECEIPT"
+  ],
+  "rules": {
+    "CAPACITY_PRESSURE": {
+      "active": [],
+      "active_statement": null,
+      "claim_type": null,
+      "derived": [],
+      "domain_limitations": [
+        "C03_CAPACITY_NOT_IDENTIFIABLE"
+      ],
+      "entities": [
+        "fact_operation",
+        "dim_work_center"
+      ],
+      "inactive": [],
+      "scope": "Real work-center capacity pressure is not identifiable from the C02 order-centric input. v1 intentionally abstains.",
+      "unknown": [
+        "C03_CAPACITY_SCOPE_INSUFFICIENT"
+      ],
+      "unknown_statement": "Real capacity pressure is unknown because the order-centric input does not establish complete competing workload, shift calendars, or allocatable capacity."
+    },
+    "DELIVERY_RISK": {
+      "active": [
+        "C03_UNFULFILLED_COMMITMENT_OVERDUE",
+        "C03_INCOMPLETE_PLAN_AFTER_COMMITMENT"
+      ],
+      "active_statement": "The delivery commitment is overdue with remaining quantity, or an incomplete work-order plan ends after that commitment; this is a deterministic warning, not a delivery probability or causal attribution.",
+      "claim_type": "DERIVED_CLAIM",
+      "derived": [
+        "c02.delivered_quantity_as_of.v1",
+        "c02.remaining_quantity_as_of.v1",
+        "c02.delivery_state_as_of.v1",
+        "c02.work_order_state_as_of.v1"
+      ],
+      "domain_limitations": [
+        "C03_RULE_INDICATOR_NOT_FORECAST"
+      ],
+      "entities": [
+        "fact_sales_order",
+        "fact_work_order",
+        "fact_delivery"
+      ],
+      "inactive": [
+        "C03_DELIVERY_FULFILLED_AS_OF"
+      ],
+      "scope": "Unfulfilled overdue commitment or an incomplete work-order plan ending after the commitment. Not a probabilistic forecast.",
+      "unknown": [
+        "C03_DELIVERY_FORECAST_UNSUPPORTED",
+        "C03_REQUIRED_FIELDS_MISSING"
+      ],
+      "unknown_statement": "The available observations do not support a delivery forecast before fulfillment or a defined commitment warning."
+    },
+    "MATERIAL_TIMING_RISK": {
+      "active": [
+        "C03_RECEIPT_AFTER_NEED_BY",
+        "C03_OUTSTANDING_PROMISE_AFTER_NEED_BY",
+        "C03_NEED_BY_PASSED_WITH_OUTSTANDING_PO"
+      ],
+      "active_statement": "A purchase order associated by material has a timing warning relative to a requirement need-by time; this does not prove a material shortage or an order-specific allocation.",
+      "claim_type": "ASSOCIATIVE_CLAIM",
+      "derived": [],
+      "domain_limitations": [
+        "C03_ASSOCIATION_NOT_ALLOCATION",
+        "C03_NOT_MATERIAL_AVAILABILITY",
+        "C03_OBSERVED_HISTORY_NOT_CURRENT_CAUSE"
+      ],
+      "entities": [
+        "fact_material_requirement",
+        "fact_purchase_order"
+      ],
+      "inactive": [
+        "C03_NO_ASSOCIATED_TIMING_WARNING"
+      ],
+      "scope": "A material/time-associated procurement warning relative to requirement need-by, not net material shortage or availability proof.",
+      "unknown": [
+        "C03_REQUIREMENT_EVIDENCE_MISSING",
+        "C03_PO_FOR_REQUIREMENT_MISSING",
+        "C03_REQUIRED_FIELDS_MISSING"
+      ],
+      "unknown_statement": "The available requirement and associated procurement records do not establish the material-timing indicator."
+    },
+    "QUALITY_DISPOSITION_UNKNOWN": {
+      "active": [
+        "C03_FAILED_QUANTITY_DISPOSITION_GAP"
+      ],
+      "active_statement": "The versioned failed-quantity accounting leaves a positive disposition gap; the disposition is unknown and no scrap, replacement, concession, or release is inferred.",
+      "claim_type": "DERIVED_CLAIM",
+      "derived": [
+        "c02.unresolved_failed_quantity_as_of.v1"
+      ],
+      "domain_limitations": [
+        "C03_ACCOUNTING_NOT_RELEASE"
+      ],
+      "entities": [
+        "fact_quality_inspection",
+        "fact_rework"
+      ],
+      "inactive": [
+        "C03_NO_OBSERVED_DISPOSITION_GAP"
+      ],
+      "scope": "Positive unexplained failed quantity under the frozen C02 arithmetic; separate from universal lack of a formal release event.",
+      "unknown": [
+        "C03_INSPECTION_EVIDENCE_MISSING",
+        "C03_REQUIRED_FIELDS_MISSING"
+      ],
+      "unknown_statement": "The available evidence is insufficient to determine a failed-quantity disposition gap."
+    },
+    "QUALITY_FAILURE": {
+      "active": [
+        "C03_RECORDED_FAILED_QUANTITY"
+      ],
+      "active_statement": "At least one eligible inspection records a positive failed quantity; this observation does not establish formal quality-release status.",
+      "claim_type": "FACT_CLAIM",
+      "derived": [],
+      "domain_limitations": [
+        "C03_INSPECTION_NOT_RELEASE",
+        "C03_OBSERVED_HISTORY_NOT_CURRENT_CAUSE"
+      ],
+      "entities": [
+        "fact_quality_inspection"
+      ],
+      "inactive": [
+        "C03_NO_FAILURE_IN_OBSERVED_INSPECTIONS"
+      ],
+      "scope": "At least one admitted inspection records positive failed quantity, not formal release status.",
+      "unknown": [
+        "C03_INSPECTION_EVIDENCE_MISSING",
+        "C03_REQUIRED_FIELDS_MISSING"
+      ],
+      "unknown_statement": "Eligible inspection evidence is insufficient to determine the recorded-quality-failure indicator."
+    },
+    "QUEUE_DELAY": {
+      "active": [
+        "C03_OPERATION_START_SLIPPAGE",
+        "C03_OPERATION_START_OVERDUE"
+      ],
+      "active_statement": "A recorded operation started after its planned start or has not recorded a start by an overdue planned-start time; this is a start-slippage proxy, not a measured queue duration or a causal capacity finding.",
+      "claim_type": "DERIVED_CLAIM",
+      "derived": [],
+      "domain_limitations": [
+        "C03_START_SLIPPAGE_NOT_QUEUE_MEASUREMENT",
+        "C03_OBSERVED_HISTORY_NOT_CURRENT_CAUSE"
+      ],
+      "entities": [
+        "fact_operation"
+      ],
+      "inactive": [
+        "C03_NO_OBSERVED_START_SLIPPAGE"
+      ],
+      "scope": "Operation start slippage against its recorded planned start; an explicitly limited proxy, not measured queue residence time.",
+      "unknown": [
+        "C03_OPERATION_EVIDENCE_MISSING",
+        "C03_REQUIRED_FIELDS_MISSING"
+      ],
+      "unknown_statement": "Eligible operation timing evidence is insufficient to determine the start-slippage proxy."
+    },
+    "REWORK_PRESENT": {
+      "active": [
+        "C03_RECORDED_REWORK"
+      ],
+      "active_statement": "Eligible rework has been recorded; this does not imply that it is still in progress or that formal quality release has occurred.",
+      "claim_type": "FACT_CLAIM",
+      "derived": [],
+      "domain_limitations": [
+        "C03_REWORK_NOT_RELEASE",
+        "C03_OBSERVED_HISTORY_NOT_CURRENT_CAUSE"
+      ],
+      "entities": [
+        "fact_quality_inspection",
+        "fact_rework"
+      ],
+      "inactive": [
+        "C03_NO_REWORK_IN_OBSERVED_RECORDS"
+      ],
+      "scope": "Recorded eligible rework exists as of the cutoff, including completed rework; not a claim that rework is still in progress.",
+      "unknown": [
+        "C03_REWORK_OBSERVATION_SCOPE_MISSING",
+        "C03_REQUIRED_FIELDS_MISSING"
+      ],
+      "unknown_statement": "The available observation scope is insufficient to determine recorded rework presence."
+    },
+    "SUPPLIER_LATE_RECEIPT": {
+      "active": [
+        "C03_PO_RECEIPT_LATE",
+        "C03_PO_OUTSTANDING_OVERDUE"
+      ],
+      "active_statement": "Associated procurement records contain receipt lateness or overdue outstanding quantity; they do not establish target-order allocation or causation.",
+      "claim_type": "ASSOCIATIVE_CLAIM",
+      "derived": [],
+      "domain_limitations": [
+        "C03_ASSOCIATION_NOT_ALLOCATION",
+        "C03_OBSERVED_HISTORY_NOT_CURRENT_CAUSE"
+      ],
+      "entities": [
+        "fact_material_requirement",
+        "fact_purchase_order"
+      ],
+      "inactive": [
+        "C03_NO_OBSERVED_PO_LATENESS"
+      ],
+      "scope": "Observed PurchaseOrder receipt lateness in the target material-associated PO set, not proof of target-order supplier causation.",
+      "unknown": [
+        "C03_PO_EVIDENCE_MISSING",
+        "C03_REQUIRED_FIELDS_MISSING"
+      ],
+      "unknown_statement": "Associated procurement evidence is insufficient to determine the receipt-lateness indicator."
+    }
+  },
+  "runtime_inputs": [
+    "EvidenceBundle",
+    "DecisionContext"
+  ],
+  "schema_compatibility": "C01 *.v1 and C02 decision-context.v1 unchanged",
+  "signal_states": [
+    "ACTIVE",
+    "INACTIVE",
+    "UNKNOWN"
+  ],
+  "supplementary_reason": "C03_INPUT_INCOMPLETE",
+  "temporal_tolerance_microseconds": 0,
+  "upstream_tool_registry_unchanged": "w03-c02-tools.v1"
+}

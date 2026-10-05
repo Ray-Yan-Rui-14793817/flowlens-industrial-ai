@@ -1,0 +1,62 @@
+{
+  "registry_version": "w03-c04-registry-v1",
+  "scenario_adapter_version": "w03-c04-scenario-adapter-v1",
+  "stress_scenario_version": "w03-c04-stress-v1",
+  "candidates": [
+    {
+      "family": "NO_ACTION",
+      "registry_key": "c04.no-action.v1",
+      "parameters": {"mode": "BASELINE_IDENTITY"},
+      "signal_types": [],
+      "reason_codes": ["C04_BASELINE_COMPARATOR", "C04_REGISTRY_V1"],
+      "limitation_codes": ["C04_BASELINE_COMPARATOR_ONLY"]
+    },
+    {
+      "family": "SUPPLIER_INTERVENTION",
+      "registry_key": "c04.supplier-stress-probe.v1",
+      "parameters": {
+        "additional_delay_business_days_max": 8,
+        "additional_delay_business_days_min": 3,
+        "affected_critical_material_count": 5,
+        "affected_supplier_count": 2,
+        "late_probability_delta": "0.25",
+        "seed_policy": "SHA256_CANDIDATE_ID_63BIT",
+        "window_policy": "FULL_CLOSED_DATASET_PERIOD"
+      },
+      "signal_types": ["MATERIAL_TIMING_RISK", "SUPPLIER_LATE_RECEIPT"],
+      "reason_codes": ["C04_REGISTRY_V1", "C04_STRESS_PROBE_NOT_ACTION_EFFECT", "C04_SUPPLIER_STRESS_PROBE"],
+      "limitation_codes": ["C04_SCENARIO_SCOPE_NOT_ORDER_TARGETED", "C04_STRESS_PROBE_NOT_INTERVENTION_EFFICACY", "C04_SUPPLIER_ASSOCIATION_NOT_ALLOCATION"]
+    },
+    {
+      "family": "QUALITY_INTERVENTION",
+      "registry_key": "c04.quality-stress-probe.v1",
+      "parameters": {
+        "affected_product_count": 2,
+        "affected_work_center_count": 1,
+        "failure_probability_multiplier": "2.2",
+        "rework_duration_multiplier_max": "1.5",
+        "rework_duration_multiplier_min": "1.2",
+        "rework_probability_delta": "0.30",
+        "seed_policy": "SHA256_CANDIDATE_ID_63BIT",
+        "window_policy": "FULL_CLOSED_DATASET_PERIOD"
+      },
+      "signal_types": ["QUALITY_DISPOSITION_UNKNOWN", "QUALITY_FAILURE", "REWORK_PRESENT"],
+      "reason_codes": ["C04_QUALITY_STRESS_PROBE", "C04_REGISTRY_V1", "C04_STRESS_PROBE_NOT_ACTION_EFFECT"],
+      "limitation_codes": ["C04_NO_FORMAL_RELEASE_INFERENCE", "C04_SCENARIO_SCOPE_NOT_ORDER_TARGETED", "C04_STRESS_PROBE_NOT_INTERVENTION_EFFICACY"]
+    },
+    {
+      "family": "CAPACITY_INTERVENTION",
+      "registry_key": "c04.capacity-stress-probe.v1",
+      "parameters": {
+        "affected_work_center_count": 2,
+        "arrival_volume_multiplier": "1.5",
+        "queue_time_multiplier": "1.7",
+        "seed_policy": "SHA256_CANDIDATE_ID_63BIT",
+        "window_policy": "FULL_CLOSED_DATASET_PERIOD"
+      },
+      "signal_types": ["CAPACITY_PRESSURE", "QUEUE_DELAY"],
+      "reason_codes": ["C04_CAPACITY_STRESS_PROBE", "C04_REGISTRY_V1", "C04_STRESS_PROBE_NOT_ACTION_EFFECT"],
+      "limitation_codes": ["C04_CAPACITY_PRESSURE_UNKNOWN_IN_C03_V1", "C04_QUEUE_DELAY_NOT_CAPACITY_PROOF", "C04_SCENARIO_SCOPE_NOT_ORDER_TARGETED", "C04_STRESS_PROBE_NOT_INTERVENTION_EFFICACY"]
+    }
+  ]
+}
