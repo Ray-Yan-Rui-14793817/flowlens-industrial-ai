@@ -4,15 +4,19 @@
 
 **Sprint:** Week 3 — Industrial AI Decision Loop Foundation
 
-**Current Project Phase:** W03-C10-C1 / W03 FINAL CLOSEOUT
+**Current Project Phase:** POST-W03 PR #6 MERGE / POST-MERGE VERIFICATION
 
-**Implementation / Evidence Work:** W03 COMPLETE; C01-C09 CLOSED / VERIFIED / GITHUB SYNCHRONIZED; C10 TECHNICAL ACCEPTANCE READINESS PASS / GPT R1 PASSED / HUMAN ACCEPTED / FINAL CLOSEOUT PUBLICATION PENDING
+**W03:** CLOSED / COMPLETE / VERIFIED / GITHUB SYNCHRONIZED
 
-**GPT C10 Independent Review R1:** PASS FOR HUMAN W03-C10 BUSINESS ACCEPTANCE REVIEW; REPAIR REQUIRED NO; BLOCKER NONE; HIGH NONE; MEDIUM NONE; LOW NONE REQUIRING REPAIR
+**C01-C10:** CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+
+**GPT C10 Independent Review R1:** PASS FOR HUMAN W03-C10 BUSINESS ACCEPTANCE REVIEW
 
 **Human C10 Acceptance:** ACCEPTED — `W03-C10 HUMAN ACCEPTANCE: ACCEPTED`
 
-**W03 Final Closeout Authorization:** APPROVED — `W03-C10-C1 / W03 FINAL CLOSEOUT AUTHORIZATION: APPROVED`
+**Business Acceptance:** ACCEPTED by the Product Owner's overall gate; no separate A01-A10 notes/scores supplied or invented
+
+**W03 Final Closeout:** EFFECTIVE; final publication proof and synchronization PASS
 
 **C10 Implementation SHA / CI:** `57dd12db02b5650b5c04e1d1007ffc22810a74a1` / Run #81 / 37224461190 / PASS / C / FULL_EXACT_SHA
 
@@ -20,39 +24,51 @@
 
 **Closeout Control SHA / CI:** `85c5e5ec19eb6db7a2921656138a9c9817702bcc` / Run #83 / 37252248950 / PASS / UNKNOWN / FULL_EXACT_SHA
 
-**Closeout Control Quality / Compose / W03 / Verification:** PASS / PASS / PASS / PASS; Publication proof SKIPPED
+**Final W03 Publication SHA / CI:** `a24e2e0587f11114edd5718eb10081797e303087` / Run #84 / 37254705531 / PASS / P / PUBLICATION_EXACT_SHA
 
-**W03 AI Loop Gate:** PASS — F01-F10 / 38 selectors / 85 expanded cases
+**Final Publication Jobs:** Publication proof / Verification PASS; Quality / Compose / W03 SKIPPED
+
+**Accepted W03 AI Loop Gate:** F01-F10 / 38 selectors / 85 expanded cases PASS
 
 **C10 Technical Evidence / Harness:** A01-A10 10/10 EVIDENCE_READY; H01-H34 34/34 PASS
 
 **Closeout Audit:** K01-K20 20/20 PASS
 
-**Business Acceptance:** ACCEPTED by the Product Owner's overall active-request gate; no separate A01-A10 notes/scores supplied or invented
+**C10 Closed / W03 Sprint Closed / W03 Complete:** YES / YES / YES
 
-**Final Closeout Publication Exact-SHA:** PENDING ON THIS COMMIT; immutable final publication SHA/run and synchronization supplied in the final Codex handoff
+**GPT Merge Review:** PASS FOR HUMAN W03 PR #6 MERGE AUTHORIZATION
 
-**C10 Closed:** YES — EFFECTIVE ONLY AFTER FINAL W03 CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+**Human Merge Authorization:** APPROVED — `W03 PR #6 MERGE AUTHORIZATION: APPROVED`
 
-**W03 Sprint Closed:** YES — EFFECTIVE ONLY AFTER FINAL W03 CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+**Merge Context Lock:** LOCKED in W03_PR6_MERGE_PREPARATION.md before other writes
 
-**W03 Complete:** YES — EFFECTIVE ONLY AFTER FINAL W03 CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+**Entry Feature Local / Tracking / Direct Remote / PR Head:** `a24e2e0587f11114edd5718eb10081797e303087`
 
-**Main:** `9d18ddde9fe933952a2661ee1419f13c8577605d` / UNCHANGED
+**Main / Merge Base:** `9d18ddde9fe933952a2661ee1419f13c8577605d` / unchanged before authorized GitHub merge
 
-**PR #6:** OPEN / DRAFT / NOT MERGED; auto-merge ABSENT / DISABLED
+**Entry Feature Ahead/Behind Main / Tracking:** 54/0 / 0/0; worktree/staging CLEAN
 
-**PR #6 Merge Authorized:** NO
+**PR #6:** OPEN / DRAFT / NOT MERGED / CLEAN; auto-merge ABSENT / DISABLED
 
-**Post-W03 Implementation Authorized:** NO
+**PR #6 Merge Authorized:** YES — PENDING PRE-MERGE FULL PROOF
 
-**Next:** GPT POST-W03 NEXT-PHASE / MERGE AUTHORIZATION REVIEW
+**Merge Preparation Exact-SHA CI:** PENDING ON THIS COMMIT; expected UNKNOWN / FULL_EXACT_SHA; Quality / Compose / W03 / Verification must PASS; Publication SKIPPED
 
-**Status:** W03_CLOSED ONLY AFTER FINAL W03 CLOSEOUT PUBLICATION GATE AND SYNCHRONIZATION
+**Merge Method / Feature Branch:** GITHUB MERGE COMMIT ONLY / RETAINED
+
+**Post-Merge Main Proof:** REQUIRED on exact merge commit; UNKNOWN / FULL_EXACT_SHA and F01-F10 / 38 / 85 PASS
+
+**Post-W03 Implementation:** NOT AUTHORIZED
+
+**Next:** PR #6 MERGE COMMIT + POST-MERGE MAIN VERIFICATION
+
+**After Verified Merge:** GPT POST-W03 CAPABILITY-GAP / SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW
+
+**Status:** W03_MERGE_PREPARATION_PENDING_FULL_PROOF
 
 **Week 1 / Week 2 Baselines:** CLOSED / VERIFIED
 
-> OBSERVED: The Product Owner supplied overall Human C10 business acceptance and separate W03 final closeout authorization after the supplied GPT R1 review passed. Mandatory read-only preflight, twelve package checksums and thirty-three entry identities passed. Exactly six control/projection paths changed in the normal control commit; exact-SHA FULL CI and K01-K20 passed. This final publication changes only the closeout report and CURRENT_STATE's current surface plus Section 60, preserving historical Sections 1-59. Closure becomes effective only after this commit's P-only publication proof and final synchronization. PR merge and post-W03 implementation remain unauthorized.
+> OBSERVED: Final W03 publication and synchronization passed on the entry head. The supplied GPT merge review passed for Human authorization; the active Product Owner request approved the bounded PR #6 merge task. All 13 package checksums and read-only entry facts matched. Current status is normalized; historical Sections 1-60 and C01-C10 semantics are preserved. This seven-path preparation still requires its own exact-SHA full proof before PR body/ready changes and guarded GitHub merge. Future merge completion/main CI facts belong in the final handoff after verification.
 
 ---
 
@@ -4492,3 +4508,66 @@ STATUS: W03_CLOSED ONLY AFTER FINAL W03 CLOSEOUT PUBLICATION GATE AND SYNCHRONIZ
 Stop after exact P / PUBLICATION_EXACT_SHA proof (Publication + Verification PASS,
 Quality/Compose/W03 SKIPPED) and final synchronization. No PR merge,
 draft-to-ready, auto-merge, main write or post-W03 implementation is authorized.
+
+---
+
+## 61. Post-W03 PR #6 Merge Preparation
+
+**Date:** 2026-10-05 (Asia/Shanghai)
+
+**Entry SHA:** `a24e2e0587f11114edd5718eb10081797e303087`
+
+**Pre-Merge Main / Merge Base:** `9d18ddde9fe933952a2661ee1419f13c8577605d`
+
+W03/C10 closure is effective through Run #84 / 37254705531 and synchronization.
+Supplied GPT review: PASS FOR HUMAN W03 PR #6 MERGE AUTHORIZATION.
+Active Product Owner gate: `W03 PR #6 MERGE AUTHORIZATION: APPROVED`.
+
+Read-only preflight matched local/tracking/direct-remote/PR head, branch,
+main/merge base, 54/0 relative to main, clean tree/staging, tracking 0/0,
+OPEN / DRAFT / NOT MERGED PR, CLEAN mergeability, absent auto-merge and Run #84 PASS.
+Merge commits are allowed; automatic head-branch deletion is disabled.
+All 13 payload hashes passed. Context was LOCKED in the Merge Preparation report
+before any other authorized repository write.
+
+Exactly seven paths: README, AGENTS, Context Index, Sprint current status,
+CURRENT_STATE, supplied GPT merge review and Merge Preparation report.
+Historical Sections 1-60, Sprint Sections 1-20/22, frozen invariants and accepted
+C01-C10 semantics are unchanged. No source/tests/workflow/runtime/dependency/
+schema/migration/checkpoint/operational change occurs.
+
+[GPT Post-W03 Merge Review R1](w03/reports/POST_W03_GPT_NEXT_PHASE_MERGE_AUTHORIZATION_REVIEW_R1.md)
+and [PR #6 Merge Preparation](w03/reports/W03_PR6_MERGE_PREPARATION.md) bind the
+authority, lock, entry evidence and required integration proof.
+
+Preparation requires UNKNOWN / FULL_EXACT_SHA because README is intentionally
+unclassified. Classify, Quality, Compose, W03 and Verification must PASS;
+Publication SKIPPED; F01-F10 / 38 selectors / 85 cases PASS.
+Actual preparation SHA/run are pending on this commit and supplied after push.
+Prior CI cannot substitute.
+
+After full proof, normalize PR body with frozen template and actual preparation
+SHA, preserve title, mark ready, re-check head/base/body/CLEAN, then GitHub merge
+using MERGE COMMIT only with exact-head guard. Require two parents: old main first,
+preparation head second. Squash/rebase merge/auto-merge/branch deletion are forbidden.
+
+Require exact merge-commit main push CI with UNKNOWN / FULL proof and F01-F10 /
+38 / 85 PASS. Failure: STOP without main hotfix. Final local/tracking/direct-remote
+main must match PR merge commit, clean tree/staging, 0/0 and CLOSED / MERGED PR.
+Retain remote feature branch at preparation SHA. No extra publication commit.
+
+```text
+W03: CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+C10: CLOSED
+GPT MERGE REVIEW: PASS FOR HUMAN AUTHORIZATION
+HUMAN MERGE AUTHORIZATION: APPROVED
+PR #6 MERGE: AUTHORIZED / PENDING PRE-MERGE FULL PROOF
+PRE-MERGE FULL PROOF: PENDING ON THIS COMMIT
+POST-W03 IMPLEMENTATION: NOT AUTHORIZED
+NEXT: PR #6 MERGE COMMIT + POST-MERGE MAIN VERIFICATION
+STATUS: W03_MERGE_PREPARATION_PENDING_FULL_PROOF
+```
+
+Only after merge and exact main CI PASS may final handoff state
+W03_MERGED_POST_MERGE_VERIFIED. Next: GPT POST-W03 CAPABILITY-GAP /
+SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW; no next phase is selected here.

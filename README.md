@@ -178,17 +178,21 @@ limitations remain documented.
 
 ## Week 3 current governance status
 
-W03 implementation/evidence work is COMPLETE. GPT C10 independent
-acceptance-readiness review returned PASS FOR HUMAN W03-C10 BUSINESS ACCEPTANCE
-REVIEW. The Product Owner supplied `W03-C10 HUMAN ACCEPTANCE: ACCEPTED` and
-`W03-C10-C1 / W03 FINAL CLOSEOUT AUTHORIZATION: APPROVED`.
+W03 is CLOSED / VERIFIED / GITHUB SYNCHRONIZED; C10 is CLOSED. GPT C10 independent
+review passed, the Product Owner supplied `W03-C10 HUMAN ACCEPTANCE: ACCEPTED`,
+and final closeout is effective through exact-SHA Run #84 / 37254705531 on
+`a24e2e0587f11114edd5718eb10081797e303087` plus final synchronization.
 
-W03 final closeout is IN PROGRESS. C10/W03 closure becomes effective only after
-the final exact-SHA publication gate and synchronization pass. The bounded W3 v0
-surface remains OFFLINE / SHADOW / HUMAN-IN-THE-LOOP / NO OPERATIONAL MUTATION;
-its documented limitations are accepted without runtime or product-semantic repair.
+GPT Post-W03 merge review returned PASS FOR HUMAN W03 PR #6 MERGE AUTHORIZATION.
+The Product Owner supplied `W03 PR #6 MERGE AUTHORIZATION: APPROVED`.
+PR #6 merge is AUTHORIZED / PENDING PRE-MERGE FULL PROOF. It is currently
+OPEN / DRAFT / NOT MERGED with auto-merge absent/disabled. The authorized sequence
+is one bounded seven-path preparation commit, exact-SHA full CI, final PR body,
+ready-state transition, GitHub merge commit and exact merge-commit main push proof.
+The feature branch is retained.
 
-PR #6 merge and post-W03 implementation remain NOT AUTHORIZED. PR #6 remains
-OPEN / DRAFT / NOT MERGED with auto-merge ABSENT / DISABLED; main is unchanged.
-Next: GPT POST-W03 NEXT-PHASE / MERGE AUTHORIZATION REVIEW after final closeout
-publication and synchronization.
+The bounded W3 v0 surface remains OFFLINE / SHADOW / HUMAN-IN-THE-LOOP /
+NO OPERATIONAL MUTATION; accepted limitations and C01-C10 semantics remain frozen.
+Post-W03 implementation is NOT AUTHORIZED.
+Next: PR #6 MERGE COMMIT + POST-MERGE MAIN VERIFICATION. After verified integration:
+GPT POST-W03 CAPABILITY-GAP / SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW.
