@@ -22,6 +22,17 @@
           "blob_oid": "9c818780423f32f144b18666784ebc9ea3abdccc"
         }
       ]
+    },
+    {
+      "checkpoint": "W04-C02",
+      "state": "AUTHORIZED",
+      "source_freeze_sha": null,
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c02_binding.py",
+          "blob_oid": null
+        }
+      ]
     }
   ]
 }

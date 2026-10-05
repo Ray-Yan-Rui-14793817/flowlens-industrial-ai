@@ -157,7 +157,8 @@ def test_d01_normative_manifest_has_exact_frozen_c01() -> None:
         (f"{SOURCE_ROOT}/contracts.py", "0f66bd9a0b2f063b318bd6b9dcc47d63b9c83e7e"),
         (f"{SOURCE_ROOT}/enums.py", "9c818780423f32f144b18666784ebc9ea3abdccc"),
     )
-    assert parse(document) == verifier._bootstrap()
+    manifest = parse(document)
+    assert manifest.checkpoints[0] == verifier._bootstrap().checkpoints[0]
 
 
 @pytest.mark.parametrize("level", ["manifest", "checkpoint", "file"])
