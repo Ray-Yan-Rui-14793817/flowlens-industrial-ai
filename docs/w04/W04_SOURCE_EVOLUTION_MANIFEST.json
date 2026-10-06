@@ -25,12 +25,12 @@
     },
     {
       "checkpoint": "W04-C02",
-      "state": "AUTHORIZED",
-      "source_freeze_sha": null,
+      "state": "CLOSED",
+      "source_freeze_sha": "18648915414a26dddbdc904965663730ea631cf2",
       "files": [
         {
           "path": "src/flowlens/investigation/c02_binding.py",
-          "blob_oid": null
+          "blob_oid": "5f0af237ed465fa83e5a3b84954512b1f3125551"
         }
       ]
     }
