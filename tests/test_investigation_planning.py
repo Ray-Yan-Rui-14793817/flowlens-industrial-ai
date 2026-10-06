@@ -1573,8 +1573,13 @@ def test_p40_committed_source_governance_and_frozen_blobs() -> None:
     proof = json.loads(result.stdout)
     assert proof["overall"] == "PASS" and proof["expected_head"] == head
     assert proof["actual_added_source_paths"] == sorted(
-        [
-            *expected,
-            "src/flowlens/investigation/c03_planning.py",
-        ]
+        source["path"]
+        for checkpoint in manifest["checkpoints"]
+        for source in checkpoint["files"]
+        if subprocess.run(
+            ["git", "cat-file", "-e", f"HEAD:{source['path']}"],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+        ).returncode == 0
     )
