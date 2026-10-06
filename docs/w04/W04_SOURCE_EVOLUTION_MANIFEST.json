@@ -36,12 +36,12 @@
     },
     {
       "checkpoint": "W04-C03",
-      "state": "AUTHORIZED",
-      "source_freeze_sha": null,
+      "state": "CLOSED",
+      "source_freeze_sha": "42047bcfe6591f7c9ed9b0034bd94467401ba72f",
       "files": [
         {
           "path": "src/flowlens/investigation/c03_planning.py",
-          "blob_oid": null
+          "blob_oid": "21d0055e12d86e6333a836d363d6e266cb0fcbd7"
         }
       ]
     }
