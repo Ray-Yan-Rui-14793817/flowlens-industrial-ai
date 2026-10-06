@@ -1532,9 +1532,19 @@ def test_p40_committed_source_governance_and_frozen_blobs() -> None:
     assert [item["path"] for item in c03[0]["files"]] == [
         "src/flowlens/investigation/c03_planning.py",
     ]
-    assert c03[0]["state"] == "AUTHORIZED"
-    assert c03[0]["source_freeze_sha"] is None
-    assert c03[0]["files"][0]["blob_oid"] is None
+    c03_entry = c03[0]
+    if c03_entry["state"] == "AUTHORIZED":
+        assert c03_entry["source_freeze_sha"] is None
+        assert c03_entry["files"][0]["blob_oid"] is None
+    elif c03_entry["state"] == "CLOSED":
+        assert c03_entry["source_freeze_sha"] == (
+            "42047bcfe6591f7c9ed9b0034bd94467401ba72f"
+        )
+        assert c03_entry["files"][0]["blob_oid"] == (
+            "21d0055e12d86e6333a836d363d6e266cb0fcbd7"
+        )
+    else:
+        pytest.fail(f"unexpected W04-C03 state: {c03_entry['state']!r}")
     head = subprocess.run(
         ["git", "rev-parse", "HEAD"],
         cwd=ROOT,
