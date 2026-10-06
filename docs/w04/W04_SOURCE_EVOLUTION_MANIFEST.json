@@ -33,6 +33,17 @@
           "blob_oid": "5f0af237ed465fa83e5a3b84954512b1f3125551"
         }
       ]
+    },
+    {
+      "checkpoint": "W04-C03",
+      "state": "AUTHORIZED",
+      "source_freeze_sha": null,
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c03_planning.py",
+          "blob_oid": null
+        }
+      ]
     }
   ]
 }
