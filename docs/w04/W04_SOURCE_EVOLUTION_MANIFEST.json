@@ -66,12 +66,12 @@
     },
     {
       "checkpoint": "W04-C05",
-      "state": "AUTHORIZED",
-      "source_freeze_sha": null,
+      "state": "CLOSED",
+      "source_freeze_sha": "3386b2637f0b0e3f0972a07ee0bea4ad8181cb5f",
       "files": [
         {
           "path": "src/flowlens/investigation/c05_findings.py",
-          "blob_oid": null
+          "blob_oid": "31384426ba9c733bc5bdbf3b09a3d206c8182586"
         }
       ]
     }
