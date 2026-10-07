@@ -74,6 +74,25 @@
           "blob_oid": "31384426ba9c733bc5bdbf3b09a3d206c8182586"
         }
       ]
+    },
+    {
+      "checkpoint": "W04-C06",
+      "state": "AUTHORIZED",
+      "source_freeze_sha": null,
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c06_human.py",
+          "blob_oid": null
+        },
+        {
+          "path": "src/flowlens/investigation/c06_policy.py",
+          "blob_oid": null
+        },
+        {
+          "path": "src/flowlens/investigation/c06_store.py",
+          "blob_oid": null
+        }
+      ]
     }
   ]
 }
