@@ -96,20 +96,20 @@
     },
     {
       "checkpoint": "W04-C07",
-      "state": "AUTHORIZED",
-      "source_freeze_sha": null,
+      "state": "CLOSED",
+      "source_freeze_sha": "c86f7af2370f315b8b7310008521f08ceade6d97",
       "files": [
         {
           "path": "src/flowlens/investigation/c07_policy.py",
-          "blob_oid": null
+          "blob_oid": "c969c4bbf33910fab6ffb36c3bfe184fd42c74c9"
         },
         {
           "path": "src/flowlens/investigation/c07_provider.py",
-          "blob_oid": null
+          "blob_oid": "56ecb9f3d7b5a1917a2354572e8c946f07eb759d"
         },
         {
           "path": "src/flowlens/investigation/c07_summary.py",
-          "blob_oid": null
+          "blob_oid": "3d561da7ab625421bbcf2dcb3785f8fae792cbff"
         }
       ]
     }
