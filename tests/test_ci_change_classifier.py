@@ -288,8 +288,9 @@ def test_workflow_routes_all_classes_to_a_stable_fail_closed_gate() -> None:
         "name: Docker Compose smoke",
         "name: Publication proof",
         "name: Verification gate",
-        "needs: [classify-change, quality, compose-smoke, publication-proof, "
-        "w03-ai-loop-gate, shadow-equivalence]",
+        "needs: [classify-change, static-and-plan, integration-and-data, "
+        "non-integration-aggregate, quality, compose-smoke, publication-proof, "
+        "w03-ai-loop-gate]",
         "if: always()",
         '--event-path "$GITHUB_EVENT_PATH"',
         'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"',
@@ -302,19 +303,36 @@ def test_workflow_routes_all_classes_to_a_stable_fail_closed_gate() -> None:
         'test "$COMPOSE_RESULT" = success',
     ):
         assert required in workflow
-    assert 'uv run pytest -m "not integration"' in workflow
-    assert "uv run pytest -m integration" in workflow
+    assert '--role integration-data --marker "integration"' in workflow
+    assert "--role nonint-shard" in workflow
+    assert "uv run python scripts/ci/run_non_integration_shard.py" in workflow
 
 
 def test_shadow_workflow_requires_equivalence_and_preserves_classification() -> None:
     workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
-    assert "name: Shadow equivalence" in workflow
+    assert "shadow-equivalence" not in workflow and "legacy-" not in workflow
     assert "fail-fast: false" in workflow and "max-parallel: 7" in workflow
     assert "shard: [0, 1, 2, 3, 4, 5, 6]" in workflow
     w03 = workflow.split("  w03-ai-loop-gate:\n", 1)[1].split("  compose-smoke:\n", 1)[0]
-    assert "    needs: classify-change\n" in w03
-    assert 'test "$SHADOW_RESULT" = success' in workflow
-    assert 'test "$SHADOW_RESULT" = skipped' in workflow
+    assert "    needs: classify-change\n" in w03 and "timeout-minutes: 15" in w03
+    full_rule = (
+        "if: ${{ always() && !cancelled() && (needs['classify-change'].result != "
+        "'success' || needs['classify-change'].outputs.change_class != 'P') }}"
+    )
+    for job in (
+        "quality",
+        "static-and-plan",
+        "integration-and-data",
+        "non-integration",
+        "non-integration-aggregate",
+        "w03-ai-loop-gate",
+        "compose-smoke",
+    ):
+        content = workflow.split(f"  {job}:\n", 1)[1].split("    runs-on:", 1)[0]
+        assert full_rule in content
+    for result in ("STATIC_RESULT", "INTEGRATION_RESULT", "NONINT_RESULT"):
+        assert f'test "${result}" = success' in workflow
+        assert f'test "${result}" = skipped' in workflow
     assert (
         git(
             ROOT,

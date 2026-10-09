@@ -750,6 +750,7 @@ def test_workflow_exact_transport_timeout_and_no_runtime_dependency_mutation() -
         action = block.split("      - name:", 1)[0]
         assert "name: w04-devctrl02-" in action and "pattern:" not in action
         assert "github.event.pull_request.head.sha" in action
+        assert "run-id:" not in action and "github-token:" not in action
     assert "if-no-files-found: error" in workflow
     job_content = workflow.split("jobs:\n", 1)[1]
     starts = list(re.finditer(r"^  ([a-z][a-z0-9-]+):\n", job_content, re.MULTILINE))
@@ -761,40 +762,38 @@ def test_workflow_exact_transport_timeout_and_no_runtime_dependency_mutation() -
         ]
         for index, match in enumerate(starts)
     }
-    shadow = "shadow-equivalence" in jobs
-    required = (
-        {
-            "shadow-static-and-plan": 15,
-            "shadow-integration-and-data": 25,
-            "shadow-non-integration": 60,
-            "shadow-non-integration-aggregate": 10,
-            "shadow-equivalence": 10,
-        }
-        if shadow
-        else {
-            "static-and-plan": 15,
-            "integration-and-data": 25,
-            "non-integration": 55,
-            "non-integration-aggregate": 10,
-        }
-    )
-    for name, timeout in required.items():
-        body = jobs[name]
-        assert f"timeout-minutes: {timeout}" in body
-        assert "ref: ${{ github.event_name == 'pull_request'" in body
-        assert 'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"' in body
-    shard = jobs["shadow-non-integration" if shadow else "non-integration"]
+    assert "shadow-equivalence" not in jobs
+    authoritative = {
+        "static-and-plan": 15,
+        "integration-and-data": 25,
+        "non-integration": 55,
+        "non-integration-aggregate": 10,
+    }
+    for name, timeout in authoritative.items():
+        content = jobs[name]
+        assert f"timeout-minutes: {timeout}" in content
+        assert "ref: ${{ github.event_name == 'pull_request'" in content
+        assert 'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"' in content
+    for name, timeout in {
+        "quality": 5,
+        "w03-ai-loop-gate": 15,
+        "verification-gate": 5,
+        "compose-smoke": 15,
+    }.items():
+        assert f"timeout-minutes: {timeout}" in jobs[name]
+    shard = jobs["non-integration"]
     assert "pgvector/pgvector:0.8.6-pg17-bookworm" in shard
     assert "check_database_connectivity" in shard and "uv run alembic upgrade head" in shard
     assert "    env:\n      EXPECTED_HEAD:" in shard
     assert "        env:\n          POSTGRES_DB:" in shard
     assert "        env:\n      EXPECTED_HEAD:" not in shard
-    aggregate_job = jobs[
-        "shadow-non-integration-aggregate" if shadow else "non-integration-aggregate"
-    ]
+    assert "--role nonint-shard" in shard
+    assert '--role integration-data --marker "integration"' in jobs["integration-and-data"]
+    aggregate_job = jobs["non-integration-aggregate"]
     assert 'test "$SHARDS_RESULT" = success' in aggregate_job
     assert 'test "$STATIC_RESULT" = success' in aggregate_job
-    assert re.findall(r"Download (?:shadow-)?shard-(\d+) exact-SHA", aggregate_job) == [
+    assert "--role nonint-shard" in aggregate_job
+    assert re.findall(r"Download shard-(\d+) exact-SHA", aggregate_job) == [
         str(index) for index in range(planner.SHARD_COUNT)
     ]
     for path in (
