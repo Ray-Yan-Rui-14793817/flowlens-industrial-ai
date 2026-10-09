@@ -55,6 +55,16 @@ def workflow_jobs() -> dict[str, str]:
     return jobs(WORKFLOW.read_text(encoding="utf-8"))
 
 
+def workflow_steps(content: str) -> dict[str, str]:
+    starts = list(re.finditer(r"^      - name: ([^\n]+)\n", content, re.MULTILINE))
+    return {
+        match[1]: content[
+            match.start() : starts[index + 1].start() if index + 1 < len(starts) else len(content)
+        ]
+        for index, match in enumerate(starts)
+    }
+
+
 def fixture_repo(tmp_path: Path, source: str) -> tuple[Path, gate.Family]:
     repo = tmp_path / "repo"
     (repo / "tests").mkdir(parents=True)
@@ -410,6 +420,11 @@ def test_workflow_one_job_exact_schedule_source_manifest_and_environment() -> No
         "publication-proof",
         "verification-gate",
         "w03-ai-loop-gate",
+        "shadow-static-and-plan",
+        "shadow-integration-and-data",
+        "shadow-non-integration",
+        "shadow-non-integration-aggregate",
+        "shadow-equivalence",
     }
     job = current["w03-ai-loop-gate"]
     assert "name: W03 AI loop gate" in job
@@ -454,13 +469,39 @@ def test_existing_workflow_jobs_triggers_pins_and_quality_are_unchanged() -> Non
     current_text = WORKFLOW.read_text(encoding="utf-8")
     original = jobs(baseline)
     current = jobs(current_text)
-    for job_id in ("classify-change", "quality", "compose-smoke", "publication-proof"):
+    for job_id in ("classify-change", "compose-smoke", "publication-proof"):
         assert current[job_id] == original[job_id]
+    assert (
+        current["quality"].split("    steps:\n")[0] == original["quality"].split("    steps:\n")[0]
+    )
+    legacy_steps = workflow_steps(original["quality"])
+    instrumented = workflow_steps(current["quality"])
+    modified = {"Run database integration tests", "Run complete test suite"}
+    assert set(instrumented) - set(legacy_steps) == {
+        "Freeze legacy exact collection and entry no-loss plan",
+        "Upload legacy-integration exact-SHA evidence",
+        "Upload legacy-nonint exact-SHA evidence",
+    }
+    for name, body in legacy_steps.items():
+        if name not in modified:
+            assert instrumented[name] == body
+    for name, marker, role in (
+        ("Run database integration tests", "integration", "legacy-integration"),
+        ("Run complete test suite", "not integration", "legacy-nonint"),
+    ):
+        body = instrumented[name]
+        assert "uv run python scripts/ci/pytest_outcome_receipt.py" in body
+        assert f'--role {role} --marker "{marker}"' in body
+        assert '--plan "$RUNNER_TEMP/devctrl02-legacy-plan.json"' in body
+        assert '--expected-head "$EXPECTED_HEAD"' in body
     assert current_text.split("jobs:\n")[0] == baseline.split("jobs:\n")[0]
     action_pattern = r"uses: ([^\n]+)"
     assert set(re.findall(action_pattern, current_text)) == set(
         re.findall(action_pattern, baseline)
-    )
+    ) | {
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2",
+        "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0",
+    }
     for required in (
         'uv run pytest -m "not integration"',
         "uv run pytest -m integration",
@@ -475,8 +516,8 @@ def test_existing_workflow_jobs_triggers_pins_and_quality_are_unchanged() -> Non
 def test_verification_runs_actual_shell_truth_table() -> None:
     verification = workflow_jobs()["verification-gate"]
     assert (
-        "needs: [classify-change, quality, compose-smoke, publication-proof, w03-ai-loop-gate]"
-        in verification
+        "needs: [classify-change, quality, compose-smoke, publication-proof, "
+        "w03-ai-loop-gate, shadow-equivalence]" in verification
     )
     assert "if: always()" in verification
     assert "W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}" in verification
@@ -501,6 +542,7 @@ def test_verification_runs_actual_shell_truth_table() -> None:
             "COMPOSE_RESULT": "skipped" if change == "P" else "success",
             "W03_RESULT": "skipped" if change == "P" else "success",
             "PUBLICATION_RESULT": "success" if change == "P" else "skipped",
+            "SHADOW_RESULT": "skipped" if change == "P" else "success",
         }
         assert enforce(change, expected) == 0
         for key in expected:

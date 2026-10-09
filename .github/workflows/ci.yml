@@ -196,11 +196,51 @@ jobs:
           print("CI profile: 800 orders / six months; public artifacts PASS; HGT leakage NONE")
           PY
 
+      - name: Freeze legacy exact collection and entry no-loss plan
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          uv run python scripts/ci/plan_non_integration_shards.py plan \
+            --expected-head "$EXPECTED_HEAD" \
+            --output "$RUNNER_TEMP/devctrl02-legacy-plan.json"
+
       - name: Run database integration tests
-        run: uv run pytest -m integration
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Original selection: uv run pytest -m integration
+          uv run python scripts/ci/pytest_outcome_receipt.py \
+            --plan "$RUNNER_TEMP/devctrl02-legacy-plan.json" --expected-head "$EXPECTED_HEAD" \
+            --role legacy-integration --marker "integration" \
+            --output-dir "$RUNNER_TEMP/devctrl02-legacy-integration"
+
+      - name: Upload legacy-integration exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-legacy-integration-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-legacy-integration/
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Run complete test suite
-        run: uv run pytest -m "not integration"
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Original selection: uv run pytest -m "not integration"
+          uv run python scripts/ci/pytest_outcome_receipt.py \
+            --plan "$RUNNER_TEMP/devctrl02-legacy-plan.json" --expected-head "$EXPECTED_HEAD" \
+            --role legacy-nonint --marker "not integration" \
+            --output-dir "$RUNNER_TEMP/devctrl02-legacy-nonint"
+
+      - name: Upload legacy-nonint exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-legacy-nonint-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-legacy-nonint/
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Run Ruff
         run: uv run ruff check .
@@ -241,6 +281,556 @@ jobs:
               shutil.rmtree(directory)
           assert not Path("data/hidden_ground_truth/scenario_manifest.yaml").exists()
           PY
+
+  shadow-static-and-plan:
+    name: Shadow static and plan
+    needs: classify-change
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      - name: Check out exact source head with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Run Ruff
+        run: uv run ruff check .
+
+      - name: Run strict mypy
+        run: uv run mypy .
+
+      - name: Verify dependency lock
+        run: uv lock --check
+
+      - name: Freeze shadow exact collection and entry no-loss plan
+        run: |
+          uv run python scripts/ci/plan_non_integration_shards.py plan \
+            --expected-head "$EXPECTED_HEAD" \
+            --output "$RUNNER_TEMP/devctrl02-plan/plan.json"
+
+      - name: Upload plan exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-plan-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-plan/plan.json
+          if-no-files-found: error
+          retention-days: 14
+
+  shadow-integration-and-data:
+    name: Shadow integration and data
+    needs: classify-change
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.6-pg17-bookworm
+        env:
+          POSTGRES_DB: flowlens_test
+          POSTGRES_USER: flowlens_ci
+          POSTGRES_PASSWORD: flowlens_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowlens_ci -d flowlens_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_DB: flowlens_test
+      POSTGRES_USER: flowlens_ci
+      POSTGRES_PASSWORD: flowlens_ci
+      FLOWLENS_SERVICE_NAME: flowlens-api
+      FLOWLENS_APP_ENVIRONMENT: test
+      FLOWLENS_LOG_LEVEL: INFO
+      FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_test
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Configure Week 2 temporary artifact directory
+        shell: bash
+        run: echo "C06_OUTPUT_DIR=$RUNNER_TEMP/flowlens-ci-artifacts" >> "$GITHUB_ENV"
+
+      - name: Validate Docker Compose configuration
+        run: docker compose config --quiet
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Verify PostgreSQL readiness
+        run: >-
+          uv run python -c "from flowlens.config import get_settings;
+          from flowlens.db import check_database_connectivity, create_database_engine;
+          engine = create_database_engine(get_settings());
+          assert check_database_connectivity(engine); engine.dispose()"
+
+      - name: Apply database migrations
+        run: uv run alembic upgrade head
+
+      - name: Create isolated Week 2 smoke database
+        id: c06-database
+        run: |
+          uv run python - <<'PY'
+          import os
+          from pathlib import Path
+          import psycopg
+
+          assert not Path("data/hidden_ground_truth/scenario_manifest.yaml").exists()
+          assert not Path(os.environ["C06_OUTPUT_DIR"]).exists()
+          with psycopg.connect(
+              host="127.0.0.1", port=5432, dbname="postgres",
+              user=os.environ["POSTGRES_USER"], password=os.environ["POSTGRES_PASSWORD"],
+              autocommit=True,
+          ) as connection:
+              connection.execute("CREATE DATABASE flowlens_ci_profile_test")
+          PY
+
+      - name: Migrate isolated Week 2 smoke database
+        env:
+          FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_ci_profile_test
+        run: uv run alembic upgrade head
+
+      - name: Generate and persist Week 2 CI profile
+        env:
+          FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_ci_profile_test
+        run: >-
+          uv run python -m flowlens.data.cli generate
+          --profile ci --seed 20260824 --period-start 2026-01-01
+          --generator-version 0.1.0-c03 --output-dir "$C06_OUTPUT_DIR"
+
+      - name: Validate Week 2 CI profile
+        env:
+          FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_ci_profile_test
+        run: uv run python -m flowlens.data.cli validate --output-dir "$C06_OUTPUT_DIR"
+
+      - name: Verify public artifacts and HGT isolation
+        env:
+          FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_ci_profile_test
+        run: |
+          uv run python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from flowlens.config import get_settings
+          from flowlens.data.artifacts import public_manifest, quality_markdown, quality_report
+          from flowlens.data.persistence import read_active_dataset
+          from flowlens.data.quality import validate_dataset
+          from flowlens.db import create_database_engine
+
+          directory = Path(os.environ["C06_OUTPUT_DIR"])
+          names = {"dataset_manifest.json", "data_quality_report.json", "data_quality_report.md"}
+          assert {path.name for path in directory.iterdir()} == names
+          assert all((directory / name).is_file() for name in names)
+          assert not Path("data/hidden_ground_truth/scenario_manifest.yaml").exists()
+          engine = create_database_engine(get_settings())
+          try:
+              dataset = read_active_dataset(engine)
+          finally:
+              engine.dispose()
+          result = validate_dataset(dataset)
+          assert result.passed
+          manifest = public_manifest(dataset)
+          assert manifest["profile"] == "ci" and manifest["seed"] == 20260824
+          assert manifest["period_start"] == "2026-01-01"
+          assert manifest["period_end"] == "2026-06-30"
+          assert manifest["generator_version"] == "0.1.0-c03"
+          assert manifest["row_counts_by_table"]["fact_sales_order"] == 800
+          assert json.loads((directory / "dataset_manifest.json").read_text()) == manifest
+          assert json.loads((directory / "data_quality_report.json").read_text()) == quality_report(dataset, result)
+          assert (directory / "data_quality_report.md").read_text() == quality_markdown(dataset, result)
+          forbidden = (
+              "scenario_id", "scenario_name", "scenario_type", "scn_", "true_root_cause",
+              "root_cause", "target_entity_ids", "affected_entities", "causal_chain",
+              "hgt_id", "hgt_hash",
+          )
+          for name in names:
+              content = (directory / name).read_text().lower()
+              assert not any(token in content for token in forbidden), name
+          print("CI profile: 800 orders / six months; public artifacts PASS; HGT leakage NONE")
+          PY
+
+      - name: Freeze shadow integration exact collection and entry no-loss plan
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          uv run python scripts/ci/plan_non_integration_shards.py plan \
+            --expected-head "$EXPECTED_HEAD" \
+            --output "$RUNNER_TEMP/devctrl02-integration-plan.json"
+
+      - name: Run database integration tests
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Original selection: uv run pytest -m integration
+          uv run python scripts/ci/pytest_outcome_receipt.py \
+            --plan "$RUNNER_TEMP/devctrl02-integration-plan.json" --expected-head "$EXPECTED_HEAD" \
+            --role shadow-integration --marker "integration" \
+            --output-dir "$RUNNER_TEMP/devctrl02-shadow-integration"
+
+      - name: Upload shadow-integration exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-shadow-integration-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shadow-integration/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Clean up isolated Week 2 smoke database
+        if: always() && steps.c06-database.outcome == 'success'
+        run: |
+          uv run python - <<'PY'
+          import os
+          import psycopg
+
+          with psycopg.connect(
+              host="127.0.0.1", port=5432, dbname="postgres",
+              user=os.environ["POSTGRES_USER"], password=os.environ["POSTGRES_PASSWORD"],
+              autocommit=True,
+          ) as connection:
+              connection.execute("DROP DATABASE flowlens_ci_profile_test")
+          PY
+
+      - name: Clean up temporary Week 2 public artifacts
+        if: always() && steps.c06-database.outcome == 'success'
+        run: |
+          uv run python - <<'PY'
+          import os
+          import shutil
+          from pathlib import Path
+
+          directory = Path(os.environ["C06_OUTPUT_DIR"])
+          expected = Path(os.environ["RUNNER_TEMP"]).resolve() / "flowlens-ci-artifacts"
+          assert not directory.is_symlink() and directory.resolve() == expected
+          if directory.exists():
+              shutil.rmtree(directory)
+          assert not Path("data/hidden_ground_truth/scenario_manifest.yaml").exists()
+          PY
+
+  shadow-non-integration:
+    name: Shadow non-integration / shard ${{ matrix.shard }}
+    needs: [classify-change, shadow-static-and-plan]
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3]
+
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.6-pg17-bookworm
+        env:
+          POSTGRES_DB: flowlens_test
+          POSTGRES_USER: flowlens_ci
+          POSTGRES_PASSWORD: flowlens_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowlens_ci -d flowlens_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      POSTGRES_DB: flowlens_test
+      POSTGRES_USER: flowlens_ci
+      POSTGRES_PASSWORD: flowlens_ci
+      FLOWLENS_SERVICE_NAME: flowlens-api
+      FLOWLENS_APP_ENVIRONMENT: test
+      FLOWLENS_LOG_LEVEL: INFO
+      FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_test
+
+    steps:
+      - name: Check out exact source head with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Download plan exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-plan-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-plan
+
+      - name: Verify PostgreSQL readiness
+        run: >-
+          uv run python -c "from flowlens.config import get_settings;
+          from flowlens.db import check_database_connectivity, create_database_engine;
+          engine = create_database_engine(get_settings());
+          assert check_database_connectivity(engine); engine.dispose()"
+
+      - name: Apply database migrations
+        run: uv run alembic upgrade head
+
+      - name: Run exact assigned non-integration shard
+        env:
+          SHARD_ID: ${{ matrix.shard }}
+        run: |
+          uv run python scripts/ci/run_non_integration_shard.py \
+            --plan "$RUNNER_TEMP/devctrl02-plan/plan.json" --expected-head "$EXPECTED_HEAD" \
+            --shard-id "$SHARD_ID" --role shadow-shard \
+            --output-dir "$RUNNER_TEMP/devctrl02-shadow-shard"
+
+      - name: Upload shadow-shard-${{ matrix.shard }} exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-shadow-shard-${{ matrix.shard }}-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shadow-shard/
+          if-no-files-found: error
+          retention-days: 14
+
+  shadow-non-integration-aggregate:
+    name: Shadow non-integration aggregate
+    needs: [classify-change, shadow-static-and-plan, shadow-non-integration]
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      - name: Check out exact source head with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Download plan exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-plan-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-plan
+
+      - name: Download shadow-shard-0 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shadow-shard-0-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-0
+
+      - name: Download shadow-shard-1 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shadow-shard-1-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-1
+
+      - name: Download shadow-shard-2 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shadow-shard-2-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-2
+
+      - name: Download shadow-shard-3 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shadow-shard-3-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-3
+
+      - name: Verify exact four-shard coverage and terminal success
+        env:
+          STATIC_RESULT: ${{ needs['shadow-static-and-plan'].result }}
+          SHARDS_RESULT: ${{ needs['shadow-non-integration'].result }}
+        run: |
+          test "$STATIC_RESULT" = success
+          test "$SHARDS_RESULT" = success
+          uv run python scripts/ci/verify_non_integration_shards.py \
+            --plan "$RUNNER_TEMP/devctrl02-plan/plan.json" --expected-head "$EXPECTED_HEAD" \
+            aggregate --receipts-dir "$RUNNER_TEMP/devctrl02-shards" --role shadow-shard \
+            --output-dir "$RUNNER_TEMP/devctrl02-shadow-aggregate"
+
+      - name: Upload shadow-aggregate exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-shadow-aggregate-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shadow-aggregate/
+          if-no-files-found: error
+          retention-days: 14
+
+  shadow-equivalence:
+    name: Shadow equivalence
+    needs: [classify-change, quality, shadow-static-and-plan, shadow-integration-and-data, shadow-non-integration-aggregate]
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      - name: Check out exact source head with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Require legacy and shadow upstream success
+        env:
+          LEGACY_RESULT: ${{ needs.quality.result }}
+          STATIC_RESULT: ${{ needs['shadow-static-and-plan'].result }}
+          INTEGRATION_RESULT: ${{ needs['shadow-integration-and-data'].result }}
+          AGGREGATE_RESULT: ${{ needs['shadow-non-integration-aggregate'].result }}
+        run: |
+          test "$LEGACY_RESULT" = success
+          test "$STATIC_RESULT" = success
+          test "$INTEGRATION_RESULT" = success
+          test "$AGGREGATE_RESULT" = success
+
+      - name: Download plan exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-plan-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-plan
+
+      - name: Download legacy-nonint exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-legacy-nonint-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-equivalence/legacy-nonint
+
+      - name: Download legacy-integration exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-legacy-integration-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-equivalence/legacy-integration
+
+      - name: Download shadow-aggregate exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shadow-aggregate-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-equivalence/shadow-nonint
+
+      - name: Download shadow-integration exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shadow-integration-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-equivalence/shadow-integration
+
+      - name: Prove same-SHA exact coverage and six terminal outcome sets
+        run: |
+          uv run python scripts/ci/verify_non_integration_shards.py \
+            --plan "$RUNNER_TEMP/devctrl02-plan/plan.json" --expected-head "$EXPECTED_HEAD" \
+            equivalence \
+            --legacy-nonint-dir "$RUNNER_TEMP/devctrl02-equivalence/legacy-nonint" \
+            --legacy-integration-dir "$RUNNER_TEMP/devctrl02-equivalence/legacy-integration" \
+            --shadow-nonint-dir "$RUNNER_TEMP/devctrl02-equivalence/shadow-nonint" \
+            --shadow-integration-dir "$RUNNER_TEMP/devctrl02-equivalence/shadow-integration" \
+            --output-json "$RUNNER_TEMP/devctrl02-equivalence-result.json"
+
+      - name: Upload shadow-equivalence exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-shadow-equivalence-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-equivalence-result.json
+          if-no-files-found: error
+          retention-days: 14
 
   w03-ai-loop-gate:
     name: W03 AI loop gate
@@ -436,13 +1026,14 @@ jobs:
 
   verification-gate:
     name: Verification gate
-    needs: [classify-change, quality, compose-smoke, publication-proof, w03-ai-loop-gate]
+    needs: [classify-change, quality, compose-smoke, publication-proof, w03-ai-loop-gate, shadow-equivalence]
     if: always()
     runs-on: ubuntu-latest
     steps:
       - name: Enforce class-specific exact-SHA proof
         env:
           CHANGE_CLASS: ${{ needs['classify-change'].outputs.change_class }}
+          SHADOW_RESULT: ${{ needs['shadow-equivalence'].result }}
           CLASS_RESULT: ${{ needs['classify-change'].result }}
           QUALITY_RESULT: ${{ needs.quality.result }}
           COMPOSE_RESULT: ${{ needs['compose-smoke'].result }}
@@ -455,10 +1046,12 @@ jobs:
             test "$QUALITY_RESULT" = skipped
             test "$COMPOSE_RESULT" = skipped
             test "$W03_RESULT" = skipped
+            test "$SHADOW_RESULT" = skipped
           else
             test "$CHANGE_CLASS" = C -o "$CHANGE_CLASS" = I -o "$CHANGE_CLASS" = F -o "$CHANGE_CLASS" = UNKNOWN
             test "$QUALITY_RESULT" = success
             test "$COMPOSE_RESULT" = success
             test "$W03_RESULT" = success
+            test "$SHADOW_RESULT" = success
             test "$PUBLICATION_RESULT" = skipped
           fi

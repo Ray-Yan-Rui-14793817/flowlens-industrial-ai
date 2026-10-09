@@ -195,9 +195,7 @@ def test_w04_malformed_paths_rejected_by_shared_helper(path: str) -> None:
         ("unknown/file.md", "UNKNOWN"),
     ],
 )
-def test_w04_current_git_delta_routes_each_class(
-    tmp_path: Path, path: str, expected: str
-) -> None:
+def test_w04_current_git_delta_routes_each_class(tmp_path: Path, path: str, expected: str) -> None:
     repo, base = repository(tmp_path)
     head = commit(repo, path, "fixture\n")
     actual = classify_event(event(base, head), "pull_request", head, repo)
@@ -292,16 +290,36 @@ def test_workflow_routes_all_classes_to_a_stable_fail_closed_gate() -> None:
         "name: Verification gate",
         "needs: [classify-change, quality, compose-smoke, publication-proof]",
         "if: always()",
-        "--event-path \"$GITHUB_EVENT_PATH\"",
-        "test \"$(git rev-parse HEAD)\" = \"$EXPECTED_HEAD\"",
+        '--event-path "$GITHUB_EVENT_PATH"',
+        'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"',
         "fetch-depth: 0",
-        "test \"$QUALITY_RESULT\" = skipped",
-        "test \"$COMPOSE_RESULT\" = skipped",
-        "test \"$PUBLICATION_RESULT\" = success",
-        "test \"$PUBLICATION_RESULT\" = skipped",
-        "test \"$QUALITY_RESULT\" = success",
-        "test \"$COMPOSE_RESULT\" = success",
+        'test "$QUALITY_RESULT" = skipped',
+        'test "$COMPOSE_RESULT" = skipped',
+        'test "$PUBLICATION_RESULT" = success',
+        'test "$PUBLICATION_RESULT" = skipped',
+        'test "$QUALITY_RESULT" = success',
+        'test "$COMPOSE_RESULT" = success',
     ):
         assert required in workflow
     assert 'uv run pytest -m "not integration"' in workflow
     assert "uv run pytest -m integration" in workflow
+
+
+def test_shadow_workflow_requires_equivalence_and_preserves_classification() -> None:
+    workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    assert "name: Shadow equivalence" in workflow
+    assert "fail-fast: false" in workflow and "max-parallel: 4" in workflow
+    assert "shard: [0, 1, 2, 3]" in workflow
+    assert 'test "$SHADOW_RESULT" = success' in workflow
+    assert 'test "$SHADOW_RESULT" = skipped' in workflow
+    assert (
+        git(
+            ROOT,
+            "diff",
+            "4a5ab37251c1fecff4291ae6198e03c847cf8735",
+            "--",
+            "scripts/ci/classify_change.py",
+            "scripts/ci/verify_publication.py",
+        )
+        == ""
+    )
