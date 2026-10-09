@@ -433,7 +433,7 @@ def test_workflow_one_job_exact_schedule_source_manifest_and_environment() -> No
         "'success' || needs['classify-change'].outputs.change_class != 'P') }}"
     )
     assert schedule in job
-    assert "needs: [classify-change, quality, compose-smoke, publication-proof]" in job
+    assert "    needs: classify-change\n" in job
     head = (
         "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha "
         "|| github.sha }}"

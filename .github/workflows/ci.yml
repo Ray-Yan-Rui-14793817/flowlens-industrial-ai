@@ -563,9 +563,9 @@ jobs:
     timeout-minutes: 60
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 7
       matrix:
-        shard: [0, 1, 2, 3]
+        shard: [0, 1, 2, 3, 4, 5, 6]
 
     services:
       postgres:
@@ -715,7 +715,25 @@ jobs:
           name: w04-devctrl02-shadow-shard-3-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           path: ${{ runner.temp }}/devctrl02-shards/shard-3
 
-      - name: Verify exact four-shard coverage and terminal success
+      - name: Download shadow-shard-4 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shadow-shard-4-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-4
+
+      - name: Download shadow-shard-5 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shadow-shard-5-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-5
+
+      - name: Download shadow-shard-6 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shadow-shard-6-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-6
+
+      - name: Verify exact seven-shard coverage and terminal success
         env:
           STATIC_RESULT: ${{ needs['shadow-static-and-plan'].result }}
           SHARDS_RESULT: ${{ needs['shadow-non-integration'].result }}
@@ -834,8 +852,8 @@ jobs:
 
   w03-ai-loop-gate:
     name: W03 AI loop gate
-    # Order semantic proof after the existing proof jobs; always() keeps failures visible.
-    needs: [classify-change, quality, compose-smoke, publication-proof]
+    # Run frozen semantic proof independently after classification.
+    needs: classify-change
     if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
     runs-on: ubuntu-latest
 

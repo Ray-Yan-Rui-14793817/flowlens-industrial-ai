@@ -11,6 +11,7 @@ from pathlib import Path
 from plan_non_integration_shards import (
     BASELINE,
     MARKER,
+    SHARD_COUNT,
     WEIGHTS,
     ProofError,
     collect_nodes,
@@ -22,7 +23,7 @@ from plan_non_integration_shards import (
 
 def run_shard(plan_path: Path, head: str, shard_id: int, role: str, output: Path) -> int:
     verify_head(head)
-    if type(shard_id) is not int or shard_id not in range(4):
+    if type(shard_id) is not int or shard_id not in range(SHARD_COUNT):
         raise ProofError("unexpected shard ID")
     if role not in {"shadow-shard", "nonint-shard"}:
         raise ProofError("unexpected shard role")

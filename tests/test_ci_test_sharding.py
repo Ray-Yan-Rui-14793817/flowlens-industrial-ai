@@ -108,21 +108,44 @@ def four_receipts(directory: Path, plan: dict[str, Any]) -> None:
 
 
 def test_weight_source_and_correct_progress_attribution(weights: dict[str, Any]) -> None:
-    by_file, default = planner.validate_weights(weights)
-    assert weights["source_run_number"] == 118 and weights["source_run_id"] == 37773147744
-    assert weights["source_sha"] == "c86f7af2370f315b8b7310008521f08ceade6d97"
-    assert weights["non_integration_reported_seconds"] == 8308.68
-    assert len(by_file) == 61 and sum(by_file.values()) == pytest.approx(8310.1685965)
-    assert by_file["tests/test_investigation_summary_provider.py"] == 1533.0465168
-    assert by_file["tests/test_investigation_human_store.py"] == 1368.7228828
-    assert by_file["tests/test_investigation_planning.py"] == 1211.4822381
-    assert default == max(by_file.values())
-    entries = sorted(weights["file_weights"], key=lambda item: item["completion_timestamp"])
-    previous = planner.timestamp_seconds(weights["step_start_timestamp"])
-    for entry in entries:
-        completion = planner.timestamp_seconds(entry["completion_timestamp"])
-        assert float(completion - previous) == entry["weight_seconds"]
-        previous = completion
+    # Preserve this historical node ID while replacing its obsolete timing-source assertion.
+    by_file = planner.validate_weights(weights)
+    assert weights["schema_version"] == "w04-devctrl02-test-weights-v2"
+    assert weights["source_run_number"] == 122 and weights["source_run_id"] == 37889883403
+    assert weights["source_sha"] == "9d5b6e3baea1a860446b70d9b254cc3dc41815a4"
+    assert weights["total_weight_seconds"] == 6671.752
+    assert len(by_file) == 62 and sum(by_file.values()) == 6671752
+    assert by_file["tests/test_investigation_findings.py"] == 1061491
+    assert by_file["tests/test_investigation_human.py"] == 1014403
+    assert by_file["tests/test_investigation_human_store.py"] == 736120
+    assert by_file["tests/test_ci_test_sharding.py"] == 30045
+    assert by_file["tests/test_c06_policy.py"] == 0
+    assert [item["artifact_id"] for item in weights["source_artifacts"]] == [
+        11599246530,
+        11598633083,
+        11598796165,
+        11598701090,
+    ]
+    assert sum(item["node_count"] for item in weights["source_artifacts"]) == 2807
+    assert not {"step_start_timestamp", "default_unseen_file_weight_seconds"} & set(weights)
+    assert all(set(item) == {"file", "weight_seconds"} for item in weights["file_weights"])
+    for selected in (
+        set(by_file) - {"tests/test_ci_test_sharding.py"},
+        set(by_file) | {"tests/unmodeled.py"},
+    ):
+        with pytest.raises(planner.ProofError, match="missing/extra/unmodeled"):
+            planner.validate_weights(weights, selected)
+    for field, wrong in (
+        ("artifact_id", 0),
+        ("junit_sha256", "0" * 64),
+        ("receipt_sha256", "0" * 64),
+        ("node_count", 1047),
+        ("shard_id", 1),
+    ):
+        damaged = copy.deepcopy(weights)
+        damaged["source_artifacts"][0][field] = wrong
+        with pytest.raises(planner.ProofError):
+            planner.validate_weights(reseal(damaged, "weights_sha256"))
 
 
 def test_baseline_identity_and_digest_are_deterministic(baseline: dict[str, Any]) -> None:
@@ -202,7 +225,22 @@ def test_lpt_deterministic_four_shards_file_atomic_exact_union(
 ) -> None:
     again = planner.build_plan(plan["collected_nodeids"], weights, baseline, planner.ENTRY_SHA)
     assert plan == again
-    assert plan["shard_count"] == 4 and [s["shard_id"] for s in plan["shards"]] == [0, 1, 2, 3]
+    assert planner.SHARD_COUNT == plan["shard_count"] == 7
+    assert [s["shard_id"] for s in plan["shards"]] == list(range(7))
+    assert [s["estimated_weight_seconds"] for s in plan["shards"]] == [
+        1061.491,
+        1014.403,
+        919.267,
+        919.131,
+        919.138,
+        919.131,
+        919.191,
+    ]
+    assert [s["file_count"] for s in plan["shards"]] == [1, 1, 10, 15, 10, 14, 11]
+    assert "tests/test_c06_policy.py" in plan["shards"][3]["files"]
+    assert "tests/test_c06_policy.py" not in plan["shards"][5]["files"]
+    assert plan["shards"][0]["files"] == ["tests/test_investigation_findings.py"]
+    assert plan["shards"][1]["files"] == ["tests/test_investigation_human.py"]
     files = [file for shard in plan["shards"] for file in shard["files"]]
     nodeids = [node for shard in plan["shards"] for node in shard["nodeids"]]
     assert len(set(files)) == len(files) == len(plan["files"])
@@ -210,12 +248,15 @@ def test_lpt_deterministic_four_shards_file_atomic_exact_union(
     assert sorted(nodeids) == plan["collected_nodeids"]
     for shard in plan["shards"]:
         assert {node.split("::", 1)[0] for node in shard["nodeids"]} == set(shard["files"])
+        for other in plan["shards"]:
+            if shard["shard_id"] != other["shard_id"]:
+                assert not set(shard["nodeids"]) & set(other["nodeids"])
     heavy = sorted(plan["files"], key=lambda file: (-file["weight_seconds"], file["file"]))
-    assert [file["shard_id"] for file in heavy[:4]] == [0, 1, 2, 3]
+    assert [file["shard_id"] for file in heavy[:7]] == list(range(7))
     unseen = next(
         file for file in plan["files"] if file["file"] == "tests/test_ci_test_sharding.py"
     )
-    assert unseen["weight_seconds"] == weights["default_unseen_file_weight_seconds"]
+    assert unseen["weight_seconds"] == 30.045
     assert unseen["node_count"] == 1
     planner.validate_plan(plan, weights, baseline, planner.ENTRY_SHA)
 
@@ -223,10 +264,14 @@ def test_lpt_deterministic_four_shards_file_atomic_exact_union(
 def test_lpt_path_then_lowest_shard_tie_break(
     monkeypatch: pytest.MonkeyPatch, baseline: dict[str, Any], weights: dict[str, Any]
 ) -> None:
-    monkeypatch.setattr(planner, "validate_weights", lambda value: ({}, 1.0))
+    monkeypatch.setattr(
+        planner,
+        "validate_weights",
+        lambda value, selected_files: {file: 1000 for file in selected_files},
+    )
     result = planner.build_plan(baseline["sorted_nodeids"], weights, baseline, planner.ENTRY_SHA)
     assert [file["shard_id"] for file in result["files"]] == [
-        index % 4 for index in range(len(result["files"]))
+        index % planner.SHARD_COUNT for index in range(len(result["files"]))
     ]
 
 
@@ -438,6 +483,17 @@ def test_canonical_receipt_exact_sets_and_digest(plan: dict[str, Any], tmp_path:
     assert receipt["assigned_nodeids"] == receipt["collected_nodeids"] == selected
     assert receipt == reseal(receipt, "receipt_sha256")
     assert sorted(receipt["passed_nodeids"] + receipt["skipped_nodeids"]) == selected
+    # A zero pytest exit status cannot turn either xfail or xpass into accepted success.
+    for category in ("xfail", "xpass"):
+        invalid = copy.deepcopy(receipt)
+        node = invalid["passed_nodeids"].pop()
+        invalid["passed_count"] -= 1
+        invalid[category + "_nodeids"] = [node]
+        invalid[category + "_count"] = 1
+        invalid = reseal(invalid, "receipt_sha256")
+        outcomes.validate_receipt(invalid, plan, "shadow-shard", 0, selected, junit)
+        with pytest.raises(planner.ProofError):
+            outcomes.require_success(invalid, junit)
 
 
 @pytest.mark.parametrize(
@@ -537,7 +593,7 @@ def test_aggregate_rejects_missing_duplicate_failed_and_skip_drift(
     if damage == "missing":
         (shards / "shard-0").rename(shards / "removed")
     elif damage == "unexpected":
-        (shards / "shard-4").mkdir()
+        (shards / f"shard-{planner.SHARD_COUNT}").mkdir()
     elif damage == "duplicate":
         target = planner.read_json(shards / "shard-1/receipt.json")
         target["shard_id"] = 0
@@ -685,8 +741,8 @@ def test_stale_missing_or_repository_output_evidence_rejected(tmp_path: Path) ->
 def test_workflow_exact_transport_timeout_and_no_runtime_dependency_mutation() -> None:
     workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "cancel-in-progress" not in workflow and "continue-on-error" not in workflow
-    assert "fail-fast: false" in workflow and "max-parallel: 4" in workflow
-    assert "shard: [0, 1, 2, 3]" in workflow
+    assert "fail-fast: false" in workflow and "max-parallel: 7" in workflow
+    assert "shard: [0, 1, 2, 3, 4, 5, 6]" in workflow
     assert not re.search(r"secrets\.|OPENAI_API_KEY|pytest-xdist", workflow)
     for action in re.findall(r"uses: ([^\s]+)", workflow):
         assert re.fullmatch(r"[a-zA-Z0-9-]+/[a-zA-Z0-9-]+@[0-9a-f]{40}", action)
@@ -738,6 +794,9 @@ def test_workflow_exact_transport_timeout_and_no_runtime_dependency_mutation() -
     ]
     assert 'test "$SHARDS_RESULT" = success' in aggregate_job
     assert 'test "$STATIC_RESULT" = success' in aggregate_job
+    assert re.findall(r"Download (?:shadow-)?shard-(\d+) exact-SHA", aggregate_job) == [
+        str(index) for index in range(planner.SHARD_COUNT)
+    ]
     for path in (
         "pyproject.toml",
         "uv.lock",

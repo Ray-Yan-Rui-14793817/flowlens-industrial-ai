@@ -14,6 +14,7 @@ import pytest
 from plan_non_integration_shards import (
     BASELINE,
     MARKER,
+    SHARD_COUNT,
     WEIGHTS,
     ProofError,
     check_seal,
@@ -202,7 +203,10 @@ def validate_receipt(
     if role not in NONINT_ROLES | INTEGRATION_ROLES:
         raise ProofError("unexpected receipt role")
     if role in SHARD_ROLES:
-        if integer(shard_id, "shard ID") not in range(4) or type(value["shard_id"]) is not int:
+        if (
+            integer(shard_id, "shard ID") not in range(SHARD_COUNT)
+            or type(value["shard_id"]) is not int
+        ):
             raise ProofError("unexpected shard ID")
     elif shard_id is not None:
         raise ProofError("unexpected aggregate/integration shard ID")
@@ -256,6 +260,8 @@ def require_success(
         value["pytest_exit_code"] != 0
         or value["failed_count"]
         or value["error_count"]
+        or value["xfail_count"]
+        or value["xpass_count"]
         or facts["failures"]
         or facts["errors"]
         or facts["tests"] != value["collected_node_count"]
@@ -319,7 +325,7 @@ def run_receipt(
     targets: list[str] = []
     if role in SHARD_ROLES:
         index = integer(shard_id, "shard ID")
-        if index not in range(4):
+        if index not in range(SHARD_COUNT):
             raise ProofError("unexpected shard ID")
         shard = plan["shards"][index]
         assigned = shard["nodeids"]

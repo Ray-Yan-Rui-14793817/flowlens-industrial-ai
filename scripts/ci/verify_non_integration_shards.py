@@ -1,4 +1,4 @@
-"""Fail-closed four-shard aggregation and same-SHA legacy/shadow outcome equivalence."""
+"""Fail-closed exact shard aggregation and same-SHA legacy/shadow outcome equivalence."""
 
 from __future__ import annotations
 
@@ -13,6 +13,7 @@ from typing import Any
 from plan_non_integration_shards import (
     BASELINE,
     MARKER,
+    SHARD_COUNT,
     WEIGHTS,
     ProofError,
     collect_nodes,
@@ -48,14 +49,15 @@ def aggregate(plan: dict[str, Any], receipts_dir: Path, role: str, output: Path)
     if (
         receipts_dir.is_symlink()
         or not receipts_dir.is_dir()
-        or {path.name for path in receipts_dir.iterdir()} != {f"shard-{i}" for i in range(4)}
+        or {path.name for path in receipts_dir.iterdir()}
+        != {f"shard-{i}" for i in range(SHARD_COUNT)}
     ):
         raise ProofError("missing, duplicate or unexpected shard artifact")
     all_nodes: list[str] = []
     outcomes: dict[str, list[str]] = {key: [] for key in OUTCOMES}
     suites = ET.Element("testsuites")
     summaries = []
-    for index in range(4):
+    for index in range(SHARD_COUNT):
         receipt, junit = read_evidence(receipts_dir / f"shard-{index}")
         assigned = plan["shards"][index]["nodeids"]
         validate_receipt(receipt, plan, role, index, assigned, junit)

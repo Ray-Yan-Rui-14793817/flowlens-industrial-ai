@@ -10,7 +10,6 @@ import re
 import subprocess
 import sys
 import tempfile
-from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -19,13 +18,20 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 MARKER = "not integration"
-SHARD_COUNT = 4
+SHARD_COUNT = 7
 ENTRY_SHA = "f50d6c6f8eeacd9df3320dc4a8c6269aa6caa3a5"
 ENTRY_DIGEST = "0089b5889f7de2dbe637ddef3774966ae07f6cf6d6518f2648f20e47ccbaa4a7"
 ENTRY_FILES_DIGEST = "f252f29b1999267ef1d2f3117f45579c094da3b9001cf34c1e07b524a418480e"
 BASELINE = ROOT / "docs/w04/devctrl-02/W04_DEVCTRL_02_ENTRY_TEST_BASELINE.json"
 WEIGHTS = ROOT / "docs/w04/devctrl-02/W04_CI_TEST_SHARD_WEIGHTS.json"
 PLAN_SCHEMA = "w04-devctrl02-non-integration-plan-v1"
+SOURCE_NODES_DIGEST = "4f74c17af44363fe14bbda36dd4bb5f2166162d941291bf8e383a29532349c3d"
+SOURCE_ARTIFACTS_DIGEST = "c111d28caa2d4e319c01873f47cc6cc8bd9a80a9fd172ca2749b29bcc945b83a"
+SOURCE_FILE_WEIGHTS_DIGEST = "43740d1f6b1eda83fb9410de761625504a8c96d90dd7c05cd1d69bf001ac0bdc"
+WEIGHT_DERIVATION = (
+    "Sum of JUnit testcase time attributes by file from the four complete #122 shard artifacts. "
+    "Static scheduling evidence only."
+)
 AUTHORIZED_ADDITION_FILES = frozenset(
     {
         "tests/test_ci_test_sharding.py",
@@ -221,7 +227,10 @@ def enforce_entry(selected: list[str], baseline: dict[str, Any]) -> None:
         raise ProofError("unauthorized DEVCTRL test addition")
 
 
-def validate_weights(value: dict[str, Any]) -> tuple[dict[str, float], float]:
+def validate_weights(
+    value: dict[str, Any], selected_files: set[str] | None = None
+) -> dict[str, int]:
+    """Validate frozen JUnit evidence and return exact integer millisecond weights."""
     exact_keys(
         value,
         {
@@ -229,11 +238,12 @@ def validate_weights(value: dict[str, Any]) -> tuple[dict[str, float], float]:
             "source_run_number",
             "source_run_id",
             "source_sha",
-            "non_integration_reported_seconds",
             "derivation_method",
-            "step_start_timestamp",
+            "source_artifacts",
+            "source_collected_node_count",
+            "source_collected_nodeids_sha256",
+            "total_weight_seconds",
             "shard_count",
-            "default_unseen_file_weight_seconds",
             "file_weights",
             "weights_sha256",
         },
@@ -241,60 +251,50 @@ def validate_weights(value: dict[str, Any]) -> tuple[dict[str, float], float]:
     )
     check_seal(value, "weights_sha256")
     if (
-        value["schema_version"] != "w04-devctrl02-test-weights-v1"
-        or value["source_run_number"] != 118
-        or value["source_run_id"] != 37773147744
-        or value["source_sha"] != "c86f7af2370f315b8b7310008521f08ceade6d97"
-        or value["non_integration_reported_seconds"] != 8308.68
-        or value["step_start_timestamp"] != "2026-10-08T12:00:51.4824948Z"
-        or not isinstance(value["derivation_method"], str)
-        or not value["derivation_method"]
+        value["schema_version"] != "w04-devctrl02-test-weights-v2"
+        or integer(value["source_run_number"], "source run", 1) != 122
+        or integer(value["source_run_id"], "source run ID", 1) != 37889883403
+        or value["source_sha"] != "9d5b6e3baea1a860446b70d9b254cc3dc41815a4"
+        or integer(value["source_collected_node_count"], "source node count", 1) != 2807
+        or value["source_collected_nodeids_sha256"] != SOURCE_NODES_DIGEST
+        or digest(value["source_artifacts"]) != SOURCE_ARTIFACTS_DIGEST
+        or value["derivation_method"] != WEIGHT_DERIVATION
         or integer(value["shard_count"], "shard count", 1) != SHARD_COUNT
     ):
         raise ProofError("wrong scheduling source or shard count")
 
-    def weight(item: Any) -> float:
+    def weight(item: Any) -> int:
         if type(item) not in (int, float) or not math.isfinite(item) or item < 0:
             raise ProofError("malformed, negative or nonfinite weight")
-        return float(item)
+        milliseconds = Decimal(str(item)) * 1000
+        if milliseconds != milliseconds.to_integral_value():
+            raise ProofError("weight must preserve exact JUnit millisecond precision")
+        return int(milliseconds)
 
-    default = weight(value["default_unseen_file_weight_seconds"])
     entries = value["file_weights"]
-    if not isinstance(entries, list) or len(entries) != 61:
-        raise ProofError("missing observable file weights")
-    result: dict[str, float] = {}
+    if not isinstance(entries, list) or len(entries) != 62:
+        raise ProofError("missing or extra frozen JUnit file weights")
+    result: dict[str, int] = {}
     for item in entries:
         if not isinstance(item, dict):
             raise ProofError("malformed weight entry")
-        exact_keys(item, {"file", "weight_seconds", "completion_timestamp"}, "weight")
+        exact_keys(item, {"file", "weight_seconds"}, "weight")
         path = test_file(item["file"])
         if path in result:
             raise ProofError("duplicate file weight")
-        if not isinstance(item["completion_timestamp"], str):
-            raise ProofError("missing weight completion timestamp")
         result[path] = weight(item["weight_seconds"])
-    if list(result) != sorted(result) or default < max(result.values()):
-        raise ProofError("unsorted weights or nonconservative unseen-file weight")
-    previous = timestamp_seconds(value["step_start_timestamp"])
-    for item in sorted(entries, key=lambda entry: entry["completion_timestamp"]):
-        completion = timestamp_seconds(item["completion_timestamp"])
-        if completion <= previous or float(completion - previous) != item["weight_seconds"]:
-            raise ProofError("shifted or inconsistent progress-duration attribution")
-        previous = completion
-    return result, default
-
-
-def timestamp_seconds(value: str) -> Decimal:
-    match = re.fullmatch(r"(\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d)\.(\d{1,9})Z", value)
-    if not match:
-        raise ProofError("invalid progress timestamp")
-    try:
-        seconds = int(
-            datetime.strptime(match[1], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=UTC).timestamp()
+    if (
+        list(result) != sorted(result)
+        or digest(entries) != SOURCE_FILE_WEIGHTS_DIGEST
+        or weight(value["total_weight_seconds"]) != 6671752
+        or sum(result.values()) != 6671752
+    ):
+        raise ProofError("wrong frozen JUnit file weights or total")
+    if selected_files is not None and selected_files != set(result):
+        raise ProofError(
+            "selected test files differ from frozen weight files: missing/extra/unmodeled"
         )
-    except ValueError as exc:
-        raise ProofError("invalid progress timestamp") from exc
-    return Decimal(seconds) + Decimal("0." + match[2])
+    return result
 
 
 class CollectionRecorder:
@@ -341,20 +341,20 @@ def build_plan(
     sha(head, 40)
     selected = nodes(selected, repo)
     enforce_entry(selected, baseline)
-    by_weight, default = validate_weights(weights)
     grouped: dict[str, list[str]] = {}
     for node in selected:
         grouped.setdefault(node.split("::", 1)[0], []).append(node)
-    loads = [0.0] * SHARD_COUNT
+    by_weight = validate_weights(weights, set(grouped))
+    loads = [0] * SHARD_COUNT
     assignments: dict[str, int] = {}
-    for file in sorted(grouped, key=lambda name: (-by_weight.get(name, default), name)):
+    for file in sorted(grouped, key=lambda name: (-by_weight[name], name)):
         shard_id = min(range(SHARD_COUNT), key=lambda index: (loads[index], index))
         assignments[file] = shard_id
-        loads[shard_id] += by_weight.get(file, default)
+        loads[shard_id] += by_weight[file]
     files = [
         {
             "file": file,
-            "weight_seconds": by_weight.get(file, default),
+            "weight_seconds": by_weight[file] / 1000,
             "node_count": len(grouped[file]),
             "nodeids": grouped[file],
             "nodeids_sha256": digest(grouped[file]),
@@ -371,7 +371,7 @@ def build_plan(
         shards.append(
             {
                 "shard_id": index,
-                "estimated_weight_seconds": loads[index],
+                "estimated_weight_seconds": loads[index] / 1000,
                 "file_count": len(owned_files),
                 "node_count": len(owned_nodes),
                 "files": owned_files,

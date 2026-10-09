@@ -1,319 +1,324 @@
 {
-  "default_unseen_file_weight_seconds": 1533.0465168,
-  "derivation_method": "Each displayed file progress timestamp is that file's completion; first delta from the non-integration step start, later deltas from previous file completion. Scheduling evidence only.",
+  "derivation_method": "Sum of JUnit testcase time attributes by file from the four complete #122 shard artifacts. Static scheduling evidence only.",
   "file_weights": [
     {
-      "completion_timestamp": "2026-10-08T12:00:54.0850109Z",
       "file": "tests/integration/test_database.py",
-      "weight_seconds": 2.6025161
+      "weight_seconds": 0.004
     },
     {
-      "completion_timestamp": "2026-10-08T12:00:54.0879429Z",
       "file": "tests/test_alembic.py",
-      "weight_seconds": 0.002932
+      "weight_seconds": 0.003
     },
     {
-      "completion_timestamp": "2026-10-08T12:00:54.1887229Z",
       "file": "tests/test_api.py",
-      "weight_seconds": 0.10078
+      "weight_seconds": 0.097
     },
     {
-      "completion_timestamp": "2026-10-08T12:00:57.2285417Z",
       "file": "tests/test_c03_diagnosis.py",
-      "weight_seconds": 3.0398188
+      "weight_seconds": 1.398
     },
     {
-      "completion_timestamp": "2026-10-08T12:01:04.0650733Z",
       "file": "tests/test_c03_harness.py",
-      "weight_seconds": 6.8365316
+      "weight_seconds": 7.058
     },
     {
-      "completion_timestamp": "2026-10-08T12:01:04.0679251Z",
       "file": "tests/test_c03_policy_contract.py",
-      "weight_seconds": 0.0028518
+      "weight_seconds": 0.002
     },
     {
-      "completion_timestamp": "2026-10-08T12:01:16.1553989Z",
       "file": "tests/test_c03_signals.py",
-      "weight_seconds": 12.0874738
+      "weight_seconds": 12.513
     },
     {
-      "completion_timestamp": "2026-10-08T12:01:32.1841913Z",
       "file": "tests/test_c04_harness.py",
-      "weight_seconds": 16.0287924
+      "weight_seconds": 8.3
     },
     {
-      "completion_timestamp": "2026-10-08T12:01:34.7377736Z",
       "file": "tests/test_c04_registry.py",
-      "weight_seconds": 2.5535823
+      "weight_seconds": 2.612
     },
     {
-      "completion_timestamp": "2026-10-08T12:01:37.2315643Z",
       "file": "tests/test_c04_scenario_adapter_compat.py",
-      "weight_seconds": 2.4937907
+      "weight_seconds": 2.643
     },
     {
-      "completion_timestamp": "2026-10-08T12:01:59.2000376Z",
       "file": "tests/test_c04_simulation.py",
-      "weight_seconds": 21.9684733
+      "weight_seconds": 22.549
     },
     {
-      "completion_timestamp": "2026-10-08T12:03:01.7798041Z",
       "file": "tests/test_c05_harness.py",
-      "weight_seconds": 62.5797665
+      "weight_seconds": 64.097
     },
     {
-      "completion_timestamp": "2026-10-08T12:03:43.9207391Z",
       "file": "tests/test_c05_packet.py",
-      "weight_seconds": 42.140935
+      "weight_seconds": 17.863
     },
     {
-      "completion_timestamp": "2026-10-08T12:04:09.5678544Z",
       "file": "tests/test_c05_policy.py",
-      "weight_seconds": 25.6471153
+      "weight_seconds": 10.707
     },
     {
-      "completion_timestamp": "2026-10-08T12:04:40.8224212Z",
       "file": "tests/test_c05_recommendation.py",
-      "weight_seconds": 31.2545668
+      "weight_seconds": 13.434
     },
     {
-      "completion_timestamp": "2026-10-08T12:04:44.0936240Z",
       "file": "tests/test_c06_harness.py",
-      "weight_seconds": 3.2712028
+      "weight_seconds": 3.409
     },
     {
-      "completion_timestamp": "2026-10-08T12:06:01.1239309Z",
       "file": "tests/test_c06_human.py",
-      "weight_seconds": 77.0303069
+      "weight_seconds": 32.398
     },
     {
-      "completion_timestamp": "2026-10-08T12:06:01.1273095Z",
       "file": "tests/test_c06_policy.py",
-      "weight_seconds": 0.0033786
+      "weight_seconds": 0
     },
     {
-      "completion_timestamp": "2026-10-08T12:07:39.5325224Z",
       "file": "tests/test_c06_store.py",
-      "weight_seconds": 98.4052129
+      "weight_seconds": 102.01
     },
     {
-      "completion_timestamp": "2026-10-08T12:12:21.6425044Z",
       "file": "tests/test_c07_harness.py",
-      "weight_seconds": 282.109982
+      "weight_seconds": 292.387
     },
     {
-      "completion_timestamp": "2026-10-08T12:16:06.4196877Z",
       "file": "tests/test_c07_policy.py",
-      "weight_seconds": 224.7771833
+      "weight_seconds": 308.756
     },
     {
-      "completion_timestamp": "2026-10-08T12:17:37.8087899Z",
       "file": "tests/test_c07_recommendation.py",
-      "weight_seconds": 91.3891022
+      "weight_seconds": 146.453
     },
     {
-      "completion_timestamp": "2026-10-08T12:20:00.0406193Z",
       "file": "tests/test_c07_replay.py",
-      "weight_seconds": 142.2318294
+      "weight_seconds": 204.498
     },
     {
-      "completion_timestamp": "2026-10-08T12:20:06.2324481Z",
       "file": "tests/test_c08_context.py",
-      "weight_seconds": 6.1918288
+      "weight_seconds": 6.4
     },
     {
-      "completion_timestamp": "2026-10-08T12:21:34.0447988Z",
       "file": "tests/test_c08_explanation.py",
-      "weight_seconds": 87.8123507
+      "weight_seconds": 89.983
     },
     {
-      "completion_timestamp": "2026-10-08T12:21:47.2600866Z",
       "file": "tests/test_c08_harness.py",
-      "weight_seconds": 13.2152878
+      "weight_seconds": 13.78
     },
     {
-      "completion_timestamp": "2026-10-08T12:21:47.2611273Z",
       "file": "tests/test_c08_prompt.py",
-      "weight_seconds": 0.0010407
+      "weight_seconds": 0.001
     },
     {
-      "completion_timestamp": "2026-10-08T12:21:49.9275186Z",
       "file": "tests/test_c08_provider.py",
-      "weight_seconds": 2.6663913
+      "weight_seconds": 2.768
     },
     {
-      "completion_timestamp": "2026-10-08T12:21:58.6383661Z",
       "file": "tests/test_c08_template.py",
-      "weight_seconds": 8.7108475
+      "weight_seconds": 9.737
     },
     {
-      "completion_timestamp": "2026-10-08T12:23:50.7432535Z",
       "file": "tests/test_c08_validation.py",
-      "weight_seconds": 112.1048874
+      "weight_seconds": 115.354
     },
     {
-      "completion_timestamp": "2026-10-08T12:23:50.8174664Z",
       "file": "tests/test_c09_ci_gate.py",
-      "weight_seconds": 0.0742129
+      "weight_seconds": 4.959
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:00.8973918Z",
       "file": "tests/test_capacity_scenario.py",
-      "weight_seconds": 10.0799254
+      "weight_seconds": 19.545
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:29.2132256Z",
       "file": "tests/test_ci_change_classifier.py",
-      "weight_seconds": 28.3158338
+      "weight_seconds": 0.474
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:30.9070464Z",
       "file": "tests/test_ci_publication_gate.py",
-      "weight_seconds": 1.6938208
+      "weight_seconds": 1.219
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:30.9102958Z",
+      "file": "tests/test_ci_test_sharding.py",
+      "weight_seconds": 30.045
+    },
+    {
       "file": "tests/test_config.py",
-      "weight_seconds": 0.0032494
+      "weight_seconds": 0.003
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:31.4880470Z",
       "file": "tests/test_data.py",
-      "weight_seconds": 0.5777512
+      "weight_seconds": 0.631
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:36.6058716Z",
       "file": "tests/test_data_workflow.py",
-      "weight_seconds": 5.1178246
+      "weight_seconds": 7.772
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:43.3605085Z",
       "file": "tests/test_db.py",
-      "weight_seconds": 6.7546369
+      "weight_seconds": 0.093
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:44.2493446Z",
       "file": "tests/test_decision_context.py",
-      "weight_seconds": 0.8888361
+      "weight_seconds": 0.356
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:44.5429852Z",
       "file": "tests/test_decision_contracts.py",
-      "weight_seconds": 0.2936406
+      "weight_seconds": 0.258
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:46.5757891Z",
       "file": "tests/test_decision_evidence.py",
-      "weight_seconds": 2.0328039
+      "weight_seconds": 0.869
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:46.6497787Z",
       "file": "tests/test_decision_serialization.py",
-      "weight_seconds": 0.0739896
+      "weight_seconds": 0.069
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:46.8044873Z",
       "file": "tests/test_decision_snapshot.py",
-      "weight_seconds": 0.1547086
+      "weight_seconds": 0.16
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:50.9097735Z",
       "file": "tests/test_decision_temporal.py",
-      "weight_seconds": 4.1052862
+      "weight_seconds": 4.224
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:53.3761494Z",
       "file": "tests/test_generation.py",
-      "weight_seconds": 2.4663759
+      "weight_seconds": 2.155
     },
     {
-      "completion_timestamp": "2026-10-08T12:24:54.7236501Z",
       "file": "tests/test_hgt_serialization.py",
-      "weight_seconds": 1.3475007
+      "weight_seconds": 5.875
     },
     {
-      "completion_timestamp": "2026-10-08T12:25:44.4499449Z",
       "file": "tests/test_investigation_case_binding.py",
-      "weight_seconds": 49.7262948
+      "weight_seconds": 65.386
     },
     {
-      "completion_timestamp": "2026-10-08T12:26:02.7456744Z",
       "file": "tests/test_investigation_contracts.py",
-      "weight_seconds": 18.2957295
+      "weight_seconds": 9.727
     },
     {
-      "completion_timestamp": "2026-10-08T12:26:27.5832044Z",
       "file": "tests/test_investigation_evidence_navigation.py",
-      "weight_seconds": 24.83753
+      "weight_seconds": 87.904
     },
     {
-      "completion_timestamp": "2026-10-08T12:28:01.1777199Z",
       "file": "tests/test_investigation_evidence_queries.py",
-      "weight_seconds": 93.5945155
+      "weight_seconds": 68.255
     },
     {
-      "completion_timestamp": "2026-10-08T12:30:28.8677846Z",
       "file": "tests/test_investigation_findings.py",
-      "weight_seconds": 147.6900647
+      "weight_seconds": 1061.491
     },
     {
-      "completion_timestamp": "2026-10-08T12:51:33.8274117Z",
       "file": "tests/test_investigation_human.py",
-      "weight_seconds": 1264.9596271
+      "weight_seconds": 1014.403
     },
     {
-      "completion_timestamp": "2026-10-08T13:14:22.5502945Z",
       "file": "tests/test_investigation_human_store.py",
-      "weight_seconds": 1368.7228828
+      "weight_seconds": 736.12
     },
     {
-      "completion_timestamp": "2026-10-08T13:34:34.0325326Z",
       "file": "tests/test_investigation_planning.py",
-      "weight_seconds": 1211.4822381
+      "weight_seconds": 705.052
     },
     {
-      "completion_timestamp": "2026-10-08T13:48:57.1894999Z",
       "file": "tests/test_investigation_summary.py",
-      "weight_seconds": 863.1569673
+      "weight_seconds": 654.457
     },
     {
-      "completion_timestamp": "2026-10-08T14:14:30.2360167Z",
       "file": "tests/test_investigation_summary_provider.py",
-      "weight_seconds": 1533.0465168
+      "weight_seconds": 663.466
     },
     {
-      "completion_timestamp": "2026-10-08T14:18:44.2873446Z",
       "file": "tests/test_models.py",
-      "weight_seconds": 254.0513279
+      "weight_seconds": 0.541
     },
     {
-      "completion_timestamp": "2026-10-08T14:19:11.4784083Z",
       "file": "tests/test_scenario_interventions.py",
-      "weight_seconds": 27.1910637
+      "weight_seconds": 26.79
     },
     {
-      "completion_timestamp": "2026-10-08T14:19:12.6303737Z",
       "file": "tests/test_scenarios.py",
-      "weight_seconds": 1.1519654
+      "weight_seconds": 0.688
     },
     {
-      "completion_timestamp": "2026-10-08T14:19:13.6227618Z",
       "file": "tests/test_w04_source_evolution.py",
-      "weight_seconds": 0.9923881
+      "weight_seconds": 7.548
     },
     {
-      "completion_timestamp": "2026-10-08T14:19:21.6510913Z",
       "file": "tests/test_worker.py",
-      "weight_seconds": 8.0283295
+      "weight_seconds": 0.003
     }
   ],
-  "non_integration_reported_seconds": 8308.68,
-  "schema_version": "w04-devctrl02-test-weights-v1",
-  "shard_count": 4,
-  "source_run_id": 37773147744,
-  "source_run_number": 118,
-  "source_sha": "c86f7af2370f315b8b7310008521f08ceade6d97",
-  "step_start_timestamp": "2026-10-08T12:00:51.4824948Z",
-  "weights_sha256": "7a1009504357be3b9c7b312186aa29badd6bf65818925cc8d31cc19523856fc9"
+  "schema_version": "w04-devctrl02-test-weights-v2",
+  "shard_count": 7,
+  "source_artifacts": [
+    {
+      "artifact_id": 11599246530,
+      "junit_sha256": "918de4087d4622c2cbfeed583776e1cbf4bbc3ab70578b8c4530fe08b87fe106",
+      "node_count": 1048,
+      "outcome_counts": {
+        "error": 0,
+        "failed": 0,
+        "passed": 1048,
+        "skipped": 0,
+        "xfail": 0,
+        "xpass": 0
+      },
+      "receipt_sha256": "6cb9d27982bfd9478fd7918262b0a756c5bfa5601f5f3e024e66d234b20b018c",
+      "shard_id": 0
+    },
+    {
+      "artifact_id": 11598633083,
+      "junit_sha256": "9608e3b41422757f4a5a905d77b4db0c02a385ed0bb1f3a700beacc3a9f49d82",
+      "node_count": 946,
+      "outcome_counts": {
+        "error": 0,
+        "failed": 1,
+        "passed": 945,
+        "skipped": 0,
+        "xfail": 0,
+        "xpass": 0
+      },
+      "receipt_sha256": "6a8630750230b19462ad7d1891599225900f75b8e35ec159f2a0cd6f16eb7d3d",
+      "shard_id": 1
+    },
+    {
+      "artifact_id": 11598796165,
+      "junit_sha256": "c9f70254d377aaf5a5ce18a5e889677d490a29105c8fc58dae2259a4d6a4bf8a",
+      "node_count": 511,
+      "outcome_counts": {
+        "error": 0,
+        "failed": 1,
+        "passed": 507,
+        "skipped": 3,
+        "xfail": 0,
+        "xpass": 0
+      },
+      "receipt_sha256": "0655fc87660d9e762f5032504bcb3f61ddbb45d0cdfaa96481d74e1e4d82426d",
+      "shard_id": 2
+    },
+    {
+      "artifact_id": 11598701090,
+      "junit_sha256": "ec12a3579bfbf3b77ebf19e9af3fc08722d967775757ca42d46d6785403066b6",
+      "node_count": 302,
+      "outcome_counts": {
+        "error": 0,
+        "failed": 0,
+        "passed": 302,
+        "skipped": 0,
+        "xfail": 0,
+        "xpass": 0
+      },
+      "receipt_sha256": "684d1e424e0fe39fb929eb3e0688a937c178f123ef9232e6b9e779467e60818c",
+      "shard_id": 3
+    }
+  ],
+  "source_collected_node_count": 2807,
+  "source_collected_nodeids_sha256": "4f74c17af44363fe14bbda36dd4bb5f2166162d941291bf8e383a29532349c3d",
+  "source_run_id": 37889883403,
+  "source_run_number": 122,
+  "source_sha": "9d5b6e3baea1a860446b70d9b254cc3dc41815a4",
+  "total_weight_seconds": 6671.752,
+  "weights_sha256": "315675b184abd56422f469a44da5f840b40d82c3cfb272d46873afd7a8adacca"
 }

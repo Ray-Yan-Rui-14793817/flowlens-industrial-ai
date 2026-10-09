@@ -288,7 +288,8 @@ def test_workflow_routes_all_classes_to_a_stable_fail_closed_gate() -> None:
         "name: Docker Compose smoke",
         "name: Publication proof",
         "name: Verification gate",
-        "needs: [classify-change, quality, compose-smoke, publication-proof]",
+        "needs: [classify-change, quality, compose-smoke, publication-proof, "
+        "w03-ai-loop-gate, shadow-equivalence]",
         "if: always()",
         '--event-path "$GITHUB_EVENT_PATH"',
         'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"',
@@ -308,8 +309,10 @@ def test_workflow_routes_all_classes_to_a_stable_fail_closed_gate() -> None:
 def test_shadow_workflow_requires_equivalence_and_preserves_classification() -> None:
     workflow = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
     assert "name: Shadow equivalence" in workflow
-    assert "fail-fast: false" in workflow and "max-parallel: 4" in workflow
-    assert "shard: [0, 1, 2, 3]" in workflow
+    assert "fail-fast: false" in workflow and "max-parallel: 7" in workflow
+    assert "shard: [0, 1, 2, 3, 4, 5, 6]" in workflow
+    w03 = workflow.split("  w03-ai-loop-gate:\n", 1)[1].split("  compose-smoke:\n", 1)[0]
+    assert "    needs: classify-change\n" in w03
     assert 'test "$SHADOW_RESULT" = success' in workflow
     assert 'test "$SHADOW_RESULT" = skipped' in workflow
     assert (
