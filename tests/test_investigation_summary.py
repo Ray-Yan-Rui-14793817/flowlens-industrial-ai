@@ -967,9 +967,12 @@ def test_s52_frozen_upstream_w03_dependencies_and_control_bytes_unchanged() -> N
         "migrations",
         "pyproject.toml",
         "uv.lock",
-        ".github/workflows",
-        "scripts/ci",
         "docs/w03",
     ):
         assert _git("rev-parse", "HEAD:" + path) == _git("rev-parse", anchor + ":" + path)
         assert not _git("diff", "HEAD", "--", path)
+    # Preserve control immutability through C07, before authorized DEVCTRL evolution.
+    closeout = "f50d6c6f8eeacd9df3320dc4a8c6269aa6caa3a5"
+    assert not _git("merge-base", "--is-ancestor", closeout, "HEAD")
+    for path in (".github/workflows", "scripts/ci"):
+        assert _git("rev-parse", closeout + ":" + path) == _git("rev-parse", anchor + ":" + path)

@@ -553,10 +553,17 @@ def test_n52_committed_source_governance_and_frozen_blobs() -> None:
         "src/flowlens/db/decision_snapshot.py": "0323ad4ecf0c50abda42a8ab4714d59861ad98c3",
         "src/flowlens/data/models": "12a1ec70707ff4644b6d6bccb31eec59fb7230d3",
         "scripts/ci/verify_w04_source_evolution.py": "4efaefed505e24796a0c2fa545ce4b7eb252d70a",
-        ".github/workflows/ci.yml": "14c826b122b7103953e8b4539981004241205ba4",
     }
     for path, expected_oid in expected.items():
         assert oid(f"HEAD:{path}") == expected_oid
+    # C04 owns its historical control snapshot; later DEVCTRL has separate proof.
+    closeout = "783234ac0ca1ba5c2b33d46f8576a12c2184114c"
+    assert oid(f"{closeout}:.github/workflows/ci.yml") == "14c826b122b7103953e8b4539981004241205ba4"
+    ancestry = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", closeout, "HEAD"],
+        cwd=ROOT, check=False, capture_output=True, text=True,
+    )
+    assert ancestry.returncode == 0, ancestry.stdout + ancestry.stderr
     manifest = json.loads((ROOT / "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json").read_bytes())
     entries = {item["checkpoint"]: item for item in manifest["checkpoints"]}
     assert all(entries[name]["state"] == "CLOSED" for name in ("W04-C01", "W04-C02", "W04-C03"))
