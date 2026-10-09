@@ -55,6 +55,16 @@ def workflow_jobs() -> dict[str, str]:
     return jobs(WORKFLOW.read_text(encoding="utf-8"))
 
 
+def workflow_steps(content: str) -> dict[str, str]:
+    starts = list(re.finditer(r"^      - name: ([^\n]+)\n", content, re.MULTILINE))
+    return {
+        match[1]: content[
+            match.start() : starts[index + 1].start() if index + 1 < len(starts) else len(content)
+        ]
+        for index, match in enumerate(starts)
+    }
+
+
 def fixture_repo(tmp_path: Path, source: str) -> tuple[Path, gate.Family]:
     repo = tmp_path / "repo"
     (repo / "tests").mkdir(parents=True)
@@ -410,6 +420,10 @@ def test_workflow_one_job_exact_schedule_source_manifest_and_environment() -> No
         "publication-proof",
         "verification-gate",
         "w03-ai-loop-gate",
+        "static-and-plan",
+        "integration-and-data",
+        "non-integration",
+        "non-integration-aggregate",
     }
     job = current["w03-ai-loop-gate"]
     assert "name: W03 AI loop gate" in job
@@ -418,7 +432,8 @@ def test_workflow_one_job_exact_schedule_source_manifest_and_environment() -> No
         "'success' || needs['classify-change'].outputs.change_class != 'P') }}"
     )
     assert schedule in job
-    assert "needs: [classify-change, quality, compose-smoke, publication-proof]" in job
+    assert "    needs: classify-change\n" in job
+    assert "    timeout-minutes: 15\n" in job
     head = (
         "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha "
         "|| github.sha }}"
@@ -454,42 +469,76 @@ def test_existing_workflow_jobs_triggers_pins_and_quality_are_unchanged() -> Non
     current_text = WORKFLOW.read_text(encoding="utf-8")
     original = jobs(baseline)
     current = jobs(current_text)
-    for job_id in ("classify-change", "quality", "compose-smoke", "publication-proof"):
+    for job_id in ("classify-change", "compose-smoke", "publication-proof"):
         assert current[job_id] == original[job_id]
+    integration = current["integration-and-data"]
+    assert (
+        integration.split("    services:\n", 1)[1].split("    steps:\n", 1)[0]
+        == (original["quality"].split("    services:\n", 1)[1].split("    steps:\n", 1)[0])
+    )
+    legacy_steps = workflow_steps(original["quality"])
+    authoritative_steps = workflow_steps(integration)
+    moved_to_static = {"Run complete test suite", "Run Ruff", "Run mypy", "Verify dependency lock"}
+    for name, content in legacy_steps.items():
+        if name not in moved_to_static | {"Run database integration tests"}:
+            assert authoritative_steps[name] == content
+    integration_test = authoritative_steps["Run database integration tests"]
+    assert "uv run python scripts/ci/pytest_outcome_receipt.py" in integration_test
+    assert '--role integration-data --marker "integration"' in integration_test
+    assert '--plan "$RUNNER_TEMP/devctrl02-integration-plan.json"' in integration_test
+    assert '--expected-head "$EXPECTED_HEAD"' in integration_test
+    static = current["static-and-plan"]
+    for required in ("uv run ruff check .", "uv run mypy .", "uv lock --check"):
+        assert required in static
+    quality = current["quality"]
+    assert "name: Quality gate" in quality and "timeout-minutes: 5" in quality
+    assert (
+        "needs: [classify-change, static-and-plan, integration-and-data, "
+        "non-integration-aggregate]" in quality
+    )
+    assert not re.search(r"services:|postgres|pytest|uv run|checkout", quality, re.IGNORECASE)
+    assert "legacy-" not in current_text and "shadow-equivalence" not in current
     assert current_text.split("jobs:\n")[0] == baseline.split("jobs:\n")[0]
     action_pattern = r"uses: ([^\n]+)"
     assert set(re.findall(action_pattern, current_text)) == set(
         re.findall(action_pattern, baseline)
-    )
-    for required in (
-        'uv run pytest -m "not integration"',
-        "uv run pytest -m integration",
-        "uv run ruff check .",
-        "uv run mypy .",
-        "uv lock --check",
-    ):
-        assert required in current["quality"]
+    ) | {
+        "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2",
+        "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0",
+    }
+    proven = jobs(git("show", "a026d6a4625c3d9287a558fb2726e362a3ea02fc:.github/workflows/ci.yml"))
+    assert workflow_steps(current["w03-ai-loop-gate"]) == workflow_steps(proven["w03-ai-loop-gate"])
     assert "name: Verification gate" in current["verification-gate"]
 
 
 def test_verification_runs_actual_shell_truth_table() -> None:
-    verification = workflow_jobs()["verification-gate"]
+    current = workflow_jobs()
+    verification = current["verification-gate"]
     assert (
-        "needs: [classify-change, quality, compose-smoke, publication-proof, w03-ai-loop-gate]"
-        in verification
+        "needs: [classify-change, static-and-plan, integration-and-data, "
+        "non-integration-aggregate, quality, compose-smoke, publication-proof, "
+        "w03-ai-loop-gate]" in verification
     )
-    assert "if: always()" in verification
+    assert "if: always()" in verification and "timeout-minutes: 5" in verification
     assert "W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}" in verification
+    for result, job in (
+        ("STATIC_RESULT", "static-and-plan"),
+        ("INTEGRATION_RESULT", "integration-and-data"),
+        ("NONINT_RESULT", "non-integration-aggregate"),
+    ):
+        assert f"{result}: ${{{{ needs['{job}'].result }}}}" in verification
+        assert f"{result}: ${{{{ needs['{job}'].result }}}}" in current["quality"]
     script = textwrap.dedent(verification.split("        run: |\n", 1)[1])
+    quality_script = textwrap.dedent(current["quality"].split("        run: |\n", 1)[1])
     bash = shutil.which("bash") if sys.platform != "win32" else "C:/Program Files/Git/bin/bash.exe"
     assert bash and Path(bash).is_file(), "Bash required to execute the actual CI enforcement shell"
 
-    def enforce(change: str, values: dict[str, str]) -> int:
+    def enforce(change: str, values: dict[str, str], proof_script: str = script) -> int:
         assignments = f"CHANGE_CLASS={change}\n" + "\n".join(
             f"{key}='{value}'" for key, value in values.items()
         )
         return subprocess.run(
-            [bash, "--noprofile", "--norc", "-e", "-c", assignments + "\n" + script],
+            [bash, "--noprofile", "--norc", "-e", "-c", assignments + "\n" + proof_script],
             capture_output=True,
             check=False,
         ).returncode
@@ -501,6 +550,9 @@ def test_verification_runs_actual_shell_truth_table() -> None:
             "COMPOSE_RESULT": "skipped" if change == "P" else "success",
             "W03_RESULT": "skipped" if change == "P" else "success",
             "PUBLICATION_RESULT": "success" if change == "P" else "skipped",
+            "STATIC_RESULT": "skipped" if change == "P" else "success",
+            "INTEGRATION_RESULT": "skipped" if change == "P" else "success",
+            "NONINT_RESULT": "skipped" if change == "P" else "success",
         }
         assert enforce(change, expected) == 0
         for key in expected:
@@ -508,15 +560,31 @@ def test_verification_runs_actual_shell_truth_table() -> None:
                 if wrong != expected[key]:
                     assert enforce(change, expected | {key: wrong}) != 0, (change, key, wrong)
     assert enforce("INVALID", expected) != 0
+    quality_expected = dict.fromkeys(
+        ("CLASS_RESULT", "STATIC_RESULT", "INTEGRATION_RESULT", "NONINT_RESULT"), "success"
+    )
+    assert enforce("I", quality_expected, quality_script) == 0
+    for key in quality_expected:
+        for wrong in ("skipped", "failure", "cancelled", ""):
+            assert enforce("I", quality_expected | {key: wrong}, quality_script) != 0
 
 
 def test_classifier_publication_and_runtime_frozen_materials_unchanged() -> None:
     for path in (
-        "scripts/ci/classify_change.py",
         "scripts/ci/verify_publication.py",
         "pyproject.toml",
         "uv.lock",
         "docker-compose.yml",
     ):
         assert (ROOT / path).read_text(encoding="utf-8") == git("show", f"{gate.ENTRY}:{path}")
-    assert not git("diff", "--name-only", gate.ENTRY, "HEAD", "--", "src", "migrations", "apps")
+    # DEVCTRL-01 evolves authorized additions through the versioned manifest
+    # while retaining all W03 source and every closed checkpoint's Git blobs.
+    from verify_w04_source_evolution import verify_source_evolution
+
+    proof = verify_source_evolution(
+        ROOT / "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
+        git("rev-parse", "HEAD").strip(),
+        ROOT,
+    )
+    assert proof["overall"] == "PASS"
+    assert not git("diff", "--name-only", gate.ENTRY, "HEAD", "--", "migrations", "apps")

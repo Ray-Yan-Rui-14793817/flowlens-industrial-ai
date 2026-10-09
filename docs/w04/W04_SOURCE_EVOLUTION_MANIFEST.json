@@ -1,0 +1,117 @@
+{
+  "schema_version": "w04-source-evolution-manifest-v1",
+  "policy_id": "W04-DEVCTRL-01",
+  "w03_baseline_sha": "af61bdfd5f7cf7961811c4c2dc8e554dd7eed509",
+  "w04_source_root": "src/flowlens/investigation",
+  "checkpoints": [
+    {
+      "checkpoint": "W04-C01",
+      "state": "CLOSED",
+      "source_freeze_sha": "084c2fea93d0e021994de015c986de9ff92bf9a3",
+      "files": [
+        {
+          "path": "src/flowlens/investigation/__init__.py",
+          "blob_oid": "c23929f85dccd78bc72ef3b2b1415c6e8eaf0452"
+        },
+        {
+          "path": "src/flowlens/investigation/contracts.py",
+          "blob_oid": "0f66bd9a0b2f063b318bd6b9dcc47d63b9c83e7e"
+        },
+        {
+          "path": "src/flowlens/investigation/enums.py",
+          "blob_oid": "9c818780423f32f144b18666784ebc9ea3abdccc"
+        }
+      ]
+    },
+    {
+      "checkpoint": "W04-C02",
+      "state": "CLOSED",
+      "source_freeze_sha": "18648915414a26dddbdc904965663730ea631cf2",
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c02_binding.py",
+          "blob_oid": "5f0af237ed465fa83e5a3b84954512b1f3125551"
+        }
+      ]
+    },
+    {
+      "checkpoint": "W04-C03",
+      "state": "CLOSED",
+      "source_freeze_sha": "42047bcfe6591f7c9ed9b0034bd94467401ba72f",
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c03_planning.py",
+          "blob_oid": "21d0055e12d86e6333a836d363d6e266cb0fcbd7"
+        }
+      ]
+    },
+    {
+      "checkpoint": "W04-C04",
+      "state": "CLOSED",
+      "source_freeze_sha": "6a8a14cd382dd43d1d0a74c16819f41eb36cd1c1",
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c04_navigation.py",
+          "blob_oid": "98354c6bd4eef8592d1de2ca4cf8705e2f32e3b4"
+        },
+        {
+          "path": "src/flowlens/investigation/c04_queries.py",
+          "blob_oid": "dc22c7e532a4b62ccfffec2210bc2a6306d97234"
+        },
+        {
+          "path": "src/flowlens/investigation/c04_registry.py",
+          "blob_oid": "fbe6f0603d7b0634426ac0034033089eb55af4d7"
+        }
+      ]
+    },
+    {
+      "checkpoint": "W04-C05",
+      "state": "CLOSED",
+      "source_freeze_sha": "3386b2637f0b0e3f0972a07ee0bea4ad8181cb5f",
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c05_findings.py",
+          "blob_oid": "31384426ba9c733bc5bdbf3b09a3d206c8182586"
+        }
+      ]
+    },
+    {
+      "checkpoint": "W04-C06",
+      "state": "CLOSED",
+      "source_freeze_sha": "de02e49af9ada512ff52afdcc5f72620c4f220af",
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c06_human.py",
+          "blob_oid": "021f5b72254c87c5b965500727a67001a47ef0bd"
+        },
+        {
+          "path": "src/flowlens/investigation/c06_policy.py",
+          "blob_oid": "8cfea031eaa764d871822c2e12de019ed3ebc3b9"
+        },
+        {
+          "path": "src/flowlens/investigation/c06_store.py",
+          "blob_oid": "e99d5d4c36db1dd3ed11c40ff9bbc5b01663ae9a"
+        }
+      ]
+    },
+    {
+      "checkpoint": "W04-C07",
+      "state": "CLOSED",
+      "source_freeze_sha": "c86f7af2370f315b8b7310008521f08ceade6d97",
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c07_policy.py",
+          "blob_oid": "c969c4bbf33910fab6ffb36c3bfe184fd42c74c9"
+        },
+        {
+          "path": "src/flowlens/investigation/c07_provider.py",
+          "blob_oid": "56ecb9f3d7b5a1917a2354572e8c946f07eb759d"
+        },
+        {
+          "path": "src/flowlens/investigation/c07_summary.py",
+          "blob_oid": "3d561da7ab625421bbcf2dcb3785f8fae792cbff"
+        }
+      ]
+    }
+  ]
+}

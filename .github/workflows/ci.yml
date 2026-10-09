@@ -42,9 +42,87 @@ jobs:
 
   quality:
     name: Quality gate
+    needs: [classify-change, static-and-plan, integration-and-data, non-integration-aggregate]
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Require authoritative exact-SHA upstream success
+        env:
+          CLASS_RESULT: ${{ needs['classify-change'].result }}
+          STATIC_RESULT: ${{ needs['static-and-plan'].result }}
+          INTEGRATION_RESULT: ${{ needs['integration-and-data'].result }}
+          NONINT_RESULT: ${{ needs['non-integration-aggregate'].result }}
+        run: |
+          test "$CLASS_RESULT" = success
+          test "$STATIC_RESULT" = success
+          test "$INTEGRATION_RESULT" = success
+          test "$NONINT_RESULT" = success
+
+  static-and-plan:
+    name: Static and plan
     needs: classify-change
     if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      - name: Check out exact source head with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Run Ruff
+        run: uv run ruff check .
+
+      - name: Run strict mypy
+        run: uv run mypy .
+
+      - name: Verify dependency lock
+        run: uv lock --check
+
+      - name: Freeze exact collection and entry no-loss plan
+        run: |
+          uv run python scripts/ci/plan_non_integration_shards.py plan \
+            --expected-head "$EXPECTED_HEAD" \
+            --output "$RUNNER_TEMP/devctrl02-plan/plan.json"
+
+      - name: Upload plan exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-plan-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-plan/plan.json
+          if-no-files-found: error
+          retention-days: 14
+
+  integration-and-data:
+    name: Integration and data
+    needs: classify-change
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
 
     services:
       postgres:
@@ -196,20 +274,32 @@ jobs:
           print("CI profile: 800 orders / six months; public artifacts PASS; HGT leakage NONE")
           PY
 
+      - name: Freeze integration exact collection and entry no-loss plan
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          uv run python scripts/ci/plan_non_integration_shards.py plan \
+            --expected-head "$EXPECTED_HEAD" \
+            --output "$RUNNER_TEMP/devctrl02-integration-plan.json"
+
       - name: Run database integration tests
-        run: uv run pytest -m integration
+        env:
+          EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          # Original selection: uv run pytest -m integration
+          uv run python scripts/ci/pytest_outcome_receipt.py \
+            --plan "$RUNNER_TEMP/devctrl02-integration-plan.json" --expected-head "$EXPECTED_HEAD" \
+            --role integration-data --marker "integration" \
+            --output-dir "$RUNNER_TEMP/devctrl02-integration-data"
 
-      - name: Run complete test suite
-        run: uv run pytest -m "not integration"
-
-      - name: Run Ruff
-        run: uv run ruff check .
-
-      - name: Run mypy
-        run: uv run mypy .
-
-      - name: Verify dependency lock
-        run: uv lock --check
+      - name: Upload integration-data exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-integration-data-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-integration-data/
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Clean up isolated Week 2 smoke database
         if: always() && steps.c06-database.outcome == 'success'
@@ -242,12 +332,212 @@ jobs:
           assert not Path("data/hidden_ground_truth/scenario_manifest.yaml").exists()
           PY
 
-  w03-ai-loop-gate:
-    name: W03 AI loop gate
-    # Order semantic proof after the existing proof jobs; always() keeps failures visible.
-    needs: [classify-change, quality, compose-smoke, publication-proof]
+  non-integration:
+    name: Non-integration / shard ${{ matrix.shard }}
+    needs: [classify-change, static-and-plan]
     if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
     runs-on: ubuntu-latest
+    timeout-minutes: 55
+    strategy:
+      fail-fast: false
+      max-parallel: 7
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6]
+
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.6-pg17-bookworm
+        env:
+          POSTGRES_DB: flowlens_test
+          POSTGRES_USER: flowlens_ci
+          POSTGRES_PASSWORD: flowlens_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowlens_ci -d flowlens_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      POSTGRES_DB: flowlens_test
+      POSTGRES_USER: flowlens_ci
+      POSTGRES_PASSWORD: flowlens_ci
+      FLOWLENS_SERVICE_NAME: flowlens-api
+      FLOWLENS_APP_ENVIRONMENT: test
+      FLOWLENS_LOG_LEVEL: INFO
+      FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_test
+
+    steps:
+      - name: Check out exact source head with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Download plan exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-plan-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-plan
+
+      - name: Verify PostgreSQL readiness
+        run: >-
+          uv run python -c "from flowlens.config import get_settings;
+          from flowlens.db import check_database_connectivity, create_database_engine;
+          engine = create_database_engine(get_settings());
+          assert check_database_connectivity(engine); engine.dispose()"
+
+      - name: Apply database migrations
+        run: uv run alembic upgrade head
+
+      - name: Run exact assigned non-integration shard
+        env:
+          SHARD_ID: ${{ matrix.shard }}
+        run: |
+          uv run python scripts/ci/run_non_integration_shard.py \
+            --plan "$RUNNER_TEMP/devctrl02-plan/plan.json" --expected-head "$EXPECTED_HEAD" \
+            --shard-id "$SHARD_ID" --role nonint-shard \
+            --output-dir "$RUNNER_TEMP/devctrl02-shard"
+
+      - name: Upload shard-${{ matrix.shard }} exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-shard-${{ matrix.shard }}-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shard/
+          if-no-files-found: error
+          retention-days: 14
+
+  non-integration-aggregate:
+    name: Non-integration aggregate
+    needs: [classify-change, static-and-plan, non-integration]
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      - name: Check out exact source head with history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Verify exact source head
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Restore locked dependencies
+        run: uv sync --frozen
+
+      - name: Download plan exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-plan-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-plan
+
+      - name: Download shard-0 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shard-0-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-0
+
+      - name: Download shard-1 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shard-1-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-1
+
+      - name: Download shard-2 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shard-2-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-2
+
+      - name: Download shard-3 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shard-3-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-3
+
+      - name: Download shard-4 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shard-4-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-4
+
+      - name: Download shard-5 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shard-5-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-5
+
+      - name: Download shard-6 exact-SHA evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: w04-devctrl02-shard-6-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-shards/shard-6
+
+      - name: Verify exact seven-shard coverage and terminal success
+        env:
+          STATIC_RESULT: ${{ needs['static-and-plan'].result }}
+          SHARDS_RESULT: ${{ needs['non-integration'].result }}
+        run: |
+          test "$STATIC_RESULT" = success
+          test "$SHARDS_RESULT" = success
+          uv run python scripts/ci/verify_non_integration_shards.py \
+            --plan "$RUNNER_TEMP/devctrl02-plan/plan.json" --expected-head "$EXPECTED_HEAD" \
+            aggregate --receipts-dir "$RUNNER_TEMP/devctrl02-shards" --role nonint-shard \
+            --output-dir "$RUNNER_TEMP/devctrl02-nonint-aggregate"
+
+      - name: Upload nonint-aggregate exact-SHA evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-devctrl02-nonint-aggregate-${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/devctrl02-nonint-aggregate/
+          if-no-files-found: error
+          retention-days: 14
+
+  w03-ai-loop-gate:
+    name: W03 AI loop gate
+    # Run frozen semantic proof independently after classification.
+    needs: classify-change
+    if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     services:
       postgres:
@@ -436,14 +726,18 @@ jobs:
 
   verification-gate:
     name: Verification gate
-    needs: [classify-change, quality, compose-smoke, publication-proof, w03-ai-loop-gate]
+    needs: [classify-change, static-and-plan, integration-and-data, non-integration-aggregate, quality, compose-smoke, publication-proof, w03-ai-loop-gate]
     if: always()
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Enforce class-specific exact-SHA proof
         env:
           CHANGE_CLASS: ${{ needs['classify-change'].outputs.change_class }}
           CLASS_RESULT: ${{ needs['classify-change'].result }}
+          STATIC_RESULT: ${{ needs['static-and-plan'].result }}
+          INTEGRATION_RESULT: ${{ needs['integration-and-data'].result }}
+          NONINT_RESULT: ${{ needs['non-integration-aggregate'].result }}
           QUALITY_RESULT: ${{ needs.quality.result }}
           COMPOSE_RESULT: ${{ needs['compose-smoke'].result }}
           W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}
@@ -452,11 +746,17 @@ jobs:
           test "$CLASS_RESULT" = success
           if [[ "$CHANGE_CLASS" == P ]]; then
             test "$PUBLICATION_RESULT" = success
+            test "$STATIC_RESULT" = skipped
+            test "$INTEGRATION_RESULT" = skipped
+            test "$NONINT_RESULT" = skipped
             test "$QUALITY_RESULT" = skipped
             test "$COMPOSE_RESULT" = skipped
             test "$W03_RESULT" = skipped
           else
             test "$CHANGE_CLASS" = C -o "$CHANGE_CLASS" = I -o "$CHANGE_CLASS" = F -o "$CHANGE_CLASS" = UNKNOWN
+            test "$STATIC_RESULT" = success
+            test "$INTEGRATION_RESULT" = success
+            test "$NONINT_RESULT" = success
             test "$QUALITY_RESULT" = success
             test "$COMPOSE_RESULT" = success
             test "$W03_RESULT" = success
