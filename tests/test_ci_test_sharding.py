@@ -796,13 +796,13 @@ def test_workflow_exact_transport_timeout_and_no_runtime_dependency_mutation() -
     assert re.findall(r"Download shard-(\d+) exact-SHA", aggregate_job) == [
         str(index) for index in range(planner.SHARD_COUNT)
     ]
+    # Manifest evolution is enforced by the dedicated source-evolution verifier/tests.
     for path in (
         "pyproject.toml",
         "uv.lock",
         "docker-compose.yml",
         "scripts/ci/run_w03_ai_loop_gate.py",
         "docs/w03/checkpoints/c09/specs/c09_gate_manifest.json",
-        "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
     ):
         changed = subprocess.run(
             ["git", "diff", planner.ENTRY_SHA, "--", path],
