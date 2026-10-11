@@ -19,12 +19,16 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 MARKER = "not integration"
 SHARD_COUNT = 7
-ENTRY_SHA = "f50d6c6f8eeacd9df3320dc4a8c6269aa6caa3a5"
-ENTRY_DIGEST = "0089b5889f7de2dbe637ddef3774966ae07f6cf6d6518f2648f20e47ccbaa4a7"
-ENTRY_FILES_DIGEST = "f252f29b1999267ef1d2f3117f45579c094da3b9001cf34c1e07b524a418480e"
-BASELINE = ROOT / "docs/w04/devctrl-02/W04_DEVCTRL_02_ENTRY_TEST_BASELINE.json"
+ENTRY_SHA = "9afc4bd047bd4e52dfc4956f16e6420b3762301f"
+ENTRY_DIGEST = "4f74c17af44363fe14bbda36dd4bb5f2166162d941291bf8e383a29532349c3d"
+ENTRY_FILES_DIGEST = "72f381af0f729834fc58920eec74f2ef1a6f9fb0991c7489350412fdfcf7366a"
+BASELINE = ROOT / "docs/w04/checkpoints/c08/W04_C08_ENTRY_TEST_BASELINE.json"
 WEIGHTS = ROOT / "docs/w04/devctrl-02/W04_CI_TEST_SHARD_WEIGHTS.json"
-PLAN_SCHEMA = "w04-devctrl02-non-integration-plan-v1"
+BOOTSTRAP = ROOT / "docs/w04/checkpoints/c08/W04_C08_CI_BOOTSTRAP_WEIGHTS.json"
+PLAN_SCHEMA = "w04-devctrl02-non-integration-plan-v2"
+BASE_WEIGHTS_DIGEST = "315675b184abd56422f469a44da5f840b40d82c3cfb272d46873afd7a8adacca"
+BOOTSTRAP_DIGEST = "36f1d85e34344afee1f7e76b066427e4f40314c68f1d564340d82cc4dd44becb"
+EFFECTIVE_WEIGHTS_DIGEST = "352e6e1060bc1c2d5ce9a36fcad6cb9941e373bfae3da4d8a326d26a0d1f01c6"
 SOURCE_NODES_DIGEST = "4f74c17af44363fe14bbda36dd4bb5f2166162d941291bf8e383a29532349c3d"
 SOURCE_ARTIFACTS_DIGEST = "c111d28caa2d4e319c01873f47cc6cc8bd9a80a9fd172ca2749b29bcc945b83a"
 SOURCE_FILE_WEIGHTS_DIGEST = "43740d1f6b1eda83fb9410de761625504a8c96d90dd7c05cd1d69bf001ac0bdc"
@@ -35,9 +39,7 @@ WEIGHT_DERIVATION = (
 AUTHORIZED_ADDITION_FILES = frozenset(
     {
         "tests/test_ci_test_sharding.py",
-        "tests/test_c09_ci_gate.py",
-        "tests/test_ci_change_classifier.py",
-        "tests/test_ci_publication_gate.py",
+        "tests/test_investigation_replay.py",
     }
 )
 
@@ -189,6 +191,7 @@ def validate_baseline(value: dict[str, Any]) -> list[str]:
             "selected_node_count",
             "sorted_nodeids",
             "nodeids_sha256",
+            "selected_file_count",
             "selected_files",
             "selected_files_sha256",
             "baseline_run_number",
@@ -199,19 +202,21 @@ def validate_baseline(value: dict[str, Any]) -> list[str]:
     selected = nodes(value["sorted_nodeids"])
     files = sorted({node.split("::", 1)[0] for node in selected})
     if (
-        value["schema_version"] != "w04-devctrl02-entry-test-baseline-v1"
+        value["schema_version"] != "w04-c08-entry-test-baseline-v1"
         or value["entry_sha"] != ENTRY_SHA
         or value["pytest_version"] != "9.1.1"
         or value["marker_expression"] != MARKER
         or integer(value["selected_node_count"], "baseline count", 1) != len(selected)
-        or len(selected) != 2726
+        or len(selected) != 2807
         or digest(selected) != ENTRY_DIGEST
         or value["nodeids_sha256"] != ENTRY_DIGEST
+        or integer(value["selected_file_count"], "baseline file count", 1) != 62
+        or len(files) != 62
         or value["selected_files"] != files
         or digest(files) != ENTRY_FILES_DIGEST
         or value["selected_files_sha256"] != ENTRY_FILES_DIGEST
-        or value["baseline_run_number"] != 118
-        or value["baseline_run_id"] != 37773147744
+        or value["baseline_run_number"] != 126
+        or value["baseline_run_id"] != 38114263650
     ):
         raise ProofError("wrong entry baseline digest or identity")
     return selected
@@ -224,7 +229,7 @@ def enforce_entry(selected: list[str], baseline: dict[str, Any]) -> None:
         raise ProofError("entry no-loss guard: missing pre-entry node IDs")
     additions = current - entry
     if any(node.split("::", 1)[0] not in AUTHORIZED_ADDITION_FILES for node in additions):
-        raise ProofError("unauthorized DEVCTRL test addition")
+        raise ProofError("unauthorized C08 test addition")
 
 
 def validate_weights(
@@ -297,6 +302,67 @@ def validate_weights(
     return result
 
 
+def validate_bootstrap(value: dict[str, Any], weights: dict[str, Any]) -> dict[str, int]:
+    """Admit exactly the sealed C08 one-file bootstrap; base JUnit evidence stays frozen."""
+    base = validate_weights(weights)
+    exact_keys(
+        value,
+        {"schema_version", "entry_sha", "base_weights_sha256", "files", "bootstrap_sha256"},
+        "C08 bootstrap",
+    )
+    check_seal(value, "bootstrap_sha256")
+    if (
+        value["schema_version"] != "w04-c08-ci-bootstrap-weights-v1"
+        or value["entry_sha"] != ENTRY_SHA
+        or value["base_weights_sha256"] != BASE_WEIGHTS_DIGEST
+        or weights["weights_sha256"] != BASE_WEIGHTS_DIGEST
+        or value["bootstrap_sha256"] != BOOTSTRAP_DIGEST
+    ):
+        raise ProofError("wrong C08 bootstrap identity or digest")
+    entries = value["files"]
+    if not isinstance(entries, list) or len(entries) != 1 or not isinstance(entries[0], dict):
+        raise ProofError("C08 bootstrap must contain exactly one authorized file")
+    item = entries[0]
+    exact_keys(item, {"file", "weight_seconds", "basis", "basis_file"}, "bootstrap file")
+    path = test_file(item["file"])
+    if (
+        path != "tests/test_investigation_replay.py"
+        or path in base
+        or item["basis"] != "MAX_FROZEN_JUNIT_FILE_WEIGHT"
+        or item["basis_file"] != "tests/test_investigation_findings.py"
+        or type(item["weight_seconds"]) is not float
+        or item["weight_seconds"] != 1061.491
+        or base[item["basis_file"]] != max(base.values())
+    ):
+        raise ProofError("wrong C08 bootstrap file, weight or conservative basis")
+    return {path: base[item["basis_file"]]}
+
+
+def effective_file_weights(
+    weights: dict[str, Any],
+    selected_files: set[str],
+    bootstrap: dict[str, Any] | None = None,
+) -> dict[str, int]:
+    base = validate_weights(weights)
+    admitted = validate_bootstrap(read_json(BOOTSTRAP) if bootstrap is None else bootstrap, weights)
+    result = base | admitted
+    evidence = [
+        {"file": file, "weight_milliseconds": milliseconds}
+        for file, milliseconds in sorted(result.items())
+    ]
+    if (
+        len(result) != 63
+        or sum(result.values()) != 7733243
+        or digest(evidence) != EFFECTIVE_WEIGHTS_DIGEST
+    ):
+        raise ProofError("wrong effective C08 scheduling evidence")
+    if selected_files != set(result):
+        raise ProofError(
+            "selected test files differ from effective weights: missing/extra/unmodeled"
+        )
+    return result
+
+
 class CollectionRecorder:
     def __init__(self) -> None:
         self.nodeids: list[str] = []
@@ -344,7 +410,12 @@ def build_plan(
     grouped: dict[str, list[str]] = {}
     for node in selected:
         grouped.setdefault(node.split("::", 1)[0], []).append(node)
-    by_weight = validate_weights(weights, set(grouped))
+    bootstrap = read_json(BOOTSTRAP)
+    by_weight = effective_file_weights(weights, set(grouped), bootstrap)
+    effective = [
+        {"file": file, "weight_milliseconds": milliseconds}
+        for file, milliseconds in sorted(by_weight.items())
+    ]
     loads = [0] * SHARD_COUNT
     assignments: dict[str, int] = {}
     for file in sorted(grouped, key=lambda name: (-by_weight[name], name)):
@@ -387,6 +458,9 @@ def build_plan(
             "pytest_version": pytest.__version__,
             "shard_count": SHARD_COUNT,
             "weights_sha256": weights["weights_sha256"],
+            "base_weights_sha256": weights["weights_sha256"],
+            "bootstrap_weights_sha256": bootstrap["bootstrap_sha256"],
+            "effective_file_weights_sha256": digest(effective),
             "entry_baseline_nodeids_sha256": baseline["nodeids_sha256"],
             "collected_node_count": len(selected),
             "collected_nodeids": selected,
@@ -425,8 +499,12 @@ def plan_summary(plan: dict[str, Any]) -> dict[str, Any]:
     return {
         key: plan[key]
         for key in (
+            "schema_version",
             "head_sha",
             "plan_sha256",
+            "base_weights_sha256",
+            "bootstrap_weights_sha256",
+            "effective_file_weights_sha256",
             "weights_sha256",
             "entry_baseline_nodeids_sha256",
             "collected_node_count",
@@ -434,6 +512,8 @@ def plan_summary(plan: dict[str, Any]) -> dict[str, Any]:
         )
     } | {
         "entry_no_loss": "PASS",
+        "selected_file_count": len(plan["files"]),
+        "effective_total_weight_milliseconds": 7733243,
         "shards": [
             {
                 key: item[key]
