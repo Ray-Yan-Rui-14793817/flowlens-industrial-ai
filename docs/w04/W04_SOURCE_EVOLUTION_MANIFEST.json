@@ -112,6 +112,21 @@
           "blob_oid": "3d561da7ab625421bbcf2dcb3785f8fae792cbff"
         }
       ]
+    },
+    {
+      "checkpoint": "W04-C08",
+      "state": "AUTHORIZED",
+      "source_freeze_sha": null,
+      "files": [
+        {
+          "path": "src/flowlens/investigation/c08_policy.py",
+          "blob_oid": null
+        },
+        {
+          "path": "src/flowlens/investigation/c08_replay.py",
+          "blob_oid": null
+        }
+      ]
     }
   ]
 }
