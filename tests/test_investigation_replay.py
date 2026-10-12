@@ -77,6 +77,11 @@ C08_SOURCES = (
     "src/flowlens/investigation/c08_policy.py",
     "src/flowlens/investigation/c08_replay.py",
 )
+C08_SOURCE_FREEZE_SHA = "1fa7b505980c1efc1b3725cd57a9732e254bccdf"
+C08_SOURCE_BLOBS = {
+    "src/flowlens/investigation/c08_policy.py": "273d288cf4b0e55b646cd2e6751f0259e463a5ff",
+    "src/flowlens/investigation/c08_replay.py": "4fa391cf751377305315b7de8303ce94e6eb6c6e",
+}
 ENTRY_SHA = "9afc4bd047bd4e52dfc4956f16e6420b3762301f"
 LIMITATIONS = (
     "C08_FROZEN_ARTIFACT_REPLAY_ONLY",
@@ -1176,12 +1181,25 @@ def test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchan
         "W04-C08",
     ]
     assert all(c["state"] == "CLOSED" for c in manifest["checkpoints"][:7])
-    assert manifest["checkpoints"][-1] == {
+    authorized = {
         "checkpoint": "W04-C08",
         "state": "AUTHORIZED",
         "source_freeze_sha": None,
         "files": [{"path": path, "blob_oid": None} for path in C08_SOURCES],
     }
+    closed = {
+        "checkpoint": "W04-C08",
+        "state": "CLOSED",
+        "source_freeze_sha": C08_SOURCE_FREEZE_SHA,
+        "files": [{"path": path, "blob_oid": C08_SOURCE_BLOBS[path]} for path in C08_SOURCES],
+    }
+    c08 = manifest["checkpoints"][-1]
+    assert c08 in (authorized, closed)
+    for path, blob in C08_SOURCE_BLOBS.items():
+        assert _git("rev-parse", "HEAD:" + path) == blob
+        assert not _git("diff", "HEAD", "--", path)
+        if c08["state"] == "CLOSED":
+            assert _git("rev-parse", C08_SOURCE_FREEZE_SHA + ":" + path) == blob
     for checkpoint in manifest["checkpoints"][:7]:
         for file in checkpoint["files"]:
             assert _git("rev-parse", "HEAD:" + file["path"]) == file["blob_oid"]
