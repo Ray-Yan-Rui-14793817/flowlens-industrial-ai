@@ -115,16 +115,16 @@
     },
     {
       "checkpoint": "W04-C08",
-      "state": "AUTHORIZED",
-      "source_freeze_sha": null,
+      "state": "CLOSED",
+      "source_freeze_sha": "1fa7b505980c1efc1b3725cd57a9732e254bccdf",
       "files": [
         {
           "path": "src/flowlens/investigation/c08_policy.py",
-          "blob_oid": null
+          "blob_oid": "273d288cf4b0e55b646cd2e6751f0259e463a5ff"
         },
         {
           "path": "src/flowlens/investigation/c08_replay.py",
-          "blob_oid": null
+          "blob_oid": "4fa391cf751377305315b7de8303ce94e6eb6c6e"
         }
       ]
     }
