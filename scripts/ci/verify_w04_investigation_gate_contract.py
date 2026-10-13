@@ -78,6 +78,18 @@ STAGE_A = (
     "tests/test_c09_ci_gate.py",
 )
 STAGE_B = ("docs/w04/checkpoints/c09/W04_C09_R_DEVELOPMENT_ROUND_REPORT.md",)
+CLOSEOUT_STAGE_A_SHA = "3cd8023dbe79ca8360a3075dd3b169921e31f7a5"
+CLOSEOUT_REVIEW_READY_SHA = "f4c528e1daf86aa1a010bce82665e43c55560384"
+CLOSEOUT_VERIFIER_PATH = "scripts/ci/verify_w04_investigation_gate_contract.py"
+CLOSEOUT_PREP_SUBJECT = "ci(w04-c09): admit bounded closeout lifecycle"
+CLOSEOUT_FINAL_SUBJECT = "docs(w04-c09): close investigation regression gate"
+CLOSEOUT_FINAL_PATHS = (
+    "docs/w04/checkpoints/c09/W04_C09_GPT_INDEPENDENT_REVIEW_R1.md",
+    "docs/w04/checkpoints/c09/W04_C09_HUMAN_ACCEPTANCE.md",
+    "docs/w04/checkpoints/c09/W04_C09_CLOSEOUT_AUTHORIZATION.md",
+    "docs/w04/checkpoints/c09/W04_C09_CLOSEOUT_CONTEXT_LOCK.md",
+    "docs/w04/checkpoints/c09/W04_C09_FINAL_CLOSEOUT_REPORT.md",
+)
 
 
 def require(condition: bool, message: str) -> None:
@@ -908,6 +920,365 @@ def validate_changed_paths(
     require(changed <= allowed, "W04_C09_SCOPE_VIOLATION")
 
 
+def validate_closeout_lifecycle(
+    history: list[dict[str, Any]], working: set[str], changed: set[str]
+) -> str:
+    """Admit only the two immutable anchors and their single Prep / Final children."""
+    require(1 <= len(history) <= 4, "extra post-REVIEW_READY commit")
+    for record in history:
+        require(set(record) == {"sha", "parents", "subject", "delta"}, "lifecycle record shape")
+        require(
+            re.fullmatch(r"[0-9a-f]{40}", record["sha"]) is not None
+            and record["sha"] != "0" * 40,
+            "invalid lifecycle SHA",
+        )
+    require(len({r["sha"] for r in history}) == len(history), "duplicate lifecycle SHA")
+    first = history[0]
+    require(
+        first["sha"] == CLOSEOUT_STAGE_A_SHA
+        and first["parents"] == [ENTRY]
+        and first["subject"] == "ci(w04-c09): add investigation regression gate"
+        and set(first["delta"]) == set(STAGE_A),
+        "Stage-A immutable anchor drift",
+    )
+    state, expected = "STAGE_A", set(STAGE_A)
+    if len(history) >= 2:
+        publication = history[1]
+        require(
+            publication["sha"] == CLOSEOUT_REVIEW_READY_SHA
+            and publication["parents"] == [CLOSEOUT_STAGE_A_SHA]
+            and publication["subject"] == "docs(w04-c09): publish regression-hardening proof"
+            and publication["delta"] == {STAGE_B[0]: "A"},
+            "REVIEW_READY immutable publication anchor drift",
+        )
+        state = "REVIEW_READY"
+        expected.update(STAGE_B)
+    if len(history) >= 3:
+        prep = history[2]
+        require(
+            prep["parents"] == [CLOSEOUT_REVIEW_READY_SHA]
+            and prep["subject"] == CLOSEOUT_PREP_SUBJECT
+            and prep["delta"] == {CLOSEOUT_VERIFIER_PATH: "M"},
+            "invalid exact Closeout-Prep-01 parent/subject/delta",
+        )
+        state = "CLOSEOUT_PREP_01"
+    if len(history) == 4:
+        final = history[3]
+        require(
+            final["parents"] == [history[2]["sha"]]
+            and final["subject"] == CLOSEOUT_FINAL_SUBJECT
+            and final["delta"] == {path: "A" for path in CLOSEOUT_FINAL_PATHS},
+            "invalid exact final-closeout parent/subject/delta",
+        )
+        state = "FINAL_CLOSEOUT"
+        expected.update(CLOSEOUT_FINAL_PATHS)
+    require(changed == expected, "closeout cumulative path-set drift")
+    # The sole uncommitted development candidate is the authorized verifier at REVIEW_READY.
+    require(
+        working <= {CLOSEOUT_VERIFIER_PATH} if state == "REVIEW_READY" else not working,
+        "unauthorized working-tree lifecycle delta",
+    )
+    return state
+
+
+def closeout_lifecycle_guard(changed: set[str], repo: Path = ROOT) -> str:
+    head = git("rev-parse", "HEAD", repo=repo).decode().strip()
+    revisions = [CLOSEOUT_STAGE_A_SHA]
+    if head != CLOSEOUT_STAGE_A_SHA:
+        git("merge-base", "--is-ancestor", CLOSEOUT_REVIEW_READY_SHA, head, repo=repo)
+        revisions.append(CLOSEOUT_REVIEW_READY_SHA)
+        revisions.extend(
+            git("rev-list", "--reverse", CLOSEOUT_REVIEW_READY_SHA + ".." + head, repo=repo)
+            .decode()
+            .splitlines()
+        )
+    require(revisions[-1] == head, "lifecycle HEAD mismatch")
+    history: list[dict[str, Any]] = []
+    for revision in revisions:
+        parents = git("rev-list", "--parents", "-n", "1", revision, repo=repo).decode().split()
+        require(len(parents) == 2 and parents[0] == revision, "lifecycle merge/root forbidden")
+        delta: dict[str, str] = {}
+        for row in (
+            git("diff", "--name-status", "--no-renames", parents[1], revision, repo=repo)
+            .decode()
+            .splitlines()
+        ):
+            status, path = row.split("\t")
+            require(path not in delta, "duplicate lifecycle delta path")
+            delta[path] = status
+        history.append(
+            {
+                "sha": revision,
+                "parents": parents[1:],
+                "subject": git("show", "-s", "--format=%s", revision, repo=repo).decode().strip(),
+                "delta": delta,
+            }
+        )
+    working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).decode().splitlines())
+    working.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    return validate_closeout_lifecycle(history, working, changed)
+
+
+def validate_verifier_sources(review_ready: str, current: str) -> None:
+    """Preserve every legacy source span except two exact lifecycle call-site edits."""
+    if current == review_ready:
+        return
+    old_order, old = source_units(review_ready)
+    new_order, new = source_units(current)
+    additions = {
+        "CLOSEOUT_STAGE_A_SHA",
+        "CLOSEOUT_REVIEW_READY_SHA",
+        "CLOSEOUT_VERIFIER_PATH",
+        "CLOSEOUT_PREP_SUBJECT",
+        "CLOSEOUT_FINAL_SUBJECT",
+        "CLOSEOUT_FINAL_PATHS",
+        "validate_closeout_lifecycle",
+        "closeout_lifecycle_guard",
+        "validate_verifier_sources",
+        "verifier_source_guard",
+        "check_closeout_lifecycle_controls",
+    }
+    require(set(new) - set(old) == additions, "unauthorized verifier top-level addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order,
+        "verifier legacy unit identity/order drift",
+    )
+    for name in old_order:
+        expected = old[name][0].encode()
+        if name == "verify_collection_and_scope":
+            expected = replace_once(
+                expected,
+                b"    validate_changed_paths(\n"
+                b"        changed,\n"
+                b'        git("log", "-1", "--pretty=%s").decode().strip(),\n'
+                b'        set(git("diff", "--name-only", "HEAD^", "HEAD").decode().splitlines()),\n'
+                b"    )\n",
+                b"    lifecycle = closeout_lifecycle_guard(changed)\n",
+            )
+            expected = replace_once(
+                expected,
+                b'        "shards": 7,\n',
+                b'        "shards": 7,\n        "lifecycle": lifecycle,\n',
+            )
+        elif name == "main":
+            expected = replace_once(
+                expected,
+                b"        workflow_guard()\n",
+                b"        verifier_source_guard()\n        workflow_guard()\n",
+            )
+            expected = replace_once(
+                expected,
+                b"        controls += 3\n",
+                b"        controls += 3\n        controls += check_closeout_lifecycle_controls()\n",
+            )
+            expected = replace_once(
+                expected,
+                b'                    "family_subprocess_isolation": "PASS",\n',
+                b'                    "family_subprocess_isolation": "PASS",\n'
+                b'                    "verifier_self_source_delta_guard": "PASS",\n'
+                b'                    "closeout_lifecycle": collection["lifecycle"],\n',
+            )
+        require(new[name][0].encode() == expected, f"unauthorized verifier source delta: {name}")
+    constants = {
+        "CLOSEOUT_STAGE_A_SHA": "3cd8023dbe79ca8360a3075dd3b169921e31f7a5",
+        "CLOSEOUT_REVIEW_READY_SHA": "f4c528e1daf86aa1a010bce82665e43c55560384",
+        "CLOSEOUT_VERIFIER_PATH": "scripts/ci/verify_w04_investigation_gate_contract.py",
+        "CLOSEOUT_PREP_SUBJECT": "ci(w04-c09): admit bounded closeout lifecycle",
+        "CLOSEOUT_FINAL_SUBJECT": "docs(w04-c09): close investigation regression gate",
+        "CLOSEOUT_FINAL_PATHS": (
+            "docs/w04/checkpoints/c09/W04_C09_GPT_INDEPENDENT_REVIEW_R1.md",
+            "docs/w04/checkpoints/c09/W04_C09_HUMAN_ACCEPTANCE.md",
+            "docs/w04/checkpoints/c09/W04_C09_CLOSEOUT_AUTHORIZATION.md",
+            "docs/w04/checkpoints/c09/W04_C09_CLOSEOUT_CONTEXT_LOCK.md",
+            "docs/w04/checkpoints/c09/W04_C09_FINAL_CLOSEOUT_REPORT.md",
+        ),
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "lifecycle constant declaration drift")
+        require(ast.literal_eval(cast(ast.Assign, node).value) == value, "lifecycle constant drift")
+
+
+def verifier_source_guard(repo: Path = ROOT) -> None:
+    current = (repo / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    validate_verifier_sources(
+        git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo).decode(),
+        current,
+    )
+    subject = git("show", "-s", "--format=%s", "HEAD", repo=repo).decode().strip()
+    if subject == CLOSEOUT_FINAL_SUBJECT:
+        require(
+            git("show", "HEAD^:" + CLOSEOUT_VERIFIER_PATH, repo=repo).decode() == current,
+            "accepted Prep verifier must remain frozen in Final",
+        )
+
+
+def check_closeout_lifecycle_controls() -> int:
+    stage_a: dict[str, Any] = {
+        "sha": CLOSEOUT_STAGE_A_SHA,
+        "parents": [ENTRY],
+        "subject": "ci(w04-c09): add investigation regression gate",
+        "delta": dict.fromkeys(STAGE_A, "A"),
+    }
+    publication: dict[str, Any] = {
+        "sha": CLOSEOUT_REVIEW_READY_SHA,
+        "parents": [CLOSEOUT_STAGE_A_SHA],
+        "subject": "docs(w04-c09): publish regression-hardening proof",
+        "delta": {STAGE_B[0]: "A"},
+    }
+    prep: dict[str, Any] = {
+        "sha": "a" * 40,
+        "parents": [CLOSEOUT_REVIEW_READY_SHA],
+        "subject": CLOSEOUT_PREP_SUBJECT,
+        "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+    }
+    final: dict[str, Any] = {
+        "sha": "b" * 40,
+        "parents": [prep["sha"]],
+        "subject": CLOSEOUT_FINAL_SUBJECT,
+        "delta": dict.fromkeys(CLOSEOUT_FINAL_PATHS, "A"),
+    }
+    history = [stage_a, publication, prep, final]
+    base = set(STAGE_A) | set(STAGE_B)
+    complete = base | set(CLOSEOUT_FINAL_PATHS)
+    for size, state in enumerate(
+        ("STAGE_A", "REVIEW_READY", "CLOSEOUT_PREP_01", "FINAL_CLOSEOUT"), start=1
+    ):
+        changed = set(STAGE_A) if size == 1 else complete if size == 4 else base
+        require(validate_closeout_lifecycle(history[:size], set(), changed) == state, "valid state")
+    require(
+        validate_closeout_lifecycle(history[:2], {CLOSEOUT_VERIFIER_PATH}, base) == "REVIEW_READY",
+        "one-file local Prep candidate",
+    )
+    mutations: list[tuple[str, list[dict[str, Any]], set[str], set[str]]] = []
+    for label, index, field, value in (
+        ("wrong Prep parent", 2, "parents", [CLOSEOUT_STAGE_A_SHA]),
+        ("wrong Prep subject", 2, "subject", "ci: unauthorized"),
+        ("extra Prep path", 2, "delta", {CLOSEOUT_VERIFIER_PATH: "M", STAGE_A[0]: "M"}),
+        ("missing final document", 3, "delta", dict.fromkeys(CLOSEOUT_FINAL_PATHS[:-1], "A")),
+        (
+            "extra final document",
+            3,
+            "delta",
+            {**dict.fromkeys(CLOSEOUT_FINAL_PATHS, "A"), "docs/w04/extra.md": "A"},
+        ),
+        (
+            "mixed final delta",
+            3,
+            "delta",
+            {**dict.fromkeys(CLOSEOUT_FINAL_PATHS, "A"), CLOSEOUT_VERIFIER_PATH: "M"},
+        ),
+        ("wrong final subject", 3, "subject", "docs: unauthorized"),
+        ("final without exact Prep parent", 3, "parents", [CLOSEOUT_REVIEW_READY_SHA]),
+        ("merge Prep", 2, "parents", [CLOSEOUT_REVIEW_READY_SHA, CLOSEOUT_STAGE_A_SHA]),
+        ("non-new final document", 3, "delta", dict.fromkeys(CLOSEOUT_FINAL_PATHS, "M")),
+    ):
+        damaged = copy.deepcopy(history)
+        damaged[index][field] = value
+        mutations.append((label, damaged, set(), complete))
+    mutations.extend(
+        (
+            ("extra post-REVIEW_READY commit", [*history, copy.deepcopy(final)], set(), complete),
+            ("missing Prep state", [stage_a, publication, final], set(), complete),
+            ("unauthorized working delta", history, {STAGE_A[0]}, complete),
+            ("wrong cumulative paths", history, set(), complete | {"src/extra.py"}),
+        )
+    )
+    for label, damaged, working, changed in mutations:
+        rejected(
+            label,
+            lambda damaged=damaged, working=working, changed=changed: validate_closeout_lifecycle(
+                damaged, working, changed
+            ),
+        )
+    original = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    current = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    validate_verifier_sources(original, current)
+    order, units = source_units(current)
+    mains = [
+        n for n in ast.parse(current).body if isinstance(n, ast.FunctionDef) and n.name == "main"
+    ]
+    require(len(mains) == 1 and "main" in units, "exactly one real top-level main required")
+    lines = current.splitlines(keepends=True)
+
+    def damage_unit(name: str, mutate: Any) -> str:
+        unit, parsed = units[name]
+        node = cast(ast.stmt, parsed)
+        changed_node = copy.deepcopy(node)
+        mutate(changed_node)
+        replacement = ast.unparse(ast.fix_missing_locations(changed_node)) + "\n"
+        decorators = getattr(node, "decorator_list", [])
+        start = min([node.lineno, *(d.lineno for d in decorators)]) - 1
+        require(node.end_lineno is not None, "missing source-unit end span")
+        end = node.end_lineno
+        require("".join(lines[start:end]) == unit, "source-unit span mismatch")
+        candidate = "".join(lines[:start]) + replacement + "".join(lines[end:])
+        replacement_order, _ = source_units(replacement)
+        require(len(replacement_order) == 1, "adversary must replace exactly one source unit")
+        target = replacement_order[0]
+        after_order, after = source_units(candidate)
+        require(
+            [key for key in after_order if key != target] == [key for key in order if key != name],
+            "adversary changed unrelated source-unit identities/order",
+        )
+        require(
+            all(after[key][0] == units[key][0] for key in order if key != name),
+            "adversary changed an unrelated source span",
+        )
+        require(after[target][0] != unit, "adversary did not change the target source unit")
+        if name == "main":
+            require(target == "main", "main adversary must preserve the actual function identity")
+        return candidate
+
+    def remove_main_workflow_call(node: ast.FunctionDef) -> None:
+        matches: list[tuple[list[ast.stmt], ast.stmt]] = []
+        for parent in ast.walk(node):
+            body = getattr(parent, "body", None)
+            if not isinstance(body, list):
+                continue
+            for statement in body:
+                if (
+                    isinstance(statement, ast.Expr)
+                    and isinstance(statement.value, ast.Call)
+                    and isinstance(statement.value.func, ast.Name)
+                    and statement.value.func.id == "workflow_guard"
+                ):
+                    matches.append((body, statement))
+        require(len(matches) == 1, "exactly one real main workflow_guard call required")
+        body, statement = matches[0]
+        body.remove(statement)
+
+    imports = [
+        key
+        for key, (_, node) in units.items()
+        if isinstance(node, ast.Import) and any(alias.name == "ast" for alias in node.names)
+    ]
+    require(len(imports) == 1, "exactly one structural ast import required")
+    source_mutations = (
+        damage_unit("require", lambda node: node.body.append(ast.Raise(exc=None, cause=None))),
+        current + "\ndef unauthorized_verifier_unit():\n    pass\n",
+        damage_unit(imports[0], lambda node: setattr(node.names[0], "asname", "unauthorized")),
+        damage_unit("main", lambda node: node.args.args.append(ast.arg(arg="unauthorized"))),
+        damage_unit("main", lambda node: node.decorator_list.append(ast.Name(id="unauthorized"))),
+        damage_unit("workflow_guard", lambda node: setattr(node, "name", "renamed_workflow_guard")),
+        damage_unit("main", remove_main_workflow_call),
+        damage_unit(
+            "CLOSEOUT_STAGE_A_SHA", lambda node: setattr(node, "value", ast.Constant("c" * 40))
+        ),
+    )
+    for damaged_source in source_mutations:
+        require(damaged_source != current, "verifier source adversary did not mutate")
+        rejected(
+            "unauthorized verifier top-level mutation",
+            lambda damaged_source=damaged_source: validate_verifier_sources(
+                original, damaged_source
+            ),
+        )
+    return len(mutations) + len(source_mutations)
+
+
 def verify_collection_and_scope() -> dict[str, object]:
     paths = json.loads((ROOT / "docs/w04/checkpoints/c09/specs/authorized_paths.json").read_bytes())
     require(
@@ -924,11 +1295,7 @@ def verify_collection_and_scope() -> dict[str, object]:
     )
     changed = set(git("diff", "--name-only", ENTRY, "--").decode().splitlines())
     changed.update(git("ls-files", "--others", "--exclude-standard").decode().splitlines())
-    validate_changed_paths(
-        changed,
-        git("log", "-1", "--pretty=%s").decode().strip(),
-        set(git("diff", "--name-only", "HEAD^", "HEAD").decode().splitlines()),
-    )
+    lifecycle = closeout_lifecycle_guard(changed)
     protected = (
         "src",
         "migrations",
@@ -1008,6 +1375,7 @@ def verify_collection_and_scope() -> dict[str, object]:
         "node_digest": planner.digest(nodes),
         "weights_digest": plan["weights_sha256"],
         "shards": 7,
+        "lifecycle": lifecycle,
     }
 
 
@@ -1021,6 +1389,7 @@ def main() -> int:
             hashlib.sha256(runner.canonical(json.loads(raw))).hexdigest() == CONTENT_DIGEST,
             "manifest content identity",
         )
+        verifier_source_guard()
         workflow_guard()
         replay_source_guard()
         meta_ci_source_guard()
@@ -1048,6 +1417,7 @@ def main() -> int:
             ),
         )
         controls += 3
+        controls += check_closeout_lifecycle_controls()
         truths = check_workflow_truth((ROOT / ".github/workflows/ci.yml").read_bytes())
         collection = verify_collection_and_scope()
         print(
@@ -1057,6 +1427,8 @@ def main() -> int:
                     "c08_replay_source_delta_guard": "PASS",
                     "c09_meta_ci_delta_guard": "PASS",
                     "family_subprocess_isolation": "PASS",
+                    "verifier_self_source_delta_guard": "PASS",
+                    "closeout_lifecycle": collection["lifecycle"],
                     "adversarial_controls": controls,
                     "actual_shell_truth_cases": truths,
                     "collection": collection,
