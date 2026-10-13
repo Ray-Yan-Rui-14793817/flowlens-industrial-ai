@@ -1,0 +1,348 @@
+{
+  "schema_version": "w04-c09-regression-manifest-v1",
+  "gate_version": "w04-c09-investigation-gate-v1",
+  "checkpoint": "W04-C09",
+  "contract_entry_sha": "1fa841f2ee0d6612774c9f0ced204289df86e7a1",
+  "selector_semantics": "EXACT_FUNCTION_SELECTOR_WITH_FROZEN_EXPANDED_CASE_COUNT",
+  "baseline": {
+    "run_number": 136,
+    "run_id": 38360398379,
+    "nonintegration_node_count": 2997,
+    "nonintegration_nodeids_sha256": "9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a",
+    "nonintegration_file_count": 63,
+    "nonintegration_junit_sha256": "65fc4dde578be989650d41e4bbe291ed3dd6502c6daceb427f3b17333418888d",
+    "integration_case_count": 70,
+    "integration_junit_sha256": "f76dcf2286467ba16ae40572ef8e8ccb27884e2a068fd65f3cb70643c394d6c8",
+    "source_evolution_manifest_sha256": "d22a12306f8fe98952b9e35a5f166f29fee968c9aedcff27511da59889c20c2d",
+    "devctrl03_weights_sha256": "a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851",
+    "devctrl03_plan_schema": "w04-devctrl03-non-integration-plan-v1",
+    "nonintegration_timeout_minutes": 65,
+    "shard_count": 7
+  },
+  "total_selectors": 67,
+  "total_cases": 81,
+  "families": [
+    {
+      "id": "F01 C01_CONTRACTS_IDENTITY",
+      "expected_cases": 6,
+      "targets": [
+        {
+          "selector": "tests/test_investigation_contracts.py::test_h15_case_cannot_open_before_decision_time",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_contracts.py::test_h23_evidence_availability_is_bounded_by_as_of",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_contracts.py::test_h29_unknown_requires_uncertainty_and_unresolved_requires_basis",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_contracts.py::test_h36_no_transitive_db_network_model_tool_or_hgt_capability_imports",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_contracts.py::test_h37_exact_w03_trust_and_serialization_framework_reused",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_contracts.py::test_h40_contract_construction_and_parse_perform_no_external_io",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F02 C02_CASE_BINDING_TEMPORAL",
+      "expected_cases": 6,
+      "targets": [
+        {
+          "selector": "tests/test_investigation_case_binding.py::test_b03_b10_b17_b18_exact_projection_and_public_constants",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_case_binding.py::test_b04_hashes_complete_packet_including_provenance_excluded_from_packet_id",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_case_binding.py::test_b22_future_evidence_observation_survives_w03_and_fails_c02",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_case_binding.py::test_b33_c01_case_wire_identity_and_immutability_remain_exact",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_case_binding.py::test_b34_runtime_imports_and_ast_have_no_external_or_execution_capabilities",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_case_binding.py::test_b36_c01_frozen_blobs_and_committed_source_governance_pass",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F03 C03_PLANNING_DETERMINISM",
+      "expected_cases": 6,
+      "targets": [
+        {
+          "selector": "tests/test_investigation_planning.py::test_p04_missing_family_passes_inherited_boundary_but_fails_semantics",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_planning.py::test_p11_supporting_signals_are_all_eight_not_only_active",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_planning.py::test_p14_p15_unrelated_inherited_uncertainties_are_preserved",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_planning.py::test_p32_p33_p34_p35_exact_dependency_free_plan_projection",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_planning.py::test_p23_p39_forbidden_inference_question_cannot_be_constructed_or_submitted",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_planning.py::test_p40_runtime_ast_and_fresh_import_have_no_execution_capabilities",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F04 C04_AUTHORIZED_NAVIGATION_READ_ONLY",
+      "expected_cases": 14,
+      "targets": [
+        {
+          "selector": "tests/test_investigation_evidence_queries.py::test_n04_n06_exact_immutable_registry_and_field_partition",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_evidence_queries.py::test_n07_n13_n14_exact_projection_count_and_order",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_evidence_queries.py::test_n13_zero_step_plan_has_zero_queries",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_evidence_queries.py::test_n18_no_query_language_or_resource_arguments",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_evidence_navigation.py::test_n39_future_plans_remain_known_values",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_evidence_navigation.py::test_n46_duplicate_joins_and_row_order_do_not_change_evidence",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/integration/test_investigation_evidence_navigation_database.py::test_n19_n24_n32_n43_n51_all_adapters_native_replay_and_zero_mutation",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/integration/test_investigation_evidence_navigation_database.py::test_n35_n37_actual_future_values_are_sql_masked_and_not_emitted",
+          "expected_cases": 6
+        },
+        {
+          "selector": "tests/integration/test_investigation_evidence_navigation_database.py::test_n21_native_hash_context_failure_is_read_only",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F05 C05_FINDINGS_CONFLICT_UNCERTAINTY",
+      "expected_cases": 7,
+      "targets": [
+        {
+          "selector": "tests/test_investigation_findings.py::test_k12_same_process_determinism_and_immutability",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_findings.py::test_k15_actual_c04_typed_and_wire_parity",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_findings.py::test_k17_empty_evidence_never_negative_proof",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_findings.py::test_k20_association_never_causal",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_findings.py::test_k38_support_contradiction_conflict",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_findings.py::test_k41_forbidden_codes_preserved_exactly",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_findings.py::test_k47_runtime_ast_and_fresh_import",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F06 C06_HUMAN_AUTHORITY_AUDIT",
+      "expected_cases": 10,
+      "targets": [
+        {
+          "selector": "tests/test_investigation_human.py::test_j02_frozen_schema_vocabulary_versions_and_errors",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_human.py::test_j12_note_class_is_fixed_and_tamper_rejected",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_human.py::test_j14_supported_outcome_requires_reviewed_supported_finding",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_human.py::test_j15_no_supported_requires_global_complete_review_without_support",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_human.py::test_j21_first_none_later_exact_parent_and_wrong_parent_rejected",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_human.py::test_j23_deterministic_multievent_chain_preserves_originals",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_human_store.py::test_j29_three_event_chain_preserves_all_prior_bytes",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_human_store.py::test_j41_busy_lock_rejects_immediately_and_preserves_operator_state",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_human_store.py::test_j44_public_journal_surface_has_no_history_edit_or_parent_override",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_human_store.py::test_j46_j47_store_runtime_ast_and_fresh_import_isolation",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F07 C07_SUMMARY_GROUNDING",
+      "expected_cases": 10,
+      "targets": [
+        {
+          "selector": "tests/test_investigation_summary.py::test_s05_s13_frozen_six_sections_and_deterministic_authority",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_summary.py::test_s10_s18_uncertainty_preserves_every_type_and_forbidden_inference",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_summary.py::test_s11_latest_human_metadata_is_chain_tail_without_authority_upgrade",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_summary.py::test_s14_s15_zero_conflicts_and_uncertainty_are_explicit",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_summary.py::test_s51_frozen_versions_prompt_bytes_schema_and_error_vocabulary",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_summary_provider.py::test_s38_provider_receives_only_exact_deterministic_baseline_section_data",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_summary_provider.py::test_s41_absent_provider_and_explicit_fallback_do_not_call_transport",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_summary_provider.py::test_s46_existing_number_and_time_cannot_be_rebound_to_another_field",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_summary_provider.py::test_s49_unexpected_validation_error_degrades_without_second_call",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_summary_provider.py::test_s51_actual_transport_source_has_only_bounded_sdk_and_single_auth_read",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F08 C08_PROTECTED_REPLAY",
+      "expected_cases": 17,
+      "targets": [
+        {
+          "selector": "tests/test_investigation_replay.py::test_r01_r10_original_chain_uses_frozen_validators_in_order",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_replay.py::test_r11_r16_receipt_versions_source_core_id_and_full_hash",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_replay.py::test_r20_coherent_presentation_claim_still_recomputes_supplied_chain",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_replay.py::test_r36_every_public_stage_failure_suppresses_protected_upstream_text",
+          "expected_cases": 10
+        },
+        {
+          "selector": "tests/test_investigation_replay.py::test_r37_r39_same_process_bytes_and_all_inputs_unchanged",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_replay.py::test_r40_r41_runtime_ast_public_signature_and_fresh_import_are_protected",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_replay.py::test_r39_r40_r42_live_external_traps_no_refresh_or_operational_mutation",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_investigation_replay.py::test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchanged",
+          "expected_cases": 1
+        }
+      ]
+    },
+    {
+      "id": "F09 SOURCE_EVOLUTION_GOVERNANCE",
+      "expected_cases": 5,
+      "targets": [
+        {
+          "selector": "tests/test_w04_source_evolution.py::test_d12_previous_closed_freeze_is_immutable",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_w04_source_evolution.py::test_d14_authorized_to_closed_transition_passes_once",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_w04_source_evolution.py::test_d17_new_checkpoint_must_begin_authorized",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_w04_source_evolution.py::test_d26_output_is_deterministic_and_sorted",
+          "expected_cases": 1
+        },
+        {
+          "selector": "tests/test_w04_source_evolution.py::test_d26_cli_outputs_same_deterministic_json_and_fails_closed",
+          "expected_cases": 1
+        }
+      ]
+    }
+  ]
+}

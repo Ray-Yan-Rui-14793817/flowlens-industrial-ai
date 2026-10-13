@@ -85,6 +85,8 @@ C08_SOURCE_BLOBS = {
 }
 ENTRY_SHA = "9afc4bd047bd4e52dfc4956f16e6420b3762301f"
 DEVCTRL_03_ENTRY_SHA = "a18e7f0733079ecc9aebdd94458625011e2f93f9"
+C09_ENTRY_SHA = "1fa841f2ee0d6612774c9f0ced204289df86e7a1"
+W04_C09_MANIFEST_CONTENT_SHA256 = "937179ae935b1361c5bfd5114825cc6fdd51a9aad5cfeffdc012bb3a4652e8ad"
 LIMITATIONS = (
     "C08_FROZEN_ARTIFACT_REPLAY_ONLY",
     "C08_HUMAN_NOTE_NON_EVIDENCE",
@@ -1175,37 +1177,12 @@ def test_r39_r40_r42_live_external_traps_no_refresh_or_operational_mutation(
 
 
 def _devctrl03_workflow_delta_guard() -> None:
-    """Admit only the exact Human-authorized non-integration timeout delta."""
-    path = ".github/workflows/ci.yml"
-    for revision in (DEVCTRL_03_ENTRY_SHA, "HEAD"):
-        assert _git("ls-tree", "-r", "--name-only", revision, "--", ".github/workflows") == path
-    entry = subprocess.run(
-        ["git", "show", DEVCTRL_03_ENTRY_SHA + ":" + path], cwd=ROOT,
-        capture_output=True, check=True,
-    ).stdout
-    job_header = b"  non-integration:\n"
-    assert entry.count(job_header) == 1
-    start = entry.index(job_header)
-    next_job = re.search(rb"(?m)^  [a-z][a-z0-9-]*:\n", entry[start + len(job_header):])
-    assert next_job is not None
-    end = start + len(job_header) + next_job.start()
-    job = entry[start:end]
-    old = b"    timeout-minutes: 55\n"
-    new = b"    timeout-minutes: 65\n"
-    assert job.count(old) == 1 and new not in job
-    assert len(re.findall(rb"(?m)^    timeout-minutes: [0-9]+$", job)) == 1
-    expected = entry[:start] + job.replace(old, new, 1) + entry[end:]
-    current = subprocess.run(
-        ["git", "show", "HEAD:" + path], cwd=ROOT, capture_output=True, check=True,
-    ).stdout
-    assert current == expected
-    assert not _git("diff", "HEAD", "--", ".github/workflows")
-    for invariant in (
-        b"      fail-fast: false\n", b"      max-parallel: 7\n",
-        b"        shard: [0, 1, 2, 3, 4, 5, 6]\n",
-    ):
-        assert job.count(invariant) == 1
+    """Enforce the exact C09-authorized workflow evolution from the pinned C09 entry."""
+    from verify_w04_investigation_gate_contract import workflow_guard
 
+    assert re.fullmatch(r"[0-9a-f]{40}", C09_ENTRY_SHA)
+    assert C09_ENTRY_SHA == "1fa841f2ee0d6612774c9f0ced204289df86e7a1"
+    workflow_guard(ROOT)
 
 def test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchanged() -> None:
     manifest = json.loads((ROOT / "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json").read_bytes())
@@ -1263,6 +1240,10 @@ def test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchan
     ):
         assert _git("rev-parse", "HEAD:" + path) == _git("rev-parse", ENTRY_SHA + ":" + path)
         assert not _git("diff", "HEAD", "--", path)
+    assert all(c["state"] == "CLOSED" for c in manifest["checkpoints"])
+    assert hashlib.sha256(
+        (ROOT / "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json").read_bytes()
+    ).hexdigest() == ("d22a12306f8fe98952b9e35a5f166f29fee968c9aedcff27511da59889c20c2d")
     _devctrl03_workflow_delta_guard()
 
 
@@ -1276,9 +1257,62 @@ FULL_JOBS = frozenset(
         "Quality gate",
         "Docker Compose smoke",
         "W03 AI loop gate",
+        "W04 investigation gate",
         "Verification gate",
     }
 )
+
+
+def _validate_w04_c09_gate_summary(
+    value: dict[str, Any], head: str, raw: bytes | None = None
+) -> None:
+    """Independently require the exact semantic payload, canonical seal and native bytes."""
+    manifest_raw = (ROOT / "docs/w04/checkpoints/c09/specs/c09_gate_manifest.json").read_bytes()
+    assert hashlib.sha256(manifest_raw).hexdigest() == (
+        "d7526f78b3301332983e626dd102f3f57f52f2926d3130741b6e8a447bf0bbd1"
+    )
+    manifest = json.loads(manifest_raw)
+    assert (
+        hashlib.sha256(
+            json.dumps(manifest, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        ).hexdigest()
+        == W04_C09_MANIFEST_CONTENT_SHA256
+    )
+    payload = {
+        "schema_version": "w04-c09-gate-summary-v1",
+        "gate_version": "w04-c09-investigation-gate-v1",
+        "implementation_sha": head,
+        "manifest_sha256": "d7526f78b3301332983e626dd102f3f57f52f2926d3130741b6e8a447bf0bbd1",
+        "manifest_content_sha256": W04_C09_MANIFEST_CONTENT_SHA256,
+        "total_families": 9,
+        "total_selectors": 67,
+        "total_tests": 81,
+        "families": [
+            {
+                "id": f["id"],
+                "status": "PASS",
+                "selectors": len(f["targets"]),
+                "tests": f["expected_cases"],
+            }
+            for f in manifest["families"]
+        ],
+        "overall": "PASS",
+    }
+    expected = payload | {
+        "summary_sha256": hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        ).hexdigest()
+    }
+    assert value == expected
+    assert json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False) == json.dumps(
+        expected, sort_keys=True, separators=(",", ":"), allow_nan=False
+    )
+    if raw is not None:
+        assert (
+            raw
+            == json.dumps(expected, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+            + b"\n"
+        )
 
 
 def _check_native_metadata(value: dict[str, Any], head: str) -> None:
@@ -1299,10 +1333,11 @@ def _check_native_metadata(value: dict[str, Any], head: str) -> None:
     assert sum(family["selectors"] for family in value["w03"]["families"]) == 38
     assert sum(family["tests"] for family in value["w03"]["families"]) == 85
 
+    _validate_w04_c09_gate_summary(value["w04"], head)
 
 def _native_metadata_fixture(head: str) -> dict[str, Any]:
     """Explicit gate controls, never evidence that the current asynchronous run completed."""
-    return {
+    proof: dict[str, Any] = {
         "schema_version": "w04-c08-native-proof-v1",
         "head_sha": head,
         "evidence_kind": "FIXTURE",
@@ -1324,6 +1359,35 @@ def _native_metadata_fixture(head: str) -> dict[str, Any]:
         },
     }
 
+    manifest = json.loads(
+        (ROOT / "docs/w04/checkpoints/c09/specs/c09_gate_manifest.json").read_bytes()
+    )
+    payload = {
+        "schema_version": "w04-c09-gate-summary-v1",
+        "gate_version": "w04-c09-investigation-gate-v1",
+        "implementation_sha": head,
+        "manifest_sha256": "d7526f78b3301332983e626dd102f3f57f52f2926d3130741b6e8a447bf0bbd1",
+        "manifest_content_sha256": W04_C09_MANIFEST_CONTENT_SHA256,
+        "total_families": 9,
+        "total_selectors": 67,
+        "total_tests": 81,
+        "families": [
+            {
+                "id": f["id"],
+                "status": "PASS",
+                "selectors": len(f["targets"]),
+                "tests": f["expected_cases"],
+            }
+            for f in manifest["families"]
+        ],
+        "overall": "PASS",
+    }
+    proof["w04"] = payload | {
+        "summary_sha256": hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        ).hexdigest()
+    }
+    return proof
 
 @pytest.mark.parametrize(
     "damage",
@@ -1392,20 +1456,35 @@ def test_r46_stage_b_exact_sha_full_native_ci(tmp_path: Path) -> None:
             *(f"shard-{i}" for i in range(7)),
         )
     }
+    expected_artifact_names.add(f"w04-c09-gate-{head}")
     assert {a["name"] for a in proof["artifacts"]} == expected_artifact_names
-    assert len(proof["artifacts"]) == 10
+    assert len(proof["artifacts"]) == 11
     for artifact in proof["artifacts"]:
         assert artifact["head_sha"] == head and artifact["run_id"] == proof["run"]["id"]
         assert (
             artifact["digest"]
             == "sha256:" + hashlib.sha256(Path(artifact["zip_path"]).read_bytes()).hexdigest()
         )
+    import zipfile
+
+    w04_artifact = next(a for a in proof["artifacts"] if a["name"] == f"w04-c09-gate-{head}")
+    with zipfile.ZipFile(w04_artifact["zip_path"]) as archive:
+        assert archive.namelist() == ["w04-c09-gate-summary.json"]
+        raw = archive.read("w04-c09-gate-summary.json")
+    summary = json.loads(raw)
+    _validate_w04_c09_gate_summary(summary, head, raw)
+    assert summary == proof["w04"]
+    assert hashlib.sha256(raw).hexdigest() == proof["w04_summary_raw_sha256"]
+    from verify_w04_investigation_gate_contract import replay_source_guard
+
+    replay_source_guard(ROOT)
     plan = planner.read_json(directory / "plan/plan.json")
     weights = planner.read_json(planner.WEIGHTS)
     baseline = planner.read_json(planner.BASELINE)
     planner.validate_plan(plan, weights, baseline, head)
     current = planner.collect_nodes(planner.MARKER)
     assert current == plan["collected_nodeids"]
+    assert len(current) == 2997
     assert set(baseline["sorted_nodeids"]) <= set(current)
     assert {n.split("::", 1)[0] for n in set(current) - set(baseline["sorted_nodeids"])} <= {
         "tests/test_investigation_replay.py",
@@ -1417,8 +1496,10 @@ def test_r46_stage_b_exact_sha_full_native_ci(tmp_path: Path) -> None:
         "docs/w04/devctrl-03/W04_DEVCTRL_03_MEASURED_SHARD_WEIGHTS.json"
     )
     assert (
-        weights["weights_sha256"] == planner.MEASURED_WEIGHTS_DIGEST
-        == plan["weights_sha256"] == plan["measured_weights_sha256"]
+        weights["weights_sha256"]
+        == planner.MEASURED_WEIGHTS_DIGEST
+        == plan["weights_sha256"]
+        == plan["measured_weights_sha256"]
     )
     measured = planner.validate_weights(weights, {file["file"] for file in plan["files"]})
     assert len(measured) == 63 and sum(measured.values()) == 9645665

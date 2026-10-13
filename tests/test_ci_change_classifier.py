@@ -290,7 +290,7 @@ def test_workflow_routes_all_classes_to_a_stable_fail_closed_gate() -> None:
         "name: Verification gate",
         "needs: [classify-change, static-and-plan, integration-and-data, "
         "non-integration-aggregate, quality, compose-smoke, publication-proof, "
-        "w03-ai-loop-gate]",
+        "w03-ai-loop-gate, w04-investigation-gate]",
         "if: always()",
         '--event-path "$GITHUB_EVENT_PATH"',
         'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"',

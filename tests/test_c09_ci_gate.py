@@ -420,6 +420,7 @@ def test_workflow_one_job_exact_schedule_source_manifest_and_environment() -> No
         "publication-proof",
         "verification-gate",
         "w03-ai-loop-gate",
+        "w04-investigation-gate",
         "static-and-plan",
         "integration-and-data",
         "non-integration",
@@ -517,10 +518,11 @@ def test_verification_runs_actual_shell_truth_table() -> None:
     assert (
         "needs: [classify-change, static-and-plan, integration-and-data, "
         "non-integration-aggregate, quality, compose-smoke, publication-proof, "
-        "w03-ai-loop-gate]" in verification
+        "w03-ai-loop-gate, w04-investigation-gate]" in verification
     )
     assert "if: always()" in verification and "timeout-minutes: 5" in verification
     assert "W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}" in verification
+    assert "W04_RESULT: ${{ needs['w04-investigation-gate'].result }}" in verification
     for result, job in (
         ("STATIC_RESULT", "static-and-plan"),
         ("INTEGRATION_RESULT", "integration-and-data"),
@@ -549,6 +551,7 @@ def test_verification_runs_actual_shell_truth_table() -> None:
             "QUALITY_RESULT": "skipped" if change == "P" else "success",
             "COMPOSE_RESULT": "skipped" if change == "P" else "success",
             "W03_RESULT": "skipped" if change == "P" else "success",
+            "W04_RESULT": "skipped" if change == "P" else "success",
             "PUBLICATION_RESULT": "success" if change == "P" else "skipped",
             "STATIC_RESULT": "skipped" if change == "P" else "success",
             "INTEGRATION_RESULT": "skipped" if change == "P" else "success",
