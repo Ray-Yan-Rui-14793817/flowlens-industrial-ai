@@ -23,16 +23,32 @@ ENTRY_SHA = "9afc4bd047bd4e52dfc4956f16e6420b3762301f"
 ENTRY_DIGEST = "4f74c17af44363fe14bbda36dd4bb5f2166162d941291bf8e383a29532349c3d"
 ENTRY_FILES_DIGEST = "72f381af0f729834fc58920eec74f2ef1a6f9fb0991c7489350412fdfcf7366a"
 BASELINE = ROOT / "docs/w04/checkpoints/c08/W04_C08_ENTRY_TEST_BASELINE.json"
-WEIGHTS = ROOT / "docs/w04/devctrl-02/W04_CI_TEST_SHARD_WEIGHTS.json"
+HISTORICAL_WEIGHTS = ROOT / "docs/w04/devctrl-02/W04_CI_TEST_SHARD_WEIGHTS.json"
+WEIGHTS = ROOT / "docs/w04/devctrl-03/W04_DEVCTRL_03_MEASURED_SHARD_WEIGHTS.json"
 BOOTSTRAP = ROOT / "docs/w04/checkpoints/c08/W04_C08_CI_BOOTSTRAP_WEIGHTS.json"
-PLAN_SCHEMA = "w04-devctrl02-non-integration-plan-v2"
+PLAN_SCHEMA = "w04-devctrl03-non-integration-plan-v1"
+CURRENT_NODE_COUNT = 2997
+CURRENT_NODES_DIGEST = "9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a"
+CURRENT_FILES_DIGEST = "890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7"
+MEASURED_WEIGHTS_DIGEST = "a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851"
+MEASURED_SOURCE_RUNS_DIGEST = "c0c91d5a0633a51af13bb310ada9fc485fd7dfc02b740fddf33a8a62185f2b28"
+MEASURED_FILE_WEIGHTS_DIGEST = "02f10337b19aa1e895a2bae6e4edb734abf379f55764133c07d4a0679871d9b7"
+MEASURED_EFFECTIVE_WEIGHTS_DIGEST = (
+    "cb646fa14756be9ea598c26309d291684f520dc76286416e28ddcc40f111f0cd"
+)
+TOTAL_WEIGHT_MILLISECONDS = 9645665
+WEIGHT_DERIVATION = (
+    "Exact median of per-file JUnit testcase-duration sums from successful full exact-SHA "
+    "runs #129, #132 and #133, in that order, with identical 2997-node collection. "
+    "Integer millisecond arithmetic; no averaging, smoothing or overrides."
+)
 BASE_WEIGHTS_DIGEST = "315675b184abd56422f469a44da5f840b40d82c3cfb272d46873afd7a8adacca"
 BOOTSTRAP_DIGEST = "36f1d85e34344afee1f7e76b066427e4f40314c68f1d564340d82cc4dd44becb"
 EFFECTIVE_WEIGHTS_DIGEST = "352e6e1060bc1c2d5ce9a36fcad6cb9941e373bfae3da4d8a326d26a0d1f01c6"
 SOURCE_NODES_DIGEST = "4f74c17af44363fe14bbda36dd4bb5f2166162d941291bf8e383a29532349c3d"
 SOURCE_ARTIFACTS_DIGEST = "c111d28caa2d4e319c01873f47cc6cc8bd9a80a9fd172ca2749b29bcc945b83a"
 SOURCE_FILE_WEIGHTS_DIGEST = "43740d1f6b1eda83fb9410de761625504a8c96d90dd7c05cd1d69bf001ac0bdc"
-WEIGHT_DERIVATION = (
+HISTORICAL_WEIGHT_DERIVATION = (
     "Sum of JUnit testcase time attributes by file from the four complete #122 shard artifacts. "
     "Static scheduling evidence only."
 )
@@ -232,7 +248,7 @@ def enforce_entry(selected: list[str], baseline: dict[str, Any]) -> None:
         raise ProofError("unauthorized C08 test addition")
 
 
-def validate_weights(
+def validate_historical_weights(
     value: dict[str, Any], selected_files: set[str] | None = None
 ) -> dict[str, int]:
     """Validate frozen JUnit evidence and return exact integer millisecond weights."""
@@ -263,7 +279,7 @@ def validate_weights(
         or integer(value["source_collected_node_count"], "source node count", 1) != 2807
         or value["source_collected_nodeids_sha256"] != SOURCE_NODES_DIGEST
         or digest(value["source_artifacts"]) != SOURCE_ARTIFACTS_DIGEST
-        or value["derivation_method"] != WEIGHT_DERIVATION
+        or value["derivation_method"] != HISTORICAL_WEIGHT_DERIVATION
         or integer(value["shard_count"], "shard count", 1) != SHARD_COUNT
     ):
         raise ProofError("wrong scheduling source or shard count")
@@ -304,7 +320,7 @@ def validate_weights(
 
 def validate_bootstrap(value: dict[str, Any], weights: dict[str, Any]) -> dict[str, int]:
     """Admit exactly the sealed C08 one-file bootstrap; base JUnit evidence stays frozen."""
-    base = validate_weights(weights)
+    base = validate_historical_weights(weights)
     exact_keys(
         value,
         {"schema_version", "entry_sha", "base_weights_sha256", "files", "bootstrap_sha256"},
@@ -338,28 +354,97 @@ def validate_bootstrap(value: dict[str, Any], weights: dict[str, Any]) -> dict[s
     return {path: base[item["basis_file"]]}
 
 
-def effective_file_weights(
-    weights: dict[str, Any],
-    selected_files: set[str],
-    bootstrap: dict[str, Any] | None = None,
+def weight_milliseconds(item: Any) -> int:
+    if type(item) not in (int, float) or not math.isfinite(item) or item < 0:
+        raise ProofError("malformed, negative or nonfinite weight")
+    milliseconds = Decimal(str(item)) * 1000
+    if milliseconds != milliseconds.to_integral_value():
+        raise ProofError("weight must preserve exact JUnit millisecond precision")
+    return int(milliseconds)
+
+
+def validate_weights(
+    value: dict[str, Any], selected_files: set[str] | None = None
 ) -> dict[str, int]:
-    base = validate_weights(weights)
-    admitted = validate_bootstrap(read_json(BOOTSTRAP) if bootstrap is None else bootstrap, weights)
-    result = base | admitted
+    """Validate only the exact three-run measured model used by active scheduling."""
+    exact_keys(
+        value,
+        {
+            "schema_version", "derivation_method", "source_runs", "marker_expression",
+            "source_collected_node_count", "source_collected_nodeids_sha256",
+            "selected_file_count", "selected_files_sha256", "entry_baseline_nodeids_sha256",
+            "total_weight_seconds", "shard_count", "file_weights", "weights_sha256",
+        },
+        "measured weights",
+    )
+    check_seal(value, "weights_sha256")
+    if (
+        value["schema_version"] != "w04-devctrl03-measured-shard-weights-v1"
+        or value["weights_sha256"] != MEASURED_WEIGHTS_DIGEST
+        or value["derivation_method"] != WEIGHT_DERIVATION
+        or digest(value["source_runs"]) != MEASURED_SOURCE_RUNS_DIGEST
+        or value["marker_expression"] != MARKER
+        or integer(value["source_collected_node_count"], "source count", 1) != CURRENT_NODE_COUNT
+        or value["source_collected_nodeids_sha256"] != CURRENT_NODES_DIGEST
+        or integer(value["selected_file_count"], "measured file count", 1) != 63
+        or value["selected_files_sha256"] != CURRENT_FILES_DIGEST
+        or value["entry_baseline_nodeids_sha256"] != ENTRY_DIGEST
+        or integer(value["shard_count"], "shard count", 1) != SHARD_COUNT
+    ):
+        raise ProofError("wrong measured scheduling evidence or source identity")
+    entries = value["file_weights"]
+    if not isinstance(entries, list) or len(entries) != 63:
+        raise ProofError("missing or extra measured JUnit file weights")
+    result: dict[str, int] = {}
+    for item in entries:
+        if not isinstance(item, dict):
+            raise ProofError("malformed measured weight entry")
+        exact_keys(
+            item, {"file", "samples_seconds", "weight_seconds", "observed_max_seconds"},
+            "measured file weight",
+        )
+        path = test_file(item["file"])
+        if path in result:
+            raise ProofError("duplicate file weight")
+        samples = item["samples_seconds"]
+        if not isinstance(samples, list) or len(samples) != 3:
+            raise ProofError("measured file requires exactly three ordered samples")
+        milliseconds = [weight_milliseconds(sample) for sample in samples]
+        median = sorted(milliseconds)[1]
+        if (
+            weight_milliseconds(item["weight_seconds"]) != median
+            or weight_milliseconds(item["observed_max_seconds"]) != max(milliseconds)
+        ):
+            raise ProofError("measured median or observed maximum differs")
+        result[path] = median
+    if (
+        list(result) != sorted(result)
+        or digest(list(result)) != CURRENT_FILES_DIGEST
+        or digest(entries) != MEASURED_FILE_WEIGHTS_DIGEST
+        or weight_milliseconds(value["total_weight_seconds"]) != TOTAL_WEIGHT_MILLISECONDS
+        or sum(result.values()) != TOTAL_WEIGHT_MILLISECONDS
+    ):
+        raise ProofError("wrong measured file weights or total")
+    if selected_files is not None and selected_files != set(result):
+        raise ProofError(
+            "selected test files differ from measured weights: missing/extra/unmodeled"
+        )
+    return result
+
+
+def effective_file_weights(weights: dict[str, Any], selected_files: set[str]) -> dict[str, int]:
+    """Historical base/bootstrap evidence never participates in active scheduling."""
+    result = validate_weights(weights, selected_files)
     evidence = [
         {"file": file, "weight_milliseconds": milliseconds}
         for file, milliseconds in sorted(result.items())
     ]
     if (
         len(result) != 63
-        or sum(result.values()) != 7733243
-        or digest(evidence) != EFFECTIVE_WEIGHTS_DIGEST
+        or sum(result.values()) != TOTAL_WEIGHT_MILLISECONDS
+        or digest(evidence) != MEASURED_EFFECTIVE_WEIGHTS_DIGEST
     ):
-        raise ProofError("wrong effective C08 scheduling evidence")
-    if selected_files != set(result):
-        raise ProofError(
-            "selected test files differ from effective weights: missing/extra/unmodeled"
-        )
+        raise ProofError("wrong effective measured scheduling evidence")
     return result
 
 
@@ -407,11 +492,12 @@ def build_plan(
     sha(head, 40)
     selected = nodes(selected, repo)
     enforce_entry(selected, baseline)
+    if len(selected) != CURRENT_NODE_COUNT or digest(selected) != CURRENT_NODES_DIGEST:
+        raise ProofError("DEVCTRL-03 exact collection mismatch: added/removed/renamed node")
     grouped: dict[str, list[str]] = {}
     for node in selected:
         grouped.setdefault(node.split("::", 1)[0], []).append(node)
-    bootstrap = read_json(BOOTSTRAP)
-    by_weight = effective_file_weights(weights, set(grouped), bootstrap)
+    by_weight = effective_file_weights(weights, set(grouped))
     effective = [
         {"file": file, "weight_milliseconds": milliseconds}
         for file, milliseconds in sorted(by_weight.items())
@@ -458,9 +544,9 @@ def build_plan(
             "pytest_version": pytest.__version__,
             "shard_count": SHARD_COUNT,
             "weights_sha256": weights["weights_sha256"],
-            "base_weights_sha256": weights["weights_sha256"],
-            "bootstrap_weights_sha256": bootstrap["bootstrap_sha256"],
-            "effective_file_weights_sha256": digest(effective),
+            "measured_weights_sha256": weights["weights_sha256"],
+            "measured_file_weights_sha256": digest(effective),
+            "measured_total_weight_milliseconds": sum(by_weight.values()),
             "entry_baseline_nodeids_sha256": baseline["nodeids_sha256"],
             "collected_node_count": len(selected),
             "collected_nodeids": selected,
@@ -502,9 +588,9 @@ def plan_summary(plan: dict[str, Any]) -> dict[str, Any]:
             "schema_version",
             "head_sha",
             "plan_sha256",
-            "base_weights_sha256",
-            "bootstrap_weights_sha256",
-            "effective_file_weights_sha256",
+            "measured_weights_sha256",
+            "measured_file_weights_sha256",
+            "measured_total_weight_milliseconds",
             "weights_sha256",
             "entry_baseline_nodeids_sha256",
             "collected_node_count",
@@ -513,7 +599,6 @@ def plan_summary(plan: dict[str, Any]) -> dict[str, Any]:
     } | {
         "entry_no_loss": "PASS",
         "selected_file_count": len(plan["files"]),
-        "effective_total_weight_milliseconds": 7733243,
         "shards": [
             {
                 key: item[key]

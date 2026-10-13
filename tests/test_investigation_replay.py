@@ -11,6 +11,7 @@ import io
 import json
 import os
 import random
+import re
 import secrets
 import socket
 import sqlite3
@@ -83,6 +84,7 @@ C08_SOURCE_BLOBS = {
     "src/flowlens/investigation/c08_replay.py": "4fa391cf751377305315b7de8303ce94e6eb6c6e",
 }
 ENTRY_SHA = "9afc4bd047bd4e52dfc4956f16e6420b3762301f"
+DEVCTRL_03_ENTRY_SHA = "a18e7f0733079ecc9aebdd94458625011e2f93f9"
 LIMITATIONS = (
     "C08_FROZEN_ARTIFACT_REPLAY_ONLY",
     "C08_HUMAN_NOTE_NON_EVIDENCE",
@@ -1172,6 +1174,39 @@ def test_r39_r40_r42_live_external_traps_no_refresh_or_operational_mutation(
     assert not touched and current_database["current_version"] == "changed-again-after-capture"
 
 
+def _devctrl03_workflow_delta_guard() -> None:
+    """Admit only the exact Human-authorized non-integration timeout delta."""
+    path = ".github/workflows/ci.yml"
+    for revision in (DEVCTRL_03_ENTRY_SHA, "HEAD"):
+        assert _git("ls-tree", "-r", "--name-only", revision, "--", ".github/workflows") == path
+    entry = subprocess.run(
+        ["git", "show", DEVCTRL_03_ENTRY_SHA + ":" + path], cwd=ROOT,
+        capture_output=True, check=True,
+    ).stdout
+    job_header = b"  non-integration:\n"
+    assert entry.count(job_header) == 1
+    start = entry.index(job_header)
+    next_job = re.search(rb"(?m)^  [a-z][a-z0-9-]*:\n", entry[start + len(job_header):])
+    assert next_job is not None
+    end = start + len(job_header) + next_job.start()
+    job = entry[start:end]
+    old = b"    timeout-minutes: 55\n"
+    new = b"    timeout-minutes: 65\n"
+    assert job.count(old) == 1 and new not in job
+    assert len(re.findall(rb"(?m)^    timeout-minutes: [0-9]+$", job)) == 1
+    expected = entry[:start] + job.replace(old, new, 1) + entry[end:]
+    current = subprocess.run(
+        ["git", "show", "HEAD:" + path], cwd=ROOT, capture_output=True, check=True,
+    ).stdout
+    assert current == expected
+    assert not _git("diff", "HEAD", "--", ".github/workflows")
+    for invariant in (
+        b"      fail-fast: false\n", b"      max-parallel: 7\n",
+        b"        shard: [0, 1, 2, 3, 4, 5, 6]\n",
+    ):
+        assert job.count(invariant) == 1
+
+
 def test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchanged() -> None:
     manifest = json.loads((ROOT / "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json").read_bytes())
     entry = json.loads(_git("show", ENTRY_SHA + ":docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json"))
@@ -1216,7 +1251,6 @@ def test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchan
         "migrations",
         "apps",
         "docs/w03",
-        ".github/workflows",
         "pyproject.toml",
         "uv.lock",
         "docker-compose.yml",
@@ -1229,6 +1263,7 @@ def test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchan
     ):
         assert _git("rev-parse", "HEAD:" + path) == _git("rev-parse", ENTRY_SHA + ":" + path)
         assert not _git("diff", "HEAD", "--", path)
+    _devctrl03_workflow_delta_guard()
 
 
 FULL_JOBS = frozenset(
@@ -1377,10 +1412,19 @@ def test_r46_stage_b_exact_sha_full_native_ci(tmp_path: Path) -> None:
         "tests/test_ci_test_sharding.py",
     }
     assert len(plan["files"]) == 63
-    assert plan["schema_version"] == "w04-devctrl02-non-integration-plan-v2"
-    assert plan["base_weights_sha256"] == planner.BASE_WEIGHTS_DIGEST
-    assert plan["bootstrap_weights_sha256"] == planner.BOOTSTRAP_DIGEST
-    assert plan["effective_file_weights_sha256"] == planner.EFFECTIVE_WEIGHTS_DIGEST
+    assert plan["schema_version"] == "w04-devctrl03-non-integration-plan-v1"
+    assert planner.WEIGHTS.relative_to(ROOT).as_posix() == (
+        "docs/w04/devctrl-03/W04_DEVCTRL_03_MEASURED_SHARD_WEIGHTS.json"
+    )
+    assert (
+        weights["weights_sha256"] == planner.MEASURED_WEIGHTS_DIGEST
+        == plan["weights_sha256"] == plan["measured_weights_sha256"]
+    )
+    measured = planner.validate_weights(weights, {file["file"] for file in plan["files"]})
+    assert len(measured) == 63 and sum(measured.values()) == 9645665
+    assert plan["measured_file_weights_sha256"] == planner.MEASURED_EFFECTIVE_WEIGHTS_DIGEST
+    assert plan["measured_total_weight_milliseconds"] == 9645665
+    assert not {"base_weights_sha256", "bootstrap_weights_sha256"} & set(plan)
     rebuilt = verifier.aggregate(
         plan, directory / "shards", "nonint-shard", tmp_path / "reaggregated"
     )

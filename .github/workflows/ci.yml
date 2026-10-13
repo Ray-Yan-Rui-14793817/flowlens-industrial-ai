@@ -337,7 +337,7 @@ jobs:
     needs: [classify-change, static-and-plan]
     if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
     runs-on: ubuntu-latest
-    timeout-minutes: 55
+    timeout-minutes: 65
     strategy:
       fail-fast: false
       max-parallel: 7

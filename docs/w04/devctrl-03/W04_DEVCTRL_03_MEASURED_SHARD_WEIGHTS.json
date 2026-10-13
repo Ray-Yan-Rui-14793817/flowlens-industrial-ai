@@ -1,0 +1,677 @@
+{
+  "derivation_method": "Exact median of per-file JUnit testcase-duration sums from successful full exact-SHA runs #129, #132 and #133, in that order, with identical 2997-node collection. Integer millisecond arithmetic; no averaging, smoothing or overrides.",
+  "entry_baseline_nodeids_sha256": "4f74c17af44363fe14bbda36dd4bb5f2166162d941291bf8e383a29532349c3d",
+  "file_weights": [
+    {
+      "file": "tests/integration/test_database.py",
+      "observed_max_seconds": 0.005,
+      "samples_seconds": [
+        0.005,
+        0.004,
+        0.004
+      ],
+      "weight_seconds": 0.004
+    },
+    {
+      "file": "tests/test_alembic.py",
+      "observed_max_seconds": 0.002,
+      "samples_seconds": [
+        0.002,
+        0.002,
+        0.002
+      ],
+      "weight_seconds": 0.002
+    },
+    {
+      "file": "tests/test_api.py",
+      "observed_max_seconds": 0.092,
+      "samples_seconds": [
+        0.092,
+        0.087,
+        0.075
+      ],
+      "weight_seconds": 0.087
+    },
+    {
+      "file": "tests/test_c03_diagnosis.py",
+      "observed_max_seconds": 3.358,
+      "samples_seconds": [
+        3.192,
+        3.17,
+        3.358
+      ],
+      "weight_seconds": 3.192
+    },
+    {
+      "file": "tests/test_c03_harness.py",
+      "observed_max_seconds": 7.2,
+      "samples_seconds": [
+        7.2,
+        4.735,
+        3.825
+      ],
+      "weight_seconds": 4.735
+    },
+    {
+      "file": "tests/test_c03_policy_contract.py",
+      "observed_max_seconds": 0.002,
+      "samples_seconds": [
+        0.002,
+        0.001,
+        0.0
+      ],
+      "weight_seconds": 0.001
+    },
+    {
+      "file": "tests/test_c03_signals.py",
+      "observed_max_seconds": 12.166,
+      "samples_seconds": [
+        12.144,
+        12.166,
+        5.815
+      ],
+      "weight_seconds": 12.144
+    },
+    {
+      "file": "tests/test_c04_harness.py",
+      "observed_max_seconds": 16.43,
+      "samples_seconds": [
+        7.544,
+        15.777,
+        16.43
+      ],
+      "weight_seconds": 15.777
+    },
+    {
+      "file": "tests/test_c04_registry.py",
+      "observed_max_seconds": 2.565,
+      "samples_seconds": [
+        1.038,
+        2.565,
+        2.513
+      ],
+      "weight_seconds": 2.513
+    },
+    {
+      "file": "tests/test_c04_scenario_adapter_compat.py",
+      "observed_max_seconds": 2.438,
+      "samples_seconds": [
+        2.318,
+        2.438,
+        1.529
+      ],
+      "weight_seconds": 2.318
+    },
+    {
+      "file": "tests/test_c04_simulation.py",
+      "observed_max_seconds": 22.245,
+      "samples_seconds": [
+        22.245,
+        16.708,
+        13.47
+      ],
+      "weight_seconds": 16.708
+    },
+    {
+      "file": "tests/test_c05_harness.py",
+      "observed_max_seconds": 64.731,
+      "samples_seconds": [
+        26.741,
+        62.897,
+        64.731
+      ],
+      "weight_seconds": 62.897
+    },
+    {
+      "file": "tests/test_c05_packet.py",
+      "observed_max_seconds": 27.496,
+      "samples_seconds": [
+        27.496,
+        18.798,
+        21.255
+      ],
+      "weight_seconds": 21.255
+    },
+    {
+      "file": "tests/test_c05_policy.py",
+      "observed_max_seconds": 26.328,
+      "samples_seconds": [
+        26.328,
+        17.831,
+        14.689
+      ],
+      "weight_seconds": 17.831
+    },
+    {
+      "file": "tests/test_c05_recommendation.py",
+      "observed_max_seconds": 32.035,
+      "samples_seconds": [
+        13.437,
+        31.724,
+        32.035
+      ],
+      "weight_seconds": 31.724
+    },
+    {
+      "file": "tests/test_c06_harness.py",
+      "observed_max_seconds": 3.392,
+      "samples_seconds": [
+        1.413,
+        3.311,
+        3.392
+      ],
+      "weight_seconds": 3.311
+    },
+    {
+      "file": "tests/test_c06_human.py",
+      "observed_max_seconds": 65.279,
+      "samples_seconds": [
+        34.253,
+        65.279,
+        35.806
+      ],
+      "weight_seconds": 35.806
+    },
+    {
+      "file": "tests/test_c06_policy.py",
+      "observed_max_seconds": 0.0,
+      "samples_seconds": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "weight_seconds": 0.0
+    },
+    {
+      "file": "tests/test_c06_store.py",
+      "observed_max_seconds": 63.651,
+      "samples_seconds": [
+        63.651,
+        42.609,
+        47.428
+      ],
+      "weight_seconds": 47.428
+    },
+    {
+      "file": "tests/test_c07_harness.py",
+      "observed_max_seconds": 242.578,
+      "samples_seconds": [
+        130.383,
+        242.578,
+        132.577
+      ],
+      "weight_seconds": 132.577
+    },
+    {
+      "file": "tests/test_c07_policy.py",
+      "observed_max_seconds": 305.65,
+      "samples_seconds": [
+        303.579,
+        305.65,
+        150.216
+      ],
+      "weight_seconds": 303.579
+    },
+    {
+      "file": "tests/test_c07_recommendation.py",
+      "observed_max_seconds": 166.506,
+      "samples_seconds": [
+        71.597,
+        166.506,
+        162.077
+      ],
+      "weight_seconds": 162.077
+    },
+    {
+      "file": "tests/test_c07_replay.py",
+      "observed_max_seconds": 212.777,
+      "samples_seconds": [
+        212.777,
+        145.247,
+        157.283
+      ],
+      "weight_seconds": 157.283
+    },
+    {
+      "file": "tests/test_c08_context.py",
+      "observed_max_seconds": 4.011,
+      "samples_seconds": [
+        4.011,
+        2.757,
+        2.903
+      ],
+      "weight_seconds": 2.903
+    },
+    {
+      "file": "tests/test_c08_explanation.py",
+      "observed_max_seconds": 74.5,
+      "samples_seconds": [
+        38.616,
+        74.5,
+        40.154
+      ],
+      "weight_seconds": 40.154
+    },
+    {
+      "file": "tests/test_c08_harness.py",
+      "observed_max_seconds": 11.84,
+      "samples_seconds": [
+        6.128,
+        11.84,
+        6.551
+      ],
+      "weight_seconds": 6.551
+    },
+    {
+      "file": "tests/test_c08_prompt.py",
+      "observed_max_seconds": 0.001,
+      "samples_seconds": [
+        0.001,
+        0.0,
+        0.0
+      ],
+      "weight_seconds": 0.0
+    },
+    {
+      "file": "tests/test_c08_provider.py",
+      "observed_max_seconds": 1.77,
+      "samples_seconds": [
+        1.77,
+        1.18,
+        1.38
+      ],
+      "weight_seconds": 1.38
+    },
+    {
+      "file": "tests/test_c08_template.py",
+      "observed_max_seconds": 9.497,
+      "samples_seconds": [
+        4.387,
+        9.497,
+        9.342
+      ],
+      "weight_seconds": 9.342
+    },
+    {
+      "file": "tests/test_c08_validation.py",
+      "observed_max_seconds": 114.707,
+      "samples_seconds": [
+        49.086,
+        114.707,
+        112.157
+      ],
+      "weight_seconds": 112.157
+    },
+    {
+      "file": "tests/test_c09_ci_gate.py",
+      "observed_max_seconds": 5.35,
+      "samples_seconds": [
+        5.144,
+        5.203,
+        5.35
+      ],
+      "weight_seconds": 5.203
+    },
+    {
+      "file": "tests/test_capacity_scenario.py",
+      "observed_max_seconds": 33.628,
+      "samples_seconds": [
+        21.484,
+        33.628,
+        31.304
+      ],
+      "weight_seconds": 31.304
+    },
+    {
+      "file": "tests/test_ci_change_classifier.py",
+      "observed_max_seconds": 0.471,
+      "samples_seconds": [
+        0.33,
+        0.471,
+        0.351
+      ],
+      "weight_seconds": 0.351
+    },
+    {
+      "file": "tests/test_ci_publication_gate.py",
+      "observed_max_seconds": 1.128,
+      "samples_seconds": [
+        0.848,
+        1.101,
+        1.128
+      ],
+      "weight_seconds": 1.101
+    },
+    {
+      "file": "tests/test_ci_test_sharding.py",
+      "observed_max_seconds": 47.403,
+      "samples_seconds": [
+        45.723,
+        47.403,
+        24.738
+      ],
+      "weight_seconds": 45.723
+    },
+    {
+      "file": "tests/test_config.py",
+      "observed_max_seconds": 0.003,
+      "samples_seconds": [
+        0.003,
+        0.003,
+        0.003
+      ],
+      "weight_seconds": 0.003
+    },
+    {
+      "file": "tests/test_data.py",
+      "observed_max_seconds": 0.538,
+      "samples_seconds": [
+        0.538,
+        0.527,
+        0.444
+      ],
+      "weight_seconds": 0.527
+    },
+    {
+      "file": "tests/test_data_workflow.py",
+      "observed_max_seconds": 13.169,
+      "samples_seconds": [
+        8.155,
+        13.169,
+        9.467
+      ],
+      "weight_seconds": 9.467
+    },
+    {
+      "file": "tests/test_db.py",
+      "observed_max_seconds": 0.08,
+      "samples_seconds": [
+        0.048,
+        0.08,
+        0.071
+      ],
+      "weight_seconds": 0.071
+    },
+    {
+      "file": "tests/test_decision_context.py",
+      "observed_max_seconds": 0.956,
+      "samples_seconds": [
+        0.897,
+        0.896,
+        0.956
+      ],
+      "weight_seconds": 0.897
+    },
+    {
+      "file": "tests/test_decision_contracts.py",
+      "observed_max_seconds": 0.228,
+      "samples_seconds": [
+        0.124,
+        0.228,
+        0.13
+      ],
+      "weight_seconds": 0.13
+    },
+    {
+      "file": "tests/test_decision_evidence.py",
+      "observed_max_seconds": 2.12,
+      "samples_seconds": [
+        2.102,
+        2.12,
+        1.076
+      ],
+      "weight_seconds": 2.102
+    },
+    {
+      "file": "tests/test_decision_serialization.py",
+      "observed_max_seconds": 0.041,
+      "samples_seconds": [
+        0.041,
+        0.028,
+        0.034
+      ],
+      "weight_seconds": 0.034
+    },
+    {
+      "file": "tests/test_decision_snapshot.py",
+      "observed_max_seconds": 0.102,
+      "samples_seconds": [
+        0.102,
+        0.068,
+        0.085
+      ],
+      "weight_seconds": 0.085
+    },
+    {
+      "file": "tests/test_decision_temporal.py",
+      "observed_max_seconds": 3.351,
+      "samples_seconds": [
+        1.731,
+        3.351,
+        1.819
+      ],
+      "weight_seconds": 1.819
+    },
+    {
+      "file": "tests/test_generation.py",
+      "observed_max_seconds": 2.085,
+      "samples_seconds": [
+        2.085,
+        1.937,
+        1.657
+      ],
+      "weight_seconds": 1.937
+    },
+    {
+      "file": "tests/test_hgt_serialization.py",
+      "observed_max_seconds": 5.353,
+      "samples_seconds": [
+        2.858,
+        5.353,
+        4.65
+      ],
+      "weight_seconds": 4.65
+    },
+    {
+      "file": "tests/test_investigation_case_binding.py",
+      "observed_max_seconds": 41.577,
+      "samples_seconds": [
+        41.577,
+        28.557,
+        31.31
+      ],
+      "weight_seconds": 31.31
+    },
+    {
+      "file": "tests/test_investigation_contracts.py",
+      "observed_max_seconds": 9.962,
+      "samples_seconds": [
+        9.522,
+        9.581,
+        9.962
+      ],
+      "weight_seconds": 9.581
+    },
+    {
+      "file": "tests/test_investigation_evidence_navigation.py",
+      "observed_max_seconds": 87.463,
+      "samples_seconds": [
+        86.739,
+        87.463,
+        42.194
+      ],
+      "weight_seconds": 86.739
+    },
+    {
+      "file": "tests/test_investigation_evidence_queries.py",
+      "observed_max_seconds": 72.483,
+      "samples_seconds": [
+        30.778,
+        72.483,
+        70.781
+      ],
+      "weight_seconds": 70.781
+    },
+    {
+      "file": "tests/test_investigation_findings.py",
+      "observed_max_seconds": 1118.079,
+      "samples_seconds": [
+        1047.13,
+        1056.117,
+        1118.079
+      ],
+      "weight_seconds": 1056.117
+    },
+    {
+      "file": "tests/test_investigation_human.py",
+      "observed_max_seconds": 1009.817,
+      "samples_seconds": [
+        418.256,
+        988.39,
+        1009.817
+      ],
+      "weight_seconds": 988.39
+    },
+    {
+      "file": "tests/test_investigation_human_store.py",
+      "observed_max_seconds": 1825.75,
+      "samples_seconds": [
+        754.561,
+        1825.75,
+        1784.313
+      ],
+      "weight_seconds": 1784.313
+    },
+    {
+      "file": "tests/test_investigation_planning.py",
+      "observed_max_seconds": 440.169,
+      "samples_seconds": [
+        440.169,
+        296.938,
+        324.618
+      ],
+      "weight_seconds": 324.618
+    },
+    {
+      "file": "tests/test_investigation_replay.py",
+      "observed_max_seconds": 3082.523,
+      "samples_seconds": [
+        3082.523,
+        2040.544,
+        1658.888
+      ],
+      "weight_seconds": 2040.544
+    },
+    {
+      "file": "tests/test_investigation_summary.py",
+      "observed_max_seconds": 1633.554,
+      "samples_seconds": [
+        1624.916,
+        1633.554,
+        769.713
+      ],
+      "weight_seconds": 1624.916
+    },
+    {
+      "file": "tests/test_investigation_summary_provider.py",
+      "observed_max_seconds": 530.744,
+      "samples_seconds": [
+        280.209,
+        530.744,
+        282.198
+      ],
+      "weight_seconds": 282.198
+    },
+    {
+      "file": "tests/test_models.py",
+      "observed_max_seconds": 0.441,
+      "samples_seconds": [
+        0.441,
+        0.384,
+        0.367
+      ],
+      "weight_seconds": 0.384
+    },
+    {
+      "file": "tests/test_scenario_interventions.py",
+      "observed_max_seconds": 26.95,
+      "samples_seconds": [
+        25.929,
+        26.132,
+        26.95
+      ],
+      "weight_seconds": 26.132
+    },
+    {
+      "file": "tests/test_scenarios.py",
+      "observed_max_seconds": 1.417,
+      "samples_seconds": [
+        0.817,
+        1.417,
+        1.405
+      ],
+      "weight_seconds": 1.405
+    },
+    {
+      "file": "tests/test_w04_source_evolution.py",
+      "observed_max_seconds": 7.339,
+      "samples_seconds": [
+        7.094,
+        7.339,
+        4.665
+      ],
+      "weight_seconds": 7.094
+    },
+    {
+      "file": "tests/test_worker.py",
+      "observed_max_seconds": 0.003,
+      "samples_seconds": [
+        0.003,
+        0.003,
+        0.002
+      ],
+      "weight_seconds": 0.003
+    }
+  ],
+  "marker_expression": "not integration",
+  "schema_version": "w04-devctrl03-measured-shard-weights-v1",
+  "selected_file_count": 63,
+  "selected_files_sha256": "890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7",
+  "shard_count": 7,
+  "source_collected_node_count": 2997,
+  "source_collected_nodeids_sha256": "9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a",
+  "source_runs": [
+    {
+      "aggregate_artifact_id": 11708692092,
+      "aggregate_zip_sha256": "cea81ba21787d1c8e8d32591a36ef6a6336e163c6c135bb2b26d608ca6122685",
+      "head_sha": "1fa7b505980c1efc1b3725cd57a9732e254bccdf",
+      "junit_sha256": "0c4f2633c1e43fe6c2f3e868b59eb7509c1f7393d001cf038650d655a7564875",
+      "plan_sha256": "bd2c2c6bf0839bb98f42009f31c86232e68cfe481df3c46f381dfc7224d11a92",
+      "receipt_sha256": "d0b14deb926bc021dddf2a88c68de506079f5c87889528024e304c1413c5b675",
+      "run_id": 38153792599,
+      "run_number": 129
+    },
+    {
+      "aggregate_artifact_id": 11725204097,
+      "aggregate_zip_sha256": "c0721ca64c9d2e59e59560681c5531e840768a623ed4ee07b612104002ad9c58",
+      "head_sha": "0047bb942e8e4227af8d6fb5c9a4763688a22aab",
+      "junit_sha256": "d2f5ea4e07c48ff1891cd45cd51a3056f96d538d6916a98470c4dbab6258a4de",
+      "plan_sha256": "99d5c25805edf5904acde6b4fda39f92883c9f4323990aa0547f675b4580ca43",
+      "receipt_sha256": "f848f66caa0c4fde2bc4d1ab463dc658709af8e57aea5aeaac72ddcdeac132e5",
+      "run_id": 38200544252,
+      "run_number": 132
+    },
+    {
+      "aggregate_artifact_id": 11727789439,
+      "aggregate_zip_sha256": "d4329c5f686d3ec027b8b3aace75f58d4614225f286e629dbedb0664d7b1c1c8",
+      "head_sha": "a18e7f0733079ecc9aebdd94458625011e2f93f9",
+      "junit_sha256": "a18e886433b2d737ac071bfbb5959d8c76349633923eb998b41cc58bee4846e5",
+      "plan_sha256": "45b28233eb71574b78ae737366bbdd5561a2a8e6ed28dae5cff81fd453a38c36",
+      "receipt_sha256": "3762f815e9cee1bf5773ea10092fd02d86a89c27a662e74ee37cd954bf0fb78a",
+      "run_id": 38205524984,
+      "run_number": 133
+    }
+  ],
+  "total_weight_seconds": 9645.665,
+  "weights_sha256": "a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851"
+}

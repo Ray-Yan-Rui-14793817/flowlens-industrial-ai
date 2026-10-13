@@ -1,4 +1,4 @@
-"""DEVCTRL-02 direct collection, scheduling, receipt and fail-closed transport proofs."""
+"""DEVCTRL-03 measured scheduling, exact collection and fail-closed transport proofs."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ import subprocess
 import sys
 import textwrap
 import xml.etree.ElementTree as ET
+from functools import cache
 from pathlib import Path
 from typing import Any
 
@@ -44,15 +45,16 @@ def plan(baseline: dict[str, Any], weights: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+@cache
+def _current_nodes() -> tuple[str, ...]:
+    return tuple(planner.collect_nodes(planner.MARKER))
+
+
 def _plan_nodes(baseline: dict[str, Any]) -> list[str]:
-    # Synthetic nodes exercise admission and receipts without altering real collection.
-    return sorted(
-        baseline["sorted_nodeids"]
-        + [
-            "tests/test_ci_test_sharding.py::c08_ci_fixture",
-            "tests/test_investigation_replay.py::c08_replay_fixture",
-        ]
-    )
+    # The active measured contract admits exactly the real 2997-node collection.
+    selected = list(_current_nodes())
+    planner.enforce_entry(selected, baseline)
+    return selected
 
 
 def reseal(document: dict[str, Any], key: str) -> dict[str, Any]:
@@ -114,42 +116,52 @@ def four_receipts(directory: Path, plan: dict[str, Any]) -> None:
 
 
 def test_weight_source_and_correct_progress_attribution(weights: dict[str, Any]) -> None:
-    # Preserve this historical node ID while replacing its obsolete timing-source assertion.
     by_file = planner.validate_weights(weights)
-    assert weights["schema_version"] == "w04-devctrl02-test-weights-v2"
-    assert weights["source_run_number"] == 122 and weights["source_run_id"] == 37889883403
-    assert weights["source_sha"] == "9d5b6e3baea1a860446b70d9b254cc3dc41815a4"
-    assert weights["total_weight_seconds"] == 6671.752
-    assert len(by_file) == 62 and sum(by_file.values()) == 6671752
-    assert by_file["tests/test_investigation_findings.py"] == 1061491
-    assert by_file["tests/test_investigation_human.py"] == 1014403
-    assert by_file["tests/test_investigation_human_store.py"] == 736120
-    assert by_file["tests/test_ci_test_sharding.py"] == 30045
-    assert by_file["tests/test_c06_policy.py"] == 0
-    assert [item["artifact_id"] for item in weights["source_artifacts"]] == [
-        11599246530,
-        11598633083,
-        11598796165,
-        11598701090,
+    assert weights["schema_version"] == "w04-devctrl03-measured-shard-weights-v1"
+    assert [(s["run_number"], s["run_id"]) for s in weights["source_runs"]] == [
+        (129, 38153792599), (132, 38200544252), (133, 38205524984),
     ]
-    assert sum(item["node_count"] for item in weights["source_artifacts"]) == 2807
+    assert [s["aggregate_artifact_id"] for s in weights["source_runs"]] == [
+        11708692092, 11725204097, 11727789439,
+    ]
+    assert weights["source_collected_node_count"] == 2997
+    assert weights["source_collected_nodeids_sha256"] == planner.CURRENT_NODES_DIGEST
+    assert weights["weights_sha256"] == planner.MEASURED_WEIGHTS_DIGEST
+    assert weights["total_weight_seconds"] == 9645.665
+    assert len(by_file) == 63 and sum(by_file.values()) == 9645665
+    assert weights["derivation_method"] == planner.WEIGHT_DERIVATION
+    hot = next(i for i in weights["file_weights"] if i["file"] ==
+               "tests/test_investigation_replay.py")
+    assert hot["samples_seconds"] == [3082.523, 2040.544, 1658.888]
+    assert hot["weight_seconds"] == 2040.544 and hot["observed_max_seconds"] == 3082.523
+    assert by_file["tests/test_investigation_human_store.py"] == 1784313
+    assert by_file["tests/test_investigation_summary.py"] == 1624916
+    assert by_file["tests/test_investigation_findings.py"] == 1056117
     assert not {"step_start_timestamp", "default_unseen_file_weight_seconds"} & set(weights)
-    assert all(set(item) == {"file", "weight_seconds"} for item in weights["file_weights"])
-    for selected in (
-        set(by_file) - {"tests/test_ci_test_sharding.py"},
-        set(by_file) | {"tests/unmodeled.py"},
-    ):
+    assert all(set(item) == {"file", "samples_seconds", "weight_seconds",
+                             "observed_max_seconds"} for item in weights["file_weights"])
+    for selected in (set(by_file) - {"tests/test_ci_test_sharding.py"},
+                     set(by_file) | {"tests/unmodeled.py"}):
         with pytest.raises(planner.ProofError, match="missing/extra/unmodeled"):
             planner.validate_weights(weights, selected)
-    for field, wrong in (
-        ("artifact_id", 0),
-        ("junit_sha256", "0" * 64),
-        ("receipt_sha256", "0" * 64),
-        ("node_count", 1047),
-        ("shard_id", 1),
-    ):
+    for field, wrong in (("aggregate_artifact_id", 0), ("junit_sha256", "0" * 64),
+                         ("receipt_sha256", "0" * 64), ("head_sha", "0" * 40),
+                         ("aggregate_zip_sha256", "0" * 64), ("plan_sha256", "0" * 64)):
         damaged = copy.deepcopy(weights)
-        damaged["source_artifacts"][0][field] = wrong
+        damaged["source_runs"][0][field] = wrong
+        with pytest.raises(planner.ProofError):
+            planner.validate_weights(reseal(damaged, "weights_sha256"))
+    for invalid_weight in (True, "1", -1, float("nan"), float("inf"), 0.0001):
+        with pytest.raises(planner.ProofError):
+            planner.weight_milliseconds(invalid_weight)
+    for invalid_samples in ([], [1, 2], [1, 2, 3, 4], [0.0001, 2, 3], [3, 2, 1]):
+        damaged = copy.deepcopy(weights)
+        damaged["file_weights"][0]["samples_seconds"] = invalid_samples
+        with pytest.raises(planner.ProofError):
+            planner.validate_weights(reseal(damaged, "weights_sha256"))
+    for field in ("weight_seconds", "observed_max_seconds"):
+        damaged = copy.deepcopy(weights)
+        damaged["file_weights"][0][field] += 0.001
         with pytest.raises(planner.ProofError):
             planner.validate_weights(reseal(damaged, "weights_sha256"))
 
@@ -234,25 +246,25 @@ def test_lpt_deterministic_four_shards_file_atomic_exact_union(
     assert planner.SHARD_COUNT == plan["shard_count"] == 7
     assert [s["shard_id"] for s in plan["shards"]] == list(range(7))
     assert [s["estimated_weight_seconds"] for s in plan["shards"]] == [
-        1104.721,
-        1104.704,
-        1104.862,
-        1104.732,
-        1104.747,
-        1104.742,
-        1104.735,
+        2040.544, 1784.313, 1624.916, 1056.117, 1046.586, 1046.586, 1046.603,
     ]
-    assert [s["file_count"] for s in plan["shards"]] == [6, 14, 6, 10, 10, 9, 8]
-    assert "tests/test_c06_policy.py" in plan["shards"][1]["files"]
-    assert sum(round(s["estimated_weight_seconds"] * 1000) for s in plan["shards"]) == 7733243
-    assert plan["base_weights_sha256"] == planner.BASE_WEIGHTS_DIGEST
-    assert plan["bootstrap_weights_sha256"] == planner.BOOTSTRAP_DIGEST
-    assert plan["effective_file_weights_sha256"] == planner.EFFECTIVE_WEIGHTS_DIGEST
+    assert [s["files"] for s in plan["shards"][:4]] == [
+        [f"tests/{name}.py"] for name in (
+            "test_investigation_replay", "test_investigation_human_store",
+            "test_investigation_summary", "test_investigation_findings",
+        )
+    ]
+    assert sum(round(s["estimated_weight_seconds"] * 1000) for s in plan["shards"]) == 9645665
+    assert plan["measured_total_weight_milliseconds"] == 9645665
+    assert plan["measured_weights_sha256"] == planner.MEASURED_WEIGHTS_DIGEST
+    assert plan["measured_file_weights_sha256"] == planner.MEASURED_EFFECTIVE_WEIGHTS_DIGEST
+    assert not {"base_weights_sha256", "bootstrap_weights_sha256"} & set(plan)
     files = [file for shard in plan["shards"] for file in shard["files"]]
     nodeids = [node for shard in plan["shards"] for node in shard["nodeids"]]
-    assert len(set(files)) == len(files) == len(plan["files"])
-    assert len(set(nodeids)) == len(nodeids) == plan["collected_node_count"]
+    assert len(set(files)) == len(files) == len(plan["files"]) == 63
+    assert len(set(nodeids)) == len(nodeids) == plan["collected_node_count"] == 2997
     assert sorted(nodeids) == plan["collected_nodeids"]
+    assert planner.digest(sorted(nodeids)) == planner.CURRENT_NODES_DIGEST
     for shard in plan["shards"]:
         assert {node.split("::", 1)[0] for node in shard["nodeids"]} == set(shard["files"])
         for other in plan["shards"]:
@@ -260,13 +272,10 @@ def test_lpt_deterministic_four_shards_file_atomic_exact_union(
                 assert not set(shard["nodeids"]) & set(other["nodeids"])
     heavy = sorted(plan["files"], key=lambda file: (-file["weight_seconds"], file["file"]))
     assert [file["shard_id"] for file in heavy[:7]] == list(range(7))
-    unseen = next(
-        file for file in plan["files"] if file["file"] == "tests/test_ci_test_sharding.py"
-    )
-    assert unseen["weight_seconds"] == 30.045
-    assert unseen["node_count"] == 1 + sum(
-        node.startswith("tests/test_ci_test_sharding.py::") for node in baseline["sorted_nodeids"]
-    )
+    ci_file = next(file for file in plan["files"] if file["file"] ==
+                   "tests/test_ci_test_sharding.py")
+    assert ci_file["weight_seconds"] == planner.validate_weights(weights)[ci_file["file"]] / 1000
+    assert ci_file["node_count"] == 103
     planner.validate_plan(plan, weights, baseline, planner.ENTRY_SHA)
 
 
@@ -276,7 +285,7 @@ def test_lpt_path_then_lowest_shard_tie_break(
     monkeypatch.setattr(
         planner,
         "effective_file_weights",
-        lambda value, selected_files, bootstrap: {file: 1000 for file in selected_files},
+        lambda value, selected_files: {file: 1000 for file in selected_files},
     )
     result = planner.build_plan(_plan_nodes(baseline), weights, baseline, planner.ENTRY_SHA)
     assert [file["shard_id"] for file in result["files"]] == [
@@ -450,6 +459,7 @@ def test_real_pytest_terminal_outcomes_include_empty_xfail_and_strict_xpass(tmp_
     assigned = sorted(f"tests/test_fixture.py::test_{name}" for name in names)
     program = """
 import sys, json
+from functools import cache
 from pathlib import Path
 sys.path.insert(0, sys.argv[1])
 import pytest
@@ -775,7 +785,7 @@ def test_workflow_exact_transport_timeout_and_no_runtime_dependency_mutation() -
     authoritative = {
         "static-and-plan": 15,
         "integration-and-data": 25,
-        "non-integration": 55,
+        "non-integration": 65,
         "non-integration-aggregate": 10,
     }
     for name, timeout in authoritative.items():
@@ -845,36 +855,48 @@ def test_c08_r44_active_entry_is_exact_native_126(baseline: dict[str, Any]) -> N
 
 
 def test_c08_r45_sealed_bootstrap_effective_weights_and_no_mutation(
-    weights: dict[str, Any], plan: dict[str, Any]
+    weights: dict[str, Any], plan: dict[str, Any], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     before = planner.canonical(weights)
+    historical = planner.read_json(planner.HISTORICAL_WEIGHTS)
     bootstrap = planner.read_json(planner.BOOTSTRAP)
+    saved_historical = planner.canonical(historical)
     saved_bootstrap = planner.canonical(bootstrap)
-    result = planner.effective_file_weights(
-        weights, {item["file"] for item in plan["files"]}, bootstrap
-    )
+    admitted = planner.validate_bootstrap(bootstrap, historical)
+    assert historical["weights_sha256"] == planner.BASE_WEIGHTS_DIGEST
+    assert bootstrap["bootstrap_sha256"] == planner.BOOTSTRAP_DIGEST
+    assert admitted == {"tests/test_investigation_replay.py": 1061491}
+    historical_effective = planner.validate_historical_weights(historical) | admitted
+    assert sum(historical_effective.values()) == 7733243
+    assert planner.digest([
+        {"file": file, "weight_milliseconds": ms}
+        for file, ms in sorted(historical_effective.items())
+    ]) == planner.EFFECTIVE_WEIGHTS_DIGEST
+    result = planner.effective_file_weights(weights, {item["file"] for item in plan["files"]})
+    assert result == planner.validate_weights(weights)
+    assert len(result) == 63 and sum(result.values()) == 9645665
+    assert result["tests/test_investigation_replay.py"] == 2040544
     assert planner.canonical(weights) == before
+    assert planner.canonical(historical) == saved_historical
     assert planner.canonical(bootstrap) == saved_bootstrap
-    assert weights["weights_sha256"] == (
-        "315675b184abd56422f469a44da5f840b40d82c3cfb272d46873afd7a8adacca"
-    )
-    assert bootstrap["bootstrap_sha256"] == (
-        "36f1d85e34344afee1f7e76b066427e4f40314c68f1d564340d82cc4dd44becb"
-    )
-    assert result == planner.validate_weights(weights) | {
-        "tests/test_investigation_replay.py": 1061491
-    }
-    assert len(result) == 63 and sum(result.values()) == 7733243
-    assert planner.digest(
-        [{"file": file, "weight_milliseconds": weight} for file, weight in sorted(result.items())]
-    ) == "352e6e1060bc1c2d5ce9a36fcad6cb9941e373bfae3da4d8a326d26a0d1f01c6"
-    assert plan["schema_version"] == "w04-devctrl02-non-integration-plan-v2"
-    assert plan["weights_sha256"] == plan["base_weights_sha256"] == weights["weights_sha256"]
+    assert plan["schema_version"] == "w04-devctrl03-non-integration-plan-v1"
+    assert plan["weights_sha256"] == plan["measured_weights_sha256"] == weights["weights_sha256"]
     assert plan["entry_baseline_nodeids_sha256"] == planner.ENTRY_DIGEST
-    assert not subprocess.run(
-        ["git", "diff", planner.ENTRY_SHA, "--", planner.WEIGHTS.relative_to(ROOT).as_posix()],
-        cwd=ROOT, capture_output=True, text=True, check=True,
-    ).stdout
+    for evidence_path in (planner.HISTORICAL_WEIGHTS, planner.BOOTSTRAP):
+        assert not subprocess.run(
+            ["git", "diff", "a18e7f0733079ecc9aebdd94458625011e2f93f9", "--",
+             evidence_path.relative_to(ROOT).as_posix()],
+            cwd=ROOT, capture_output=True, text=True, check=True,
+        ).stdout
+    read_json = planner.read_json
+
+    def active_only(path: Path) -> dict[str, Any]:
+        assert path not in {planner.HISTORICAL_WEIGHTS, planner.BOOTSTRAP}
+        return read_json(path)
+
+    monkeypatch.setattr(planner, "read_json", active_only)
+    assert planner.build_plan(plan["collected_nodeids"], weights,
+                              read_json(planner.BASELINE), plan["head_sha"]) == plan
 
 
 @pytest.mark.parametrize(
@@ -901,7 +923,7 @@ def test_c08_r45_bootstrap_tamper_fails_closed(weights: dict[str, Any], damage: 
     if damage != "seal":
         bootstrap = reseal(bootstrap, "bootstrap_sha256")
     with pytest.raises(planner.ProofError):
-        planner.validate_bootstrap(bootstrap, weights)
+        planner.validate_bootstrap(bootstrap, planner.read_json(planner.HISTORICAL_WEIGHTS))
 
 
 @pytest.mark.parametrize(
@@ -932,7 +954,6 @@ def test_c08_r45_effective_selection_fails_closed(
     weights: dict[str, Any], plan: dict[str, Any], damage: str
 ) -> None:
     selected = {item["file"] for item in plan["files"]}
-    bootstrap = planner.read_json(planner.BOOTSTRAP)
     if damage == "missing_bootstrap":
         selected.remove("tests/test_investigation_replay.py")
     elif damage == "extra_file":
@@ -940,10 +961,10 @@ def test_c08_r45_effective_selection_fails_closed(
     elif damage == "missing_base":
         selected.remove("tests/test_models.py")
     else:
-        bootstrap["files"][0]["weight_seconds"] += 0.0001
-        bootstrap = reseal(bootstrap, "bootstrap_sha256")
+        weights["file_weights"][0]["weight_seconds"] += 0.0001
+        weights = reseal(weights, "weights_sha256")
     with pytest.raises(planner.ProofError):
-        planner.effective_file_weights(weights, selected, bootstrap)
+        planner.effective_file_weights(weights, selected)
 
 
 def test_c08_r45_actual_collection_has_no_loss_and_only_two_added_node_files(
@@ -962,6 +983,15 @@ def test_c08_r45_actual_collection_has_no_loss_and_only_two_added_node_files(
     current_plan = planner.build_plan(current, weights, baseline, head)
     assert len(current_plan["files"]) == 63
     assert sorted(n for shard in current_plan["shards"] for n in shard["nodeids"]) == current
-    assert current_plan["collected_nodeids_sha256"] == planner.digest(current)
-    assert current_plan["effective_file_weights_sha256"] == planner.EFFECTIVE_WEIGHTS_DIGEST
+    assert len(current) == 2997
+    assert current_plan["collected_nodeids_sha256"] == planner.digest(current) == (
+        planner.CURRENT_NODES_DIGEST
+    )
+    for changed in (
+        sorted(current + ["tests/test_ci_test_sharding.py::unapproved_node"]),
+        [n for n in current if not n.startswith("tests/test_investigation_replay.py::")],
+    ):
+        with pytest.raises(planner.ProofError):
+            planner.build_plan(changed, weights, baseline, head)
+    assert current_plan["measured_file_weights_sha256"] == planner.MEASURED_EFFECTIVE_WEIGHTS_DIGEST
     assert len(planner.collect_nodes("integration")) == 70
