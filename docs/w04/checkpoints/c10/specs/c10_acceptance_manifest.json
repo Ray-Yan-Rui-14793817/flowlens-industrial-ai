@@ -1,0 +1,105 @@
+{
+  "bootstrap_subject": "ci(w04-c10): admit bounded acceptance lifecycle",
+  "checkpoint": "W04-C10",
+  "codex_may_decide_business_acceptance": false,
+  "contract_version": "W04-C10-A-V1.1",
+  "coverage_chain": [
+    "BIND",
+    "PLAN",
+    "NAVIGATE",
+    "FIND",
+    "CONFLICT",
+    "REVIEW",
+    "SUMMARIZE",
+    "REPLAY",
+    "REGRESS",
+    "PROTECT"
+  ],
+  "dimensions": [
+    {
+      "id": "A01",
+      "name": "CASE_TRACEABILITY"
+    },
+    {
+      "id": "A02",
+      "name": "INVESTIGATION_PLAN_CLARITY"
+    },
+    {
+      "id": "A03",
+      "name": "EVIDENCE_NAVIGATION_TRACEABILITY"
+    },
+    {
+      "id": "A04",
+      "name": "FINDING_FAITHFULNESS"
+    },
+    {
+      "id": "A05",
+      "name": "CONFLICT_AND_UNCERTAINTY_HONESTY"
+    },
+    {
+      "id": "A06",
+      "name": "HUMAN_REVIEW_CONTROL"
+    },
+    {
+      "id": "A07",
+      "name": "SUMMARY_FAITHFULNESS"
+    },
+    {
+      "id": "A08",
+      "name": "REPLAYABILITY_AND_AUDITABILITY"
+    },
+    {
+      "id": "A09",
+      "name": "REGRESSION_AND_PROTECTION_CONFIDENCE"
+    },
+    {
+      "id": "A10",
+      "name": "END_TO_END_INVESTIGATION_REVIEWABILITY"
+    }
+  ],
+  "entry_sha": "d33ee858fca8caaceba2ce60c045f7e4213c631a",
+  "gpt_may_decide_business_acceptance": false,
+  "human_acceptance_required": true,
+  "product_mode": "OFFLINE / SHADOW / HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST",
+  "schema_version": "w04-c10-acceptance-manifest-v1",
+  "stage_a_subject": "docs(w04-c10): prepare investigation business acceptance",
+  "stage_b_subject": "docs(w04-c10): publish business acceptance readiness proof",
+  "technical_status_values": [
+    "EVIDENCE_READY",
+    "EVIDENCE_GAP"
+  ],
+  "walkthroughs": [
+    {
+      "id": "W01",
+      "name": "DecisionPacket -> InvestigationCase"
+    },
+    {
+      "id": "W02",
+      "name": "Investigation Plan"
+    },
+    {
+      "id": "W03",
+      "name": "Authorized Evidence Navigation"
+    },
+    {
+      "id": "W04",
+      "name": "Findings / Conflicts / Unknowns"
+    },
+    {
+      "id": "W05",
+      "name": "Human Investigation Review"
+    },
+    {
+      "id": "W06",
+      "name": "Investigation Summary"
+    },
+    {
+      "id": "W07",
+      "name": "Protected Replay"
+    },
+    {
+      "id": "W08",
+      "name": "Regression / Protection"
+    }
+  ]
+}
