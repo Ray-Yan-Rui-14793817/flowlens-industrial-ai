@@ -156,6 +156,33 @@ C10_CLOSEOUT_SOURCE_ADDITIONS = (
 )
 
 
+W04_SPRINT_ENTRY_SHA = "232bfb390babce30417b8cdb9a6660663eb3c3f1"
+W04_SPRINT_CLOSEOUT_PREP_SUBJECT = "ci(w04): admit sprint closeout lifecycle"
+W04_SPRINT_FINAL_CLOSEOUT_SUBJECT = "docs(w04): close sprint and prepare PR #7 review"
+W04_SPRINT_FINAL_MODIFIED_PATHS = ("README.md", "AGENTS.md", "docs/CURRENT_STATE.md")
+W04_SPRINT_FINAL_ADDED_PATHS = (
+    "docs/w04/W04_GPT_INDEPENDENT_DEEP_REVIEW_R1.md",
+    "docs/w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md",
+    "docs/w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md",
+    "docs/w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md",
+    "docs/w04/W04_PR7_READINESS_REPORT.md",
+)
+W04_SPRINT_SOURCE_ADDITIONS = (
+    "W04_SPRINT_ENTRY_SHA",
+    "W04_SPRINT_CLOSEOUT_PREP_SUBJECT",
+    "W04_SPRINT_FINAL_CLOSEOUT_SUBJECT",
+    "W04_SPRINT_FINAL_MODIFIED_PATHS",
+    "W04_SPRINT_FINAL_ADDED_PATHS",
+    "W04_SPRINT_SOURCE_ADDITIONS",
+    "validate_w04_sprint_lifecycle",
+    "w04_sprint_prep_revision",
+    "validate_w04_sprint_verifier_sources",
+    "w04_sprint_verifier_blob_guard",
+    "check_w04_sprint_controls",
+)
+
+
+
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(message)
@@ -1041,13 +1068,15 @@ def c10_bootstrap_revision(repo: Path = ROOT) -> str:
             "C10_REVIEW_READY",
             "C10_CLOSEOUT_PREP_01",
             "C10_FINAL_CLOSEOUT",
+            "W04_SPRINT_CLOSEOUT_PREP_01",
+            "W04_SPRINT_FINAL_CLOSEOUT",
         },
         "no validated C10 Bootstrap",
     )
     revisions = (
         git("rev-list", "--reverse", C10_ENTRY_SHA + "..HEAD", repo=repo).decode().splitlines()
     )
-    require(1 <= len(revisions) <= 5, "invalid C10 Bootstrap derivation")
+    require(1 <= len(revisions) <= 7, "invalid C10 Bootstrap derivation")
     return revisions[0]
 
 
@@ -1307,6 +1336,8 @@ def validate_c10_closeout_lifecycle(
     history: list[dict[str, Any]], working: set[str], changed: set[str]
 ) -> str:
     """Admit only one Prep and its five-document Final after accepted C10 review."""
+    if len(history) > 9:
+        return validate_w04_sprint_lifecycle(history, working, changed)
     require(8 <= len(history) <= 9, "extra post-C10_FINAL_CLOSEOUT commit")
     base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
     base.update(C10_STAGE_A_PATHS)
@@ -1365,8 +1396,14 @@ def c10_closeout_prep_revision(repo: Path = ROOT) -> str | None:
     )
     state = closeout_lifecycle_guard(changed, repo=repo)
     require(
-        state in {"C10_CLOSEOUT_PREP_01", "C10_FINAL_CLOSEOUT"}
-        and 4 <= len(revisions) <= 5
+        state
+        in {
+            "C10_CLOSEOUT_PREP_01",
+            "C10_FINAL_CLOSEOUT",
+            "W04_SPRINT_CLOSEOUT_PREP_01",
+            "W04_SPRINT_FINAL_CLOSEOUT",
+        }
+        and 4 <= len(revisions) <= 7
         and revisions[2] == C10_CLOSEOUT_REVIEW_READY_SHA,
         "no validated C10 closeout Prep",
     )
@@ -1375,6 +1412,9 @@ def c10_closeout_prep_revision(repo: Path = ROOT) -> str | None:
 
 def validate_c10_closeout_verifier_sources(review_ready: str, current: str) -> None:
     """Preserve all accepted spans except four exact C10 closeout connectors."""
+    if "W04_SPRINT_ENTRY_SHA = " in current:
+        validate_w04_sprint_verifier_sources(review_ready, current)
+        return
     accepted = git("show", C10_CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
     validate_c10_verifier_sources(review_ready, accepted)
     old_order, old = source_units(accepted)
@@ -1482,6 +1522,9 @@ def validate_c10_closeout_verifier_sources(review_ready: str, current: str) -> N
 
 
 def c10_closeout_verifier_blob_guard(repo: Path = ROOT) -> None:
+    if w04_sprint_prep_revision(repo) is not None:
+        w04_sprint_verifier_blob_guard(repo)
+        return
     prep = c10_closeout_prep_revision(repo)
     require(prep is not None, "missing validated C10 closeout Prep")
     require(
@@ -1674,6 +1717,390 @@ def check_c10_closeout_lifecycle_controls() -> int:
             ),
         )
     return len(mutations) + len(cases) + 2 * len(C10_CLOSEOUT_SOURCE_ADDITIONS)
+
+
+def validate_w04_sprint_lifecycle(
+    history: list[dict[str, Any]], working: set[str], changed: set[str]
+) -> str:
+    """Admit one verifier Prep and one exact eight-path sprint Final, then stop."""
+    require(10 <= len(history) <= 11, "extra post-W04_SPRINT_FINAL_CLOSEOUT commit")
+    base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
+    base.update(C10_STAGE_A_PATHS)
+    base.add(C10_STAGE_B_PATH)
+    base.update(C10_FINAL_CLOSEOUT_PATHS)
+    require(
+        validate_c10_closeout_lifecycle(history[:9], set(), base) == "C10_FINAL_CLOSEOUT"
+        and history[8]["sha"] == W04_SPRINT_ENTRY_SHA,
+        "sprint closeout requires the exact accepted C10 Final",
+    )
+    for record in history[9:]:
+        require(set(record) == {"sha", "parents", "subject", "delta"}, "sprint record shape")
+        require(
+            isinstance(record["sha"], str)
+            and re.fullmatch(r"[0-9a-f]{40}", record["sha"]) is not None
+            and record["sha"] != "0" * 40,
+            "invalid sprint closeout SHA",
+        )
+    require(len({row["sha"] for row in history}) == len(history), "duplicate sprint SHA")
+    prep = history[9]
+    require(
+        prep["parents"] == [W04_SPRINT_ENTRY_SHA]
+        and prep["subject"] == W04_SPRINT_CLOSEOUT_PREP_SUBJECT
+        and prep["delta"] == {CLOSEOUT_VERIFIER_PATH: "M"},
+        "invalid exact sprint Prep parent/subject/delta",
+    )
+    state, expected = "W04_SPRINT_CLOSEOUT_PREP_01", base.copy()
+    if len(history) == 11:
+        final = history[10]
+        delta = dict.fromkeys(W04_SPRINT_FINAL_MODIFIED_PATHS, "M")
+        delta.update(dict.fromkeys(W04_SPRINT_FINAL_ADDED_PATHS, "A"))
+        require(
+            final["parents"] == [prep["sha"]]
+            and final["subject"] == W04_SPRINT_FINAL_CLOSEOUT_SUBJECT
+            and final["delta"] == delta,
+            "invalid exact sprint Final parent/subject/delta",
+        )
+        state = "W04_SPRINT_FINAL_CLOSEOUT"
+        expected.update(delta)
+    require(changed == expected, "sprint cumulative path-set drift")
+    require(not working, "uncommitted sprint lifecycle delta")
+    return state
+
+
+def w04_sprint_prep_revision(repo: Path = ROOT) -> str | None:
+    """Derive Sprint Prep only from the validated single-parent accepted chain."""
+    revisions = git("rev-list", "--reverse", W04_SPRINT_ENTRY_SHA + "..HEAD", repo=repo)
+    rows = revisions.decode().splitlines()
+    if not rows:
+        return None
+    changed = set(git("diff", "--name-only", ENTRY, "--", repo=repo).decode().splitlines())
+    changed.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    state = closeout_lifecycle_guard(changed, repo=repo)
+    require(
+        state in {"W04_SPRINT_CLOSEOUT_PREP_01", "W04_SPRINT_FINAL_CLOSEOUT"}
+        and 1 <= len(rows) <= 2,
+        "no validated sprint Prep",
+    )
+    return rows[0]
+
+
+def validate_w04_sprint_verifier_sources(review_ready: str, current: str) -> None:
+    """Preserve every accepted source unit except five exact lifecycle connectors."""
+    accepted = git("show", W04_SPRINT_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    validate_c10_closeout_verifier_sources(review_ready, accepted)
+    old_order, old = source_units(accepted)
+    new_order, new = source_units(current)
+    additions = set(W04_SPRINT_SOURCE_ADDITIONS)
+    require(set(new) == set(old) | additions, "unauthorized sprint source unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions] == list(W04_SPRINT_SOURCE_ADDITIONS),
+        "sprint source-unit order drift",
+    )
+    replacements = {
+        "validate_c10_closeout_lifecycle": [
+            (
+                b'    require(8 <= len(history) <= 9, "extra post-C10_FINAL_CLOSEOUT commit")\n',
+                b"    if len(history) > 9:\n"
+                b"        return validate_w04_sprint_lifecycle(history, workin"
+                b"g, changed)\n"
+                b'    require(8 <= len(history) <= 9, "extra post-C10_FINAL_CL'
+                b'OSEOUT commit")\n',
+            ),
+        ],
+        "c10_bootstrap_revision": [
+            (
+                b'            "C10_FINAL_CLOSEOUT",\n',
+                b'            "C10_FINAL_CLOSEOUT",\n'
+                b'            "W04_SPRINT_CLOSEOUT_PREP_01",\n'
+                b'            "W04_SPRINT_FINAL_CLOSEOUT",\n',
+            ),
+            (
+                b'    require(1 <= len(revisions) <= 5, "invalid C10 Bootstrap derivation")\n',
+                b'    require(1 <= len(revisions) <= 7, "invalid C10 Bootstrap derivation")\n',
+            ),
+        ],
+        "c10_closeout_prep_revision": [
+            (
+                b'        state in {"C10_CLOSEOUT_PREP_01", "C10_FINAL_CLOSEOU'
+                b'T"}\n'
+                b"        and 4 <= len(revisions) <= 5\n",
+                b"        state\n"
+                b"        in {\n"
+                b'            "C10_CLOSEOUT_PREP_01",\n'
+                b'            "C10_FINAL_CLOSEOUT",\n'
+                b'            "W04_SPRINT_CLOSEOUT_PREP_01",\n'
+                b'            "W04_SPRINT_FINAL_CLOSEOUT",\n'
+                b"        }\n"
+                b"        and 4 <= len(revisions) <= 7\n",
+            ),
+        ],
+        "validate_c10_closeout_verifier_sources": [
+            (
+                b'    accepted = git("show", C10_CLOSEOUT_REVIEW_READY_SHA + "'
+                b':" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+                b'    if "W04_SPRINT_ENTRY_SHA = " in current:\n'
+                b"        validate_w04_sprint_verifier_sources(review_ready, c"
+                b"urrent)\n"
+                b"        return\n"
+                b'    accepted = git("show", C10_CLOSEOUT_REVIEW_READY_SHA + "'
+                b':" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+            ),
+        ],
+        "c10_closeout_verifier_blob_guard": [
+            (
+                b"    prep = c10_closeout_prep_revision(repo)\n",
+                b"    if w04_sprint_prep_revision(repo) is not None:\n"
+                b"        w04_sprint_verifier_blob_guard(repo)\n"
+                b"        return\n"
+                b"    prep = c10_closeout_prep_revision(repo)\n",
+            ),
+        ],
+    }
+    for name in old_order:
+        expected = old[name][0].encode()
+        for before, after in replacements.get(name, []):
+            expected = replace_once(expected, before, after)
+        require(new[name][0].encode() == expected, f"unauthorized sprint source span: {name}")
+    prep = w04_sprint_prep_revision()
+    require(prep is not None, "sprint source requires committed Prep")
+    committed_order, committed = source_units(
+        git("show", str(prep) + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    )
+    require(new_order == committed_order, "sprint Prep source-unit placement drift")
+    for name in W04_SPRINT_SOURCE_ADDITIONS:
+        require(new[name][0] == committed[name][0], f"sprint Prep source-span drift: {name}")
+    constants: dict[str, object] = {
+        "W04_SPRINT_ENTRY_SHA": "232bfb390babce30417b8cdb9a6660663eb3c3f1",
+        "W04_SPRINT_CLOSEOUT_PREP_SUBJECT": "ci(w04): admit sprint closeout lifecycle",
+        "W04_SPRINT_FINAL_CLOSEOUT_SUBJECT": "docs(w04): close sprint and prepare PR #7 review",
+        "W04_SPRINT_FINAL_MODIFIED_PATHS": ("README.md", "AGENTS.md", "docs/CURRENT_STATE.md"),
+        "W04_SPRINT_FINAL_ADDED_PATHS": (
+            "docs/w04/W04_GPT_INDEPENDENT_DEEP_REVIEW_R1.md",
+            "docs/w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md",
+            "docs/w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md",
+            "docs/w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md",
+            "docs/w04/W04_PR7_READINESS_REPORT.md",
+        ),
+        "W04_SPRINT_SOURCE_ADDITIONS": (
+            "W04_SPRINT_ENTRY_SHA",
+            "W04_SPRINT_CLOSEOUT_PREP_SUBJECT",
+            "W04_SPRINT_FINAL_CLOSEOUT_SUBJECT",
+            "W04_SPRINT_FINAL_MODIFIED_PATHS",
+            "W04_SPRINT_FINAL_ADDED_PATHS",
+            "W04_SPRINT_SOURCE_ADDITIONS",
+            "validate_w04_sprint_lifecycle",
+            "w04_sprint_prep_revision",
+            "validate_w04_sprint_verifier_sources",
+            "w04_sprint_verifier_blob_guard",
+            "check_w04_sprint_controls",
+        ),
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "sprint constant declaration drift")
+        require(ast.literal_eval(cast(ast.Assign, node).value) == value, "sprint constant drift")
+
+
+def w04_sprint_verifier_blob_guard(repo: Path = ROOT) -> None:
+    prep = w04_sprint_prep_revision(repo)
+    require(prep is not None, "missing validated sprint Prep")
+    require(
+        (repo / CLOSEOUT_VERIFIER_PATH).read_bytes()
+        == git("show", str(prep) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),
+        "sprint verifier must remain byte-identical to Prep",
+    )
+    development = check_c10_lifecycle_controls()
+    require(development == 32, "C10 development adversarial control drift")
+    print(
+        json.dumps(
+            {
+                "c10_bootstrap_sha": C10_CLOSEOUT_BOOTSTRAP_SHA,
+                "c10_adversarial_controls": development,
+            },
+            sort_keys=True,
+        )
+    )
+    closeout = check_c10_closeout_lifecycle_controls()
+    require(closeout == 60, "C10 closeout adversarial control drift")
+    c10_prep = c10_closeout_prep_revision(repo)
+    print(
+        json.dumps(
+            {"c10_closeout_prep_sha": c10_prep, "c10_closeout_adversarial_controls": closeout},
+            sort_keys=True,
+        )
+    )
+    controls = check_w04_sprint_controls()
+    print(
+        json.dumps(
+            {"w04_sprint_prep_sha": prep, "w04_sprint_adversarial_controls": controls},
+            sort_keys=True,
+        )
+    )
+
+
+def check_w04_sprint_controls() -> int:
+    """Exercise the two new states, exact deltas, preserved anchors and self-source denial."""
+    revisions = (
+        CLOSEOUT_STAGE_A_SHA,
+        CLOSEOUT_REVIEW_READY_SHA,
+        C10_PREP_SHA,
+        C10_ENTRY_SHA,
+        C10_CLOSEOUT_BOOTSTRAP_SHA,
+        C10_CLOSEOUT_STAGE_A_SHA,
+        C10_CLOSEOUT_REVIEW_READY_SHA,
+        "3d9c13f06e32b2cb75d258ed838ad0958d2f5803",
+        W04_SPRINT_ENTRY_SHA,
+    )
+    history: list[dict[str, Any]] = []
+    for revision in revisions:
+        parents = git("show", "-s", "--format=%P", revision).decode().split()
+        delta = {}
+        for row in (
+            git("diff", "--name-status", "--no-renames", parents[0], revision).decode().splitlines()
+        ):
+            status, path = row.split("\t")
+            delta[path] = status
+        history.append(
+            {
+                "sha": revision,
+                "parents": parents,
+                "subject": git("show", "-s", "--format=%s", revision).decode().strip(),
+                "delta": delta,
+            }
+        )
+    final_delta = dict.fromkeys(W04_SPRINT_FINAL_MODIFIED_PATHS, "M")
+    final_delta.update(dict.fromkeys(W04_SPRINT_FINAL_ADDED_PATHS, "A"))
+    history.extend(
+        [
+            {
+                "sha": "1" * 40,
+                "parents": [W04_SPRINT_ENTRY_SHA],
+                "subject": W04_SPRINT_CLOSEOUT_PREP_SUBJECT,
+                "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+            },
+            {
+                "sha": "2" * 40,
+                "parents": ["1" * 40],
+                "subject": W04_SPRINT_FINAL_CLOSEOUT_SUBJECT,
+                "delta": final_delta,
+            },
+        ]
+    )
+    base = (
+        set(STAGE_A)
+        | set(STAGE_B)
+        | set(CLOSEOUT_FINAL_PATHS)
+        | set(C10_STAGE_A_PATHS)
+        | set(C10_FINAL_CLOSEOUT_PATHS)
+    )
+    base.add(C10_STAGE_B_PATH)
+    sets = {10: base, 11: base | set(final_delta)}
+    for size, state in ((10, "W04_SPRINT_CLOSEOUT_PREP_01"), (11, "W04_SPRINT_FINAL_CLOSEOUT")):
+        require(validate_closeout_lifecycle(history[:size], set(), sets[size]) == state, state)
+    mutations: list[tuple[str, int, int, str, Any]] = [
+        ("wrong sprint Prep parent", 10, 9, "parents", [C10_CLOSEOUT_REVIEW_READY_SHA]),
+        ("merge sprint Prep", 10, 9, "parents", [W04_SPRINT_ENTRY_SHA, C10_ENTRY_SHA]),
+        ("wrong sprint Prep subject", 10, 9, "subject", "ci: unauthorized"),
+        ("extra sprint Prep path", 10, 9, "delta", {CLOSEOUT_VERIFIER_PATH: "M", "extra": "A"}),
+        ("missing sprint Prep verifier", 10, 9, "delta", {}),
+        ("added sprint Prep verifier", 10, 9, "delta", {CLOSEOUT_VERIFIER_PATH: "A"}),
+        ("wrong sprint Final parent", 11, 10, "parents", [W04_SPRINT_ENTRY_SHA]),
+        ("merge sprint Final", 11, 10, "parents", ["1" * 40, W04_SPRINT_ENTRY_SHA]),
+        ("wrong sprint Final subject", 11, 10, "subject", "docs: unauthorized"),
+        (
+            "missing sprint Final file",
+            11,
+            10,
+            "delta",
+            {k: v for k, v in final_delta.items() if k != "README.md"},
+        ),
+        ("extra sprint Final file", 11, 10, "delta", {**final_delta, "extra": "A"}),
+        ("renamed sprint Final file", 11, 10, "delta", {**final_delta, "README.md": "R100"}),
+        ("deleted sprint Final file", 11, 10, "delta", {**final_delta, "README.md": "D"}),
+        ("added existing sprint file", 11, 10, "delta", {**final_delta, "README.md": "A"}),
+        (
+            "modified new sprint file",
+            11,
+            10,
+            "delta",
+            {**final_delta, W04_SPRINT_FINAL_ADDED_PATHS[0]: "M"},
+        ),
+        (
+            "sprint Final verifier mutation",
+            11,
+            10,
+            "delta",
+            {**final_delta, CLOSEOUT_VERIFIER_PATH: "M"},
+        ),
+        ("wrong accepted C10 Final", 10, 8, "sha", "a" * 40),
+        ("historical C10 drift", 10, 7, "subject", "ci: unauthorized"),
+        ("invalid sprint SHA", 10, 9, "sha", "invalid"),
+        ("zero sprint SHA", 10, 9, "sha", "0" * 40),
+        ("duplicate sprint SHA", 10, 9, "sha", W04_SPRINT_ENTRY_SHA),
+    ]
+    for path in (
+        "src/unauthorized.py",
+        "tests/unauthorized.py",
+        ".github/workflows/ci.yml",
+        "pyproject.toml",
+        "uv.lock",
+        "migrations/unauthorized.py",
+        "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
+        "docs/w04/checkpoints/c10/W04_C10_FINAL_CLOSEOUT_REPORT.md",
+        ".gitattributes",
+    ):
+        mutations.append(
+            ("sprint Final protected delta " + path, 11, 10, "delta", {**final_delta, path: "M"})
+        )
+    for label, size, index, field, value in mutations:
+        damaged = copy.deepcopy(history[:size])
+        damaged[index][field] = value
+        rejected(
+            label,
+            lambda damaged=damaged, size=size: validate_closeout_lifecycle(
+                damaged, set(), sets[size]
+            ),
+        )
+    extra = {"sha": "3" * 40, "parents": ["2" * 40], "subject": "docs: extra", "delta": {}}
+    cases = [
+        ("extra post-sprint Final commit", [*history, extra], set(), sets[11]),
+        ("sprint Final without Prep", [*history[:9], history[10]], set(), sets[11]),
+        ("dirty sprint Prep", history[:10], {CLOSEOUT_VERIFIER_PATH}, sets[10]),
+        ("dirty sprint Final", history, {"README.md"}, sets[11]),
+        ("sprint cumulative missing path", history, set(), base),
+        ("sprint cumulative extra path", history, set(), sets[11] | {"extra"}),
+    ]
+    for label, rows, working, changed in cases:
+        rejected(
+            label,
+            lambda rows=rows, working=working, changed=changed: validate_closeout_lifecycle(
+                rows, working, changed
+            ),
+        )
+    current = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    original = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    _, units = source_units(current)
+    for name in (*W04_SPRINT_SOURCE_ADDITIONS, "require"):
+        text, node = units[name]
+        located = cast(ast.FunctionDef | ast.Assign, node)
+        lines = current.splitlines(keepends=True)
+        start, end = located.lineno - 1, cast(int, located.end_lineno)
+        require("".join(lines[start:end]) == text, "sprint adversary exact source span")
+        for replacement in (
+            [],
+            [lines[start].rstrip("\n") + " # unauthorized\n", *lines[start + 1 : end]],
+        ):
+            damaged_source = "".join([*lines[:start], *replacement, *lines[end:]])
+            rejected(
+                "sprint unauthorized source span " + name,
+                lambda damaged_source=damaged_source: validate_verifier_sources(
+                    original, damaged_source
+                ),
+            )
+    return len(mutations) + len(cases) + 2 * (len(W04_SPRINT_SOURCE_ADDITIONS) + 1)
 
 
 def validate_changed_paths(
