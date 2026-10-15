@@ -128,6 +128,34 @@ C10_SOURCE_ADDITIONS = (
 )
 
 
+C10_CLOSEOUT_REVIEW_READY_SHA = "250ea1b7476db61aba20b5d2fb11148ce8243678"
+C10_CLOSEOUT_BOOTSTRAP_SHA = "a34a84b97681f24bf6df1fed1a80825ae32decfa"
+C10_CLOSEOUT_STAGE_A_SHA = "59ec925122c1fdc5b76a3c22fc0ab60a785efb38"
+C10_CLOSEOUT_PREP_SUBJECT = "ci(w04-c10): admit bounded closeout lifecycle"
+C10_FINAL_CLOSEOUT_SUBJECT = "docs(w04-c10): close business acceptance checkpoint"
+C10_FINAL_CLOSEOUT_PATHS = (
+    "docs/w04/checkpoints/c10/W04_C10_GPT_INDEPENDENT_REVIEW_R1.md",
+    "docs/w04/checkpoints/c10/W04_C10_HUMAN_ACCEPTANCE.md",
+    "docs/w04/checkpoints/c10/W04_C10_CLOSEOUT_AUTHORIZATION.md",
+    "docs/w04/checkpoints/c10/W04_C10_CLOSEOUT_CONTEXT_LOCK.md",
+    "docs/w04/checkpoints/c10/W04_C10_FINAL_CLOSEOUT_REPORT.md",
+)
+C10_CLOSEOUT_SOURCE_ADDITIONS = (
+    "C10_CLOSEOUT_REVIEW_READY_SHA",
+    "C10_CLOSEOUT_BOOTSTRAP_SHA",
+    "C10_CLOSEOUT_STAGE_A_SHA",
+    "C10_CLOSEOUT_PREP_SUBJECT",
+    "C10_FINAL_CLOSEOUT_SUBJECT",
+    "C10_FINAL_CLOSEOUT_PATHS",
+    "C10_CLOSEOUT_SOURCE_ADDITIONS",
+    "validate_c10_closeout_lifecycle",
+    "c10_closeout_prep_revision",
+    "validate_c10_closeout_verifier_sources",
+    "c10_closeout_verifier_blob_guard",
+    "check_c10_closeout_lifecycle_controls",
+)
+
+
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(message)
@@ -946,6 +974,8 @@ def validate_c10_lifecycle(
     history: list[dict[str, Any]], working: set[str], changed: set[str]
 ) -> str:
     """Extend only the exact accepted C09 Final by three single-parent C10 children."""
+    if len(history) > 7:
+        return validate_c10_closeout_lifecycle(history, working, changed)
     require(5 <= len(history) <= 7, "extra post-C10_REVIEW_READY commit")
     base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
     require(
@@ -1004,18 +1034,28 @@ def c10_bootstrap_revision(repo: Path = ROOT) -> str:
     )
     state = closeout_lifecycle_guard(changed, repo=repo)
     require(
-        state in {"C10_BOOTSTRAP_01", "C10_STAGE_A", "C10_REVIEW_READY"},
+        state
+        in {
+            "C10_BOOTSTRAP_01",
+            "C10_STAGE_A",
+            "C10_REVIEW_READY",
+            "C10_CLOSEOUT_PREP_01",
+            "C10_FINAL_CLOSEOUT",
+        },
         "no validated C10 Bootstrap",
     )
     revisions = (
         git("rev-list", "--reverse", C10_ENTRY_SHA + "..HEAD", repo=repo).decode().splitlines()
     )
-    require(1 <= len(revisions) <= 3, "invalid C10 Bootstrap derivation")
+    require(1 <= len(revisions) <= 5, "invalid C10 Bootstrap derivation")
     return revisions[0]
 
 
 def validate_c10_verifier_sources(review_ready: str, current: str) -> None:
     """Bind legacy spans to C09 Final and all added spans to the validated Bootstrap."""
+    if "C10_CLOSEOUT_REVIEW_READY_SHA = " in current:
+        validate_c10_closeout_verifier_sources(review_ready, current)
+        return
     final = git("show", C10_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
     validate_verifier_sources(review_ready, final)
     old_order, old = source_units(final)
@@ -1088,6 +1128,9 @@ def validate_c10_verifier_sources(review_ready: str, current: str) -> None:
 
 
 def c10_verifier_blob_guard(repo: Path = ROOT) -> None:
+    if c10_closeout_prep_revision(repo) is not None:
+        c10_closeout_verifier_blob_guard(repo)
+        return
     bootstrap = c10_bootstrap_revision(repo)
     require(
         (repo / CLOSEOUT_VERIFIER_PATH).read_bytes()
@@ -1260,6 +1303,379 @@ def check_c10_lifecycle_controls() -> int:
             ),
         )
     return len(mutations) + 3 + len(source_mutations)
+def validate_c10_closeout_lifecycle(
+    history: list[dict[str, Any]], working: set[str], changed: set[str]
+) -> str:
+    """Admit only one Prep and its five-document Final after accepted C10 review."""
+    require(8 <= len(history) <= 9, "extra post-C10_FINAL_CLOSEOUT commit")
+    base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
+    base.update(C10_STAGE_A_PATHS)
+    base.add(C10_STAGE_B_PATH)
+    require(
+        validate_c10_lifecycle(history[:7], set(), base) == "C10_REVIEW_READY",
+        "C10 closeout requires the complete development lifecycle",
+    )
+    require(
+        [row["sha"] for row in history[4:7]]
+        == [C10_CLOSEOUT_BOOTSTRAP_SHA, C10_CLOSEOUT_STAGE_A_SHA, C10_CLOSEOUT_REVIEW_READY_SHA],
+        "C10 closeout immutable development anchors drift",
+    )
+    for record in history[7:]:
+        require(set(record) == {"sha", "parents", "subject", "delta"}, "C10 closeout record shape")
+        require(
+            isinstance(record["sha"], str)
+            and re.fullmatch(r"[0-9a-f]{40}", record["sha"]) is not None
+            and record["sha"] != "0" * 40,
+            "invalid C10 closeout SHA",
+        )
+    require(len({row["sha"] for row in history}) == len(history), "duplicate C10 closeout SHA")
+    prep = history[7]
+    require(
+        prep["parents"] == [C10_CLOSEOUT_REVIEW_READY_SHA]
+        and prep["subject"] == C10_CLOSEOUT_PREP_SUBJECT
+        and prep["delta"] == {CLOSEOUT_VERIFIER_PATH: "M"},
+        "invalid exact C10 closeout Prep parent/subject/delta",
+    )
+    state, expected = "C10_CLOSEOUT_PREP_01", base.copy()
+    if len(history) == 9:
+        final = history[8]
+        require(
+            final["parents"] == [prep["sha"]]
+            and final["subject"] == C10_FINAL_CLOSEOUT_SUBJECT
+            and final["delta"] == dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "A"),
+            "invalid exact C10 final-closeout parent/subject/delta",
+        )
+        state = "C10_FINAL_CLOSEOUT"
+        expected.update(C10_FINAL_CLOSEOUT_PATHS)
+    require(changed == expected, "C10 closeout cumulative path-set drift")
+    require(not working, "uncommitted C10 closeout lifecycle delta")
+    return state
+
+
+def c10_closeout_prep_revision(repo: Path = ROOT) -> str | None:
+    """Derive a Prep only from the validated exact accepted development chain."""
+    revisions = (
+        git("rev-list", "--reverse", C10_ENTRY_SHA + "..HEAD", repo=repo).decode().splitlines()
+    )
+    if len(revisions) <= 3:
+        return None
+    changed = set(git("diff", "--name-only", ENTRY, "--", repo=repo).decode().splitlines())
+    changed.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    state = closeout_lifecycle_guard(changed, repo=repo)
+    require(
+        state in {"C10_CLOSEOUT_PREP_01", "C10_FINAL_CLOSEOUT"}
+        and 4 <= len(revisions) <= 5
+        and revisions[2] == C10_CLOSEOUT_REVIEW_READY_SHA,
+        "no validated C10 closeout Prep",
+    )
+    return revisions[3]
+
+
+def validate_c10_closeout_verifier_sources(review_ready: str, current: str) -> None:
+    """Preserve all accepted spans except four exact C10 closeout connectors."""
+    accepted = git("show", C10_CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    validate_c10_verifier_sources(review_ready, accepted)
+    old_order, old = source_units(accepted)
+    new_order, new = source_units(current)
+    additions = set(C10_CLOSEOUT_SOURCE_ADDITIONS)
+    require(set(new) - set(old) == additions, "unauthorized C10 closeout unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions]
+        == list(C10_CLOSEOUT_SOURCE_ADDITIONS),
+        "C10 closeout source-unit order drift",
+    )
+    replacements = {
+        "validate_c10_lifecycle": [
+            (
+                b'    require(5 <= len(history) <= 7, "extra post-C10_REVIEW_READY commit")\n',
+                b"    if len(history) > 7:\n"
+                b"        return validate_c10_closeout_lifecycle(history, working, changed)\n"
+                b'    require(5 <= len(history) <= 7, "extra post-C10_REVIEW_READY commit")\n',
+            )
+        ],
+        "c10_bootstrap_revision": [
+            (
+                b'        state in {"C10_BOOTSTRAP_01", "C10_STAGE_A", "C10_REVIEW_READY"},\n',
+                b"        state\n"
+                b"        in {\n"
+                b'            "C10_BOOTSTRAP_01",\n'
+                b'            "C10_STAGE_A",\n'
+                b'            "C10_REVIEW_READY",\n'
+                b'            "C10_CLOSEOUT_PREP_01",\n'
+                b'            "C10_FINAL_CLOSEOUT",\n'
+                b"        },\n",
+            ),
+            (
+                b'    require(1 <= len(revisions) <= 3, "invalid C10 Bootstrap derivation")\n',
+                b'    require(1 <= len(revisions) <= 5, "invalid C10 Bootstrap derivation")\n',
+            ),
+        ],
+        "validate_c10_verifier_sources": [
+            (
+                b'    final = git("show", C10_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+                b'    if "C10_CLOSEOUT_REVIEW_READY_SHA = " in current:\n'
+                b"        validate_c10_closeout_verifier_sources(review_ready, current)\n"
+                b"        return\n"
+                b'    final = git("show", C10_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+            )
+        ],
+        "c10_verifier_blob_guard": [
+            (
+                b"    bootstrap = c10_bootstrap_revision(repo)\n",
+                b"    if c10_closeout_prep_revision(repo) is not None:\n"
+                b"        c10_closeout_verifier_blob_guard(repo)\n"
+                b"        return\n"
+                b"    bootstrap = c10_bootstrap_revision(repo)\n",
+            )
+        ],
+    }
+    for name in old_order:
+        expected = old[name][0].encode()
+        for before, after in replacements.get(name, []):
+            expected = replace_once(expected, before, after)
+        require(new[name][0].encode() == expected, f"unauthorized C10 closeout span: {name}")
+    prep = c10_closeout_prep_revision()
+    require(prep is not None, "C10 closeout source requires committed Prep")
+    committed_order, committed = source_units(
+        git("show", str(prep) + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    )
+    require(new_order == committed_order, "C10 Prep source-unit placement drift")
+    for name in C10_CLOSEOUT_SOURCE_ADDITIONS:
+        require(new[name][0] == committed[name][0], f"C10 Prep source-span drift: {name}")
+    constants: dict[str, object] = {
+        "C10_CLOSEOUT_REVIEW_READY_SHA": "250ea1b7476db61aba20b5d2fb11148ce8243678",
+        "C10_CLOSEOUT_BOOTSTRAP_SHA": "a34a84b97681f24bf6df1fed1a80825ae32decfa",
+        "C10_CLOSEOUT_STAGE_A_SHA": "59ec925122c1fdc5b76a3c22fc0ab60a785efb38",
+        "C10_CLOSEOUT_PREP_SUBJECT": "ci(w04-c10): admit bounded closeout lifecycle",
+        "C10_FINAL_CLOSEOUT_SUBJECT": "docs(w04-c10): close business acceptance checkpoint",
+        "C10_FINAL_CLOSEOUT_PATHS": (
+            "docs/w04/checkpoints/c10/W04_C10_GPT_INDEPENDENT_REVIEW_R1.md",
+            "docs/w04/checkpoints/c10/W04_C10_HUMAN_ACCEPTANCE.md",
+            "docs/w04/checkpoints/c10/W04_C10_CLOSEOUT_AUTHORIZATION.md",
+            "docs/w04/checkpoints/c10/W04_C10_CLOSEOUT_CONTEXT_LOCK.md",
+            "docs/w04/checkpoints/c10/W04_C10_FINAL_CLOSEOUT_REPORT.md",
+        ),
+        "C10_CLOSEOUT_SOURCE_ADDITIONS": (
+            "C10_CLOSEOUT_REVIEW_READY_SHA",
+            "C10_CLOSEOUT_BOOTSTRAP_SHA",
+            "C10_CLOSEOUT_STAGE_A_SHA",
+            "C10_CLOSEOUT_PREP_SUBJECT",
+            "C10_FINAL_CLOSEOUT_SUBJECT",
+            "C10_FINAL_CLOSEOUT_PATHS",
+            "C10_CLOSEOUT_SOURCE_ADDITIONS",
+            "validate_c10_closeout_lifecycle",
+            "c10_closeout_prep_revision",
+            "validate_c10_closeout_verifier_sources",
+            "c10_closeout_verifier_blob_guard",
+            "check_c10_closeout_lifecycle_controls",
+        ),
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "C10 closeout constant declaration drift")
+        require(
+            ast.literal_eval(cast(ast.Assign, node).value) == value, "C10 closeout constant drift"
+        )
+
+
+def c10_closeout_verifier_blob_guard(repo: Path = ROOT) -> None:
+    prep = c10_closeout_prep_revision(repo)
+    require(prep is not None, "missing validated C10 closeout Prep")
+    require(
+        (repo / CLOSEOUT_VERIFIER_PATH).read_bytes()
+        == git("show", str(prep) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),
+        "C10 closeout verifier must remain byte-identical to Prep",
+    )
+    development_controls = check_c10_lifecycle_controls()
+    require(development_controls == 32, "C10 development adversarial control drift")
+    print(
+        json.dumps(
+            {
+                "c10_bootstrap_sha": C10_CLOSEOUT_BOOTSTRAP_SHA,
+                "c10_adversarial_controls": development_controls,
+            },
+            sort_keys=True,
+        )
+    )
+    controls = check_c10_closeout_lifecycle_controls()
+    print(
+        json.dumps(
+            {"c10_closeout_prep_sha": prep, "c10_closeout_adversarial_controls": controls},
+            sort_keys=True,
+        )
+    )
+
+
+def check_c10_closeout_lifecycle_controls() -> int:
+    revisions = (
+        CLOSEOUT_STAGE_A_SHA,
+        CLOSEOUT_REVIEW_READY_SHA,
+        C10_PREP_SHA,
+        C10_ENTRY_SHA,
+        C10_CLOSEOUT_BOOTSTRAP_SHA,
+        C10_CLOSEOUT_STAGE_A_SHA,
+        C10_CLOSEOUT_REVIEW_READY_SHA,
+    )
+    history: list[dict[str, Any]] = []
+    for revision in revisions:
+        parent = git("show", "-s", "--format=%P", revision).decode().split()
+        delta = {}
+        for row in (
+            git("diff", "--name-status", "--no-renames", parent[0], revision).decode().splitlines()
+        ):
+            status, path = row.split("\t")
+            delta[path] = status
+        history.append(
+            {
+                "sha": revision,
+                "parents": parent,
+                "subject": git("show", "-s", "--format=%s", revision).decode().strip(),
+                "delta": delta,
+            }
+        )
+    history.extend(
+        [
+            {
+                "sha": "f" * 40,
+                "parents": [C10_CLOSEOUT_REVIEW_READY_SHA],
+                "subject": C10_CLOSEOUT_PREP_SUBJECT,
+                "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+            },
+            {
+                "sha": "b" * 40,
+                "parents": ["f" * 40],
+                "subject": C10_FINAL_CLOSEOUT_SUBJECT,
+                "delta": dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "A"),
+            },
+        ]
+    )
+    base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS) | set(C10_STAGE_A_PATHS)
+    base.add(C10_STAGE_B_PATH)
+    changed_sets = {8: base, 9: base | set(C10_FINAL_CLOSEOUT_PATHS)}
+    for size, state in ((8, "C10_CLOSEOUT_PREP_01"), (9, "C10_FINAL_CLOSEOUT")):
+        require(
+            validate_closeout_lifecycle(history[:size], set(), changed_sets[size]) == state, state
+        )
+    mutations: list[tuple[str, int, int, str, Any]] = [
+        ("wrong C10 Prep parent", 8, 7, "parents", [C10_ENTRY_SHA]),
+        ("wrong C10 Prep subject", 8, 7, "subject", "ci: unapproved"),
+        ("extra C10 Prep path", 8, 7, "delta", {CLOSEOUT_VERIFIER_PATH: "M", "extra": "A"}),
+        ("missing C10 Prep verifier", 8, 7, "delta", {}),
+        ("added C10 Prep verifier", 8, 7, "delta", {CLOSEOUT_VERIFIER_PATH: "A"}),
+        ("merge C10 Prep", 8, 7, "parents", [C10_CLOSEOUT_REVIEW_READY_SHA, C10_ENTRY_SHA]),
+        ("wrong C10 Final parent", 9, 8, "parents", [C10_CLOSEOUT_REVIEW_READY_SHA]),
+        ("wrong C10 Final subject", 9, 8, "subject", "docs: unapproved"),
+        (
+            "missing C10 Final file",
+            9,
+            8,
+            "delta",
+            dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS[:-1], "A"),
+        ),
+        ("extra C10 Final file", 9, 8, "delta", {**history[8]["delta"], "extra": "A"}),
+        ("modified C10 Final file", 9, 8, "delta", dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "M")),
+        ("renamed C10 Final file", 9, 8, "delta", dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "R100")),
+        ("deleted C10 Final file", 9, 8, "delta", dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "D")),
+        ("merge C10 Final", 9, 8, "parents", ["f" * 40, C10_CLOSEOUT_REVIEW_READY_SHA]),
+        (
+            "C10 Final verifier mutation",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], CLOSEOUT_VERIFIER_PATH: "M"},
+        ),
+        (
+            "mixed C10 Final/runtime",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], "src/flowlens/investigation/contracts.py": "M"},
+        ),
+        (
+            "mixed C10 Final/tests",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], "tests/test_investigation_replay.py": "M"},
+        ),
+        (
+            "mixed C10 Final/workflow",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], ".github/workflows/ci.yml": "M"},
+        ),
+        (
+            "mixed C10 Final/source manifest",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json": "M"},
+        ),
+        ("C09 protected file drift", 8, 3, "delta", {**history[3]["delta"], "extra": "M"}),
+        ("C10 Stage-A historical drift", 8, 5, "delta", dict.fromkeys(C10_STAGE_A_PATHS, "M")),
+        ("C10 Stage-B historical drift", 8, 6, "delta", {C10_STAGE_B_PATH: "M"}),
+        ("C10 Bootstrap SHA drift", 8, 4, "sha", "a" * 40),
+        ("C10 Stage-A SHA drift", 8, 5, "sha", "a" * 40),
+        ("C10 Review-Ready SHA drift", 8, 6, "sha", "a" * 40),
+        ("invalid C10 Prep SHA", 8, 7, "sha", "wrong"),
+        ("duplicate C10 Prep SHA", 8, 7, "sha", C10_ENTRY_SHA),
+        ("invalid C10 Final SHA", 9, 8, "sha", "0" * 40),
+        ("duplicate C10 Final SHA", 9, 8, "sha", "f" * 40),
+        ("C10 Prep record shape", 8, 7, "extra", True),
+        ("C10 Final record shape", 9, 8, "extra", True),
+    ]
+    for label, size, index, field, value in mutations:
+        damaged = copy.deepcopy(history[:size])
+        damaged[index][field] = value
+        rejected(
+            label,
+            lambda damaged=damaged, size=size: validate_closeout_lifecycle(
+                damaged, set(), changed_sets[size]
+            ),
+        )
+    cases = [
+        ("Final without C10 Prep", history[:7] + [history[8]], set(), changed_sets[9]),
+        ("extra post-C10 Final commit", history + [history[8]], set(), changed_sets[9]),
+        ("working C10 Prep verifier", history[:8], {CLOSEOUT_VERIFIER_PATH}, base),
+        ("working C10 Final governance", history, {C10_FINAL_CLOSEOUT_PATHS[0]}, changed_sets[9]),
+        ("extra cumulative C10 path", history, set(), changed_sets[9] | {"extra"}),
+    ]
+    for label, damaged, working, changed in cases:
+        rejected(
+            label,
+            lambda damaged=damaged, working=working, changed=changed: validate_closeout_lifecycle(
+                damaged, working, changed
+            ),
+        )
+    original = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    source = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    _, units = source_units(source)
+    for name in C10_CLOSEOUT_SOURCE_ADDITIONS:
+        text, node = units[name]
+        located = cast(ast.FunctionDef | ast.Assign, node)
+        lines = source.splitlines(keepends=True)
+        start, end = located.lineno - 1, cast(int, located.end_lineno)
+        damaged_source = "".join(lines[:start] + lines[end:])
+        rejected(
+            "removed closeout source " + name,
+            lambda damaged_source=damaged_source: validate_verifier_sources(
+                original, damaged_source
+            ),
+        )
+        damaged_source = "".join(lines[:start] + lines[end:]) + "\n" + text
+        rejected(
+            "reordered closeout source " + name,
+            lambda damaged_source=damaged_source: validate_verifier_sources(
+                original, damaged_source
+            ),
+        )
+    return len(mutations) + len(cases) + 2 * len(C10_CLOSEOUT_SOURCE_ADDITIONS)
+
+
 def validate_changed_paths(
     changed: set[str], subject: str = "", publication_delta: set[str] | None = None
 ) -> None:
