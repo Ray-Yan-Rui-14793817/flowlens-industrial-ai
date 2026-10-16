@@ -12,9 +12,10 @@ inspectable, and records Human review without changing operational systems.
 
 The current engineering scenario is industry-inspired high-voltage electrical
 equipment manufacturing, using deterministic synthetic data. The product direction
-is **FlowLens v1.0**; **v1.0 is not yet released**. The repository contains the
-verified W01/W02 foundations, merged W03 decision loop, and W04 investigation
-capabilities through C06. W04 C07-C10 remain planned and unimplemented.
+is **FlowLens v1.0**; **FlowLens v1.0 is NOT RELEASED**. The repository contains
+the verified W01/W02 foundations, merged W03 decision loop and complete W04
+C01-C10 investigation workflow. W04 C01-C10 are implemented, independently
+reviewed, Human accepted and CLOSED / VERIFIED within the accepted scope.
 
 Product mode: **OFFLINE / SHADOW / HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST /
 NO OPERATIONAL MUTATION**.
@@ -45,8 +46,10 @@ deciding whether the available evidence is sufficient for Human-led follow-up.
 > consider a separate Human-led follow-up, with a reproducible investigation and
 > without FlowLens changing operational systems.
 
-This is the intended product journey. Investigation summary, protected W04 replay
-and end-to-end W04 business acceptance are still planned.
+The W04 engineering workflow now includes deterministic investigation summary,
+protected replay, regression hardening and completed W04 Human business acceptance.
+The implemented surfaces remain Python modules and tested engineering workflows;
+product packaging and release require separate scope and acceptance.
 
 ## How FlowLens Works
 
@@ -64,15 +67,16 @@ Operational Facts (W02 foundation; bounded W03 reads)
   -> Authorized Evidence Navigation               [W04-C04: IMPLEMENTED / VERIFIED]
   -> Findings / Conflicts / Uncertainty            [W04-C05: IMPLEMENTED / VERIFIED]
   -> Human Investigation Review                   [W04-C06: IMPLEMENTED / VERIFIED]
-  -> Investigation Summary                        [W04-C07: PLANNED / NOT IMPLEMENTED]
-  -> Protected Investigation Replay                [W04-C08: PLANNED / NOT IMPLEMENTED]
-  -> W04 Regression Hardening                      [W04-C09: PLANNED / NOT IMPLEMENTED]
-  -> W04 Business Acceptance                       [W04-C10: PLANNED / NOT IMPLEMENTED]
+  -> Investigation Summary                        [W04-C07: CLOSED / VERIFIED]
+  -> Protected Investigation Replay                [W04-C08: CLOSED / VERIFIED]
+  -> W04 Regression Hardening                      [W04-C09: CLOSED / VERIFIED]
+  -> W04 Business Acceptance                       [W04-C10: CLOSED / VERIFIED]
 ```
 
-W03 already provides bounded explanation of frozen DecisionPackets, Human decision
-recording, and protected offline evaluation/deterministic decision replay. These
-are separate from the unfinished W04 investigation summary and investigation replay.
+W03 provides bounded explanation of frozen DecisionPackets, Human decision recording
+and protected offline evaluation/deterministic decision replay. W04 adds its own
+deterministic investigation summary, bounded optional LLM presentation and protected
+replay of frozen investigation artifacts. Replay does not refresh evidence.
 
 ## Current Capabilities
 
@@ -87,6 +91,10 @@ are separate from the unfinished W04 investigation summary and investigation rep
 | W04-C04 | Closed-registry, read-only historical evidence navigation | CLOSED / VERIFIED |
 | W04-C05 | Supported/contradicted/unresolved/unknown findings, explicit conflicts and uncertainty | CLOSED / VERIFIED |
 | W04-C06 | Human investigation review events and bounded append-only audit journal | CLOSED / VERIFIED |
+| W04-C07 | Deterministic summary, bounded optional LLM presentation and deterministic fallback | CLOSED / VERIFIED |
+| W04-C08 | Protected deterministic investigation replay with frozen context and authority | CLOSED / VERIFIED |
+| W04-C09 | Semantic regression, source guards and meta-CI hardening | CLOSED / VERIFIED |
+| W04-C10 | Independent review, explicit Human business acceptance and governance closeout | CLOSED / VERIFIED |
 
 W03 Human decision outcomes are `ACCEPT`, `REJECT` and `DEFER`. W04 Human
 investigation outcomes are `SUPPORTED_FINDING_RECORDED`, `NO_SUPPORTED_FINDING`,
@@ -95,9 +103,10 @@ review state within their contracts; they do not execute a recommendation, estab
 causal truth or authorize operational follow-up. Human notes are
 `HUMAN_NOTE_NON_EVIDENCE` and cannot become evidence.
 
-C01's structural contracts and enums do not make future C07/C08 execution available.
-The implemented surfaces are Python modules and tested engineering workflows;
-there is no completed product UI or production SaaS deployment.
+C01 contracts now support the accepted C02-C08 execution path. C09/C10 provide
+regression and governance/business-acceptance evidence; they introduce no new
+investigation runtime source. There is no completed product UI or production
+SaaS deployment.
 
 ## Evidence, Trust and Safety
 
@@ -116,7 +125,8 @@ there is no completed product UI or production SaaS deployment.
 - **System recommendation, bounded model explanation.** The deterministic
   recommendation is frozen before explanation. The LLM has no recommendation or
   candidate authority, tool execution, database access, HGT access or operational
-  write capability. W03 supports bounded explanation with deterministic fallback.
+  write capability. W03 supports bounded explanation with deterministic fallback;
+  W04-C07 permits only bounded presentation of the frozen deterministic summary.
 - **Protected evaluation.** Hidden Ground Truth (HGT) remains isolated from runtime
   and public artifacts. Synthetic scenario answers are not operational facts.
 - **Human authority is final.** FlowLens records decisions and review events but
@@ -137,6 +147,13 @@ coordination. Root permissions, retention and encryption are deployment concerns
 Crash-created lock/pending state requires explicit operator recovery; there is no
 automatic stale-lock deletion or history-edit API.
 
+C07 optional provider output is constrained by frozen grounding references and a
+positive grammar. Unsafe, unavailable or invalid output returns the complete
+deterministic fallback; LLM wording is not byte-deterministic. CI uses fake
+providers/clients and does not establish live provider availability or actual
+model-output distributions. Human note text is excluded from provider data and
+grounding. C08 replay preserves the original evidence/time boundary.
+
 ## Architecture
 
 | Plane | Existing implementation | Boundary |
@@ -144,24 +161,24 @@ automatic stale-lock deletion or history-edit API.
 | Local runtime | [FastAPI](src/flowlens/api/), [worker placeholder](src/flowlens/worker/), [database utilities](src/flowlens/db/), [settings](src/flowlens/config.py) | Development infrastructure and health checks |
 | Industrial data | [Data modules](src/flowlens/data/), [Alembic migrations](migrations/) | Frozen schema, deterministic development/test data and validation |
 | Decision | [Decision modules](src/flowlens/decision/) | Snapshot-first deterministic decision loop and bounded explanation |
-| Investigation | [Investigation modules](src/flowlens/investigation/) | Exact packet binding, planning, authorized navigation, findings and Human review through C06 |
+| Investigation | [Investigation modules](src/flowlens/investigation/) | Exact packet binding, planning, authorized navigation, findings, Human review, summary and protected replay through C08 |
 | Protected evaluation | [Evaluation modules](src/flowlens/evaluation/) | Offline W03 evaluation/replay; no runtime HGT |
 | Development verification | [CI scripts](scripts/ci/), [tests](tests/), [native workflow](.github/workflows/ci.yml) | Exact-SHA proof and source/semantic safety enforcement |
 
 The W04 implementation is in `c02_binding.py`, `c03_planning.py`,
 `c04_registry.py`, `c04_queries.py`, `c04_navigation.py`, `c05_findings.py`,
-`c06_human.py`, `c06_policy.py` and `c06_store.py` under
+`c06_human.py`, `c06_policy.py`, `c06_store.py`, `c07_summary.py`, `c07_policy.py`,
+`c07_provider.py`, `c08_policy.py` and `c08_replay.py` under
 `src/flowlens/investigation/`. These modules extend the frozen W03 baseline.
 Operational reads, local audit persistence and protected offline evaluation have
 separate authority boundaries; none grants operational write-back.
 
 ## Current Development Status
 
-**Verified baseline as of 2026-10-08 (Asia/Shanghai):**
+**Verified baseline as of 2026-10-16 (Asia/Shanghai):**
 
-- **W01/W02:** CLOSED / VERIFIED. W01 delivered infrastructure; W02 delivered the
-  industrial data foundation. Their historical non-goals describe those phases,
-  not a restriction on the W03 capabilities subsequently implemented.
+- **W01/W02:** CLOSED / VERIFIED. Frozen data contracts, generator/hash/scenario
+  semantics and HGT isolation remain unchanged.
 - **W03:** MERGED / CLOSED / VERIFIED via [PR #6](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/pull/6).
   Main merge SHA: `af61bdfd5f7cf7961811c4c2dc8e554dd7eed509`.
   [Main post-merge CI #86 / 37261505402](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/37261505402): PASS.
@@ -170,23 +187,37 @@ separate authority boundaries; none grants operational write-back.
   [CI #84 / 37254705531](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/37254705531)
   at `a24e2e0587f11114edd5718eb10081797e303087`, followed by final synchronization
   and the separately Human-authorized PR #6 merge.
-- **W04-C01 through C06:** CLOSED / VERIFIED in the
-  [source-evolution manifest](docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json).
-  C06 final closeout SHA: `145ac72626899dc30bcff437685b4698b8edacb4`.
-  [Exact-SHA CI #115 / 37735563458](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/37735563458):
-  COMPLETED / SUCCESS; Classify, Quality, Docker Compose, W03 AI loop and
-  Verification passed; Publication was skipped under the full verification route.
+- **W04-C01 through C10:** implemented / independently reviewed / Human accepted /
+  CLOSED / VERIFIED. The [source-evolution manifest](docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json)
+  freezes C01-C08 runtime source. C09/C10 remain governance/regression/acceptance
+  layers without a new source-evolution entry.
+- **W04-C10 final:** CLOSED / VERIFIED / GITHUB_SYNCHRONIZED at
+  `232bfb390babce30417b8cdb9a6660663eb3c3f1`.
+  [Own-SHA CI #145 / 38709171796](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/38709171796):
+  attempt 1 SUCCESS, C / FULL_EXACT_SHA, C10_FINAL_CLOSEOUT.
+- **Sprint Closeout Prep:** complete at `c8b29cbcffe1886412de4a31b75905f6397043fb`.
+  [Own-SHA CI #146 / 38735686969](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/38735686969):
+  attempt 1 SUCCESS, C / FULL_EXACT_SHA, W04_SPRINT_CLOSEOUT_PREP_01.
+  Reconstructed proof: 2997 selected / 2994 passed / 3 accepted Linux skips,
+  zero failed/error/xfail/xpass; no-loss / exact union / exact once PASS;
+  Integration 70, W03 38/85, W04 9/67/81; all shard job/pytest durations <3300s.
+- **W04 Sprint Final Closeout:** effective only after this documentation commit's
+  own attempt-1 UNKNOWN / FULL_EXACT_SHA native success and fresh four-head
+  synchronization. Generated Final SHA/run and completed readiness facts belong in
+  the post-CI handoff and PR body, not invented pre-commit fields.
 - **W04 integration:** branch `feat/w04-evidence-investigation` is retained;
   [PR #7](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/pull/7)
-  is OPEN / DRAFT / UNMERGED. W04 is not merged into main.
-- **W04-C07 through C10:** PLANNED / NOT IMPLEMENTED. This documentation refresh
-  does not authorize C07, merge PR #7 or reopen a checkpoint.
-- **FlowLens v1.0:** NOT YET RELEASED. W04 subflow verification is not end-to-end
-  v1.0 business acceptance.
+  targets main and is OPEN / DRAFT / UNMERGED at the recovered Prep entry.
+  Title/body normalization and Draft -> Ready are authorized only after Final
+  own-SHA proof. W04 is not merged; PR #7 merge is NOT AUTHORIZED.
+- **Post-W04 implementation / W05:** NOT AUTHORIZED.
+- **FlowLens v1.0:** NOT RELEASED. W04 business acceptance covers the accepted
+  investigation workflow; it is not production deployment or v1.0 release proof.
 
-Historical router/control snapshots and immutable reports retain the state at which
-they were authored. Their pre-commit CI fields do not replace the actual subsequent
-exact-SHA proof linked above; their history is not backfilled by this README.
+Historical control snapshots and immutable checkpoint reports retain the state at
+which they were authored. Their pre-commit/pending fields are history; subsequent
+Human decisions and exact-SHA evidence are recorded separately. This README does
+not rewrite them.
 
 ## Quick Start
 
@@ -355,8 +386,8 @@ qualify for publication-only verification:
 
 | Required proof | Required successful jobs | Expected skipped jobs |
 |---|---|---|
-| `FULL_EXACT_SHA` (C / I / F / UNKNOWN) | Classify change, Quality gate, Docker Compose smoke, W03 AI loop gate, Verification gate | Publication proof |
-| `PUBLICATION_EXACT_SHA` (P) | Classify change, Publication proof, Verification gate | Quality gate, Docker Compose smoke, W03 AI loop gate |
+| `FULL_EXACT_SHA` (C / I / F / UNKNOWN) | Classify, Static and plan, Integration and data, all seven non-integration shards, Non-integration aggregate, Quality, Compose, W03, W04 and Verification | Publication proof |
+| `PUBLICATION_EXACT_SHA` (P) | Classify change, Publication proof, Verification gate | Full-route static/integration/shard/aggregate/Quality/Compose/W03/W04 jobs |
 
 Proof must bind the exact source-head SHA, and the overall workflow must complete
 successfully. An earlier green run cannot verify a new commit. The frozen W03 gate
@@ -376,7 +407,7 @@ src/flowlens/db/              PostgreSQL utilities and canonical models
 src/flowlens/data/            Generation, scenarios, persistence and quality
 src/flowlens/decision/        W03 decision loop and bounded explanation
 src/flowlens/evaluation/      Protected offline W03 evaluation/replay
-src/flowlens/investigation/   W04 investigation contracts and C02-C06 implementation
+src/flowlens/investigation/   W04 contracts and C02-C08 runtime implementation
 migrations/                  Approved Alembic chain
 scripts/ci/                  Native classification and verification tools
 tests/                       Unit, safety, semantic and integration harnesses
@@ -391,18 +422,13 @@ LOOP.md                      Development loop controls
 
 ## Roadmap
 
-The remaining W04 product journey is planned; none of these checkpoints is
-implemented or authorized by this README refresh:
+W04 C01-C10 are CLOSED / VERIFIED. The remaining authorized work in this Sprint
+Final commit is its own native proof, synchronization and PR #7 readiness. Merge
+requires a separate independent GPT merge review and explicit Human authorization.
 
-| Checkpoint | Planned work | Current state |
-|---|---|---|
-| W04-C07 | Faithful investigation summary | NOT IMPLEMENTED |
-| W04-C08 | Protected investigation replay | NOT IMPLEMENTED |
-| W04-C09 | W04 regression hardening and system gate | NOT IMPLEMENTED |
-| W04-C10 | W04 business acceptance | NOT IMPLEMENTED |
-
-End-to-end product packaging remains future work requiring its own scope and
-acceptance. W03's existing explanation/replay does not close these W04 gaps.
+End-to-end product packaging, production readiness, release planning and any later
+implementation need their own scope and acceptance. Post-W04 implementation and
+W05 are NOT AUTHORIZED. FlowLens v1.0 remains NOT RELEASED.
 
 ## Explicit Non-Capabilities
 
@@ -442,11 +468,22 @@ Existing history and technical controls remain accessible:
   [C02](docs/w04/checkpoints/c02/W04_C02_FINAL_CLOSEOUT_REPORT.md),
   [C03](docs/w04/checkpoints/c03/W04_C03_FINAL_CLOSEOUT_REPORT.md),
   [C04](docs/w04/checkpoints/c04/W04_C04_FINAL_CLOSEOUT_REPORT.md),
-  [C05](docs/w04/checkpoints/c05/W04_C05_FINAL_CLOSEOUT_REPORT.md) and
-  [C06](docs/w04/checkpoints/c06/W04_C06_FINAL_CLOSEOUT_REPORT.md).
+  [C05](docs/w04/checkpoints/c05/W04_C05_FINAL_CLOSEOUT_REPORT.md),
+  [C06](docs/w04/checkpoints/c06/W04_C06_FINAL_CLOSEOUT_REPORT.md),
+  [C07](docs/w04/checkpoints/c07/W04_C07_FINAL_CLOSEOUT_REPORT.md),
+  [C08](docs/w04/checkpoints/c08/W04_C08_FINAL_CLOSEOUT_REPORT.md),
+  [C09](docs/w04/checkpoints/c09/W04_C09_FINAL_CLOSEOUT_REPORT.md) and
+  [C10](docs/w04/checkpoints/c10/W04_C10_FINAL_CLOSEOUT_REPORT.md).
 - [C06 development report and accepted limitations](docs/w04/checkpoints/c06/W04_C06_R_DEVELOPMENT_ROUND_REPORT.md),
   [independent implementation review](docs/w04/checkpoints/c06/W04_C06_GPT_INDEPENDENT_IMPLEMENTATION_REVIEW_R1.md)
   and [Human acceptance](docs/w04/checkpoints/c06/W04_C06_HUMAN_ACCEPTANCE.md).
+- [W04 Sprint independent review](docs/w04/W04_GPT_INDEPENDENT_DEEP_REVIEW_R1.md),
+  [original Human acceptance/authorization](docs/w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md),
+  [Sprint context lock](docs/w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md),
+  [Sprint Final report](docs/w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md) and
+  [PR #7 readiness report](docs/w04/W04_PR7_READINESS_REPORT.md).
+- [C07 summary/provider boundaries](docs/w04/checkpoints/c07/W04_C07_R_DEVELOPMENT_ROUND_REPORT.md)
+  and [C08 protected replay evidence](docs/w04/checkpoints/c08/W04_C08_R_DEVELOPMENT_ROUND_REPORT.md).
 - [Context index](docs/context/CONTEXT_INDEX.md),
   [material registry](docs/context/MATERIAL_REGISTRY.md), [execution router](AGENTS.md),
   [development loop](LOOP.md) and [skill admission policy](skills/SKILL_ADMISSION_POLICY.md).
