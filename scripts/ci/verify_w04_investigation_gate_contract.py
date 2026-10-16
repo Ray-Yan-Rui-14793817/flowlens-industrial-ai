@@ -182,6 +182,29 @@ W04_SPRINT_SOURCE_ADDITIONS = (
 )
 
 
+W04_PR7_FINAL_SHA = "985f666e5ecfa5acd35565516e200c9b0e36c76b"
+W04_PR7_MAIN_SHA = "af61bdfd5f7cf7961811c4c2dc8e554dd7eed509"
+W04_PR7_MERGE_REPAIR_SUBJECT = "ci(w04): admit PR #7 merge commit lifecycle"
+W04_PR7_MERGE_SOURCE_ADDITIONS = (
+    "W04_PR7_FINAL_SHA",
+    "W04_PR7_MAIN_SHA",
+    "W04_PR7_MERGE_REPAIR_SUBJECT",
+    "W04_PR7_MERGE_SOURCE_ADDITIONS",
+    "validate_w04_pr7_merge_repair_lifecycle",
+    "validate_w04_pr7_merge_topology",
+    "w04_pr7_merged_main_guard",
+    "w04_pr7_repair_history",
+    "w04_pr7_pre_integration_guard",
+    "w04_pr7_integration_anchor",
+    "w04_pr7_historical_tip",
+    "w04_pr7_merge_repair_revision",
+    "validate_w04_pr7_merge_verifier_sources",
+    "w04_pr7_merge_verifier_blob_guard",
+    "check_w04_pr7_merge_controls",
+    "check_w04_pr7_post_integration_controls",
+)
+
+
 
 def require(condition: bool, message: str) -> None:
     if not condition:
@@ -1070,11 +1093,16 @@ def c10_bootstrap_revision(repo: Path = ROOT) -> str:
             "C10_FINAL_CLOSEOUT",
             "W04_SPRINT_CLOSEOUT_PREP_01",
             "W04_SPRINT_FINAL_CLOSEOUT",
+            "W04_PR7_MERGE_REPAIR_01",
+            "W04_PR7_MERGED_MAIN",
+            "W04_POST_MERGE_INTEGRATED",
         },
         "no validated C10 Bootstrap",
     )
     revisions = (
-        git("rev-list", "--reverse", C10_ENTRY_SHA + "..HEAD", repo=repo).decode().splitlines()
+        git("rev-list", "--reverse", C10_ENTRY_SHA + ".." + w04_pr7_historical_tip(repo), repo=repo)
+        .decode()
+        .splitlines()
     )
     require(1 <= len(revisions) <= 7, "invalid C10 Bootstrap derivation")
     return revisions[0]
@@ -1386,7 +1414,9 @@ def validate_c10_closeout_lifecycle(
 def c10_closeout_prep_revision(repo: Path = ROOT) -> str | None:
     """Derive a Prep only from the validated exact accepted development chain."""
     revisions = (
-        git("rev-list", "--reverse", C10_ENTRY_SHA + "..HEAD", repo=repo).decode().splitlines()
+        git("rev-list", "--reverse", C10_ENTRY_SHA + ".." + w04_pr7_historical_tip(repo), repo=repo)
+        .decode()
+        .splitlines()
     )
     if len(revisions) <= 3:
         return None
@@ -1402,6 +1432,9 @@ def c10_closeout_prep_revision(repo: Path = ROOT) -> str | None:
             "C10_FINAL_CLOSEOUT",
             "W04_SPRINT_CLOSEOUT_PREP_01",
             "W04_SPRINT_FINAL_CLOSEOUT",
+            "W04_PR7_MERGE_REPAIR_01",
+            "W04_PR7_MERGED_MAIN",
+            "W04_POST_MERGE_INTEGRATED",
         }
         and 4 <= len(revisions) <= 7
         and revisions[2] == C10_CLOSEOUT_REVIEW_READY_SHA,
@@ -1723,6 +1756,8 @@ def validate_w04_sprint_lifecycle(
     history: list[dict[str, Any]], working: set[str], changed: set[str]
 ) -> str:
     """Admit one verifier Prep and one exact eight-path sprint Final, then stop."""
+    if len(history) > 11:
+        return validate_w04_pr7_merge_repair_lifecycle(history, working, changed)
     require(10 <= len(history) <= 11, "extra post-W04_SPRINT_FINAL_CLOSEOUT commit")
     base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
     base.update(C10_STAGE_A_PATHS)
@@ -1769,7 +1804,10 @@ def validate_w04_sprint_lifecycle(
 
 def w04_sprint_prep_revision(repo: Path = ROOT) -> str | None:
     """Derive Sprint Prep only from the validated single-parent accepted chain."""
-    revisions = git("rev-list", "--reverse", W04_SPRINT_ENTRY_SHA + "..HEAD", repo=repo)
+    revisions = git(
+        "rev-list", "--reverse", W04_SPRINT_ENTRY_SHA + ".." + w04_pr7_historical_tip(repo),
+        repo=repo,
+    )
     rows = revisions.decode().splitlines()
     if not rows:
         return None
@@ -1779,7 +1817,14 @@ def w04_sprint_prep_revision(repo: Path = ROOT) -> str | None:
     )
     state = closeout_lifecycle_guard(changed, repo=repo)
     require(
-        state in {"W04_SPRINT_CLOSEOUT_PREP_01", "W04_SPRINT_FINAL_CLOSEOUT"}
+        state
+        in {
+            "W04_SPRINT_CLOSEOUT_PREP_01",
+            "W04_SPRINT_FINAL_CLOSEOUT",
+            "W04_PR7_MERGE_REPAIR_01",
+            "W04_PR7_MERGED_MAIN",
+            "W04_POST_MERGE_INTEGRATED",
+        }
         and 1 <= len(rows) <= 2,
         "no validated sprint Prep",
     )
@@ -1788,6 +1833,9 @@ def w04_sprint_prep_revision(repo: Path = ROOT) -> str | None:
 
 def validate_w04_sprint_verifier_sources(review_ready: str, current: str) -> None:
     """Preserve every accepted source unit except five exact lifecycle connectors."""
+    if "W04_PR7_FINAL_SHA = " in current:
+        validate_w04_pr7_merge_verifier_sources(review_ready, current)
+        return
     accepted = git("show", W04_SPRINT_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
     validate_c10_closeout_verifier_sources(review_ready, accepted)
     old_order, old = source_units(accepted)
@@ -1905,6 +1953,9 @@ def validate_w04_sprint_verifier_sources(review_ready: str, current: str) -> Non
 
 
 def w04_sprint_verifier_blob_guard(repo: Path = ROOT) -> None:
+    if w04_pr7_merge_repair_revision(repo) is not None:
+        w04_pr7_merge_verifier_blob_guard(repo)
+        return
     prep = w04_sprint_prep_revision(repo)
     require(prep is not None, "missing validated sprint Prep")
     require(
@@ -2103,6 +2154,686 @@ def check_w04_sprint_controls() -> int:
     return len(mutations) + len(cases) + 2 * (len(W04_SPRINT_SOURCE_ADDITIONS) + 1)
 
 
+def validate_w04_pr7_merge_repair_lifecycle(
+    history: list[dict[str, Any]], working: set[str], changed: set[str]
+) -> str:
+    """Admit one verifier-only child of the exact accepted Sprint Final."""
+    require(len(history) == 12, "extra or missing PR7 merge-repair lifecycle commit")
+    expected = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
+    expected.update(C10_STAGE_A_PATHS)
+    expected.add(C10_STAGE_B_PATH)
+    expected.update(C10_FINAL_CLOSEOUT_PATHS)
+    expected.update(W04_SPRINT_FINAL_MODIFIED_PATHS)
+    expected.update(W04_SPRINT_FINAL_ADDED_PATHS)
+    require(
+        validate_w04_sprint_lifecycle(history[:11], set(), expected)
+        == "W04_SPRINT_FINAL_CLOSEOUT"
+        and history[10]["sha"] == W04_PR7_FINAL_SHA,
+        "PR7 repair requires the exact accepted Sprint Final and historical anchors",
+    )
+    repair = history[11]
+    require(set(repair) == {"sha", "parents", "subject", "delta"}, "PR7 repair record shape")
+    require(
+        isinstance(repair["sha"], str)
+        and re.fullmatch(r"[0-9a-f]{40}", repair["sha"]) is not None
+        and repair["sha"] != "0" * 40
+        and repair["sha"] not in {row["sha"] for row in history[:11]},
+        "invalid PR7 repair SHA",
+    )
+    require(
+        repair["parents"] == [W04_PR7_FINAL_SHA]
+        and repair["subject"] == W04_PR7_MERGE_REPAIR_SUBJECT
+        and repair["delta"] == {CLOSEOUT_VERIFIER_PATH: "M"},
+        "invalid exact PR7 merge-repair parent/subject/delta",
+    )
+    require(changed == expected, "PR7 repair cumulative path-set drift")
+    require(not working, "uncommitted PR7 merge-repair lifecycle delta")
+    return "W04_PR7_MERGE_REPAIR_01"
+
+
+def validate_w04_pr7_merge_topology(
+    head: str,
+    parents: list[str],
+    repair: str,
+    head_tree: bytes,
+    repair_tree: bytes,
+    second_parent_diff: bytes,
+    working: set[str],
+) -> str:
+    """Authorize only the terminal frozen-main/exact-repair merge, with no new bytes."""
+    require(
+        re.fullmatch(r"[0-9a-f]{40}", head) is not None
+        and re.fullmatch(r"[0-9a-f]{40}", repair) is not None
+        and head != "0" * 40
+        and repair != "0" * 40
+        and head != repair,
+        "invalid PR7 merged-main SHA",
+    )
+    require(
+        parents == [head, W04_PR7_MAIN_SHA, repair],
+        "PR7 merge requires ordered frozen-main and validated repair parents",
+    )
+    require(
+        re.fullmatch(rb"[0-9a-f]{40}", head_tree) is not None
+        and head_tree == repair_tree,
+        "PR7 merge tree differs from validated repair",
+    )
+    require(not second_parent_diff, "PR7 merge has a second-parent resolution delta")
+    require(not working, "uncommitted PR7 merged-main lifecycle delta")
+    return "W04_PR7_MERGED_MAIN"
+
+
+def w04_pr7_merged_main_guard(
+    history: list[dict[str, Any]],
+    changed: set[str],
+    head: str,
+    parents: list[str],
+    repo: Path = ROOT,
+) -> str:
+    """The historical loop delegates only its terminal two-parent revision here."""
+    working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).decode().splitlines())
+    working.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    require(
+        validate_closeout_lifecycle(history, working, changed) == "W04_PR7_MERGE_REPAIR_01",
+        "PR7 merge requires one validated repair before the terminal merge",
+    )
+    git(
+        "merge-base", "--is-ancestor", head,
+        git("rev-parse", "HEAD", repo=repo).decode().strip(), repo=repo
+    )
+    repair = cast(str, history[-1]["sha"])
+    return validate_w04_pr7_merge_topology(
+        head,
+        parents,
+        repair,
+        git("rev-parse", head + "^{tree}", repo=repo).strip(),
+        git("rev-parse", repair + "^{tree}", repo=repo).strip(),
+        git("diff", repair, head, "--", repo=repo),
+        working,
+    )
+
+
+def w04_pr7_repair_history(
+    repair: str, repo: Path = ROOT
+) -> tuple[list[dict[str, Any]], set[str]]:
+    """Read and validate the complete immutable lifecycle through the repair."""
+    raw = git(
+        "log", "--reverse", "--topo-order", "--format=%x1e%H%x00%P%x00%s",
+        "--name-status", "--no-renames", ENTRY + ".." + repair, "--", repo=repo
+    ).decode()
+    history: list[dict[str, Any]] = []
+    for record in raw.split("\x1e")[1:]:
+        lines = record.splitlines()
+        sha, parent_text, subject = lines[0].split("\x00")
+        parents = parent_text.split()
+        require(len(parents) == 1, "historical PR7 lifecycle merge/root forbidden")
+        delta: dict[str, str] = {}
+        for row in lines[1:]:
+            if not row:
+                continue
+            status, path = row.split("\t")
+            require(path not in delta, "duplicate PR7 historical delta")
+            delta[path] = status
+        history.append({"sha": sha, "parents": parents, "subject": subject, "delta": delta})
+    changed = set(git("diff", "--name-only", ENTRY, repair, "--", repo=repo).decode().splitlines())
+    require(
+        validate_w04_pr7_merge_repair_lifecycle(history, set(), changed)
+        == "W04_PR7_MERGE_REPAIR_01",
+        "invalid historical PR7 repair",
+    )
+    return history, changed
+
+
+def w04_pr7_pre_integration_guard(changed: set[str], repo: Path = ROOT) -> str | None:
+    """Keep every pre-integration state strict, including the one repair child."""
+    head = git("rev-parse", "HEAD", repo=repo).decode().strip()
+    rows = git(
+        "rev-list", "--reverse", W04_PR7_FINAL_SHA + ".." + head, repo=repo
+    ).decode().splitlines()
+    if not rows:
+        return None
+    require(rows == [head], "extra pre-integration PR7 repair history")
+    history, _ = w04_pr7_repair_history(head, repo)
+    working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).decode().splitlines())
+    working.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    return validate_w04_pr7_merge_repair_lifecycle(history, working, changed)
+
+
+def w04_pr7_integration_anchor(repo: Path = ROOT) -> str | None:
+    """Find the exact integration in ancestry, without interpreting its descendants."""
+    rows = [
+        row.split() for row in git(
+            "rev-list", "--parents", "--reverse", "--topo-order",
+            W04_PR7_FINAL_SHA + "..HEAD", repo=repo
+        ).decode().splitlines()
+    ]
+    records = {row[0]: row for row in rows}
+    anchors = []
+    for parents in rows:
+        if (
+            len(parents) != 3 or parents[1] != W04_PR7_MAIN_SHA
+            or records.get(parents[2]) != [parents[2], W04_PR7_FINAL_SHA]
+        ):
+            continue
+        merge, repair = parents[0], parents[2]
+        span = git(
+            "rev-list", "--reverse", "--topo-order",
+            W04_PR7_FINAL_SHA + ".." + merge, repo=repo
+        ).decode().splitlines()
+        require(span == [repair, merge], "extra pre-integration PR7 history")
+        history, changed = w04_pr7_repair_history(repair, repo)
+        require(
+            w04_pr7_merged_main_guard(history, changed, merge, parents, repo)
+            == "W04_PR7_MERGED_MAIN",
+            "invalid historical PR7 integration",
+        )
+        anchors.append(merge)
+    require(len(anchors) <= 1, "multiple PR7 integration anchors")
+    return anchors[0] if anchors else None
+
+
+def w04_pr7_historical_tip(repo: Path = ROOT) -> str:
+    """Keep historical source-layer derivations bounded to the accepted W04 Final."""
+    return W04_PR7_FINAL_SHA if w04_pr7_merge_repair_revision(repo) is not None else "HEAD"
+
+
+def w04_pr7_merge_repair_revision(repo: Path = ROOT) -> str | None:
+    """Derive an exact repair either before or after its validated integration."""
+    anchor = w04_pr7_integration_anchor(repo)
+    if anchor is not None:
+        return git("show", "-s", "--format=%P", anchor, repo=repo).decode().split()[1]
+    rows = (
+        git("rev-list", "--reverse", W04_PR7_FINAL_SHA + "..HEAD", repo=repo)
+        .decode().splitlines()
+    )
+    if not rows:
+        return None
+    require(len(rows) == 1, "extra pre-integration PR7 repair commit")
+    changed = set(git("diff", "--name-only", ENTRY, "--", repo=repo).decode().splitlines())
+    changed.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    require(
+        closeout_lifecycle_guard(changed, repo=repo) == "W04_PR7_MERGE_REPAIR_01",
+        "no validated PR7 merge repair",
+    )
+    return rows[0]
+
+
+def validate_w04_pr7_merge_verifier_sources(review_ready: str, current: str) -> None:
+    """Validate every accepted layer first, then only the exact seven repair connectors."""
+    accepted = git("show", W04_PR7_FINAL_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    validate_w04_sprint_verifier_sources(review_ready, accepted)
+    old_order, old = source_units(accepted)
+    new_order, new = source_units(current)
+    additions = set(W04_PR7_MERGE_SOURCE_ADDITIONS)
+    require(set(new) == set(old) | additions, "unauthorized PR7 source unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions]
+        == list(W04_PR7_MERGE_SOURCE_ADDITIONS),
+        "PR7 source-unit identity/order drift",
+    )
+    replacements = {
+        'validate_w04_sprint_lifecycle': [
+            (
+                '    require(10 <= len(history) <= 11, "extra post-W04_SPRINT_FINAL_CLOSEOUT '
+                'commit")\n',
+                '    if len(history) > 11:\n        return validate_w04_pr7_merge_repair_life'
+                'cycle(history, working, changed)\n    require(10 <= len(history) <= 11, "ext'
+                'ra post-W04_SPRINT_FINAL_CLOSEOUT commit")\n',
+            ),
+        ],
+        'c10_bootstrap_revision': [
+            (
+                '            "W04_SPRINT_FINAL_CLOSEOUT",\n',
+                '            "W04_SPRINT_FINAL_CLOSEOUT",\n            "W04_PR7_MERGE_REPAIR_'
+                '01",\n            "W04_PR7_MERGED_MAIN",\n            "W04_POST_MERGE_INTEGR'
+                'ATED",\n',
+            ),
+            (
+                '        git("rev-list", "--reverse", C10_ENTRY_SHA + "..HEAD", repo=repo).de'
+                'code().splitlines()\n',
+                '        git("rev-list", "--reverse", C10_ENTRY_SHA + ".." + w04_pr7_historic'
+                'al_tip(repo), repo=repo)\n        .decode()\n        .splitlines()\n',
+            ),
+        ],
+        'c10_closeout_prep_revision': [
+            (
+                '            "W04_SPRINT_FINAL_CLOSEOUT",\n',
+                '            "W04_SPRINT_FINAL_CLOSEOUT",\n            "W04_PR7_MERGE_REPAIR_'
+                '01",\n            "W04_PR7_MERGED_MAIN",\n            "W04_POST_MERGE_INTEGR'
+                'ATED",\n',
+            ),
+            (
+                '        git("rev-list", "--reverse", C10_ENTRY_SHA + "..HEAD", repo=repo).de'
+                'code().splitlines()\n',
+                '        git("rev-list", "--reverse", C10_ENTRY_SHA + ".." + w04_pr7_historic'
+                'al_tip(repo), repo=repo)\n        .decode()\n        .splitlines()\n',
+            ),
+        ],
+        'w04_sprint_prep_revision': [
+            (
+                '    revisions = git("rev-list", "--reverse", W04_SPRINT_ENTRY_SHA + "..HEAD"'
+                ', repo=repo)\n',
+                '    revisions = git(\n        "rev-list", "--reverse", W04_SPRINT_ENTRY_SHA '
+                '+ ".." + w04_pr7_historical_tip(repo),\n        repo=repo,\n    )\n',
+            ),
+            (
+                '        state in {"W04_SPRINT_CLOSEOUT_PREP_01", "W04_SPRINT_FINAL_CLOSEOUT"'
+                '}\n',
+                '        state\n        in {\n            "W04_SPRINT_CLOSEOUT_PREP_01",\n   '
+                '         "W04_SPRINT_FINAL_CLOSEOUT",\n            "W04_PR7_MERGE_REPAIR_01"'
+                ',\n            "W04_PR7_MERGED_MAIN",\n            "W04_POST_MERGE_INTEGRATE'
+                'D",\n        }\n',
+            ),
+        ],
+        'validate_w04_sprint_verifier_sources': [
+            (
+                '    accepted = git("show", W04_SPRINT_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PA'
+                'TH).decode()\n',
+                '    if "W04_PR7_FINAL_SHA = " in current:\n        validate_w04_pr7_merge_ve'
+                'rifier_sources(review_ready, current)\n        return\n    accepted = git("s'
+                'how", W04_SPRINT_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+            ),
+        ],
+        'w04_sprint_verifier_blob_guard': [
+            (
+                '    prep = w04_sprint_prep_revision(repo)\n',
+                '    if w04_pr7_merge_repair_revision(repo) is not None:\n        w04_pr7_mer'
+                'ge_verifier_blob_guard(repo)\n        return\n    prep = w04_sprint_prep_rev'
+                'ision(repo)\n',
+            ),
+        ],
+        'closeout_lifecycle_guard': [
+            (
+                '    head = git("rev-parse", "HEAD", repo=repo).decode().strip()\n',
+                '    head = git("rev-parse", "HEAD", repo=repo).decode().strip()\n    integra'
+                'tion = w04_pr7_integration_anchor(repo)\n    if integration is not None:\n  '
+                '      working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).deco'
+                'de().splitlines())\n        working.update(\n            git("ls-files", "--'
+                'others", "--exclude-standard", repo=repo).decode().splitlines()\n        )\n'
+                '        require(not working, "uncommitted post-integration lifecycle delta")'
+                '\n        return "W04_PR7_MERGED_MAIN" if head == integration else "W04_POST'
+                '_MERGE_INTEGRATED"\n    repaired = w04_pr7_pre_integration_guard(changed, re'
+                'po)\n    if repaired is not None:\n        return repaired\n',
+            ),
+        ],
+    }
+    for name in old_order:
+        expected = old[name][0].encode()
+        for before, after in replacements.get(name, []):
+            expected = replace_once(expected, before.encode(), after.encode())
+        require(new[name][0].encode() == expected, f"unauthorized PR7 accepted source span: {name}")
+    repair = w04_pr7_merge_repair_revision()
+    require(repair is not None, "PR7 source requires committed validated repair")
+    committed_order, committed = source_units(
+        git("show", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    )
+    require(new_order == committed_order, "PR7 repair source-unit placement drift")
+    for name in W04_PR7_MERGE_SOURCE_ADDITIONS:
+        require(new[name][0] == committed[name][0], f"PR7 repair source-span drift: {name}")
+    constants: dict[str, object] = {
+        'W04_PR7_FINAL_SHA': '985f666e5ecfa5acd35565516e200c9b0e36c76b',
+        'W04_PR7_MAIN_SHA': 'af61bdfd5f7cf7961811c4c2dc8e554dd7eed509',
+        'W04_PR7_MERGE_REPAIR_SUBJECT': 'ci(w04): admit PR #7 merge commit lifecycle',
+        'W04_PR7_MERGE_SOURCE_ADDITIONS': (
+            'W04_PR7_FINAL_SHA',
+            'W04_PR7_MAIN_SHA',
+            'W04_PR7_MERGE_REPAIR_SUBJECT',
+            'W04_PR7_MERGE_SOURCE_ADDITIONS',
+            'validate_w04_pr7_merge_repair_lifecycle',
+            'validate_w04_pr7_merge_topology',
+            'w04_pr7_merged_main_guard',
+            'w04_pr7_repair_history',
+            'w04_pr7_pre_integration_guard',
+            'w04_pr7_integration_anchor',
+            'w04_pr7_historical_tip',
+            'w04_pr7_merge_repair_revision',
+            'validate_w04_pr7_merge_verifier_sources',
+            'w04_pr7_merge_verifier_blob_guard',
+            'check_w04_pr7_merge_controls',
+            'check_w04_pr7_post_integration_controls',
+        ),
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "PR7 constant declaration drift")
+        require(ast.literal_eval(cast(ast.Assign, node).value) == value, "PR7 constant drift")
+
+
+def w04_pr7_merge_verifier_blob_guard(repo: Path = ROOT) -> None:
+    repair = w04_pr7_merge_repair_revision(repo)
+    require(repair is not None, "missing validated PR7 merge repair")
+    validate_w04_pr7_merge_verifier_sources(
+        git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo).decode(),
+        (repo / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8"),
+    )
+    require(
+        (repo / CLOSEOUT_VERIFIER_PATH).read_bytes()
+        == git("show", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo)
+        and git("rev-parse", "HEAD:" + CLOSEOUT_VERIFIER_PATH, repo=repo)
+        == git("rev-parse", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),
+        "PR7 verifier must remain byte-identical to validated repair",
+    )
+    prep = w04_sprint_prep_revision(repo)
+    require(prep is not None, "missing accepted Sprint Prep")
+    development = check_c10_lifecycle_controls()
+    require(development == 32, "C10 development adversarial control drift")
+    print(
+        json.dumps(
+            {
+                "c10_bootstrap_sha": C10_CLOSEOUT_BOOTSTRAP_SHA,
+                "c10_adversarial_controls": development,
+            },
+            sort_keys=True,
+        )
+    )
+    closeout = check_c10_closeout_lifecycle_controls()
+    require(closeout == 60, "C10 closeout adversarial control drift")
+    c10_prep = c10_closeout_prep_revision(repo)
+    print(
+        json.dumps(
+            {"c10_closeout_prep_sha": c10_prep, "c10_closeout_adversarial_controls": closeout},
+            sort_keys=True,
+        )
+    )
+    controls = check_w04_sprint_controls()
+    print(
+        json.dumps(
+            {"w04_sprint_prep_sha": prep, "w04_sprint_adversarial_controls": controls},
+            sort_keys=True,
+        )
+    )
+    controls = check_w04_pr7_merge_controls()
+    post_controls = check_w04_pr7_post_integration_controls()
+    print(
+        json.dumps(
+            {
+                "w04_pr7_merge_repair_sha": repair,
+                "w04_pr7_merge_adversarial_controls": controls,
+                "w04_post_integration_controls": post_controls,
+                "w04_pr7_merge_source_guard": "PASS",
+            },
+            sort_keys=True,
+        )
+    )
+
+
+def check_w04_pr7_merge_controls() -> int:
+    """Execute accepted-Final, exact repair/merge positives and hostile lifecycle/source cases."""
+    revisions = [CLOSEOUT_STAGE_A_SHA, CLOSEOUT_REVIEW_READY_SHA]
+    revisions.extend(
+        git("rev-list", "--reverse", CLOSEOUT_REVIEW_READY_SHA + ".." + W04_PR7_FINAL_SHA)
+        .decode()
+        .splitlines()
+    )
+    history: list[dict[str, Any]] = []
+    for revision in revisions:
+        parents = git("show", "-s", "--format=%P", revision).decode().split()
+        require(len(parents) == 1, "accepted historical lifecycle merge/root")
+        delta = {}
+        for row in (
+            git("diff", "--name-status", "--no-renames", parents[0], revision).decode().splitlines()
+        ):
+            status, path = row.split("\t")
+            require(path not in delta, "duplicate accepted lifecycle path")
+            delta[path] = status
+        history.append(
+            {
+                "sha": revision,
+                "parents": parents,
+                "subject": git("show", "-s", "--format=%s", revision).decode().strip(),
+                "delta": delta,
+            }
+        )
+    changed = set(git("diff", "--name-only", ENTRY, W04_PR7_FINAL_SHA, "--").decode().splitlines())
+    require(
+        validate_closeout_lifecycle(history, set(), changed) == "W04_SPRINT_FINAL_CLOSEOUT",
+        "accepted W04 Sprint Final no longer valid",
+    )
+    repair, merge, tree = "a" * 40, "b" * 40, b"c" * 40
+    history.append(
+        {
+            "sha": repair,
+            "parents": [W04_PR7_FINAL_SHA],
+            "subject": W04_PR7_MERGE_REPAIR_SUBJECT,
+            "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+        }
+    )
+    require(
+        validate_closeout_lifecycle(history, set(), changed) == "W04_PR7_MERGE_REPAIR_01",
+        "valid PR7 merge-repair state rejected",
+    )
+    parents = [merge, W04_PR7_MAIN_SHA, repair]
+    require(
+        validate_w04_pr7_merge_topology(merge, parents, repair, tree, tree, b"", set())
+        == "W04_PR7_MERGED_MAIN",
+        "valid synthetic PR7 merge rejected",
+    )
+    lifecycle_mutations: list[tuple[str, int, str, Any]] = [
+        ("wrong repair parent", 11, "parents", ["d" * 40]),
+        ("merge repair", 11, "parents", [W04_PR7_FINAL_SHA, W04_PR7_MAIN_SHA]),
+        ("root repair", 11, "parents", []),
+        ("wrong repair subject", 11, "subject", "ci: unauthorized"),
+        ("extra repair path", 11, "delta", {CLOSEOUT_VERIFIER_PATH: "M", "README.md": "M"}),
+        ("added repair verifier", 11, "delta", {CLOSEOUT_VERIFIER_PATH: "A"}),
+        ("deleted repair verifier", 11, "delta", {CLOSEOUT_VERIFIER_PATH: "D"}),
+        ("renamed repair verifier", 11, "delta", {CLOSEOUT_VERIFIER_PATH: "R100"}),
+        ("invalid repair SHA", 11, "sha", "0" * 40),
+        ("historical lifecycle merge", 9, "parents", [W04_SPRINT_ENTRY_SHA, W04_PR7_MAIN_SHA]),
+        ("historical anchor mutation", 8, "sha", "d" * 40),
+        ("accepted Final mutation", 10, "sha", "e" * 40),
+    ]
+    for label, index, field, value in lifecycle_mutations:
+        damaged = copy.deepcopy(history)
+        damaged[index][field] = value
+        rejected(
+            label,
+            lambda damaged=damaged: validate_closeout_lifecycle(damaged, set(), changed),
+        )
+    for label, damaged, working, cumulative in (
+        ("extra Final-to-repair commit", history[:11] + [history[-1], history[-1]], set(), changed),
+        ("extra repair-to-merge commit", history + [history[-1]], set(), changed),
+        ("uncommitted repair", history, {CLOSEOUT_VERIFIER_PATH}, changed),
+        ("repair cumulative extra path", history, set(), changed | {"src/extra.py"}),
+    ):
+        rejected(
+            label,
+            lambda damaged=damaged, working=working, cumulative=cumulative:
+                validate_closeout_lifecycle(damaged, working, cumulative),
+        )
+    topology_mutations: list[tuple[str, str, list[str], bytes, bytes, bytes, set[str]]] = [
+        ("wrong main parent", merge, [merge, "d" * 40, repair], tree, tree, b"", set()),
+        (
+            "wrong feature parent", merge, [merge, W04_PR7_MAIN_SHA, "d" * 40],
+            tree, tree, b"", set(),
+        ),
+        ("reversed parents", merge, [merge, repair, W04_PR7_MAIN_SHA], tree, tree, b"", set()),
+        ("octopus merge", merge, parents + ["d" * 40], tree, tree, b"", set()),
+        ("root merge", merge, [merge], tree, tree, b"", set()),
+        ("arbitrary one-parent merge", merge, [merge, repair], tree, tree, b"", set()),
+        ("merge tree drift", merge, parents, b"d" * 40, tree, b"", set()),
+        ("second-parent resolution delta", merge, parents, tree, tree, b"changed", set()),
+        ("invalid merge tree", merge, parents, b"", b"", b"", set()),
+        ("uncommitted merge", merge, parents, tree, tree, b"", {"README.md"}),
+        ("nonterminal merge identity", "d" * 40, parents, tree, tree, b"", set()),
+    ]
+    for label, damaged_head, damaged_parents, head_tree, repair_tree, diff, working in (
+        topology_mutations
+    ):
+        rejected(
+            label,
+            lambda damaged_head=damaged_head, damaged_parents=damaged_parents,
+                head_tree=head_tree, repair_tree=repair_tree, diff=diff, working=working:
+                validate_w04_pr7_merge_topology(
+                    damaged_head, damaged_parents, repair, head_tree, repair_tree, diff, working
+                ),
+        )
+
+    def fake_git(*arguments: str, repo: Path = ROOT) -> bytes:
+        responses = {
+            ("diff", "--name-only", "HEAD", "--"): b"",
+            ("ls-files", "--others", "--exclude-standard"): b"",
+            ("rev-parse", "HEAD"): merge.encode(),
+            ("merge-base", "--is-ancestor", merge, merge): b"",
+            ("rev-parse", merge + "^{tree}"): tree,
+            ("rev-parse", repair + "^{tree}"): tree,
+            ("diff", repair, merge, "--"): b"",
+        }
+        require(arguments in responses, "unexpected merge-control Git command")
+        return responses[arguments]
+
+    with patch.dict(globals(), {"git": fake_git}):
+        require(
+            w04_pr7_merged_main_guard(history, changed, merge, parents) == "W04_PR7_MERGED_MAIN",
+            "terminal merge dispatch rejected valid topology",
+        )
+        rejected(
+            "direct Final-to-merge without repair",
+            lambda: w04_pr7_merged_main_guard(
+                history[:11], changed, merge, [merge, W04_PR7_MAIN_SHA, W04_PR7_FINAL_SHA]
+            ),
+        )
+    original = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    current = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    validate_w04_pr7_merge_verifier_sources(original, current)
+    _, units = source_units(current)
+    lines = current.splitlines(keepends=True)
+
+    def splice(name: str, replacement: str) -> str:
+        text, parsed = units[name]
+        node = cast(ast.stmt, parsed)
+        start, end = node.lineno - 1, cast(int, node.end_lineno)
+        require("".join(lines[start:end]) == text, "PR7 source adversary span mismatch")
+        return "".join(lines[:start]) + replacement + "".join(lines[end:])
+
+    name = "validate_w04_pr7_merge_topology"
+    unit = units[name][0]
+    source_mutations = [
+        splice(name, ""),
+        splice(name, unit.replace("def " + name + "(", "def renamed_pr7_topology(", 1)),
+        splice(name, "") + "\n" + unit,
+        splice(name, unit + "    pass\n"),
+        splice("require", units["require"][0] + "    pass\n"),
+        current + "\ndef unauthorized_pr7_unit():\n    pass\n",
+        splice(
+            "W04_PR7_MAIN_SHA",
+            'W04_PR7_MAIN_SHA = "' + "d" * 40 + '"\n',
+        ),
+        splice(
+            "closeout_lifecycle_guard",
+            units["closeout_lifecycle_guard"][0].replace(
+                "if integration is not None:", "if True:", 1
+            ),
+        ),
+    ]
+    for damaged_source in source_mutations:
+        require(damaged_source != current, "PR7 source adversary no-op")
+        rejected(
+            "unauthorized PR7 source deletion/rename/reorder/span/merge exception",
+            lambda damaged_source=damaged_source:
+                validate_w04_pr7_merge_verifier_sources(original, damaged_source),
+        )
+    return 4 + len(lifecycle_mutations) + 4 + len(topology_mutations) + 1 + len(source_mutations)
+
+
+def check_w04_pr7_post_integration_controls() -> int:
+    """Execute integration/descendant continuations and fail-closed anchor controls."""
+    repair = "a" * 40
+    merge = "b" * 40
+    doc = "c" * 40
+    later = "d" * 40
+    branch = "e" * 40
+    tree = b"f" * 40
+    actual = w04_pr7_merge_repair_revision()
+    require(actual is not None, "post-integration controls need a validated repair")
+    history, changed = w04_pr7_repair_history(cast(str, actual))
+    history[-1]["sha"] = repair
+    records = {
+        repair: [repair, W04_PR7_FINAL_SHA],
+        merge: [merge, W04_PR7_MAIN_SHA, repair],
+        doc: [doc, merge],
+        branch: [branch, doc],
+        later: [later, doc, branch],
+    }
+    state: dict[str, Any] = {
+        "head": merge, "working": set(), "tree": tree,
+        "diff": b"", "span": [repair, merge], "history": history,
+    }
+
+    def fake_history(revision: str, repo: Path = ROOT) -> tuple[list[dict[str, Any]], set[str]]:
+        require(revision == repair, "unexpected historical control revision")
+        validate_w04_pr7_merge_repair_lifecycle(state["history"], set(), changed)
+        return state["history"], changed
+
+    def fake_git(*arguments: str, repo: Path = ROOT) -> bytes:
+        if arguments == ("rev-parse", "HEAD"):
+            return cast(str, state["head"]).encode()
+        if arguments == (
+            "rev-list", "--parents", "--reverse", "--topo-order", W04_PR7_FINAL_SHA + "..HEAD"
+        ):
+            active = {merge: [repair, merge], doc: [repair, merge, doc],
+                      later: [repair, merge, doc, branch, later]}[state["head"]]
+            return "\n".join(" ".join(records[n]) for n in active).encode()
+        if arguments == (
+            "rev-list", "--reverse", "--topo-order", W04_PR7_FINAL_SHA + ".." + merge
+        ):
+            return "\n".join(state["span"]).encode()
+        if arguments == ("diff", "--name-only", "HEAD", "--"):
+            return "\n".join(sorted(state["working"])).encode()
+        if arguments == ("ls-files", "--others", "--exclude-standard"):
+            return b""
+        if arguments == ("merge-base", "--is-ancestor", merge, state["head"]):
+            return b""
+        if arguments == ("rev-parse", merge + "^{tree}"):
+            return cast(bytes, state["tree"])
+        if arguments == ("rev-parse", repair + "^{tree}"):
+            return tree
+        if arguments == ("diff", repair, merge, "--"):
+            return cast(bytes, state["diff"])
+        raise AssertionError("unexpected post-integration control Git command: " + repr(arguments))
+
+    with patch.dict(globals(), {"git": fake_git, "w04_pr7_repair_history": fake_history}):
+        for head, expected in (
+            (merge, "W04_PR7_MERGED_MAIN"),
+            (doc, "W04_POST_MERGE_INTEGRATED"),
+            (later, "W04_POST_MERGE_INTEGRATED"),
+        ):
+            state["head"] = head
+            require(closeout_lifecycle_guard(changed) == expected, "post-integration continuation")
+        for path in (CLOSEOUT_VERIFIER_PATH, "README.md", "src/extra.py", "extra-untracked"):
+            state["working"] = {path}
+            rejected("dirty historical mode", lambda: closeout_lifecycle_guard(changed))
+        state["working"] = set()
+        for key, value in (
+            ("tree", b"0" * 40), ("diff", b"changed"),
+            ("span", [repair, "0" * 40, merge]),
+            ("history", history[:11]),
+        ):
+            original = state[key]
+            state[key] = value
+            rejected(
+                "invalid historical integration proof", lambda: closeout_lifecycle_guard(changed)
+            )
+            state[key] = original
+        original = records[merge]
+        for parents in (
+            [merge, repair, W04_PR7_MAIN_SHA],
+            [merge, W04_PR7_MAIN_SHA, W04_PR7_FINAL_SHA],
+            [merge, W04_PR7_MAIN_SHA, repair, "0" * 40],
+        ):
+            records[merge] = parents
+            require(w04_pr7_integration_anchor() is None, "hostile topology became an anchor")
+        records[merge] = original
+    return 3 + 4 + 4 + 3
+
+
+
 def validate_changed_paths(
     changed: set[str], subject: str = "", publication_delta: set[str] | None = None
 ) -> None:
@@ -2182,6 +2913,17 @@ def validate_closeout_lifecycle(
 
 def closeout_lifecycle_guard(changed: set[str], repo: Path = ROOT) -> str:
     head = git("rev-parse", "HEAD", repo=repo).decode().strip()
+    integration = w04_pr7_integration_anchor(repo)
+    if integration is not None:
+        working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).decode().splitlines())
+        working.update(
+            git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+        )
+        require(not working, "uncommitted post-integration lifecycle delta")
+        return "W04_PR7_MERGED_MAIN" if head == integration else "W04_POST_MERGE_INTEGRATED"
+    repaired = w04_pr7_pre_integration_guard(changed, repo)
+    if repaired is not None:
+        return repaired
     revisions = [CLOSEOUT_STAGE_A_SHA]
     if head != CLOSEOUT_STAGE_A_SHA:
         git("merge-base", "--is-ancestor", CLOSEOUT_REVIEW_READY_SHA, head, repo=repo)
