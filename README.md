@@ -175,9 +175,10 @@ separate authority boundaries; none grants operational write-back.
 
 ## Current Development Status
 
-**Verified baseline as of 2026-10-16 (Asia/Shanghai):**
+**Verified baseline as of 2026-10-17 (Asia/Shanghai). Current phase:
+POST-W04 STABILIZATION / P2-03 GOVERNANCE HARDENING.**
 
-- **W01/W02:** CLOSED / VERIFIED. Frozen data contracts, generator/hash/scenario
+- **W01/W02:** CLOSED / VERIFIED. Frozen schema, data hashes, generator/scenario
   semantics and HGT isolation remain unchanged.
 - **W03:** MERGED / CLOSED / VERIFIED via [PR #6](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/pull/6).
   Main merge SHA: `af61bdfd5f7cf7961811c4c2dc8e554dd7eed509`.
@@ -187,37 +188,46 @@ separate authority boundaries; none grants operational write-back.
   [CI #84 / 37254705531](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/37254705531)
   at `a24e2e0587f11114edd5718eb10081797e303087`, followed by final synchronization
   and the separately Human-authorized PR #6 merge.
-- **W04-C01 through C10:** implemented / independently reviewed / Human accepted /
-  CLOSED / VERIFIED. The [source-evolution manifest](docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json)
-  freezes C01-C08 runtime source. C09/C10 remain governance/regression/acceptance
-  layers without a new source-evolution entry.
-- **W04-C10 final:** CLOSED / VERIFIED / GITHUB_SYNCHRONIZED at
-  `232bfb390babce30417b8cdb9a6660663eb3c3f1`.
-  [Own-SHA CI #145 / 38709171796](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/38709171796):
-  attempt 1 SUCCESS, C / FULL_EXACT_SHA, C10_FINAL_CLOSEOUT.
-- **Sprint Closeout Prep:** complete at `c8b29cbcffe1886412de4a31b75905f6397043fb`.
-  [Own-SHA CI #146 / 38735686969](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/38735686969):
-  attempt 1 SUCCESS, C / FULL_EXACT_SHA, W04_SPRINT_CLOSEOUT_PREP_01.
-  Reconstructed proof: 2997 selected / 2994 passed / 3 accepted Linux skips,
-  zero failed/error/xfail/xpass; no-loss / exact union / exact once PASS;
-  Integration 70, W03 38/85, W04 9/67/81; all shard job/pytest durations <3300s.
-- **W04 Sprint Final Closeout:** effective only after this documentation commit's
-  own attempt-1 UNKNOWN / FULL_EXACT_SHA native success and fresh four-head
-  synchronization. Generated Final SHA/run and completed readiness facts belong in
-  the post-CI handoff and PR body, not invented pre-commit fields.
-- **W04 integration:** branch `feat/w04-evidence-investigation` is retained;
-  [PR #7](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/pull/7)
-  targets main and is OPEN / DRAFT / UNMERGED at the recovered Prep entry.
-  Title/body normalization and Draft -> Ready are authorized only after Final
-  own-SHA proof. W04 is not merged; PR #7 merge is NOT AUTHORIZED.
-- **Post-W04 implementation / W05:** NOT AUTHORIZED.
-- **FlowLens v1.0:** NOT RELEASED. W04 business acceptance covers the accepted
-  investigation workflow; it is not production deployment or v1.0 release proof.
+- **W04:** MERGED / CLOSED / VERIFIED. C01-C10 implementation, independent
+  review, explicit Human acceptance and closeout are complete within their
+  accepted scope. [PR #7](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/pull/7)
+  merged at b2b582541d38180c3bf8360699e6df271979829a. The retained branch is
+  feat/w04-evidence-investigation at ecd591fb00d00e8b84a5546cabe9dcd5ec5aec5c.
+- **W04 post-merge main proof:** [CI #149 / 39008095313](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/39008095313),
+  attempt 1 SUCCESS at that exact merge SHA; UNKNOWN / FULL_EXACT_SHA.
+  All mandatory jobs succeeded; Publication proof was skipped. Original evidence
+  proves 2997 selected / 2994 passed / 3 accepted Linux skips, zero
+  failed/error/xfail/xpass, entry no-loss / exact union / exact once PASS,
+  Integration 70, W03 38 selectors / 85 cases and W04 9 families / 67 selectors /
+  81 cases PASS.
+- **Accepted PR #7 limitations:** P2-01 (missing actual-start evidence) and P2-02
+  (parent-directory fsync) remain ACCEPTED_LIMITATION with resolved review
+  threads. P2-03 (publication deletion governance) was accepted for PR #7 merge
+  with a repair required before W05; its review thread is resolved.
+- **P2-03 stabilization:** hardening is present in this tree. Verified publication
+  synchronize deltas allow light proof only for A/M status; deletion, type change,
+  rename and mixed add/delete route UNKNOWN / FULL_EXACT_SHA. Push remains full.
+  Missing publication content at the verified head fails closed. The W04 verifier
+  admits only the exact five-file hardening child of the merge baseline, then
+  freezes its CI, test and verifier source. Pytest node identities, the workflow,
+  semantic manifests and runtime source remain unchanged.
+- **Stabilization status:** the first commit hardens P2-03; the second synchronizes
+  only README / AGENTS / CURRENT_STATE. Final closure requires this stabilization
+  PR's own exact-SHA native proof, independent review, a separately authorized
+  merge and later post-merge proof. These future results are recorded in the
+  external handoff and PR metadata after they exist.
+- **W05:** NOT AUTHORIZED. It requires separate explicit Human authorization
+  after stabilization proof and merge.
+- **FlowLens v1.0:** NOT RELEASED. W04 business acceptance does not establish
+  production deployment or v1.0 release acceptance.
 
-Historical control snapshots and immutable checkpoint reports retain the state at
-which they were authored. Their pre-commit/pending fields are history; subsequent
-Human decisions and exact-SHA evidence are recorded separately. This README does
-not rewrite them.
+Historical W04 identities remain immutable: C10 final
+232bfb390babce30417b8cdb9a6660663eb3c3f1 / CI #145; Sprint Prep
+c8b29cbcffe1886412de4a31b75905f6397043fb / CI #146; Sprint Final
+985f666e5ecfa5acd35565516e200c9b0e36c76b / CI #147; PR #7 governance repair
+ecd591fb00d00e8b84a5546cabe9dcd5ec5aec5c / CI #148. Their pre-merge and
+conditional fields describe historical snapshots. The source-evolution manifest
+continues to freeze C01-C08 runtime source; C09/C10 have no new runtime entry.
 
 ## Quick Start
 
@@ -422,13 +432,15 @@ LOOP.md                      Development loop controls
 
 ## Roadmap
 
-W04 C01-C10 are CLOSED / VERIFIED. The remaining authorized work in this Sprint
-Final commit is its own native proof, synchronization and PR #7 readiness. Merge
-requires a separate independent GPT merge review and explicit Human authorization.
+W04 is MERGED / CLOSED / VERIFIED through PR #7 and exact merge-SHA CI #149.
+The active scope is the bounded P2-03 stabilization and current-state document
+synchronization. Stabilization PR merge requires independent review and new
+explicit Human authorization; the implementation task grants no merge authority.
 
-End-to-end product packaging, production readiness, release planning and any later
-implementation need their own scope and acceptance. Post-W04 implementation and
-W05 are NOT AUTHORIZED. FlowLens v1.0 remains NOT RELEASED.
+End-to-end product packaging, production readiness, release planning and later
+implementation require separate scope and acceptance. W05 is NOT AUTHORIZED and
+can begin only after stabilization proof/merge and separate Human authorization.
+FlowLens v1.0 remains NOT RELEASED.
 
 ## Explicit Non-Capabilities
 
