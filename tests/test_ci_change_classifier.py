@@ -203,6 +203,18 @@ def test_w04_current_git_delta_routes_each_class(tmp_path: Path, path: str, expe
     assert actual["gate"] == (PUBLICATION if expected == "P" else FULL)
     assert actual["base_sha"] == base and actual["head_sha"] == head
     assert actual["changed_paths"] == [path]
+    if expected == "P":
+        modified = commit(repo, path, "modified\n")
+        updated = classify_event(event(head, modified), "pull_request", modified, repo)
+        assert updated["class"] == "P" and updated["gate"] == PUBLICATION
+        (repo / path).unlink()
+        git(repo, "add", "-A")
+        git(repo, "commit", "-q", "-m", "publication deletion")
+        deleted = git(repo, "rev-parse", "HEAD")
+        rejected = classify_event(event(modified, deleted), "pull_request", deleted, repo)
+        assert rejected["class"] == "UNKNOWN" and rejected["gate"] == FULL
+        assert rejected["changed_paths"] == [path]
+        assert "publication_non_add_modify_delta" in rejected["reason_codes"]
 
 
 @pytest.mark.parametrize("boundary", ["push", "opened", "missing_before", "head_mismatch"])
@@ -333,14 +345,14 @@ def test_shadow_workflow_requires_equivalence_and_preserves_classification() -> 
     for result in ("STATIC_RESULT", "INTEGRATION_RESULT", "NONINT_RESULT"):
         assert f'test "${result}" = success' in workflow
         assert f'test "${result}" = skipped' in workflow
-    assert (
-        git(
-            ROOT,
-            "diff",
-            "4a5ab37251c1fecff4291ae6198e03c847cf8735",
-            "--",
-            "scripts/ci/classify_change.py",
-            "scripts/ci/verify_publication.py",
-        )
-        == ""
+    from verify_w04_investigation_gate_contract import (
+        W04_POST_MERGE_BASE_SHA,
+        validate_w04_p2_03_ci_sources,
     )
+
+    assert W04_POST_MERGE_BASE_SHA == "b2b582541d38180c3bf8360699e6df271979829a"
+    for path in ("scripts/ci/classify_change.py", "scripts/ci/verify_publication.py"):
+        baseline = subprocess.check_output(
+            ["git", "show", W04_POST_MERGE_BASE_SHA + ":" + path], cwd=ROOT
+        ).decode("utf-8")
+        validate_w04_p2_03_ci_sources(path, baseline, (ROOT / path).read_text(encoding="utf-8"))
