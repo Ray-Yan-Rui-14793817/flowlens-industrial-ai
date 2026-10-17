@@ -1,15 +1,16 @@
 # FlowLens Industrial AI — AGENTS.md
 > Post-W04 Stabilization Repository Execution Router
 
-This router records the bounded Human-authorized POST_W04_P2_03_STABILIZATION_RECOVERY_R2
-scope. W04 integration is complete. This task grants no stabilization PR merge,
-W05 implementation or FlowLens v1.0 release authority.
+This router records the bounded Human-authorized
+POST_W04_P2_03_PR8_MERGE_LIFECYCLE_REPAIR_R4_V2 scope. W04 integration is
+complete. R4 V2 repairs PR #8 merge topology only; it grants no PR merge,
+W05 implementation, successor-governance transition or v1.0 release authority.
 
 ## 1. Current phase
 
 ~~~text
 PROJECT = FlowLens Industrial AI
-CURRENT_PHASE = POST-W04 STABILIZATION / P2-03 R2 RECOVERY
+CURRENT_PHASE = POST-W04 STABILIZATION / PR #8 MERGE-LIFECYCLE REPAIR R4 V2
 PRIMARY_LOOP = Order Delivery Risk Decision Loop + Evidence-grounded Investigation
 MODE = OFFLINE / SHADOW / HUMAN-IN-THE-LOOP
 CORE = DETERMINISTIC-FIRST
@@ -26,14 +27,22 @@ PR7_POST_MERGE_CI = #149 / 39008095313 / attempt 1 / SUCCESS
 PR7_POST_MERGE_ROUTE = UNKNOWN / FULL_EXACT_SHA
 P2_01 = ACCEPTED_LIMITATION / RESOLVED THREAD
 P2_02 = ACCEPTED_LIMITATION / RESOLVED THREAD
-P2_03 = R1 HARDENING PRESERVED / R2 REPAIR IN CURRENT TREE
+P2_03 = FUNCTIONAL HARDENING AND R2 FEATURE PROOF COMPLETE / PR8 MERGE CLOSURE PENDING
 PR8 = OPEN / READY / UNMERGED
 R1_HARDENING_SHA = e2606585829153a2f69c9628c916cf42dcc1b926
 R1_DOC_SYNC_SHA = ca2506115b282d9569c3f7c35da266927a39520f
 CI150 = #150 / 39017960719 / attempt 1 / FAILURE
 CI150_FAILURE = stale C09 publication-verifier historical freeze / nonintegration shard 5
-R2_P1_TOPOLOGY_FINDING = OPEN / repair in current R2 tree
-R2_REPAIR = separately Human-authorized recovery / native proof pending
+R2_REPAIR_SHA = e706e1f8ed920af0e840fbb9e97725d47d79a2c6
+CI151 = #151 / 39030171133 / attempt 1 / SUCCESS / exact e706 historical proof
+R3 = REVIEW DISPOSITION AND PR EVIDENCE SYNC COMPLETE / BOTH KNOWN P1 THREADS RESOLVED
+MR8_P1_01 = VALID MERGE BLOCKER / e706 normal merge exceeds strict source row count
+R4_V2 = CURRENT SEPARATELY AUTHORIZED THREE-PATH MERGE-LIFECYCLE REPAIR
+R4_NATIVE_PROOF = PENDING THIS COMMIT'S OWN FIRST EXACT-SHA RUN
+W05_SUCCESSOR_GOVERNANCE_REQUIRED = YES
+W05_CI_PLANNER_EVOLUTION_REQUIRED_IF_TEST_COLLECTION_CHANGES = YES
+W05_DEPENDENCY_MIGRATION_FREEZE_EVOLUTION_REQUIRED_IF_CHANGED = YES
+R4_CLAIMS_W05_READY = NO
 P2_03_CLOSURE = REQUIRES STABILIZATION PR PROOF AND LATER MERGE / POST-MERGE PROOF
 STABILIZATION_BRANCH = fix/post-w04-p2-03-stabilization / RETAINED
 STABILIZATION_PR_MERGE = NOT AUTHORIZED
@@ -53,14 +62,20 @@ review thread does not itself establish completion of this stabilization.
 
 The Git repository is the source of truth. Read the current explicitly authorized
 task and active Human request first. The active task is
-POST_W04_P2_03_STABILIZATION_RECOVERY_R2, based on exact main
+POST_W04_P2_03_PR8_MERGE_LIFECYCLE_REPAIR_R4_V2, based on exact main
 b2b582541d38180c3bf8360699e6df271979829a and entry PR #8 head
-ca2506115b282d9569c3f7c35da266927a39520f. NEW separate Human authorization
-supersedes R1's "no repair after push" stop boundary solely for this exact recovery.
-R1 CI #150 remains attempt-1 FAILURE; R2 does not retroactively change its evidence.
-The known P1 thread PRRT_kwDOT4LAIc6teu85 remains unresolved pending independent
-review. This authorization permits one evidence reply after native success,
-but grants no thread-resolution or merge authority.
+e706e1f8ed920af0e840fbb9e97725d47d79a2c6. Its explicit Human authorization
+supersedes the prior task boundary only for this exact three-path repair,
+disposable merge simulations, future-compatibility audit, one push and
+post-success PR body synchronization. R4 V2 supersedes the earlier R4 design.
+
+CI #150 remains historical attempt-1 FAILURE. CI #151 remains immutable
+attempt-1 SUCCESS for exact e706; after this repair it is historical proof,
+not current-head proof. R3 resolved PRRT_kwDOT4LAIc6teu85 as repaired/native-proven
+and PRRT_kwDOT4LAIc6tf4bs as a review-environment topology mismatch. R3 changed
+no source. MR8-P1-01 is a separate valid merge blocker: a normal e706 merge
+adds a fourth post-base revision that the pre-R4 validator rejects.
+
 Original W04 Human authority remains preserved in
 docs/w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md; historical closeout,
 readiness and review records remain immutable.
@@ -132,37 +147,58 @@ semantics, canonical dataset hashes, deterministic generator semantics,
 Supplier/Quality/Capacity scenario semantics, HGT identity/isolation and accepted
 historical evidence.
 
-Preserve the exact two immutable R1 commits above main:
-e2606585829153a2f69c9628c916cf42dcc1b926 (five-file hardening) followed by
-ca2506115b282d9569c3f7c35da266927a39520f (three-document synchronization).
+Preserve the exact immutable R1/R2 source rows above main:
+e2606585829153a2f69c9628c916cf42dcc1b926 (hardening);
+ca2506115b282d9569c3f7c35da266927a39520f (documentation);
+e706e1f8ed920af0e840fbb9e97725d47d79a2c6 (R2 proof-closure repair).
 
-R2 authorizes exactly one single-parent child of ca250611, subject
-ci(post-w04): repair stabilization proof closure, with exactly four M paths:
+R4 V2 authorizes one single-parent child of e706, subject
+ci(post-w04): admit PR #8 merge lifecycle, with exactly three M paths:
 scripts/ci/verify_w04_investigation_gate_contract.py;
-tests/test_c09_ci_gate.py; AGENTS.md; docs/CURRENT_STATE.md.
+AGENTS.md; docs/CURRENT_STATE.md. Do not edit README or add pytest nodes.
 
-The sole C09 test-body evolution is
-test_classifier_publication_and_runtime_frozen_materials_unchanged. Keep its
-name/signature/decorators, pyproject/lock/Compose historical freezes,
-migrations/apps no-drift and source-evolution proof. Pin publication verifier
-to exact e260. Classifier, publication verifier and their two R1 test files
-remain byte-identical to e260.
+Validate explicit-tip source history as exact States 0-4. Pin all first three
+SHAs; admit only the exact fourth repair shape. Discover PR #8 integration
+independently: two parents in main/R4 order, main exactly b2b582, feature exactly
+the validated R4 tip, identical feature/merge trees and empty feature-to-merge
+diff, reachable from HEAD and at most one anchor. Do not pin merge subject.
+No recursive anchor/hardening discovery or arbitrary fourth/fifth premerge row.
 
-Validate the entire ordered post-base history: exact hardening, optionally exact
-ca250 documentation child, optionally the single exact R2 repair child. Reject
-every other descendant, wrong metadata or non-M path status. Preserve the
-historical verifier-source chain, original 93 P2 controls and frozen test nodes.
-After R2, freeze the four repair paths to its validated committed revision.
+Before integration, source tip is HEAD. After a validated integration, source
+tip remains the anchor's second parent; validate base..R4, not merge/descendant
+row count. Keep W04_POST_MERGE_INTEGRATED and emit separate P2 lifecycle states:
+P2_03_PR8_PREMERGE_REPAIR, P2_03_PR8_MERGED_MAIN,
+P2_03_POST_PR8_INTEGRATED. Later non-protected descendants are not rejected solely
+because history is longer; dedicated protected guards still apply.
 
-Preserve runtime src, dependencies/lock, migrations/schema, workflow, W03/W04
-runners, gate/source-evolution manifests, C01-C10 evidence, historical closeout
-files, dataset, README and .gitattributes. No broad source exemption is authorized.
+Through PR #8 closure, classifier/publication and their two R1 tests remain
+byte/tree-identical to e260; C09 test to e706; verifier to the validated R4.
+Before integration, AGENTS/CURRENT_STATE also match R4. Merge-tree equality
+preserves those bytes at integration. After validated integration, lifecycle
+README/AGENTS/CURRENT_STATE may evolve. Preserve the full historical verifier
+source chain before admitting literal R4 units/connectors; no broad hash bypass.
+Preserve original 172 controls, 223 shell cases, P2 93 and R2 95 controls, adding
+bounded R4 helper/real-Git controls without recursively running the semantic gate.
+
+Runtime src, dependencies/lock, migrations/schema, apps, workflow, planner,
+W03/W04 runners, gate/source-evolution manifests, C01-C10 evidence, historical
+closeout files, datasets and .gitattributes remain unchanged in R4.
+
+R4 establishes merge topology continuity only. Current W04 planning still
+requires 2997 exact nodes / 63 files / 7 shards and frozen node/file/weights
+identities. Current C09 still freezes pyproject.toml, uv.lock, docker-compose.yml,
+migrations and apps. W05 changes to collection, dependencies, migrations/apps,
+CI or planner require a separate explicitly Human-authorized successor contract:
+retain old SHA evidence/history, prove replacement guards and record a new
+baseline/version. R4 does not perform that transition or claim W05 readiness.
+These assets are not declared impossible to evolve under that future authority.
 
 A contract conflict, semantic/product decision, extra tracked path, possible live
 secret/private key, HGT/future leakage, operational mutation or unauthorized
-action requires STOP and a separate GPT/Human decision. Local R2 candidates may
-be rebuilt before freeze/push. After push, failed native proof or a NEW P0/P1
-finding requires STOP; no automatic further repair or rerun-as-proof.
+action requires STOP and a separate GPT/Human decision. Local R4 candidates may
+be rebuilt before final freeze/push. After freeze, no amend/rebase. A failed
+pre-push synthetic merge, first native R4 proof or NEW P0/P1 requires STOP;
+no automatic repair, replacement head or rerun-as-proof is authorized.
 
 ## 6. Git, verification and completion
 
@@ -170,40 +206,47 @@ finding requires STOP; no automatic further repair or rerun-as-proof.
 NO DIRECT MAIN WRITE
 NO FORCE PUSH
 NO R1 HISTORY REWRITE
-NO AMEND / REBASE AFTER R2 FREEZE
+NO AMEND / REBASE AFTER R4 FREEZE
 NO STABILIZATION PR MERGE / AUTO-MERGE / MERGE QUEUE
 NO P1 THREAD RESOLUTION
 NO FEATURE-BRANCH DELETION
 NO CHECKPOINT AUTO-ADVANCE
 ~~~
 
-Resume the clean full-history LF stabilization workspace at ca250611. Preserve
-the retained W04 branch. Require the formerly failing C09 selector, all three
-focused governance test files, Ruff, strict mypy, lock consistency, diff/scope
-checks, full committed-head W04 governance, original 93 plus deterministic R2
-controls and frozen W04 9/67/81 semantic proof.
+Use the clean full-history LF stabilization branch at entry e706. Preserve the
+retained W04 branch. Require Ruff, strict mypy, lock consistency, diff/scope,
+all three unchanged focused CI test files, committed-head full W04 governance,
+93/95/R4 controls and frozen W04 9/67/81 semantic proof.
 
-The collection remains 2997 nodes / 63 files / 7 shards. Node digest:
+The legacy collection remains 2997 nodes / 63 files / 7 shards. Node digest:
 9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a.
+File digest:
+890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7.
 Weights digest:
 a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851.
-Workflow topology, weights, timeouts and semantic manifests remain fixed.
+Workflow, planner, weights, timeouts and semantic manifests are fixed for R4.
 
-Freeze the repair SHA after complete local proof. Push the one exact child once
-normally to existing PR #8. Its FIRST exact repair-head pull_request/synchronize
-run must be attempt 1, I / FULL_EXACT_SHA, SUCCESS; Publication proof SKIPPED.
-Require all mandatory jobs, 2997/2994/3 with zero adverse outcomes, entry no-loss /
-exact union / exact once, Integration 70, W03 38/85, W04 9/67/81, original
-93 P2 controls/e260 and new R2 controls/exact repair SHA. Do not rerun CI #150
-or substitute a rerun of a failed repair-head run.
+Before push, construct an exact normal two-parent merge in disposable full Git
+history and run the full governance verifier once there, once at a lifecycle-docs
+descendant and once at a later benign two-parent docs merge. Require PASS and
+source tip pinned to R4. Prove hostile topologies/protected drifts reject, a
+non-protected descendant remains topologically admissible, and the separate
+future W05 legacy-freeze audit is recorded. Never push synthetic commits.
 
-Only after native success, synchronize PR metadata preserving #150 failure and
-reply once with evidence to the known P1 thread. Leave it unresolved for NEW
-independent review. Require clean synchronized local/tracking/direct-origin/PR
-heads, unchanged main b2b582541d38180c3bf8360699e6df271979829a, retained branches
+After all local/simulation/audit proof, freeze the sole R4 child and push once
+normally to PR #8. Its FIRST exact R4 pull_request/synchronize run must be
+attempt 1, C / FULL_EXACT_SHA, SUCCESS; Publication proof SKIPPED. Require all
+mandatory jobs, 2997/2994/3 with zero adverse outcomes, no-loss/exact-union/
+exact-once, Integration 70, W03 38/85, W04 9/67/81 and 93/95/R4 controls.
+Do not rerun a failed native run or automatically repair a published head.
+
+Only after native success, synchronize PR body preserving R1/R2/R3 evidence,
+R4 exact proof, merge/descendant simulations and the successor-governance
+boundary. Refetch all reviews; NEW P0/P1 requires STOP. Keep clean synchronized
+local/tracking/direct-origin/PR heads, main unchanged b2b582, branches retained,
 and PR OPEN / READY / UNMERGED with auto-merge absent. Package evidence outside
-the repository and stop at repaired/proven awaiting independent review.
+the repository and stop at IMPLEMENTED_PROVEN_AWAITING_FINAL_REVIEW.
 
-Stabilization merge requires new explicit Human authorization. W05 requires
-completed stabilization proof/merge and separate authorization. FlowLens v1.0
-remains NOT RELEASED.
+PR #8 merge requires a new independent merge review and explicit Human
+authorization. W05 requires separate successor-governance and implementation
+authority after stabilization closure. FlowLens v1.0 remains NOT RELEASED.

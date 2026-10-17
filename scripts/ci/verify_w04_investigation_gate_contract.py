@@ -1014,6 +1014,280 @@ W04_P2_03_R2_SOURCE_ADDITIONS = (
 )
 
 
+W04_P2_03_R2_SHA = "e706e1f8ed920af0e840fbb9e97725d47d79a2c6"
+
+W04_P2_03_PR8_MERGE_REPAIR_SUBJECT = "ci(post-w04): admit PR #8 merge lifecycle"
+
+W04_P2_03_PR8_MERGE_REPAIR_PATHS = (
+    "scripts/ci/verify_w04_investigation_gate_contract.py",
+    "AGENTS.md",
+    "docs/CURRENT_STATE.md",
+)
+
+W04_P2_03_PR8_MERGE_CONNECTORS = {
+    "validate_w04_p2_03_history": (
+        (
+            'require(1 <= len(history) <= 3, "P2_03 unauthorized post-base history length")',
+            'require(1 <= len(history) <= 4, "P2_03 unauthorized post-base history length")',
+        ),
+        (
+            "            None,\n"
+            "            W04_P2_03_DOC_SYNC_SHA,\n"
+            "            W04_P2_03_R2_REPAIR_SUBJECT,\n"
+            "            W04_P2_03_R2_REPAIR_PATHS,\n"
+            "        ),",
+            "            W04_P2_03_R2_SHA,\n"
+            "            W04_P2_03_DOC_SYNC_SHA,\n"
+            "            W04_P2_03_R2_REPAIR_SUBJECT,\n"
+            "            W04_P2_03_R2_REPAIR_PATHS,\n"
+            "        ),\n"
+            "        (\n"
+            "            None,\n"
+            "            W04_P2_03_R2_SHA,\n"
+            "            W04_P2_03_PR8_MERGE_REPAIR_SUBJECT,\n"
+            "            W04_P2_03_PR8_MERGE_REPAIR_PATHS,\n"
+            "        ),",
+        ),
+    ),
+    "w04_p2_03_hardening_revision": (
+        (
+            "    revisions = (\n"
+            '        git("rev-list", "--reverse", "--topo-order", '
+            'W04_POST_MERGE_BASE_SHA + "..HEAD", repo=repo)\n'
+            '        .decode("ascii")\n'
+            "        .splitlines()\n"
+            "    )\n"
+            "    return validate_w04_p2_03_history(\n"
+            "        [w04_p2_03_commit_record(revision, repo) for "
+            "revision in revisions]\n"
+            "    )",
+            "    history = "
+            "w04_p2_03_source_history(w04_p2_03_source_tip(repo), "
+            "repo)\n"
+            "    return validate_w04_p2_03_history(history)",
+        ),
+    ),
+    "w04_p2_03_r2_repair_revision": (
+        (
+            "    revisions = (\n"
+            '        git("rev-list", "--reverse", "--topo-order", '
+            'W04_POST_MERGE_BASE_SHA + "..HEAD", repo=repo)\n'
+            '        .decode("ascii")\n'
+            "        .splitlines()\n"
+            "    )\n"
+            "    return revisions[2] if len(revisions) == 3 else None",
+            "    history = "
+            "w04_p2_03_source_history(w04_p2_03_source_tip(repo), "
+            "repo)\n"
+            '    return cast(str, history[2]["sha"]) if len(history) >= '
+            "3 else None",
+        ),
+    ),
+    "w04_p2_03_protected_source_guard": (
+        (
+            "        frozen_paths.update({path: repair for path in "
+            "W04_P2_03_R2_REPAIR_PATHS})\n"
+            "    for path, frozen in frozen_paths.items():",
+            "        frozen_paths.update({path: repair for path in "
+            "W04_P2_03_R2_REPAIR_PATHS})\n"
+            "    pr8_repair = "
+            "w04_p2_03_pr8_merge_repair_revision(repo)\n"
+            "    if pr8_repair is not None:\n"
+            "        frozen_paths.update({path: pr8_repair for path "
+            "in W04_P2_03_PR8_MERGE_REPAIR_PATHS})\n"
+            "        if w04_p2_03_pr8_integration_anchor(repo) is "
+            "not None:\n"
+            '            frozen_paths.pop("AGENTS.md")\n'
+            '            frozen_paths.pop("docs/CURRENT_STATE.md")\n'
+            "    for path, frozen in frozen_paths.items():",
+        ),
+    ),
+    "validate_w04_p2_03_r2_verifier_sources": (
+        (
+            '    """Execute the accepted R1 chain, then admit '
+            'only literal R2 connectors/additions."""\n',
+            '    """Execute the accepted R1 chain, then admit '
+            'only literal R2 connectors/additions."""\n'
+            '    if "W04_P2_03_R2_SHA = " in current:\n'
+            "        "
+            "validate_w04_p2_03_pr8_verifier_sources(review_ready, "
+            "current)\n"
+            "        return\n",
+        ),
+    ),
+    "w04_pr7_merge_verifier_blob_guard": (
+        (
+            "    frozen = r2_repair or hardening or repair\n",
+            "    pr8_repair = "
+            "w04_p2_03_pr8_merge_repair_revision(repo)\n"
+            "    frozen = pr8_repair or r2_repair or hardening or "
+            "repair\n",
+        ),
+        (
+            '                  "w04_p2_03_r2_repair": "PASS",\n'
+            '                    "w04_p2_03_r2_repair_sha": '
+            "r2_repair,\n"
+            '                    "w04_p2_03_r2_controls": '
+            "r2_controls,\n"
+            "                },\n"
+            "                sort_keys=True,\n"
+            "            )\n"
+            "        )\n",
+            '                  "w04_p2_03_r2_repair": "PASS",\n'
+            '                    "w04_p2_03_r2_repair_sha": '
+            "r2_repair,\n"
+            '                    "w04_p2_03_r2_controls": '
+            "r2_controls,\n"
+            "                },\n"
+            "                sort_keys=True,\n"
+            "            )\n"
+            "        )\n"
+            "    if pr8_repair is not None:\n"
+            "        pr8_controls = "
+            "check_w04_p2_03_pr8_merge_controls()\n"
+            "        print(\n"
+            "            json.dumps(\n"
+            "                {\n"
+            '                    "w04_p2_03_pr8_merge_repair": '
+            '"PASS",\n'
+            '                    "w04_p2_03_pr8_merge_repair_sha": '
+            "pr8_repair,\n"
+            '                    "w04_p2_03_pr8_merge_controls": '
+            "pr8_controls,\n"
+            '                    "w04_p2_03_pr8_lifecycle": '
+            "w04_p2_03_pr8_lifecycle(repo),\n"
+            '                    "w04_p2_03_source_tip": '
+            "w04_p2_03_source_tip(repo),\n"
+            "                    "
+            '"w04_p2_03_pr8_integration_anchor": '
+            "w04_p2_03_pr8_integration_anchor(repo),\n"
+            "                },\n"
+            "                sort_keys=True,\n"
+            "            )\n"
+            "        )\n",
+        ),
+    ),
+}
+
+W04_P2_03_PR8_MERGE_CONTROL_LABELS = (
+    "state-0",
+    "state-1",
+    "state-2",
+    "state-3",
+    "state-4",
+    "arbitrary-fourth",
+    "arbitrary-fifth",
+    "unpinned-e706",
+    "r4-sha-zero",
+    "r4-sha-malformed",
+    "r4-sha-duplicate",
+    "r4-parent",
+    "r4-root",
+    "r4-merge",
+    "r4-subject",
+    "r4-extra-path",
+    "r4-missing:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "r4-A:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "r4-D:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "r4-R:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "r4-T:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "r4-missing:AGENTS.md",
+    "r4-A:AGENTS.md",
+    "r4-D:AGENTS.md",
+    "r4-R:AGENTS.md",
+    "r4-T:AGENTS.md",
+    "r4-missing:docs/CURRENT_STATE.md",
+    "r4-A:docs/CURRENT_STATE.md",
+    "r4-D:docs/CURRENT_STATE.md",
+    "r4-R:docs/CURRENT_STATE.md",
+    "r4-T:docs/CURRENT_STATE.md",
+    "reordered",
+    "record-shape",
+    "nonrecursive:w04_p2_03_source_history",
+    "nonrecursive:w04_p2_03_pr8_integration_anchor",
+    "source-chain",
+    "source:require",
+    "source:validate_w04_p2_03_history",
+    "source:w04_p2_03_source_history",
+    "source:w04_p2_03_pr8_integration_anchor",
+    "source:w04_p2_03_source_tip",
+    "source:w04_p2_03_protected_source_guard",
+    "source:validate_w04_p2_03_pr8_verifier_sources",
+    "source-extra",
+    "current-protected",
+    "git-state-0",
+    "git-state-1",
+    "git-state-2",
+    "git-state-3",
+    "git-state-4",
+    "git-fourth-rejected",
+    "git-fifth-rejected",
+    "pre-protected:scripts/ci/classify_change.py",
+    "pre-protected:scripts/ci/verify_publication.py",
+    "pre-protected:tests/test_ci_change_classifier.py",
+    "pre-protected:tests/test_ci_publication_gate.py",
+    "pre-protected:tests/test_c09_ci_gate.py",
+    "pre-protected:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "pre-protected:AGENTS.md",
+    "pre-protected:docs/CURRENT_STATE.md",
+    "topology-positive",
+    "topology-wrong-main",
+    "topology-wrong-feature",
+    "topology-direct-e706",
+    "topology-reversed",
+    "topology-octopus",
+    "topology-root",
+    "topology-single",
+    "topology-tree",
+    "topology-delta",
+    "topology-unreachable",
+    "git-wrong-main",
+    "git-wrong-feature",
+    "git-direct-e706",
+    "git-reversed",
+    "git-octopus",
+    "git-anchor",
+    "git-merge-tip",
+    "git-merge-lifecycle",
+    "post-protected:scripts/ci/classify_change.py",
+    "post-protected:scripts/ci/verify_publication.py",
+    "post-protected:tests/test_ci_change_classifier.py",
+    "post-protected:tests/test_ci_publication_gate.py",
+    "post-protected:tests/test_c09_ci_gate.py",
+    "post-protected:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "git-real-nonempty-delta",
+    "git-tree-drift",
+    "git-docs-protected",
+    "git-docs-tip",
+    "git-docs-lifecycle",
+    "git-later-merge-tip",
+    "git-later-merge-anchor",
+    "git-later-merge-lifecycle",
+    "git-nonprotected-tip",
+    "git-nonprotected-anchor",
+    "git-nonprotected-lifecycle",
+    "git-post-runtime-drift",
+    "git-multiple-anchors",
+)
+
+W04_P2_03_PR8_MERGE_SOURCE_ADDITIONS = (
+    "W04_P2_03_R2_SHA",
+    "W04_P2_03_PR8_MERGE_REPAIR_SUBJECT",
+    "W04_P2_03_PR8_MERGE_REPAIR_PATHS",
+    "W04_P2_03_PR8_MERGE_CONNECTORS",
+    "W04_P2_03_PR8_MERGE_CONTROL_LABELS",
+    "W04_P2_03_PR8_MERGE_SOURCE_ADDITIONS",
+    "w04_p2_03_source_history",
+    "validate_w04_p2_03_pr8_merge_topology",
+    "w04_p2_03_pr8_integration_anchor",
+    "w04_p2_03_source_tip",
+    "w04_p2_03_pr8_merge_repair_revision",
+    "w04_p2_03_pr8_lifecycle",
+    "validate_w04_p2_03_pr8_verifier_sources",
+    "check_w04_p2_03_pr8_merge_controls",
+)
+
+
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(message)
@@ -3326,7 +3600,8 @@ def w04_pr7_merge_verifier_blob_guard(repo: Path = ROOT) -> None:
     require(repair is not None, "missing validated PR7 merge repair")
     hardening = w04_p2_03_hardening_revision(repo)
     r2_repair = w04_p2_03_r2_repair_revision(repo)
-    frozen = r2_repair or hardening or repair
+    pr8_repair = w04_p2_03_pr8_merge_repair_revision(repo)
+    frozen = pr8_repair or r2_repair or hardening or repair
     validate_w04_pr7_merge_verifier_sources(
         git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo).decode(),
         (repo / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8"),
@@ -3400,6 +3675,21 @@ def w04_pr7_merge_verifier_blob_guard(repo: Path = ROOT) -> None:
                     "w04_p2_03_r2_repair": "PASS",
                     "w04_p2_03_r2_repair_sha": r2_repair,
                     "w04_p2_03_r2_controls": r2_controls,
+                },
+                sort_keys=True,
+            )
+        )
+    if pr8_repair is not None:
+        pr8_controls = check_w04_p2_03_pr8_merge_controls()
+        print(
+            json.dumps(
+                {
+                    "w04_p2_03_pr8_merge_repair": "PASS",
+                    "w04_p2_03_pr8_merge_repair_sha": pr8_repair,
+                    "w04_p2_03_pr8_merge_controls": pr8_controls,
+                    "w04_p2_03_pr8_lifecycle": w04_p2_03_pr8_lifecycle(repo),
+                    "w04_p2_03_source_tip": w04_p2_03_source_tip(repo),
+                    "w04_p2_03_pr8_integration_anchor": w04_p2_03_pr8_integration_anchor(repo),
                 },
                 sort_keys=True,
             )
@@ -3681,7 +3971,7 @@ def validate_w04_p2_03_history(history: list[dict[str, Any]]) -> str | None:
     # The unchanged merge baseline precedes the separately authorized hardening.
     if not history:
         return None
-    require(1 <= len(history) <= 3, "P2_03 unauthorized post-base history length")
+    require(1 <= len(history) <= 4, "P2_03 unauthorized post-base history length")
     seen: set[str] = set()
     expected = (
         (
@@ -3697,10 +3987,16 @@ def validate_w04_p2_03_history(history: list[dict[str, Any]]) -> str | None:
             W04_P2_03_DOC_SYNC_PATHS,
         ),
         (
-            None,
+            W04_P2_03_R2_SHA,
             W04_P2_03_DOC_SYNC_SHA,
             W04_P2_03_R2_REPAIR_SUBJECT,
             W04_P2_03_R2_REPAIR_PATHS,
+        ),
+        (
+            None,
+            W04_P2_03_R2_SHA,
+            W04_P2_03_PR8_MERGE_REPAIR_SUBJECT,
+            W04_P2_03_PR8_MERGE_REPAIR_PATHS,
         ),
     )
     for row, (frozen, parent, subject, paths) in zip(
@@ -3758,14 +4054,8 @@ def w04_p2_03_hardening_revision(repo: Path = ROOT) -> str | None:
     if integration is None:
         return None
     require(integration == W04_POST_MERGE_BASE_SHA, "P2_03 historical integration anchor drift")
-    revisions = (
-        git("rev-list", "--reverse", "--topo-order", W04_POST_MERGE_BASE_SHA + "..HEAD", repo=repo)
-        .decode("ascii")
-        .splitlines()
-    )
-    return validate_w04_p2_03_history(
-        [w04_p2_03_commit_record(revision, repo) for revision in revisions]
-    )
+    history = w04_p2_03_source_history(w04_p2_03_source_tip(repo), repo)
+    return validate_w04_p2_03_history(history)
 
 
 def validate_w04_p2_03_ci_sources(path: str, entry: str, current: str) -> None:
@@ -3850,6 +4140,12 @@ def w04_p2_03_protected_source_guard(repo: Path = ROOT) -> None:
     frozen_paths = {path: anchor for path in W04_P2_03_HARDENING_PATHS}
     if repair is not None:
         frozen_paths.update({path: repair for path in W04_P2_03_R2_REPAIR_PATHS})
+    pr8_repair = w04_p2_03_pr8_merge_repair_revision(repo)
+    if pr8_repair is not None:
+        frozen_paths.update({path: pr8_repair for path in W04_P2_03_PR8_MERGE_REPAIR_PATHS})
+        if w04_p2_03_pr8_integration_anchor(repo) is not None:
+            frozen_paths.pop("AGENTS.md")
+            frozen_paths.pop("docs/CURRENT_STATE.md")
     for path, frozen in frozen_paths.items():
         require(
             (repo / path).read_bytes() == git("show", frozen + ":" + path, repo=repo)
@@ -4394,12 +4690,8 @@ def w04_p2_03_r2_repair_revision(repo: Path = ROOT) -> str | None:
     """Discover the sole repair only after validating the complete ordered history."""
     if w04_p2_03_hardening_revision(repo) is None:
         return None
-    revisions = (
-        git("rev-list", "--reverse", "--topo-order", W04_POST_MERGE_BASE_SHA + "..HEAD", repo=repo)
-        .decode("ascii")
-        .splitlines()
-    )
-    return revisions[2] if len(revisions) == 3 else None
+    history = w04_p2_03_source_history(w04_p2_03_source_tip(repo), repo)
+    return cast(str, history[2]["sha"]) if len(history) >= 3 else None
 
 
 def validate_w04_p2_03_r2_test_sources(entry: str, current: str, repo: Path = ROOT) -> None:
@@ -4446,6 +4738,9 @@ def validate_w04_p2_03_r2_test_sources(entry: str, current: str, repo: Path = RO
 
 def validate_w04_p2_03_r2_verifier_sources(review_ready: str, current: str) -> None:
     """Execute the accepted R1 chain, then admit only literal R2 connectors/additions."""
+    if "W04_P2_03_R2_SHA = " in current:
+        validate_w04_p2_03_pr8_verifier_sources(review_ready, current)
+        return
     accepted = git("show", W04_P2_03_DOC_SYNC_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode("utf-8")
     validate_w04_p2_03_verifier_sources(review_ready, accepted)
     old_order, old = source_units(accepted)
@@ -4745,6 +5040,524 @@ def check_w04_p2_03_r2_controls() -> int:
         len(completed) == len(W04_P2_03_R2_CONTROL_LABELS)
         and set(completed) == set(W04_P2_03_R2_CONTROL_LABELS),
         "P2_03 R2 deterministic control coverage/count drift",
+    )
+    return len(completed)
+
+
+def w04_p2_03_source_history(tip: str, repo: Path = ROOT) -> list[dict[str, Any]]:
+    """Validate source rows at an explicit tip; never discover an integration here."""
+    revision = git("rev-parse", "--verify", tip + "^{commit}", repo=repo).decode().strip()
+    rows = (
+        git(
+            "rev-list",
+            "--reverse",
+            "--topo-order",
+            W04_POST_MERGE_BASE_SHA + ".." + revision,
+            repo=repo,
+        )
+        .decode("ascii")
+        .splitlines()
+    )
+    history = [w04_p2_03_commit_record(row, repo) for row in rows]
+    validate_w04_p2_03_history(history)
+    return history
+
+
+def validate_w04_p2_03_pr8_merge_topology(
+    head: str,
+    parents: list[str],
+    repair: str,
+    merge_tree: bytes,
+    repair_tree: bytes,
+    feature_delta: bytes,
+    reachable: bool,
+) -> None:
+    """Only an exact reachable main-first, repair-second, tree-identical merge."""
+    require(
+        re.fullmatch(r"[0-9a-f]{40}", head) is not None
+        and head != "0" * 40
+        and re.fullmatch(r"[0-9a-f]{40}", repair) is not None
+        and repair
+        not in {
+            "0" * 40,
+            W04_POST_MERGE_BASE_SHA,
+            W04_P2_03_HARDENING_SHA,
+            W04_P2_03_DOC_SYNC_SHA,
+            W04_P2_03_R2_SHA,
+        }
+        and head != repair,
+        "P2_03 PR8 invalid merge/repair identity",
+    )
+    require(
+        parents == [W04_POST_MERGE_BASE_SHA, repair],
+        "P2_03 PR8 exact two-parent main/repair order",
+    )
+    require(
+        re.fullmatch(rb"[0-9a-f]{40}", merge_tree) is not None and merge_tree == repair_tree,
+        "P2_03 PR8 merge tree drift",
+    )
+    require(not feature_delta, "P2_03 PR8 nonempty repair-to-merge delta")
+    require(reachable, "P2_03 PR8 integration not reachable")
+
+
+def w04_p2_03_pr8_integration_anchor(repo: Path = ROOT) -> str | None:
+    """Discover integration independently, validating its explicit feature tip."""
+    rows = (
+        git(
+            "rev-list",
+            "--parents",
+            "--reverse",
+            "--topo-order",
+            W04_POST_MERGE_BASE_SHA + "..HEAD",
+            repo=repo,
+        )
+        .decode("ascii")
+        .splitlines()
+    )
+    anchors: list[str] = []
+    for row in rows:
+        head, *parents = row.split()
+        # Later ordinary merges are descendants, not additional integrations.
+        if len(parents) < 2 or W04_POST_MERGE_BASE_SHA not in parents:
+            continue
+        require(
+            len(parents) == 2 and parents[0] == W04_POST_MERGE_BASE_SHA,
+            "P2_03 PR8 integration parent shape/order",
+        )
+        history = w04_p2_03_source_history(parents[1], repo)
+        require(len(history) == 4, "P2_03 PR8 requires exact State-4 feature")
+        repair = cast(str, history[3]["sha"])
+        git("merge-base", "--is-ancestor", head, "HEAD", repo=repo)
+        validate_w04_p2_03_pr8_merge_topology(
+            head,
+            parents,
+            repair,
+            git("rev-parse", head + "^{tree}", repo=repo).strip(),
+            git("rev-parse", repair + "^{tree}", repo=repo).strip(),
+            git("diff", repair, head, "--", repo=repo),
+            True,
+        )
+        anchors.append(head)
+    require(len(anchors) <= 1, "P2_03 PR8 multiple integration anchors")
+    return anchors[0] if anchors else None
+
+
+def w04_p2_03_source_tip(repo: Path = ROOT) -> str:
+    """Dispatch after independent anchor discovery; descendants cannot add source rows."""
+    anchor = w04_p2_03_pr8_integration_anchor(repo)
+    tip = (
+        git("show", "-s", "--format=%P", anchor, repo=repo).decode().split()[1]
+        if anchor is not None
+        else git("rev-parse", "HEAD", repo=repo).decode().strip()
+    )
+    w04_p2_03_source_history(tip, repo)
+    return tip
+
+
+def w04_p2_03_pr8_merge_repair_revision(repo: Path = ROOT) -> str | None:
+    history = w04_p2_03_source_history(w04_p2_03_source_tip(repo), repo)
+    return cast(str, history[3]["sha"]) if len(history) == 4 else None
+
+
+def w04_p2_03_pr8_lifecycle(repo: Path = ROOT) -> str | None:
+    repair = w04_p2_03_pr8_merge_repair_revision(repo)
+    if repair is None:
+        return None
+    anchor = w04_p2_03_pr8_integration_anchor(repo)
+    if anchor is None:
+        return "P2_03_PR8_PREMERGE_REPAIR"
+    head = git("rev-parse", "HEAD", repo=repo).decode().strip()
+    return "P2_03_PR8_MERGED_MAIN" if head == anchor else "P2_03_POST_PR8_INTEGRATED"
+
+
+def validate_w04_p2_03_pr8_verifier_sources(review_ready: str, current: str) -> None:
+    """Prove exact e706 through the old chain before admitting literal R4 connectors."""
+    accepted = git("show", W04_P2_03_R2_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode("utf-8")
+    real_git = git
+
+    def historical_git(*arguments: str, repo: Path = ROOT) -> bytes:
+        # Historical diffs compare immutable snapshots, not e706 with live R4 files.
+        if arguments in (
+            ("diff", "--name-only", "HEAD", "--"),
+            ("diff", "--name-only", ENTRY, "--"),
+        ):
+            left = W04_P2_03_R2_SHA if arguments[2] == "HEAD" else ENTRY
+            return real_git("diff", "--name-only", left, W04_P2_03_R2_SHA, "--", repo=repo)
+        bounded = [
+            W04_P2_03_R2_SHA
+            if argument == "HEAD"
+            else argument[:-4] + W04_P2_03_R2_SHA
+            if argument.endswith("..HEAD")
+            else W04_P2_03_R2_SHA + argument[4:]
+            if argument.startswith("HEAD:")
+            else argument
+            for argument in arguments
+        ]
+        return real_git(*bounded, repo=repo)
+
+    with patch.dict(globals(), {"git": historical_git}):
+        validate_w04_p2_03_r2_verifier_sources(review_ready, accepted)
+    old_order, old = source_units(accepted)
+    new_order, new = source_units(current)
+    additions = set(W04_P2_03_PR8_MERGE_SOURCE_ADDITIONS)
+    require(set(new) == set(old) | additions, "P2_03 PR8 verifier unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions]
+        == list(W04_P2_03_PR8_MERGE_SOURCE_ADDITIONS),
+        "P2_03 PR8 verifier unit identity/order",
+    )
+    require(
+        set(W04_P2_03_PR8_MERGE_CONNECTORS)
+        == {
+            "validate_w04_p2_03_history",
+            "w04_p2_03_hardening_revision",
+            "w04_p2_03_r2_repair_revision",
+            "w04_p2_03_protected_source_guard",
+            "validate_w04_p2_03_r2_verifier_sources",
+            "w04_pr7_merge_verifier_blob_guard",
+        },
+        "P2_03 PR8 connector authority drift",
+    )
+    for name in old_order:
+        expected = old[name][0].encode("utf-8")
+        for before, after in W04_P2_03_PR8_MERGE_CONNECTORS.get(name, ()):
+            expected = replace_once(expected, before.encode("utf-8"), after.encode("utf-8"))
+        require(new[name][0].encode("utf-8") == expected, "P2_03 PR8 unrelated span: " + name)
+        if name in W04_P2_03_PR8_MERGE_CONNECTORS:
+            a, b = copy.deepcopy(old[name][1]), copy.deepcopy(new[name][1])
+            require(
+                isinstance(a, ast.FunctionDef) and isinstance(b, ast.FunctionDef),
+                "P2_03 PR8 connector function kind",
+            )
+            a, b = cast(ast.FunctionDef, a), cast(ast.FunctionDef, b)
+            a.body, b.body = [], []
+            require(
+                ast.dump(a, include_attributes=False) == ast.dump(b, include_attributes=False),
+                "P2_03 PR8 connector signature/decorator drift",
+            )
+    require(
+        W04_P2_03_R2_SHA == "e706e1f8ed920af0e840fbb9e97725d47d79a2c6"
+        and W04_P2_03_PR8_MERGE_REPAIR_SUBJECT == "ci(post-w04): admit PR #8 merge lifecycle"
+        and W04_P2_03_PR8_MERGE_REPAIR_PATHS
+        == (
+            CLOSEOUT_VERIFIER_PATH,
+            "AGENTS.md",
+            "docs/CURRENT_STATE.md",
+        ),
+        "P2_03 PR8 immutable authority constants",
+    )
+    repair = w04_p2_03_pr8_merge_repair_revision()
+    require(repair is not None, "P2_03 PR8 source requires exact committed repair")
+    frozen_source = git("show", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH).decode("utf-8")
+    frozen_order, frozen = source_units(frozen_source)
+    require(new_order == frozen_order, "P2_03 PR8 committed unit order")
+    for name in W04_P2_03_PR8_MERGE_SOURCE_ADDITIONS:
+        require(new[name][0] == frozen[name][0], "P2_03 PR8 admitted span drift: " + name)
+    require(
+        current.encode("utf-8") == frozen_source.encode("utf-8")
+        and git("ls-tree", "HEAD", "--", CLOSEOUT_VERIFIER_PATH)
+        == git("ls-tree", str(repair), "--", CLOSEOUT_VERIFIER_PATH),
+        "P2_03 PR8 committed verifier bytes/tree drift",
+    )
+
+
+def check_w04_p2_03_pr8_merge_controls() -> int:
+    """Bounded helpers and one real-Git fixture; never recurse into the full gate."""
+    completed: list[str] = []
+
+    def yes(label: str, condition: bool) -> None:
+        require(condition, "P2_03 PR8 positive control failed: " + label)
+        require(
+            label in W04_P2_03_PR8_MERGE_CONTROL_LABELS and label not in completed,
+            "P2_03 PR8 control identity",
+        )
+        completed.append(label)
+
+    def no(label: str, action: Any) -> None:
+        rejected("P2_03 PR8 " + label, action)
+        yes(label, True)
+
+    repair = w04_p2_03_pr8_merge_repair_revision()
+    require(repair is not None, "P2_03 PR8 controls require committed State-4 repair")
+    repair = cast(str, repair)
+    history = w04_p2_03_source_history(repair)
+    yes("state-0", validate_w04_p2_03_history([]) is None)
+    for length in (1, 2, 3, 4):
+        yes(
+            "state-" + str(length),
+            validate_w04_p2_03_history(history[:length]) == W04_P2_03_HARDENING_SHA,
+        )
+    extra = {
+        "sha": "f" * 40,
+        "parents": [W04_P2_03_R2_SHA],
+        "subject": "docs: unrelated descendant",
+        "delta": {"EXTRA.md": "A"},
+    }
+    no("arbitrary-fourth", lambda: validate_w04_p2_03_history(history[:3] + [extra]))
+    no("arbitrary-fifth", lambda: validate_w04_p2_03_history(history + [extra]))
+    damaged = copy.deepcopy(history)
+    damaged[2]["sha"] = "a" * 40
+    no("unpinned-e706", lambda: validate_w04_p2_03_history(damaged))
+    for label, key, value in (
+        ("sha-zero", "sha", "0" * 40),
+        ("sha-malformed", "sha", "g" * 40),
+        ("sha-duplicate", "sha", W04_P2_03_R2_SHA),
+        ("parent", "parents", [W04_POST_MERGE_BASE_SHA]),
+        ("root", "parents", []),
+        ("merge", "parents", [W04_P2_03_R2_SHA, W04_POST_MERGE_BASE_SHA]),
+        ("subject", "subject", "ci: unrelated"),
+        ("extra-path", "delta", {**history[3]["delta"], "EXTRA.md": "M"}),
+    ):
+        rows = copy.deepcopy(history)
+        rows[3][key] = value
+        no(
+            "r4-" + label,
+            lambda rows=rows: validate_w04_p2_03_history(rows),
+        )
+    for path in W04_P2_03_PR8_MERGE_REPAIR_PATHS:
+        for status in ("missing", "A", "D", "R", "T"):
+            rows = copy.deepcopy(history)
+            if status == "missing":
+                rows[3]["delta"].pop(path)
+            else:
+                rows[3]["delta"][path] = status
+            no(
+                "r4-" + status + ":" + path,
+                lambda rows=rows: validate_w04_p2_03_history(rows),
+            )
+    no("reordered", lambda: validate_w04_p2_03_history([*history[:2], history[3], history[2]]))
+    no("record-shape", lambda: validate_w04_p2_03_history([{**history[0], "extra": True}]))
+    source = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    _, units = source_units(source)
+    forbidden = {
+        "w04_p2_03_hardening_revision",
+        "w04_p2_03_r2_repair_revision",
+        "w04_p2_03_pr8_merge_repair_revision",
+        "w04_p2_03_source_tip",
+    }
+    for name in ("w04_p2_03_source_history", "w04_p2_03_pr8_integration_anchor"):
+        calls = {
+            n.func.id
+            for n in ast.walk(units[name][1])
+            if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+        }
+        yes("nonrecursive:" + name, not (calls & forbidden))
+    review = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode("utf-8")
+    validate_w04_p2_03_pr8_verifier_sources(review, source)
+    yes("source-chain", True)
+    for name in (
+        "require",
+        "validate_w04_p2_03_history",
+        "w04_p2_03_source_history",
+        "w04_p2_03_pr8_integration_anchor",
+        "w04_p2_03_source_tip",
+        "w04_p2_03_protected_source_guard",
+        "validate_w04_p2_03_pr8_verifier_sources",
+    ):
+        damaged_source = source.replace(units[name][0], units[name][0] + "    pass\n", 1)
+        no(
+            "source:" + name,
+            lambda damaged_source=damaged_source: validate_w04_p2_03_pr8_verifier_sources(
+                review, damaged_source
+            ),
+        )
+    no(
+        "source-extra",
+        lambda: validate_w04_p2_03_pr8_verifier_sources(
+            review,
+            source + "\ndef unauthorized_r4_unit():\n    pass\n",
+        ),
+    )
+    w04_p2_03_protected_source_guard()
+    yes("current-protected", True)
+    with tempfile.TemporaryDirectory(prefix="w04-p203-pr8-") as temporary:
+        directory = Path(temporary)
+        fixture = directory / "repo"
+        git(
+            "clone",
+            "--quiet",
+            "--no-hardlinks",
+            "--no-checkout",
+            str(ROOT),
+            str(fixture),
+            repo=directory,
+        )
+        for key, value in (
+            ("core.autocrlf", "false"),
+            ("user.name", "CI Test"),
+            ("user.email", "ci@example.test"),
+        ):
+            git("config", key, value, repo=fixture)
+
+        def checkout(revision: str) -> None:
+            git("checkout", "-q", "--detach", revision, repo=fixture)
+
+        def commit(tree: str, parents: list[str], subject: str) -> str:
+            arguments = ["commit-tree", tree]
+            for parent in parents:
+                arguments.extend(("-p", parent))
+            return git(*arguments, "-m", subject, repo=fixture).decode().strip()
+
+        tree = git("rev-parse", repair + "^{tree}", repo=fixture).decode().strip()
+        for index, revision in enumerate(
+            (
+                W04_POST_MERGE_BASE_SHA,
+                W04_P2_03_HARDENING_SHA,
+                W04_P2_03_DOC_SYNC_SHA,
+                W04_P2_03_R2_SHA,
+                repair,
+            )
+        ):
+            checkout(revision)
+            yes("git-state-" + str(index), w04_p2_03_source_tip(fixture) == revision)
+        checkout(W04_P2_03_R2_SHA)
+        (fixture / "EXTRA.md").write_text("unapproved fourth\n", encoding="utf-8")
+        git("add", "--", "EXTRA.md", repo=fixture)
+        git("commit", "-q", "-m", "docs: arbitrary fourth", repo=fixture)
+        no("git-fourth-rejected", lambda: w04_p2_03_source_tip(fixture))
+        checkout(repair)
+        (fixture / "EXTRA.md").write_text("unapproved fifth\n", encoding="utf-8")
+        git("add", "--", "EXTRA.md", repo=fixture)
+        git("commit", "-q", "-m", "docs: arbitrary fifth", repo=fixture)
+        no("git-fifth-rejected", lambda: w04_p2_03_source_tip(fixture))
+        checkout(repair)
+        protected = (
+            "scripts/ci/classify_change.py",
+            "scripts/ci/verify_publication.py",
+            "tests/test_ci_change_classifier.py",
+            "tests/test_ci_publication_gate.py",
+            "tests/test_c09_ci_gate.py",
+            CLOSEOUT_VERIFIER_PATH,
+        )
+        for path in (*protected, "AGENTS.md", "docs/CURRENT_STATE.md"):
+            target = fixture / path
+            original = target.read_bytes()
+            target.write_bytes(original + b"\n# unapproved premerge drift\n")
+            no("pre-protected:" + path, lambda: w04_p2_03_protected_source_guard(fixture))
+            target.write_bytes(original)
+        merge = commit(tree, [W04_POST_MERGE_BASE_SHA, repair], "Any merge subject is admissible")
+        topology: dict[str, Any] = {
+            "head": merge,
+            "parents": [W04_POST_MERGE_BASE_SHA, repair],
+            "repair": repair,
+            "merge_tree": tree.encode("ascii"),
+            "repair_tree": tree.encode("ascii"),
+            "feature_delta": b"",
+            "reachable": True,
+        }
+        validate_w04_p2_03_pr8_merge_topology(**topology)
+        yes("topology-positive", True)
+        for label, key, case_value in (
+            ("wrong-main", "parents", [W04_P2_03_HARDENING_SHA, repair]),
+            ("wrong-feature", "parents", [W04_POST_MERGE_BASE_SHA, W04_P2_03_DOC_SYNC_SHA]),
+            ("direct-e706", "parents", [W04_POST_MERGE_BASE_SHA, W04_P2_03_R2_SHA]),
+            ("reversed", "parents", [repair, W04_POST_MERGE_BASE_SHA]),
+            ("octopus", "parents", [W04_POST_MERGE_BASE_SHA, repair, W04_P2_03_R2_SHA]),
+            ("root", "parents", []),
+            ("single", "parents", [repair]),
+            ("tree", "merge_tree", b"a" * 40),
+            ("delta", "feature_delta", b"M\tREADME.md\n"),
+            ("unreachable", "reachable", False),
+        ):
+            no(
+                "topology-" + label,
+                lambda key=key, case_value=case_value: validate_w04_p2_03_pr8_merge_topology(
+                    **{**topology, key: case_value}
+                ),
+            )
+        for label, parents in (
+            ("wrong-main", [W04_P2_03_HARDENING_SHA, repair]),
+            ("wrong-feature", [W04_POST_MERGE_BASE_SHA, W04_P2_03_DOC_SYNC_SHA]),
+            ("direct-e706", [W04_POST_MERGE_BASE_SHA, W04_P2_03_R2_SHA]),
+            ("reversed", [repair, W04_POST_MERGE_BASE_SHA]),
+            ("octopus", [W04_POST_MERGE_BASE_SHA, repair, W04_P2_03_R2_SHA]),
+        ):
+            checkout(commit(tree, parents, "hostile " + label))
+            no("git-" + label, lambda: w04_p2_03_source_tip(fixture))
+        checkout(merge)
+        yes("git-anchor", w04_p2_03_pr8_integration_anchor(fixture) == merge)
+        yes("git-merge-tip", w04_p2_03_source_tip(fixture) == repair)
+        yes("git-merge-lifecycle", w04_p2_03_pr8_lifecycle(fixture) == "P2_03_PR8_MERGED_MAIN")
+        for path in protected:
+            target = fixture / path
+            original = target.read_bytes()
+            target.write_bytes(original + b"\n# unapproved postmerge drift\n")
+            no("post-protected:" + path, lambda: w04_p2_03_protected_source_guard(fixture))
+            target.write_bytes(original)
+        # A genuine changed tree also has a nonempty repair-to-merge diff.
+        target = fixture / "README.md"
+        target.write_bytes(target.read_bytes() + b"\nDisposable resolution drift\n")
+        git("add", "--", "README.md", repo=fixture)
+        drift_tree = git("write-tree", repo=fixture).decode().strip()
+        drift_merge = commit(drift_tree, [W04_POST_MERGE_BASE_SHA, repair], "resolution drift")
+        yes("git-real-nonempty-delta", bool(git("diff", repair, drift_merge, "--", repo=fixture)))
+        checkout(drift_merge)
+        no("git-tree-drift", lambda: w04_p2_03_source_tip(fixture))
+        checkout(merge)
+        for path in ("README.md", "AGENTS.md", "docs/CURRENT_STATE.md"):
+            target = fixture / path
+            target.write_bytes(
+                target.read_bytes() + b"\nDisposable post-integration lifecycle note.\n"
+            )
+        git("add", "--", "README.md", "AGENTS.md", "docs/CURRENT_STATE.md", repo=fixture)
+        git("commit", "-q", "-m", "docs: post-integration fixture", repo=fixture)
+        docs = git("rev-parse", "HEAD", repo=fixture).decode().strip()
+        docs_tree = git("rev-parse", "HEAD^{tree}", repo=fixture).decode().strip()
+        w04_p2_03_protected_source_guard(fixture)
+        yes("git-docs-protected", True)
+        yes("git-docs-tip", w04_p2_03_source_tip(fixture) == repair)
+        yes("git-docs-lifecycle", w04_p2_03_pr8_lifecycle(fixture) == "P2_03_POST_PR8_INTEGRATED")
+        side = commit(docs_tree, [merge], "docs: independent benign side")
+        later_merge = commit(docs_tree, [docs, side], "docs: later benign two-parent merge")
+        checkout(later_merge)
+        yes("git-later-merge-tip", w04_p2_03_source_tip(fixture) == repair)
+        yes("git-later-merge-anchor", w04_p2_03_pr8_integration_anchor(fixture) == merge)
+        yes(
+            "git-later-merge-lifecycle",
+            w04_p2_03_pr8_lifecycle(fixture) == "P2_03_POST_PR8_INTEGRATED",
+        )
+        (fixture / "NONPROTECTED_TOPOLOGY.txt").write_text(
+            "Topology continuity only; no W05 planner claim.\n",
+            encoding="utf-8",
+        )
+        git("add", "--", "NONPROTECTED_TOPOLOGY.txt", repo=fixture)
+        git("commit", "-q", "-m", "fixture: benign non-protected descendant", repo=fixture)
+        yes("git-nonprotected-tip", w04_p2_03_source_tip(fixture) == repair)
+        yes("git-nonprotected-anchor", w04_p2_03_pr8_integration_anchor(fixture) == merge)
+        yes(
+            "git-nonprotected-lifecycle",
+            w04_p2_03_pr8_lifecycle(fixture) == "P2_03_POST_PR8_INTEGRATED",
+        )
+        checkout(merge)
+        target = fixture / "src/flowlens/investigation/__init__.py"
+        target.write_bytes(target.read_bytes() + b"\n# unauthorized runtime descendant\n")
+        git("add", "--", "src/flowlens/investigation/__init__.py", repo=fixture)
+        git("commit", "-q", "-m", "fixture: protected runtime drift", repo=fixture)
+        real_git = git
+        protected_guard = w04_p2_03_protected_source_guard
+
+        def fixture_git(*arguments: str, repo: Path = ROOT) -> bytes:
+            return real_git(*arguments, repo=fixture)
+
+        with patch.dict(
+            globals(),
+            {
+                "ROOT": fixture,
+                "git": fixture_git,
+                "w04_p2_03_protected_source_guard": lambda: protected_guard(fixture),
+            },
+        ):
+            no("git-post-runtime-drift", verify_collection_and_scope)
+        checkout(merge)
+        second_anchor = commit(tree, [W04_POST_MERGE_BASE_SHA, repair], "second integration")
+        combined = commit(tree, [merge, second_anchor], "combine duplicate integrations")
+        checkout(combined)
+        no("git-multiple-anchors", lambda: w04_p2_03_source_tip(fixture))
+    require(
+        len(completed) == len(W04_P2_03_PR8_MERGE_CONTROL_LABELS)
+        and set(completed) == set(W04_P2_03_PR8_MERGE_CONTROL_LABELS),
+        "P2_03 PR8 deterministic control coverage/count drift",
     )
     return len(completed)
 
