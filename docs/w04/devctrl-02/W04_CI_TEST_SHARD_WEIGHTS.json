@@ -1,0 +1,324 @@
+{
+  "derivation_method": "Sum of JUnit testcase time attributes by file from the four complete #122 shard artifacts. Static scheduling evidence only.",
+  "file_weights": [
+    {
+      "file": "tests/integration/test_database.py",
+      "weight_seconds": 0.004
+    },
+    {
+      "file": "tests/test_alembic.py",
+      "weight_seconds": 0.003
+    },
+    {
+      "file": "tests/test_api.py",
+      "weight_seconds": 0.097
+    },
+    {
+      "file": "tests/test_c03_diagnosis.py",
+      "weight_seconds": 1.398
+    },
+    {
+      "file": "tests/test_c03_harness.py",
+      "weight_seconds": 7.058
+    },
+    {
+      "file": "tests/test_c03_policy_contract.py",
+      "weight_seconds": 0.002
+    },
+    {
+      "file": "tests/test_c03_signals.py",
+      "weight_seconds": 12.513
+    },
+    {
+      "file": "tests/test_c04_harness.py",
+      "weight_seconds": 8.3
+    },
+    {
+      "file": "tests/test_c04_registry.py",
+      "weight_seconds": 2.612
+    },
+    {
+      "file": "tests/test_c04_scenario_adapter_compat.py",
+      "weight_seconds": 2.643
+    },
+    {
+      "file": "tests/test_c04_simulation.py",
+      "weight_seconds": 22.549
+    },
+    {
+      "file": "tests/test_c05_harness.py",
+      "weight_seconds": 64.097
+    },
+    {
+      "file": "tests/test_c05_packet.py",
+      "weight_seconds": 17.863
+    },
+    {
+      "file": "tests/test_c05_policy.py",
+      "weight_seconds": 10.707
+    },
+    {
+      "file": "tests/test_c05_recommendation.py",
+      "weight_seconds": 13.434
+    },
+    {
+      "file": "tests/test_c06_harness.py",
+      "weight_seconds": 3.409
+    },
+    {
+      "file": "tests/test_c06_human.py",
+      "weight_seconds": 32.398
+    },
+    {
+      "file": "tests/test_c06_policy.py",
+      "weight_seconds": 0
+    },
+    {
+      "file": "tests/test_c06_store.py",
+      "weight_seconds": 102.01
+    },
+    {
+      "file": "tests/test_c07_harness.py",
+      "weight_seconds": 292.387
+    },
+    {
+      "file": "tests/test_c07_policy.py",
+      "weight_seconds": 308.756
+    },
+    {
+      "file": "tests/test_c07_recommendation.py",
+      "weight_seconds": 146.453
+    },
+    {
+      "file": "tests/test_c07_replay.py",
+      "weight_seconds": 204.498
+    },
+    {
+      "file": "tests/test_c08_context.py",
+      "weight_seconds": 6.4
+    },
+    {
+      "file": "tests/test_c08_explanation.py",
+      "weight_seconds": 89.983
+    },
+    {
+      "file": "tests/test_c08_harness.py",
+      "weight_seconds": 13.78
+    },
+    {
+      "file": "tests/test_c08_prompt.py",
+      "weight_seconds": 0.001
+    },
+    {
+      "file": "tests/test_c08_provider.py",
+      "weight_seconds": 2.768
+    },
+    {
+      "file": "tests/test_c08_template.py",
+      "weight_seconds": 9.737
+    },
+    {
+      "file": "tests/test_c08_validation.py",
+      "weight_seconds": 115.354
+    },
+    {
+      "file": "tests/test_c09_ci_gate.py",
+      "weight_seconds": 4.959
+    },
+    {
+      "file": "tests/test_capacity_scenario.py",
+      "weight_seconds": 19.545
+    },
+    {
+      "file": "tests/test_ci_change_classifier.py",
+      "weight_seconds": 0.474
+    },
+    {
+      "file": "tests/test_ci_publication_gate.py",
+      "weight_seconds": 1.219
+    },
+    {
+      "file": "tests/test_ci_test_sharding.py",
+      "weight_seconds": 30.045
+    },
+    {
+      "file": "tests/test_config.py",
+      "weight_seconds": 0.003
+    },
+    {
+      "file": "tests/test_data.py",
+      "weight_seconds": 0.631
+    },
+    {
+      "file": "tests/test_data_workflow.py",
+      "weight_seconds": 7.772
+    },
+    {
+      "file": "tests/test_db.py",
+      "weight_seconds": 0.093
+    },
+    {
+      "file": "tests/test_decision_context.py",
+      "weight_seconds": 0.356
+    },
+    {
+      "file": "tests/test_decision_contracts.py",
+      "weight_seconds": 0.258
+    },
+    {
+      "file": "tests/test_decision_evidence.py",
+      "weight_seconds": 0.869
+    },
+    {
+      "file": "tests/test_decision_serialization.py",
+      "weight_seconds": 0.069
+    },
+    {
+      "file": "tests/test_decision_snapshot.py",
+      "weight_seconds": 0.16
+    },
+    {
+      "file": "tests/test_decision_temporal.py",
+      "weight_seconds": 4.224
+    },
+    {
+      "file": "tests/test_generation.py",
+      "weight_seconds": 2.155
+    },
+    {
+      "file": "tests/test_hgt_serialization.py",
+      "weight_seconds": 5.875
+    },
+    {
+      "file": "tests/test_investigation_case_binding.py",
+      "weight_seconds": 65.386
+    },
+    {
+      "file": "tests/test_investigation_contracts.py",
+      "weight_seconds": 9.727
+    },
+    {
+      "file": "tests/test_investigation_evidence_navigation.py",
+      "weight_seconds": 87.904
+    },
+    {
+      "file": "tests/test_investigation_evidence_queries.py",
+      "weight_seconds": 68.255
+    },
+    {
+      "file": "tests/test_investigation_findings.py",
+      "weight_seconds": 1061.491
+    },
+    {
+      "file": "tests/test_investigation_human.py",
+      "weight_seconds": 1014.403
+    },
+    {
+      "file": "tests/test_investigation_human_store.py",
+      "weight_seconds": 736.12
+    },
+    {
+      "file": "tests/test_investigation_planning.py",
+      "weight_seconds": 705.052
+    },
+    {
+      "file": "tests/test_investigation_summary.py",
+      "weight_seconds": 654.457
+    },
+    {
+      "file": "tests/test_investigation_summary_provider.py",
+      "weight_seconds": 663.466
+    },
+    {
+      "file": "tests/test_models.py",
+      "weight_seconds": 0.541
+    },
+    {
+      "file": "tests/test_scenario_interventions.py",
+      "weight_seconds": 26.79
+    },
+    {
+      "file": "tests/test_scenarios.py",
+      "weight_seconds": 0.688
+    },
+    {
+      "file": "tests/test_w04_source_evolution.py",
+      "weight_seconds": 7.548
+    },
+    {
+      "file": "tests/test_worker.py",
+      "weight_seconds": 0.003
+    }
+  ],
+  "schema_version": "w04-devctrl02-test-weights-v2",
+  "shard_count": 7,
+  "source_artifacts": [
+    {
+      "artifact_id": 11599246530,
+      "junit_sha256": "918de4087d4622c2cbfeed583776e1cbf4bbc3ab70578b8c4530fe08b87fe106",
+      "node_count": 1048,
+      "outcome_counts": {
+        "error": 0,
+        "failed": 0,
+        "passed": 1048,
+        "skipped": 0,
+        "xfail": 0,
+        "xpass": 0
+      },
+      "receipt_sha256": "6cb9d27982bfd9478fd7918262b0a756c5bfa5601f5f3e024e66d234b20b018c",
+      "shard_id": 0
+    },
+    {
+      "artifact_id": 11598633083,
+      "junit_sha256": "9608e3b41422757f4a5a905d77b4db0c02a385ed0bb1f3a700beacc3a9f49d82",
+      "node_count": 946,
+      "outcome_counts": {
+        "error": 0,
+        "failed": 1,
+        "passed": 945,
+        "skipped": 0,
+        "xfail": 0,
+        "xpass": 0
+      },
+      "receipt_sha256": "6a8630750230b19462ad7d1891599225900f75b8e35ec159f2a0cd6f16eb7d3d",
+      "shard_id": 1
+    },
+    {
+      "artifact_id": 11598796165,
+      "junit_sha256": "c9f70254d377aaf5a5ce18a5e889677d490a29105c8fc58dae2259a4d6a4bf8a",
+      "node_count": 511,
+      "outcome_counts": {
+        "error": 0,
+        "failed": 1,
+        "passed": 507,
+        "skipped": 3,
+        "xfail": 0,
+        "xpass": 0
+      },
+      "receipt_sha256": "0655fc87660d9e762f5032504bcb3f61ddbb45d0cdfaa96481d74e1e4d82426d",
+      "shard_id": 2
+    },
+    {
+      "artifact_id": 11598701090,
+      "junit_sha256": "ec12a3579bfbf3b77ebf19e9af3fc08722d967775757ca42d46d6785403066b6",
+      "node_count": 302,
+      "outcome_counts": {
+        "error": 0,
+        "failed": 0,
+        "passed": 302,
+        "skipped": 0,
+        "xfail": 0,
+        "xpass": 0
+      },
+      "receipt_sha256": "684d1e424e0fe39fb929eb3e0688a937c178f123ef9232e6b9e779467e60818c",
+      "shard_id": 3
+    }
+  ],
+  "source_collected_node_count": 2807,
+  "source_collected_nodeids_sha256": "4f74c17af44363fe14bbda36dd4bb5f2166162d941291bf8e383a29532349c3d",
+  "source_run_id": 37889883403,
+  "source_run_number": 122,
+  "source_sha": "9d5b6e3baea1a860446b70d9b254cc3dc41815a4",
+  "total_weight_seconds": 6671.752,
+  "weights_sha256": "315675b184abd56422f469a44da5f840b40d82c3cfb272d46873afd7a8adacca"
+}

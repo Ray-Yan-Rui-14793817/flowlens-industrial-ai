@@ -1,0 +1,14 @@
+{
+  "schema_version": "w04-c08-ci-bootstrap-weights-v1",
+  "entry_sha": "9afc4bd047bd4e52dfc4956f16e6420b3762301f",
+  "base_weights_sha256": "315675b184abd56422f469a44da5f840b40d82c3cfb272d46873afd7a8adacca",
+  "files": [
+    {
+      "file": "tests/test_investigation_replay.py",
+      "weight_seconds": 1061.491,
+      "basis": "MAX_FROZEN_JUNIT_FILE_WEIGHT",
+      "basis_file": "tests/test_investigation_findings.py"
+    }
+  ],
+  "bootstrap_sha256": "36f1d85e34344afee1f7e76b066427e4f40314c68f1d564340d82cc4dd44becb"
+}

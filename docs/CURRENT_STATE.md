@@ -1,76 +1,50 @@
 # FlowLens Industrial AI — Current State / 当前状态
 
-**Last Updated:** 2026-10-05 (Asia/Shanghai)
+**Last Updated:** 2026-10-16 (Asia/Shanghai)
 
-**Sprint:** Week 3 — Industrial AI Decision Loop Foundation
+**Sprint / Current Project Phase:** W04 SPRINT FINAL CLOSEOUT / PR #7 READINESS
 
-**Current Project Phase:** POST-W03 PR #6 MERGE / POST-MERGE VERIFICATION
+**Product mode:** OFFLINE / SHADOW / HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST / NO OPERATIONAL MUTATION
 
-**W03:** CLOSED / COMPLETE / VERIFIED / GITHUB SYNCHRONIZED
+**W01 / W02:** CLOSED / VERIFIED; frozen schema, hashing, generator/scenario semantics and HGT isolation retained.
 
-**C01-C10:** CLOSED / VERIFIED / GITHUB SYNCHRONIZED
+**W03:** MERGED / CLOSED / VERIFIED via PR #6; main/base `af61bdfd5f7cf7961811c4c2dc8e554dd7eed509`; post-merge exact-SHA CI #86 / 37261505402 PASS.
 
-**GPT C10 Independent Review R1:** PASS FOR HUMAN W03-C10 BUSINESS ACCEPTANCE REVIEW
+**W04 C01-C10:** CLOSED / VERIFIED. C07 summary, C08 protected replay, C09 semantic/meta-CI hardening and C10 Human business acceptance are complete within the accepted offline/shadow scope.
 
-**Human C10 Acceptance:** ACCEPTED — `W03-C10 HUMAN ACCEPTANCE: ACCEPTED`
+**W04 C10:** CLOSED / VERIFIED / GITHUB_SYNCHRONIZED at `232bfb390babce30417b8cdb9a6660663eb3c3f1`; native CI #145 / 38709171796, C / FULL_EXACT_SHA, attempt 1 SUCCESS. Its checkpoint/closeout records remain immutable.
 
-**Business Acceptance:** ACCEPTED by the Product Owner's overall gate; no separate A01-A10 notes/scores supplied or invented
+**Independent W04 Sprint Review:** PASS; supplied review raw SHA-256 `061fc3f41659499fc7e1069345abe7b1d0feeab65504eb79e48b6a929665de59`; Human Sprint acceptance ACCEPTED; Sprint closeout and PR readiness authorizations APPROVED.
 
-**W03 Final Closeout:** EFFECTIVE; final publication proof and synchronization PASS
+**Original Human authority:** Preserved in [W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md](w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md), original raw SHA-256 `e165fa2945ce0cf0c8fc230cb5faf5f65d7ce3021af8817bd0830168a61a3f5d`. The resume request continues that authority without replacing it.
 
-**C10 Implementation SHA / CI:** `57dd12db02b5650b5c04e1d1007ffc22810a74a1` / Run #81 / 37224461190 / PASS / C / FULL_EXACT_SHA
+**Sprint Closeout Prep:** COMPLETE at `c8b29cbcffe1886412de4a31b75905f6397043fb`; native CI #146 / 38735686969, C / FULL_EXACT_SHA, attempt 1 SUCCESS; lifecycle W04_SPRINT_CLOSEOUT_PREP_01. No second Prep, verifier change, Prep push or #146 rerun is authorized.
 
-**C10 Readiness Publication SHA / CI:** `dade594d3ba67825775577f46408689b733f089d` / Run #82 / 37227376986 / PASS / P / PUBLICATION_EXACT_SHA
+**Reconstructed Prep proof:** 2997 selected / 2994 passed / 3 accepted Linux skipped; zero failed/error/xfail/xpass; entry no-loss, exact union and exact once PASS. Integration 70; W03 38 selectors / 85 cases; W04 9 families / 67 selectors / 81 cases PASS. All shard job and pytest durations <3300s; source evolution and exact identities preserved.
 
-**Closeout Control SHA / CI:** `85c5e5ec19eb6db7a2921656138a9c9817702bcc` / Run #83 / 37252248950 / PASS / UNKNOWN / FULL_EXACT_SHA
+**W04 Sprint Final Closeout:** Effective only after this documentation commit's own attempt-1 UNKNOWN / FULL_EXACT_SHA native CI succeeds and fresh four-head synchronization passes. Its future Final SHA/run are not yet generated in this pre-commit projection; actual identities and completion belong in the post-CI handoff and PR body.
 
-**Final W03 Publication SHA / CI:** `a24e2e0587f11114edd5718eb10081797e303087` / Run #84 / 37254705531 / PASS / P / PUBLICATION_EXACT_SHA
+**PR #7:** W04 integration PR targeting main. Entry is OPEN / DRAFT / UNMERGED, mergeable TRUE. The exact title/body update and Draft -> Ready transition are post-Final-CI actions. Readiness does not grant merge authority.
 
-**Final Publication Jobs:** Publication proof / Verification PASS; Quality / Compose / W03 SKIPPED
+**Security readiness:** PASS / NO LIVE SECRET IDENTIFIED by the repeated read-only current-tree/reachable-history audit. Known local/test PostgreSQL fallback is DEVELOPMENT_TEST_DEFAULT / NON-EXTERNAL; synthetic sentinel/redaction fixtures are not live credentials. No secret-history rewrite or dependency addition occurred.
 
-**Accepted W03 AI Loop Gate:** F01-F10 / 38 selectors / 85 expanded cases PASS
+**Source-evolution manifest:** Byte-identical at raw SHA-256 `d22a12306f8fe98952b9e35a5f166f29fee968c9aedcff27511da59889c20c2d`; C01-C08 source identities remain CLOSED. C09/C10 have no runtime source-evolution entry by design.
 
-**C10 Technical Evidence / Harness:** A01-A10 10/10 EVIDENCE_READY; H01-H34 34/34 PASS
+**Execution router / reports:** [AGENTS.md](../AGENTS.md), [Sprint context lock](w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md), [Sprint final report](w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md) and [PR #7 readiness report](w04/W04_PR7_READINESS_REPORT.md).
 
-**Closeout Audit:** K01-K20 20/20 PASS
+**Deferred / non-blocking:** NB-C09-01; NB-C10-ENV-01; NB-W04-CI-01; NB-W04-GOV-01; NB-W04-PR-SIZE-01; NB-W04-CI-02. No repair is included here.
 
-**C10 Closed / W03 Sprint Closed / W03 Complete:** YES / YES / YES
+**PR #7 merge / auto-merge / merge queue / branch deletion / main write:** NOT AUTHORIZED.
 
-**GPT Merge Review:** PASS FOR HUMAN W03 PR #6 MERGE AUTHORIZATION
+**Post-W04 implementation / W05:** NOT AUTHORIZED.
 
-**Human Merge Authorization:** APPROVED — `W03 PR #6 MERGE AUTHORIZATION: APPROVED`
+**FlowLens v1.0:** NOT RELEASED.
 
-**Merge Context Lock:** LOCKED in W03_PR6_MERGE_PREPARATION.md before other writes
-
-**Entry Feature Local / Tracking / Direct Remote / PR Head:** `a24e2e0587f11114edd5718eb10081797e303087`
-
-**Main / Merge Base:** `9d18ddde9fe933952a2661ee1419f13c8577605d` / unchanged before authorized GitHub merge
-
-**Entry Feature Ahead/Behind Main / Tracking:** 54/0 / 0/0; worktree/staging CLEAN
-
-**PR #6:** OPEN / DRAFT / NOT MERGED / CLEAN; auto-merge ABSENT / DISABLED
-
-**PR #6 Merge Authorized:** YES — PENDING PRE-MERGE FULL PROOF
-
-**Merge Preparation Exact-SHA CI:** PENDING ON THIS COMMIT; expected UNKNOWN / FULL_EXACT_SHA; Quality / Compose / W03 / Verification must PASS; Publication SKIPPED
-
-**Merge Method / Feature Branch:** GITHUB MERGE COMMIT ONLY / RETAINED
-
-**Post-Merge Main Proof:** REQUIRED on exact merge commit; UNKNOWN / FULL_EXACT_SHA and F01-F10 / 38 / 85 PASS
-
-**Post-W03 Implementation:** NOT AUTHORIZED
-
-**Next:** PR #6 MERGE COMMIT + POST-MERGE MAIN VERIFICATION
-
-**After Verified Merge:** GPT POST-W03 CAPABILITY-GAP / SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW
-
-**Status:** W03_MERGE_PREPARATION_PENDING_FULL_PROOF
-
-**Week 1 / Week 2 Baselines:** CLOSED / VERIFIED
-
-> OBSERVED: Final W03 publication and synchronization passed on the entry head. The supplied GPT merge review passed for Human authorization; the active Product Owner request approved the bounded PR #6 merge task. All 13 package checksums and read-only entry facts matched. Current status is normalized; historical Sections 1-60 and C01-C10 semantics are preserved. This seven-path preparation still requires its own exact-SHA full proof before PR body/ready changes and guarded GitHub merge. Future merge completion/main CI facts belong in the final handoff after verification.
+**Next authorized action:** Complete this commit's own native proof and synchronization; only then normalize PR #7 metadata and mark Ready for Human merge review. Stop after W04_SPRINT_FINAL_CLOSEOUT_COMPLETE + PR #7 READY FOR HUMAN MERGE REVIEW.
 
 ---
+
+The numbered W01-W03 sections below are preserved historical snapshots. Their original phase labels, pre-merge projections and acceptance history are not current execution authority; the W04 projection above and the current authorized task govern this closeout.
 
 ## 1. 当前已冻结内容 / Frozen Control-State Decisions
 

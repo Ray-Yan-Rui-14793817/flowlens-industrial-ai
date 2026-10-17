@@ -1,0 +1,3391 @@
+"""Independent, adversarial W04-C09 V1.1 runner, workflow and replay-source proof."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import contextlib
+import copy
+import hashlib
+import io
+import itertools
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from typing import Any, cast
+from unittest.mock import patch
+
+import plan_non_integration_shards as planner
+import run_w04_investigation_gate as runner
+
+ROOT = Path(__file__).resolve().parents[2]
+ENTRY = "1fa841f2ee0d6612774c9f0ced204289df86e7a1"
+MANIFEST = ROOT / "docs/w04/checkpoints/c09/specs/c09_gate_manifest.json"
+RAW_DIGEST = "d7526f78b3301332983e626dd102f3f57f52f2926d3130741b6e8a447bf0bbd1"
+CONTENT_DIGEST = "937179ae935b1361c5bfd5114825cc6fdd51a9aad5cfeffdc012bb3a4652e8ad"
+REPAIR_01_SHA256 = "744640783621660de009a8a1656ebb55bf752802ecb7e8256b8a1d9a8f3ee0ef"
+AUTHORIZED_META_CI_FUNCTIONS = {
+    "tests/test_ci_change_classifier.py": frozenset(
+        {
+            "test_workflow_routes_all_classes_to_a_stable_fail_closed_gate",
+        }
+    ),
+    "tests/test_c09_ci_gate.py": frozenset(
+        {
+            "test_workflow_one_job_exact_schedule_source_manifest_and_environment",
+            "test_verification_runs_actual_shell_truth_table",
+        }
+    ),
+}
+AUTHORIZED_REPLAY_SYMBOLS = frozenset(
+    {
+        "DEVCTRL_03_ENTRY_SHA",
+        "C09_ENTRY_SHA",
+        "W04_C09_MANIFEST_CONTENT_SHA256",
+        "FULL_JOBS",
+        "_devctrl03_workflow_delta_guard",
+        "test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchanged",
+        "_check_native_metadata",
+        "_native_metadata_fixture",
+        "_validate_w04_c09_gate_summary",
+        "test_r46_stage_b_exact_sha_full_native_ci",
+    }
+)
+STAGE_A = (
+    ".github/workflows/ci.yml",
+    "scripts/ci/run_w04_investigation_gate.py",
+    "scripts/ci/verify_w04_investigation_gate_contract.py",
+    "tests/test_investigation_replay.py",
+    *(
+        f"docs/w04/checkpoints/c09/W04_C09_{name}.md"
+        for name in (
+            "AUTHORIZATION_CONTRACT",
+            "HUMAN_AUTHORIZATION",
+            "CONTEXT_LOCK",
+            "CI_REGRESSION_CONTRACT",
+            "HARNESS_SPEC",
+            "GPT_REVIEW_CHECKLIST",
+        )
+    ),
+    "docs/w04/checkpoints/c09/specs/c09_gate_manifest.json",
+    "docs/w04/checkpoints/c09/specs/authorized_paths.json",
+    "tests/test_ci_change_classifier.py",
+    "tests/test_c09_ci_gate.py",
+)
+STAGE_B = ("docs/w04/checkpoints/c09/W04_C09_R_DEVELOPMENT_ROUND_REPORT.md",)
+CLOSEOUT_STAGE_A_SHA = "3cd8023dbe79ca8360a3075dd3b169921e31f7a5"
+CLOSEOUT_REVIEW_READY_SHA = "f4c528e1daf86aa1a010bce82665e43c55560384"
+CLOSEOUT_VERIFIER_PATH = "scripts/ci/verify_w04_investigation_gate_contract.py"
+CLOSEOUT_PREP_SUBJECT = "ci(w04-c09): admit bounded closeout lifecycle"
+CLOSEOUT_FINAL_SUBJECT = "docs(w04-c09): close investigation regression gate"
+CLOSEOUT_FINAL_PATHS = (
+    "docs/w04/checkpoints/c09/W04_C09_GPT_INDEPENDENT_REVIEW_R1.md",
+    "docs/w04/checkpoints/c09/W04_C09_HUMAN_ACCEPTANCE.md",
+    "docs/w04/checkpoints/c09/W04_C09_CLOSEOUT_AUTHORIZATION.md",
+    "docs/w04/checkpoints/c09/W04_C09_CLOSEOUT_CONTEXT_LOCK.md",
+    "docs/w04/checkpoints/c09/W04_C09_FINAL_CLOSEOUT_REPORT.md",
+)
+
+
+C10_ENTRY_SHA = "d33ee858fca8caaceba2ce60c045f7e4213c631a"
+C10_PREP_SHA = "f391cf25871473d488a8f5c7e7ff77fb933920d8"
+C10_BOOTSTRAP_SUBJECT = "ci(w04-c10): admit bounded acceptance lifecycle"
+C10_STAGE_A_SUBJECT = "docs(w04-c10): prepare investigation business acceptance"
+C10_STAGE_B_SUBJECT = "docs(w04-c10): publish business acceptance readiness proof"
+C10_STAGE_A_PATHS = (
+    "docs/w04/checkpoints/c10/W04_C10_AUTHORIZATION_CONTRACT.md",
+    "docs/w04/checkpoints/c10/W04_C10_HUMAN_AUTHORIZATION.md",
+    "docs/w04/checkpoints/c10/W04_C10_CONTEXT_LOCK.md",
+    "docs/w04/checkpoints/c10/W04_C10_BUSINESS_ACCEPTANCE_SPEC.md",
+    "docs/w04/checkpoints/c10/W04_C10_EVIDENCE_MATRIX.md",
+    "docs/w04/checkpoints/c10/W04_C10_HUMAN_ACCEPTANCE_FORM.md",
+    "docs/w04/checkpoints/c10/W04_C10_HARNESS_SPEC.md",
+    "docs/w04/checkpoints/c10/W04_C10_GPT_REVIEW_CHECKLIST.md",
+    "docs/w04/checkpoints/c10/W04_C10_BUSINESS_ACCEPTANCE_DOSSIER.md",
+    "docs/w04/checkpoints/c10/specs/c10_acceptance_manifest.json",
+    "docs/w04/checkpoints/c10/specs/authorized_paths.json",
+)
+C10_STAGE_B_PATH = "docs/w04/checkpoints/c10/W04_C10_R_DEVELOPMENT_ROUND_REPORT.md"
+C10_SOURCE_ADDITIONS = (
+    "C10_ENTRY_SHA",
+    "C10_PREP_SHA",
+    "C10_BOOTSTRAP_SUBJECT",
+    "C10_STAGE_A_SUBJECT",
+    "C10_STAGE_B_SUBJECT",
+    "C10_STAGE_A_PATHS",
+    "C10_STAGE_B_PATH",
+    "C10_SOURCE_ADDITIONS",
+    "validate_c10_lifecycle",
+    "c10_bootstrap_revision",
+    "validate_c10_verifier_sources",
+    "c10_verifier_blob_guard",
+    "check_c10_lifecycle_controls",
+)
+
+
+C10_CLOSEOUT_REVIEW_READY_SHA = "250ea1b7476db61aba20b5d2fb11148ce8243678"
+C10_CLOSEOUT_BOOTSTRAP_SHA = "a34a84b97681f24bf6df1fed1a80825ae32decfa"
+C10_CLOSEOUT_STAGE_A_SHA = "59ec925122c1fdc5b76a3c22fc0ab60a785efb38"
+C10_CLOSEOUT_PREP_SUBJECT = "ci(w04-c10): admit bounded closeout lifecycle"
+C10_FINAL_CLOSEOUT_SUBJECT = "docs(w04-c10): close business acceptance checkpoint"
+C10_FINAL_CLOSEOUT_PATHS = (
+    "docs/w04/checkpoints/c10/W04_C10_GPT_INDEPENDENT_REVIEW_R1.md",
+    "docs/w04/checkpoints/c10/W04_C10_HUMAN_ACCEPTANCE.md",
+    "docs/w04/checkpoints/c10/W04_C10_CLOSEOUT_AUTHORIZATION.md",
+    "docs/w04/checkpoints/c10/W04_C10_CLOSEOUT_CONTEXT_LOCK.md",
+    "docs/w04/checkpoints/c10/W04_C10_FINAL_CLOSEOUT_REPORT.md",
+)
+C10_CLOSEOUT_SOURCE_ADDITIONS = (
+    "C10_CLOSEOUT_REVIEW_READY_SHA",
+    "C10_CLOSEOUT_BOOTSTRAP_SHA",
+    "C10_CLOSEOUT_STAGE_A_SHA",
+    "C10_CLOSEOUT_PREP_SUBJECT",
+    "C10_FINAL_CLOSEOUT_SUBJECT",
+    "C10_FINAL_CLOSEOUT_PATHS",
+    "C10_CLOSEOUT_SOURCE_ADDITIONS",
+    "validate_c10_closeout_lifecycle",
+    "c10_closeout_prep_revision",
+    "validate_c10_closeout_verifier_sources",
+    "c10_closeout_verifier_blob_guard",
+    "check_c10_closeout_lifecycle_controls",
+)
+
+
+W04_SPRINT_ENTRY_SHA = "232bfb390babce30417b8cdb9a6660663eb3c3f1"
+W04_SPRINT_CLOSEOUT_PREP_SUBJECT = "ci(w04): admit sprint closeout lifecycle"
+W04_SPRINT_FINAL_CLOSEOUT_SUBJECT = "docs(w04): close sprint and prepare PR #7 review"
+W04_SPRINT_FINAL_MODIFIED_PATHS = ("README.md", "AGENTS.md", "docs/CURRENT_STATE.md")
+W04_SPRINT_FINAL_ADDED_PATHS = (
+    "docs/w04/W04_GPT_INDEPENDENT_DEEP_REVIEW_R1.md",
+    "docs/w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md",
+    "docs/w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md",
+    "docs/w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md",
+    "docs/w04/W04_PR7_READINESS_REPORT.md",
+)
+W04_SPRINT_SOURCE_ADDITIONS = (
+    "W04_SPRINT_ENTRY_SHA",
+    "W04_SPRINT_CLOSEOUT_PREP_SUBJECT",
+    "W04_SPRINT_FINAL_CLOSEOUT_SUBJECT",
+    "W04_SPRINT_FINAL_MODIFIED_PATHS",
+    "W04_SPRINT_FINAL_ADDED_PATHS",
+    "W04_SPRINT_SOURCE_ADDITIONS",
+    "validate_w04_sprint_lifecycle",
+    "w04_sprint_prep_revision",
+    "validate_w04_sprint_verifier_sources",
+    "w04_sprint_verifier_blob_guard",
+    "check_w04_sprint_controls",
+)
+
+
+W04_PR7_FINAL_SHA = "985f666e5ecfa5acd35565516e200c9b0e36c76b"
+W04_PR7_MAIN_SHA = "af61bdfd5f7cf7961811c4c2dc8e554dd7eed509"
+W04_PR7_MERGE_REPAIR_SUBJECT = "ci(w04): admit PR #7 merge commit lifecycle"
+W04_PR7_MERGE_SOURCE_ADDITIONS = (
+    "W04_PR7_FINAL_SHA",
+    "W04_PR7_MAIN_SHA",
+    "W04_PR7_MERGE_REPAIR_SUBJECT",
+    "W04_PR7_MERGE_SOURCE_ADDITIONS",
+    "validate_w04_pr7_merge_repair_lifecycle",
+    "validate_w04_pr7_merge_topology",
+    "w04_pr7_merged_main_guard",
+    "w04_pr7_repair_history",
+    "w04_pr7_pre_integration_guard",
+    "w04_pr7_integration_anchor",
+    "w04_pr7_historical_tip",
+    "w04_pr7_merge_repair_revision",
+    "validate_w04_pr7_merge_verifier_sources",
+    "w04_pr7_merge_verifier_blob_guard",
+    "check_w04_pr7_merge_controls",
+    "check_w04_pr7_post_integration_controls",
+)
+
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def git(*arguments: str, repo: Path = ROOT) -> bytes:
+    return subprocess.check_output(["git", *arguments], cwd=repo)
+
+
+def workflow_blocks(raw: bytes) -> tuple[bytes, dict[str, bytes]]:
+    require(raw.count(b"\njobs:\n") == 1, "ambiguous jobs root")
+    start = raw.index(b"\njobs:\n") + len(b"\njobs:\n")
+    matches = list(re.finditer(rb"(?m)^  ([a-z][a-z0-9-]*):\n", raw[start:]))
+    require(bool(matches) and matches[0].start() == 0, "invalid job layout")
+    jobs: dict[str, bytes] = {}
+    for i, match in enumerate(matches):
+        name = match[1].decode()
+        require(name not in jobs, "duplicate workflow job")
+        end = start + matches[i + 1].start() if i + 1 < len(matches) else len(raw)
+        jobs[name] = raw[start + match.start() : end]
+    return raw[:start], jobs
+
+
+def replace_once(raw: bytes, old: bytes, new: bytes) -> bytes:
+    require(raw.count(old) == 1, "ambiguous authorized workflow transformation")
+    return raw.replace(old, new, 1)
+
+
+def expected_w04_job(entry: bytes) -> bytes:
+    """Derive the complete approved job using only the frozen W03 service/action setup."""
+    _, jobs = workflow_blocks(entry)
+    block = jobs["w03-ai-loop-gate"]
+    block = replace_once(block, b"  w03-ai-loop-gate:\n", b"  w04-investigation-gate:\n")
+    block = replace_once(
+        block, b"    name: W03 AI loop gate\n", b"    name: W04 investigation gate\n"
+    )
+    block = replace_once(block, b"    timeout-minutes: 15\n", b"    timeout-minutes: 30\n")
+    prefix = block.split(b"      - name: Run frozen W03 semantic regression gate\n")
+    require(len(prefix) == 2, "missing frozen W03 gate step")
+    steps = b"""      - name: Verify W04 investigation gate contract
+        run: uv run python scripts/ci/verify_w04_investigation_gate_contract.py
+
+      - name: Run frozen W04 investigation semantic gate
+        env:
+          EXPECTED_HEAD: __SOURCE_HEAD__
+        run: |
+          uv run python scripts/ci/run_w04_investigation_gate.py \\
+            --manifest docs/w04/checkpoints/c09/specs/c09_gate_manifest.json \\
+            --expected-head "$EXPECTED_HEAD" \\
+            --output-json "$RUNNER_TEMP/w04-c09-gate-summary.json"
+
+      - name: Upload W04 investigation exact-SHA proof
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: w04-c09-gate-__SOURCE_HEAD__
+          path: ${{ runner.temp }}/w04-c09-gate-summary.json
+          if-no-files-found: error
+          retention-days: 14
+
+"""
+    source_head = (
+        b"${{ github.event_name == 'pull_request' && "
+        b"github.event.pull_request.head.sha || github.sha }}"
+    )
+    return prefix[0] + steps.replace(b"__SOURCE_HEAD__", source_head)
+
+
+def expected_verification(entry: bytes) -> bytes:
+    _, jobs = workflow_blocks(entry)
+    block = replace_once(
+        jobs["verification-gate"],
+        b", w03-ai-loop-gate]\n",
+        b", w03-ai-loop-gate, w04-investigation-gate]\n",
+    )
+    for old, new in (
+        (
+            b"          W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}\n",
+            b"          W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}\n"
+            b"          W04_RESULT: ${{ needs['w04-investigation-gate'].result }}\n",
+        ),
+        (
+            b'            test "$W03_RESULT" = skipped\n',
+            b'            test "$W03_RESULT" = skipped\n            test "$W04_RESULT" = skipped\n',
+        ),
+        (
+            b'            test "$W03_RESULT" = success\n',
+            b'            test "$W03_RESULT" = success\n            test "$W04_RESULT" = success\n',
+        ),
+    ):
+        block = replace_once(block, old, new)
+    return block
+
+
+def validate_workflow(entry: bytes, current: bytes) -> None:
+    entry_prefix, before = workflow_blocks(entry)
+    prefix, after = workflow_blocks(current)
+    require(prefix == entry_prefix, "workflow trigger/header changed")
+    require(set(after) == set(before) | {"w04-investigation-gate"}, "workflow job set changed")
+    expected_order = list(before)
+    expected_order.insert(expected_order.index("compose-smoke"), "w04-investigation-gate")
+    require(list(after) == expected_order, "workflow job order changed")
+    for name, block in before.items():
+        require(
+            after[name] == (expected_verification(entry) if name == "verification-gate" else block),
+            f"unauthorized existing job delta: {name}",
+        )
+    require(after["w04-investigation-gate"] == expected_w04_job(entry), "W04 job contract delta")
+    for pattern in (rb"uses: ([^\s]+)", rb"image: ([^\s]+)"):
+        require(
+            set(re.findall(pattern, current)) == set(re.findall(pattern, entry)),
+            "new action pin or image",
+        )
+
+
+def workflow_guard(repo: Path = ROOT) -> None:
+    path = ".github/workflows/ci.yml"
+    for revision in (ENTRY, "HEAD"):
+        require(
+            git("ls-tree", "-r", "--name-only", revision, "--", ".github/workflows", repo=repo)
+            .decode()
+            .strip()
+            == path,
+            "hidden workflow in Git tree",
+        )
+    actual = sorted(
+        p.relative_to(repo).as_posix()
+        for p in (repo / ".github/workflows").rglob("*")
+        if p.is_file()
+    )
+    require(actual == [path], "hidden workflow in checkout")
+    # The written workflow retains exact LF Git bytes even on Windows.
+    validate_workflow(git("show", ENTRY + ":" + path, repo=repo), (repo / path).read_bytes())
+
+
+def source_units(source: str) -> tuple[list[str], dict[str, tuple[str, ast.AST]]]:
+    tree = ast.parse(source)
+    lines = source.splitlines(keepends=True)
+    units: dict[str, tuple[str, ast.AST]] = {}
+    order: list[str] = []
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            key = node.name
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            require(
+                all(isinstance(t, ast.Name) for t in targets), "unsupported assignment identity"
+            )
+            key = ",".join(cast(ast.Name, t).id for t in targets)
+        elif isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant):
+            key = "module-docstring"
+        else:
+            key = ast.dump(node, include_attributes=False)
+        require(key not in units, "duplicate source-unit identity")
+        decorators = getattr(node, "decorator_list", [])
+        start = min([node.lineno, *(d.lineno for d in decorators)]) - 1
+        units[key] = ("".join(lines[start : node.end_lineno]), node)
+        order.append(key)
+    return order, units
+
+
+def validate_replay_sources(entry: str, current: str) -> None:
+    old_order, old = source_units(entry)
+    new_order, new = source_units(current)
+    require(
+        [k for k in old_order if k not in AUTHORIZED_REPLAY_SYMBOLS]
+        == [k for k in new_order if k not in AUTHORIZED_REPLAY_SYMBOLS],
+        "unauthorized replay unit addition/removal/reordering",
+    )
+    for key in set(old) | set(new):
+        if key not in AUTHORIZED_REPLAY_SYMBOLS:
+            require(
+                key in old and key in new and old[key][0] == new[key][0],
+                f"unauthorized replay source delta: {key}",
+            )
+        elif key in old and isinstance(old[key][1], (ast.FunctionDef, ast.AsyncFunctionDef)):
+            require(
+                key in new and type(new[key][1]) is type(old[key][1]),
+                "authorized function selector removed/renamed",
+            )
+            for attribute in ("name", "args", "decorator_list", "returns", "type_params"):
+                before, after = getattr(old[key][1], attribute), getattr(new[key][1], attribute)
+
+                def structural(value: Any) -> Any:
+                    if isinstance(value, ast.AST):
+                        return ast.dump(value, include_attributes=False)
+                    if isinstance(value, list):
+                        return [structural(v) for v in value]
+                    return value
+
+                require(
+                    structural(before) == structural(after),
+                    f"authorized replay signature/decorator drift: {key}",
+                )
+    require(
+        "C09_ENTRY_SHA" in new
+        and ast.literal_eval(cast(ast.Assign, new["C09_ENTRY_SHA"][1]).value) == ENTRY,
+        "C09 replay entry is not pinned",
+    )
+    require(
+        "W04_C09_MANIFEST_CONTENT_SHA256" in new
+        and ast.literal_eval(cast(ast.Assign, new["W04_C09_MANIFEST_CONTENT_SHA256"][1]).value)
+        == CONTENT_DIGEST,
+        "C09 replay manifest is not pinned",
+    )
+
+
+def replay_source_guard(repo: Path = ROOT) -> None:
+    path = "tests/test_investigation_replay.py"
+    # Universal-newline text is Git source text; spans include complete decorators and bodies.
+    validate_replay_sources(
+        git("show", ENTRY + ":" + path, repo=repo).decode(),
+        (repo / path).read_text(encoding="utf-8"),
+    )
+
+
+def expected_meta_ci_unit(path: str, name: str, entry: str) -> str:
+    """Only the literal Repair-01 additions; every prior assertion stays source-exact."""
+    require(name in AUTHORIZED_META_CI_FUNCTIONS[path], "unauthorized meta-CI function")
+
+    def change(old: str, new: str) -> None:
+        nonlocal entry
+        require(entry.count(old) == 1, "ambiguous Repair-01 source transformation")
+        entry = entry.replace(old, new, 1)
+
+    if name == "test_workflow_one_job_exact_schedule_source_manifest_and_environment":
+        change(
+            '        "w03-ai-loop-gate",\n',
+            '        "w03-ai-loop-gate",\n        "w04-investigation-gate",\n',
+        )
+    else:
+        change('"w03-ai-loop-gate]"', '"w03-ai-loop-gate, w04-investigation-gate]"')
+    if name == "test_verification_runs_actual_shell_truth_table":
+        change(
+            "    assert \"W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}\" in verification\n",
+            "    assert \"W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}\" in verification\n"
+            "    assert \"W04_RESULT: ${{ "
+            "needs['w04-investigation-gate'].result }}\" in verification\n",
+        )
+        change(
+            '            "W03_RESULT": "skipped" if change == "P" else "success",\n',
+            '            "W03_RESULT": "skipped" if change == "P" else "success",\n'
+            '            "W04_RESULT": "skipped" if change == "P" else "success",\n',
+        )
+    return entry
+
+
+def validate_meta_ci_sources(path: str, entry: str, current: str) -> None:
+    old_order, old = source_units(entry)
+    new_order, new = source_units(current)
+    require(old_order == new_order, "meta-CI top-level unit/name/order drift")
+    for name in old_order:
+        expected = old[name][0]
+        if name in AUTHORIZED_META_CI_FUNCTIONS[path]:
+            require(isinstance(old[name][1], ast.FunctionDef), "meta-CI authority is function-only")
+            expected = expected_meta_ci_unit(path, name, expected)
+        require(new[name][0] == expected, f"unauthorized meta-CI source delta: {path}:{name}")
+
+
+def meta_ci_source_guard(repo: Path = ROOT) -> None:
+    for path in AUTHORIZED_META_CI_FUNCTIONS:
+        validate_meta_ci_sources(
+            path,
+            git("show", ENTRY + ":" + path, repo=repo).decode(),
+            (repo / path).read_text(encoding="utf-8"),
+        )
+
+
+def check_meta_ci_source_controls() -> int:
+    for path, allowed in AUTHORIZED_META_CI_FUNCTIONS.items():
+        entry = git("show", ENTRY + ":" + path).decode()
+        current = (ROOT / path).read_text(encoding="utf-8")
+        validate_meta_ci_sources(path, entry, current)
+        _, units = source_units(current)
+        unrelated = next(name for name in units if name.startswith("test_") and name not in allowed)
+        unit = units[unrelated][0]
+        authorized = sorted(allowed)[0]
+        import_unit = next(
+            text for text, node in units.values() if isinstance(node, (ast.Import, ast.ImportFrom))
+        )
+        mutations = (
+            current.replace(unit, unit.rstrip() + "\n    raise AssertionError('damage')\n", 1),
+            current + "\ndef test_unapproved_extra():\n    pass\n",
+            current.replace("def " + authorized + "(", "def test_unapproved_rename(", 1),
+            current.replace(import_unit, "import fractions\n", 1),
+            current.replace(
+                "def " + authorized + "(",
+                '@pytest.mark.usefixtures("unapproved")\ndef ' + authorized + "(",
+                1,
+            ),
+            current.replace("def " + authorized + "()", "def " + authorized + "(unapproved)", 1),
+        )
+        for damaged in mutations:
+            require(damaged != current, "meta-CI adversary did not mutate source")
+            rejected(
+                "meta-CI source mutation",
+                lambda damaged=damaged, path=path, entry=entry: validate_meta_ci_sources(
+                    path, entry, damaged
+                ),
+            )
+    return 12
+
+
+def rejected(label: str, action: Any) -> None:
+    try:
+        action()
+    except (ValueError, AssertionError, OSError, UnicodeError, subprocess.CalledProcessError):
+        return
+    raise ValueError(f"negative control admitted: {label}")
+
+
+def check_manifest_controls(directory: Path) -> int:
+    original = json.loads(MANIFEST.read_bytes())
+    count = 0
+
+    def reject_doc(label: str, value: Any) -> None:
+        nonlocal count
+        path = directory / "manifest.json"
+        path.write_bytes(runner.canonical(value) + b"\n")
+        rejected(label, lambda: runner.load_manifest(path))
+        count += 1
+
+    for level in ("root", "family", "target", "baseline"):
+        for extra in (False, True):
+            value = copy.deepcopy(original)
+            obj = (
+                value
+                if level == "root"
+                else value["baseline"]
+                if level == "baseline"
+                else value["families"][0]
+                if level == "family"
+                else value["families"][0]["targets"][0]
+            )
+            if extra:
+                obj["extra"] = 1
+            else:
+                obj.pop(next(iter(obj)))
+            reject_doc(level + str(extra), value)
+    for key in (
+        "schema_version",
+        "gate_version",
+        "checkpoint",
+        "contract_entry_sha",
+        "selector_semantics",
+        "total_selectors",
+        "total_cases",
+    ):
+        value = copy.deepcopy(original)
+        value[key] = "wrong"
+        reject_doc(key, value)
+    for key in original["baseline"]:
+        value = copy.deepcopy(original)
+        value["baseline"][key] = "wrong"
+        reject_doc("baseline-" + key, value)
+    for damage in ("missing", "reordered", "unknown", "duplicate"):
+        value = copy.deepcopy(original)
+        if damage == "missing":
+            value["families"].pop()
+        elif damage == "reordered":
+            value["families"].reverse()
+        elif damage == "unknown":
+            value["families"][0]["id"] = "unknown"
+        else:
+            value["families"][1] = copy.deepcopy(value["families"][0])
+        reject_doc(damage, value)
+    value = copy.deepcopy(original)
+    value["families"][1]["targets"][0]["selector"] = value["families"][0]["targets"][0]["selector"]
+    reject_doc("cross-family duplicate", value)
+    for invalid in (0, -1, True, 1.5, "1"):
+        rejected("positive count", lambda invalid=invalid: runner.positive_count(invalid))
+        count += 1
+        value = copy.deepcopy(original)
+        value["families"][0]["targets"][0]["expected_cases"] = invalid
+        reject_doc("invalid count", value)
+    for selector in (
+        "tests/test_x.py::*",
+        "-k x",
+        "-m integration",
+        "--collect-only",
+        "tests/test_x.py;echo x",
+        "tests/test_x.py::TestClass::test_x",
+        "tests/test_x.py::test_x[p]",
+        "../tests/test_x.py::test_x",
+        "tests/test_x.py::test_x && echo x",
+    ):
+        rejected("selector grammar", lambda selector=selector: runner.validate_selector(selector))
+        count += 1
+    for raw in (b'{"x":1,"x":2}', b'{"x":NaN}', b'{"x":Infinity}', b'{"x":-Infinity}', b"{"):
+        rejected("JSON parser", lambda raw=raw: runner.parse_json(raw))
+        count += 1
+    path = directory / "manifest.json"
+    path.write_bytes(MANIFEST.read_bytes() + b" ")
+    rejected("raw digest", lambda: runner.load_manifest(path))
+    value = copy.deepcopy(original)
+    value["families"][0]["targets"][0]["selector"] += "_renamed"
+    reject_doc("renamed selector/content digest", value)
+    return count + 1
+
+
+def healthy_evidence(family: runner.Family) -> dict[str, Any]:
+    nodes = [
+        t.selector if t.expected_cases == 1 else t.selector + f"[{i}]"
+        for t in family.targets
+        for i in range(t.expected_cases)
+    ]
+    return {
+        "schema_version": "w04-c09-pytest-evidence-v1",
+        "collected": nodes,
+        "collection_errors": 0,
+        "deselected": 0,
+        "exit_code": 0,
+        "reports": [
+            {"nodeid": n, "when": phase, "outcome": "passed", "wasxfail": False}
+            for n in nodes
+            for phase in ("setup", "call", "teardown")
+        ],
+    }
+
+
+def check_runner_controls(directory: Path) -> int:
+    manifest = runner.load_manifest(MANIFEST)
+    family = manifest.families[3]
+    healthy = healthy_evidence(family)
+    runner.validate_evidence(family, healthy, 0)
+    count = 0
+    for field in ("collection_errors", "deselected", "exit_code"):
+        damaged = copy.deepcopy(healthy)
+        damaged[field] = 1
+        rejected(field, lambda damaged=damaged: runner.validate_evidence(family, damaged, 0))
+        count += 1
+    for damage in (
+        "partial",
+        "duplicate",
+        "missing",
+        "unexpected",
+        "no-call",
+        "duplicate-call",
+        "phase-order",
+        "failure",
+        "setup-error",
+        "teardown-error",
+        "skip",
+        "xfail",
+        "xpass",
+    ):
+        damaged = copy.deepcopy(healthy)
+        if damage in {"partial", "missing"}:
+            damaged["collected"].pop()
+        elif damage == "duplicate":
+            damaged["collected"][-1] = damaged["collected"][0]
+        elif damage == "unexpected":
+            damaged["collected"][-1] = "tests/test_wrong.py::test_wrong"
+        elif damage == "no-call":
+            damaged["reports"].pop(1)
+        elif damage == "duplicate-call":
+            damaged["reports"].insert(1, copy.deepcopy(damaged["reports"][1]))
+        elif damage == "phase-order":
+            damaged["reports"].reverse()
+        else:
+            index = 0 if damage == "setup-error" else 2 if damage == "teardown-error" else 1
+            damaged["reports"][index]["outcome"] = "skipped" if damage == "skip" else "failed"
+            if damage in {"xfail", "xpass"}:
+                damaged["reports"][index]["outcome"] = "passed"
+                damaged["reports"][index]["wasxfail"] = True
+        rejected(damage, lambda damaged=damaged: runner.validate_evidence(family, damaged, 0))
+        count += 1
+    rejected("worker nonzero", lambda: runner.validate_evidence(family, healthy, 1))
+    output = directory / "summary.json"
+    output.write_bytes(b'{"overall":"PASS"}\n')
+    rejected("wrong HEAD/stale PASS", lambda: runner.run_gate(MANIFEST, "0" * 40, output, ROOT))
+    require(json.loads(output.read_bytes())["overall"] == "FAIL", "stale PASS survived failure")
+    output.write_bytes(b'{"overall":"PASS"}\n')
+    cli = subprocess.run(
+        [
+            sys.executable,
+            "-B",
+            str(Path(runner.__file__).resolve()),
+            "--manifest",
+            str(MANIFEST),
+            "--expected-head",
+            "0" * 40,
+            "--output-json",
+            str(output),
+            "--repo",
+            str(ROOT),
+        ],
+        capture_output=True,
+        check=False,
+    )
+    require(
+        cli.returncode != 0 and json.loads(output.read_bytes())["overall"] == "FAIL",
+        "actual CLI admitted wrong HEAD or retained stale PASS",
+    )
+    rejected("repository output", lambda: runner.run_gate(MANIFEST, ENTRY, MANIFEST, ROOT))
+    calls: list[str] = []
+
+    def successful(f: runner.Family, repo: Path) -> dict[str, object]:
+        calls.append(f.id)
+        return {
+            "id": f.id,
+            "status": "PASS",
+            "selectors": len(f.targets),
+            "tests": f.expected_cases,
+        }
+
+    head = git("rev-parse", "HEAD").decode().strip()
+    with (
+        patch.object(runner, "execute_family", successful),
+        contextlib.redirect_stdout(io.StringIO()),
+    ):
+        summary = runner.run_gate(MANIFEST, head, output, ROOT)
+    require(calls == list(runner.FAMILY_IDS), "actual runner family order drift")
+    raw = output.read_bytes()
+    runner.validate_summary(raw, manifest, head)
+    rejected(
+        "family result order drift",
+        lambda: runner.make_summary(
+            manifest, head, list(reversed(cast(list[dict[str, object]], summary["families"])))
+        ),
+    )
+    require(
+        raw
+        == json.dumps(summary, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+        + b"\n",
+        "summary is not canonical deterministic JSON",
+    )
+    for damage in ("seal-wrong", "seal-missing", "order", "timestamp", "count", "head"):
+        value: dict[str, Any] = copy.deepcopy(summary)
+        if damage == "seal-wrong":
+            value["summary_sha256"] = "0" * 64
+        elif damage == "seal-missing":
+            value.pop("summary_sha256")
+        elif damage == "order":
+            value["families"].reverse()
+        elif damage == "timestamp":
+            value["timestamp"] = "unacceptable"
+        elif damage == "count":
+            value["total_tests"] = 80
+        else:
+            value["implementation_sha"] = "0" * 40
+        rejected(
+            damage,
+            lambda value=value: runner.validate_summary(
+                runner.canonical(value) + b"\n", manifest, head
+            ),
+        )
+        count += 1
+    rejected(
+        "noncanonical summary order",
+        lambda: runner.validate_summary(
+            json.dumps(summary, indent=2).encode() + b"\n", manifest, head
+        ),
+    )
+    launches: list[list[str]] = []
+
+    def fake_process(args: list[str], **kwargs: Any) -> subprocess.CompletedProcess[str]:
+        launches.append(args)
+        spec = runner.parse_family(
+            json.loads(Path(args[args.index("--family-spec") + 1]).read_bytes())
+        )
+        require(
+            args[args.index("--family-spec") + 2 :] == [t.selector for t in spec.targets],
+            "worker received another family's selectors",
+        )
+        require(kwargs["env"]["PYTEST_ADDOPTS"] == "", "environment addopts not neutralized")
+        path = Path(args[args.index("--worker-evidence") + 1])
+        path.write_bytes(runner.canonical(healthy_evidence(spec)) + b"\n")
+        return subprocess.CompletedProcess(args, 0)
+
+    with (
+        patch("run_w04_investigation_gate.subprocess.run", fake_process),
+        contextlib.redirect_stdout(io.StringIO()),
+    ):
+        for f in manifest.families:
+            runner.execute_family(f, ROOT)
+    require(
+        len(launches) == 9 and len({tuple(a) for a in launches}) == 9,
+        "families executed in a shared pytest process",
+    )
+    return count + 9
+
+
+def check_actual_workers(directory: Path) -> int:
+    repo = directory / "worker-repo"
+    (repo / "tests").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text('[tool.pytest.ini_options]\naddopts="-k impossible"\n')
+    (repo / "tests/test_controls.py").write_text(
+        """import builtins
+import pytest
+@pytest.fixture
+def setup_error():
+    raise RuntimeError("setup")
+@pytest.fixture
+def teardown_error():
+    yield
+    raise RuntimeError("teardown")
+def test_isolation():
+    assert not hasattr(builtins, "_w04_c09_control_state")
+    builtins._w04_c09_control_state = True
+def test_failure():
+    assert False
+def test_setup(setup_error):
+    pass
+def test_teardown(teardown_error):
+    pass
+def test_skip():
+    pytest.skip("control")
+@pytest.mark.xfail(reason="control")
+def test_xfail():
+    assert False
+@pytest.mark.xfail(reason="")
+def test_xpass():
+    pass
+@pytest.mark.parametrize("value", [1,2])
+def test_parameter(value):
+    assert value > 0
+""",
+        encoding="utf-8",
+    )
+
+    def family(name: str, cases: int = 1) -> runner.Family:
+        return runner.Family(
+            "CONTROL", cases, (runner.Target("tests/test_controls.py::test_" + name, cases),)
+        )
+
+    with contextlib.redirect_stdout(io.StringIO()):
+        runner.execute_family(family("isolation"), repo)
+        runner.execute_family(family("isolation"), repo)
+        runner.execute_family(family("parameter", 2), repo)
+        for name in (
+            "failure",
+            "setup",
+            "teardown",
+            "skip",
+            "xfail",
+            "xpass",
+            "renamed",
+            "parameter",
+        ):
+            rejected(
+                "real worker " + name, lambda name=name: runner.execute_family(family(name), repo)
+            )
+    (repo / "tests/test_broken.py").write_text("def broken(:\n", encoding="utf-8")
+    rejected(
+        "actual collection error",
+        lambda: runner.execute_family(
+            runner.Family("CONTROL", 1, (runner.Target("tests/test_broken.py::test_broken", 1),)),
+            repo,
+        ),
+    )
+    return 12
+
+
+def bash_path() -> str:
+    if os.name == "nt":
+        git_exe = shutil.which("git")
+        require(git_exe is not None, "Git Bash unavailable")
+        return str(Path(cast(str, git_exe)).resolve().parents[1] / "bin/bash.exe")
+    executable = shutil.which("bash")
+    require(executable is not None, "Bash unavailable")
+    return cast(str, executable)
+
+
+def check_workflow_truth(current: bytes) -> int:
+    _, jobs = workflow_blocks(current)
+    block = jobs["verification-gate"]
+    require(block.count(b"        run: |\n") == 1, "ambiguous verification shell")
+    script = "\n".join(
+        line[10:].decode() for line in block.split(b"        run: |\n")[1].splitlines()
+    )
+    fields = [
+        "CLASS_RESULT",
+        "STATIC_RESULT",
+        "INTEGRATION_RESULT",
+        "NONINT_RESULT",
+        "QUALITY_RESULT",
+        "COMPOSE_RESULT",
+        "W03_RESULT",
+        "W04_RESULT",
+        "PUBLICATION_RESULT",
+    ]
+    count = 0
+
+    def execute(env: dict[str, str], expected: bool) -> None:
+        nonlocal count
+        result = subprocess.run(
+            [bash_path(), "--noprofile", "--norc", "-e", "-c", script],
+            env=dict(os.environ, **env),
+            capture_output=True,
+            check=False,
+        )
+        require((result.returncode == 0) == expected, "actual Verification truth table failed")
+        count += 1
+
+    for change_class in ("P", "C", "I", "F", "UNKNOWN"):
+        env = {field: "success" for field in fields}
+        env["CHANGE_CLASS"] = change_class
+        env["PUBLICATION_RESULT"] = "success" if change_class == "P" else "skipped"
+        if change_class == "P":
+            env.update({field: "skipped" for field in fields[1:-1]})
+        execute(env, True)
+        for field in fields:
+            for status in ("success", "skipped", "failure", "cancelled"):
+                if status != env[field]:
+                    execute(env | {field: status}, False)
+        for w03, w04 in itertools.product(("success", "skipped", "failure", "cancelled"), repeat=2):
+            execute(
+                env | {"W03_RESULT": w03, "W04_RESULT": w04},
+                w03 == env["W03_RESULT"] and w04 == env["W04_RESULT"],
+            )
+    for invalid in ("", "wrong", "p"):
+        execute(env | {"CHANGE_CLASS": invalid}, False)
+    return count
+
+
+def check_source_and_workflow_controls() -> int:
+    entry = git("show", ENTRY + ":.github/workflows/ci.yml")
+    current = (ROOT / ".github/workflows/ci.yml").read_bytes()
+    validate_workflow(entry, current)
+    mutations = [
+        current.replace(b"timeout-minutes: 65", b"timeout-minutes: 66", 1),
+        current.replace(b"timeout-minutes: 30", b"timeout-minutes: 31", 1),
+        current.replace(b"max-parallel: 7", b"max-parallel: 8", 1),
+        current.replace(b"fail-fast: false", b"fail-fast: true", 1),
+        current.replace(b"shard: [0, 1, 2, 3, 4, 5, 6]", b"shard: [0, 1, 2]", 1),
+        current.replace(b"actions/checkout@", b"actions/checkout@0", 1),
+        current.replace(b"timeout-minutes: 15", b"timeout-minutes: 16", 1),
+        current.replace(b"name: W04 investigation gate", b"name: W04 other gate", 1),
+        current.replace(b"  w04-investigation-gate:\n", b"  other-gate:\n", 1),
+        current + b"\n  hidden-job:\n    runs-on: ubuntu-latest\n",
+        current.replace(b"  w04-investigation-gate:\n", b"  w04-investigation-gate:\n" * 2, 1),
+        current.replace(b'            test "$W04_RESULT" = success\n', b"", 1),
+        current.replace(b'            test "$W04_RESULT" = skipped\n', b"", 1),
+        b"# changed trigger\n" + current,
+    ]
+    for workflow_value in mutations:
+        rejected(
+            "workflow mutation",
+            lambda workflow_value=workflow_value: validate_workflow(entry, workflow_value),
+        )
+    path = "tests/test_investigation_replay.py"
+    original = git("show", ENTRY + ":" + path).decode()
+    source = (ROOT / path).read_text(encoding="utf-8")
+    validate_replay_sources(original, source)
+    for value in (
+        source + "\ndef test_extra():\n    pass\n",
+        source.replace("import ast\n", "import ast as changed\n", 1),
+        source.replace('"""W04-C08 R01-R46:', '"""Changed R01-R46:', 1),
+        source.replace('        "run_head",', '        "changed_damage",', 1),
+        source.replace('    "run_head",', '    "changed_damage",', 1),
+        source.replace(
+            "def test_r46_stage_b_exact_sha_full_native_ci(", "def test_renamed_native_ci(", 1
+        ),
+        source.replace("def _error(", "def _unauthorized_error(", 1),
+    ):
+        if value != source:
+            rejected(
+                "C08 source delta", lambda value=value: validate_replay_sources(original, value)
+            )
+    _, units = source_units(source)
+    victim = next(k for k in units if k.startswith("test_r01"))
+    unit = units[victim][0]
+    value = source.replace(unit, unit.rstrip() + "\n    raise AssertionError('damage')\n", 1)
+    rejected("R01 body delta", lambda: validate_replay_sources(original, value))
+    return len(mutations) + 7
+
+
+def check_native_metadata_controls() -> int:
+    sys.path.insert(0, str(ROOT / "tests"))
+    import test_investigation_replay as replay
+
+    head = "a" * 40
+    value = replay._native_metadata_fixture(head)
+    replay._check_native_metadata(value, head)
+    count = 0
+    for field in (
+        "implementation_sha",
+        "gate_version",
+        "overall",
+        "total_families",
+        "total_selectors",
+        "total_tests",
+        "manifest_content_sha256",
+        "summary_sha256",
+    ):
+        damaged = copy.deepcopy(value)
+        damaged["w04"][field] = "wrong"
+        rejected(
+            "W04 native " + field,
+            lambda damaged=damaged: replay._check_native_metadata(damaged, head),
+        )
+        count += 1
+    for damage in ("order", "count", "missing-seal", "extra"):
+        damaged = copy.deepcopy(value)
+        summary = damaged["w04"]
+        if damage == "order":
+            summary["families"].reverse()
+        elif damage == "count":
+            summary["families"][0]["tests"] = 7
+        elif damage == "missing-seal":
+            summary.pop("summary_sha256")
+        else:
+            summary["extra"] = 1
+        if damage != "missing-seal":
+            payload = {k: v for k, v in summary.items() if k != "summary_sha256"}
+            summary["summary_sha256"] = hashlib.sha256(runner.canonical(payload)).hexdigest()
+        rejected(
+            "W04 native " + damage,
+            lambda damaged=damaged: replay._check_native_metadata(damaged, head),
+        )
+        count += 1
+    return count
+
+
+def validate_c10_lifecycle(
+    history: list[dict[str, Any]], working: set[str], changed: set[str]
+) -> str:
+    """Extend only the exact accepted C09 Final by three single-parent C10 children."""
+    if len(history) > 7:
+        return validate_c10_closeout_lifecycle(history, working, changed)
+    require(5 <= len(history) <= 7, "extra post-C10_REVIEW_READY commit")
+    base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
+    require(
+        validate_closeout_lifecycle(history[:4], set(), base) == "FINAL_CLOSEOUT",
+        "C10 requires the complete accepted C09 lifecycle",
+    )
+    require(
+        history[2]["sha"] == C10_PREP_SHA and history[3]["sha"] == C10_ENTRY_SHA,
+        "C10 exact accepted C09 Prep/Final anchors drift",
+    )
+    for record in history[4:]:
+        require(set(record) == {"sha", "parents", "subject", "delta"}, "C10 record shape")
+        require(
+            re.fullmatch(r"[0-9a-f]{40}", record["sha"]) is not None and record["sha"] != "0" * 40,
+            "invalid C10 lifecycle SHA",
+        )
+    require(len({r["sha"] for r in history}) == len(history), "duplicate C10 lifecycle SHA")
+    bootstrap = history[4]
+    require(
+        bootstrap["parents"] == [C10_ENTRY_SHA]
+        and bootstrap["subject"] == C10_BOOTSTRAP_SUBJECT
+        and bootstrap["delta"] == {CLOSEOUT_VERIFIER_PATH: "M"},
+        "invalid exact C10 Bootstrap parent/subject/delta",
+    )
+    state, expected = "C10_BOOTSTRAP_01", base.copy()
+    if len(history) >= 6:
+        stage_a = history[5]
+        require(
+            stage_a["parents"] == [bootstrap["sha"]]
+            and stage_a["subject"] == C10_STAGE_A_SUBJECT
+            and stage_a["delta"] == dict.fromkeys(C10_STAGE_A_PATHS, "A"),
+            "invalid exact C10 Stage-A parent/subject/delta",
+        )
+        state = "C10_STAGE_A"
+        expected.update(C10_STAGE_A_PATHS)
+    if len(history) == 7:
+        stage_b = history[6]
+        require(
+            stage_b["parents"] == [history[5]["sha"]]
+            and stage_b["subject"] == C10_STAGE_B_SUBJECT
+            and stage_b["delta"] == {C10_STAGE_B_PATH: "A"},
+            "invalid exact C10 Stage-B parent/subject/delta",
+        )
+        state = "C10_REVIEW_READY"
+        expected.add(C10_STAGE_B_PATH)
+    require(changed == expected, "C10 cumulative path-set drift")
+    require(not working, "uncommitted C10 lifecycle delta")
+    return state
+
+
+def c10_bootstrap_revision(repo: Path = ROOT) -> str:
+    """Derive the Bootstrap only after validating the full committed lifecycle."""
+    changed = set(git("diff", "--name-only", ENTRY, "--", repo=repo).decode().splitlines())
+    changed.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    state = closeout_lifecycle_guard(changed, repo=repo)
+    require(
+        state
+        in {
+            "C10_BOOTSTRAP_01",
+            "C10_STAGE_A",
+            "C10_REVIEW_READY",
+            "C10_CLOSEOUT_PREP_01",
+            "C10_FINAL_CLOSEOUT",
+            "W04_SPRINT_CLOSEOUT_PREP_01",
+            "W04_SPRINT_FINAL_CLOSEOUT",
+            "W04_PR7_MERGE_REPAIR_01",
+            "W04_PR7_MERGED_MAIN",
+            "W04_POST_MERGE_INTEGRATED",
+        },
+        "no validated C10 Bootstrap",
+    )
+    revisions = (
+        git("rev-list", "--reverse", C10_ENTRY_SHA + ".." + w04_pr7_historical_tip(repo), repo=repo)
+        .decode()
+        .splitlines()
+    )
+    require(1 <= len(revisions) <= 7, "invalid C10 Bootstrap derivation")
+    return revisions[0]
+
+
+def validate_c10_verifier_sources(review_ready: str, current: str) -> None:
+    """Bind legacy spans to C09 Final and all added spans to the validated Bootstrap."""
+    if "C10_CLOSEOUT_REVIEW_READY_SHA = " in current:
+        validate_c10_closeout_verifier_sources(review_ready, current)
+        return
+    final = git("show", C10_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    validate_verifier_sources(review_ready, final)
+    old_order, old = source_units(final)
+    new_order, new = source_units(current)
+    additions = set(C10_SOURCE_ADDITIONS)
+    require(set(new) - set(old) == additions, "unauthorized C10 verifier unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions] == list(C10_SOURCE_ADDITIONS),
+        "C10 verifier source-unit order drift",
+    )
+    for name in old_order:
+        require(name in new, "removed C09 verifier unit")
+        expected = old[name][0].encode()
+        if name == "validate_closeout_lifecycle":
+            expected = replace_once(
+                expected,
+                b'    require(1 <= len(history) <= 4, "extra post-REVIEW_READY commit")\n',
+                b"    if len(history) > 4:\n"
+                b"        return validate_c10_lifecycle(history, working, changed)\n"
+                b'    require(1 <= len(history) <= 4, "extra post-REVIEW_READY commit")\n',
+            )
+        elif name == "validate_verifier_sources":
+            expected = replace_once(
+                expected,
+                b"    if current == review_ready:\n",
+                b'    if "C10_ENTRY_SHA = " in current:\n'
+                b"        validate_c10_verifier_sources(review_ready, current)\n"
+                b"        return\n"
+                b"    if current == review_ready:\n",
+            )
+        elif name == "verifier_source_guard":
+            expected = replace_once(
+                expected,
+                b'    current = (repo / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")\n',
+                b'    current = (repo / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")\n'
+                b"    c10_verifier_blob_guard(repo)\n",
+            )
+        require(new[name][0].encode() == expected, f"unauthorized C10 verifier span: {name}")
+    bootstrap = git("show", c10_bootstrap_revision() + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    committed_order, committed = source_units(bootstrap)
+    require(new_order == committed_order, "Bootstrap source-unit placement drift")
+    for name in C10_SOURCE_ADDITIONS:
+        require(new[name][0] == committed[name][0], f"C10 Bootstrap source-span drift: {name}")
+    constants: dict[str, object] = {
+        "C10_ENTRY_SHA": "d33ee858fca8caaceba2ce60c045f7e4213c631a",
+        "C10_PREP_SHA": "f391cf25871473d488a8f5c7e7ff77fb933920d8",
+        "C10_BOOTSTRAP_SUBJECT": "ci(w04-c10): admit bounded acceptance lifecycle",
+        "C10_STAGE_A_SUBJECT": "docs(w04-c10): prepare investigation business acceptance",
+        "C10_STAGE_B_SUBJECT": "docs(w04-c10): publish business acceptance readiness proof",
+        "C10_STAGE_A_PATHS": (
+            "docs/w04/checkpoints/c10/W04_C10_AUTHORIZATION_CONTRACT.md",
+            "docs/w04/checkpoints/c10/W04_C10_HUMAN_AUTHORIZATION.md",
+            "docs/w04/checkpoints/c10/W04_C10_CONTEXT_LOCK.md",
+            "docs/w04/checkpoints/c10/W04_C10_BUSINESS_ACCEPTANCE_SPEC.md",
+            "docs/w04/checkpoints/c10/W04_C10_EVIDENCE_MATRIX.md",
+            "docs/w04/checkpoints/c10/W04_C10_HUMAN_ACCEPTANCE_FORM.md",
+            "docs/w04/checkpoints/c10/W04_C10_HARNESS_SPEC.md",
+            "docs/w04/checkpoints/c10/W04_C10_GPT_REVIEW_CHECKLIST.md",
+            "docs/w04/checkpoints/c10/W04_C10_BUSINESS_ACCEPTANCE_DOSSIER.md",
+            "docs/w04/checkpoints/c10/specs/c10_acceptance_manifest.json",
+            "docs/w04/checkpoints/c10/specs/authorized_paths.json",
+        ),
+        "C10_STAGE_B_PATH": "docs/w04/checkpoints/c10/W04_C10_R_DEVELOPMENT_ROUND_REPORT.md",
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "C10 constant declaration drift")
+        require(ast.literal_eval(cast(ast.Assign, node).value) == value, "C10 constant value drift")
+
+
+def c10_verifier_blob_guard(repo: Path = ROOT) -> None:
+    if c10_closeout_prep_revision(repo) is not None:
+        c10_closeout_verifier_blob_guard(repo)
+        return
+    bootstrap = c10_bootstrap_revision(repo)
+    require(
+        (repo / CLOSEOUT_VERIFIER_PATH).read_bytes()
+        == git("show", bootstrap + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),
+        "C10 verifier must remain byte-identical to Bootstrap",
+    )
+    controls = check_c10_lifecycle_controls()
+    print(
+        json.dumps(
+            {"c10_bootstrap_sha": bootstrap, "c10_adversarial_controls": controls}, sort_keys=True
+        )
+    )
+
+
+def check_c10_lifecycle_controls() -> int:
+    """C10 positive states and exact lifecycle/source adversaries; no pytest node changes."""
+    history: list[dict[str, Any]] = [
+        {
+            "sha": CLOSEOUT_STAGE_A_SHA,
+            "parents": [ENTRY],
+            "subject": "ci(w04-c09): add investigation regression gate",
+            "delta": dict.fromkeys(STAGE_A, "A"),
+        },
+        {
+            "sha": CLOSEOUT_REVIEW_READY_SHA,
+            "parents": [CLOSEOUT_STAGE_A_SHA],
+            "subject": "docs(w04-c09): publish regression-hardening proof",
+            "delta": dict.fromkeys(STAGE_B, "A"),
+        },
+        {
+            "sha": C10_PREP_SHA,
+            "parents": [CLOSEOUT_REVIEW_READY_SHA],
+            "subject": CLOSEOUT_PREP_SUBJECT,
+            "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+        },
+        {
+            "sha": C10_ENTRY_SHA,
+            "parents": [C10_PREP_SHA],
+            "subject": CLOSEOUT_FINAL_SUBJECT,
+            "delta": dict.fromkeys(CLOSEOUT_FINAL_PATHS, "A"),
+        },
+        {
+            "sha": "c" * 40,
+            "parents": [C10_ENTRY_SHA],
+            "subject": C10_BOOTSTRAP_SUBJECT,
+            "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+        },
+        {
+            "sha": "d" * 40,
+            "parents": ["c" * 40],
+            "subject": C10_STAGE_A_SUBJECT,
+            "delta": dict.fromkeys(C10_STAGE_A_PATHS, "A"),
+        },
+        {
+            "sha": "e" * 40,
+            "parents": ["d" * 40],
+            "subject": C10_STAGE_B_SUBJECT,
+            "delta": {C10_STAGE_B_PATH: "A"},
+        },
+    ]
+    base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
+    sets = (base, base | set(C10_STAGE_A_PATHS), base | set(C10_STAGE_A_PATHS) | {C10_STAGE_B_PATH})
+    for size, state in enumerate(("C10_BOOTSTRAP_01", "C10_STAGE_A", "C10_REVIEW_READY"), 5):
+        require(validate_closeout_lifecycle(history[:size], set(), sets[size - 5]) == state, state)
+    mutations: list[tuple[str, int, int, str, Any]] = [
+        ("wrong Bootstrap parent", 5, 4, "parents", [C10_PREP_SHA]),
+        ("wrong Bootstrap subject", 5, 4, "subject", "ci: unapproved"),
+        ("extra Bootstrap path", 5, 4, "delta", {CLOSEOUT_VERIFIER_PATH: "M", "extra": "A"}),
+        ("missing verifier modification", 5, 4, "delta", {}),
+        ("merge Bootstrap", 5, 4, "parents", [C10_ENTRY_SHA, C10_PREP_SHA]),
+        ("wrong Stage-A parent", 6, 5, "parents", [C10_ENTRY_SHA]),
+        ("wrong Stage-A subject", 6, 5, "subject", "docs: unapproved"),
+        ("missing Stage-A document", 6, 5, "delta", dict.fromkeys(C10_STAGE_A_PATHS[:-1], "A")),
+        ("extra Stage-A document", 6, 5, "delta", {**history[5]["delta"], "extra": "A"}),
+        ("modified Stage-A document", 6, 5, "delta", dict.fromkeys(C10_STAGE_A_PATHS, "M")),
+        (
+            "mixed C09/C10 mutation",
+            6,
+            5,
+            "delta",
+            {**history[5]["delta"], CLOSEOUT_FINAL_PATHS[0]: "M"},
+        ),
+        (
+            "verifier changed in Stage A",
+            6,
+            5,
+            "delta",
+            {**history[5]["delta"], CLOSEOUT_VERIFIER_PATH: "M"},
+        ),
+        ("wrong Stage-B parent", 7, 6, "parents", ["c" * 40]),
+        ("wrong Stage-B subject", 7, 6, "subject", "docs: unapproved"),
+        ("wrong Stage-B report path", 7, 6, "delta", {"docs/w04/other-report.md": "A"}),
+        ("extra Stage-B path", 7, 6, "delta", {C10_STAGE_B_PATH: "A", "extra": "A"}),
+        ("modified Stage-B report", 7, 6, "delta", {C10_STAGE_B_PATH: "M"}),
+        (
+            "verifier changed in Stage B",
+            7,
+            6,
+            "delta",
+            {C10_STAGE_B_PATH: "A", CLOSEOUT_VERIFIER_PATH: "M"},
+        ),
+        (
+            "C09 final document mutation",
+            5,
+            4,
+            "delta",
+            {CLOSEOUT_VERIFIER_PATH: "M", CLOSEOUT_FINAL_PATHS[0]: "M"},
+        ),
+        (
+            "C01-C08 protected object mutation",
+            5,
+            4,
+            "delta",
+            {CLOSEOUT_VERIFIER_PATH: "M", "src/flowlens/investigation/contracts.py": "M"},
+        ),
+        (
+            "source-manifest mutation",
+            5,
+            4,
+            "delta",
+            {CLOSEOUT_VERIFIER_PATH: "M", "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json": "M"},
+        ),
+        ("second Bootstrap", 6, 5, "subject", C10_BOOTSTRAP_SUBJECT),
+        ("merge Stage A", 6, 5, "parents", ["c" * 40, C10_ENTRY_SHA]),
+        ("merge Stage B", 7, 6, "parents", ["d" * 40, "c" * 40]),
+        ("renamed Stage-A document", 6, 5, "delta", dict.fromkeys(C10_STAGE_A_PATHS, "R100")),
+    ]
+    for label, size, index, field, value in mutations:
+        damaged = copy.deepcopy(history[:size])
+        damaged[index][field] = value
+        rejected(
+            label,
+            lambda damaged=damaged, size=size: validate_closeout_lifecycle(
+                damaged, set(), sets[size - 5]
+            ),
+        )
+    for label, damaged, working, changed in (
+        ("extra commit after C10_REVIEW_READY", [*history, history[6]], set(), sets[2]),
+        ("working verifier mutation", history[:5], {CLOSEOUT_VERIFIER_PATH}, sets[0]),
+        ("C10 cumulative path drift", history[:6], set(), sets[1] | {"extra"}),
+    ):
+        rejected(
+            label,
+            lambda damaged=damaged, working=working, changed=changed: validate_closeout_lifecycle(
+                damaged, working, changed
+            ),
+        )
+    original = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    current = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    order, units = source_units(current)
+    lines = current.splitlines(keepends=True)
+    source_mutations = [current + "\ndef unauthorized_c10_unit():\n    pass\n"]
+    for name in ("require", "validate_c10_lifecycle", "validate_c10_verifier_sources"):
+        unit, parsed = units[name]
+        node = cast(ast.stmt, parsed)
+        require(node.end_lineno is not None, "C10 adversary end span")
+        start, end = node.lineno - 1, node.end_lineno
+        require("".join(lines[start:end]) == unit, "C10 adversary exact source span")
+        damaged_source = "".join(lines[:start]) + unit + "    pass\n" + "".join(lines[end:])
+        after_order, after = source_units(damaged_source)
+        require(after_order == order, "C10 adversary changed unit identities/order")
+        require(all(after[k][0] == units[k][0] for k in order if k != name), "unrelated span drift")
+        require(after[name][0] != unit, "C10 source adversary was a no-op")
+        source_mutations.append(damaged_source)
+    for damaged_source in source_mutations:
+        rejected(
+            "unauthorized C10 source unit/span",
+            lambda damaged_source=damaged_source: validate_verifier_sources(
+                original, damaged_source
+            ),
+        )
+    return len(mutations) + 3 + len(source_mutations)
+def validate_c10_closeout_lifecycle(
+    history: list[dict[str, Any]], working: set[str], changed: set[str]
+) -> str:
+    """Admit only one Prep and its five-document Final after accepted C10 review."""
+    if len(history) > 9:
+        return validate_w04_sprint_lifecycle(history, working, changed)
+    require(8 <= len(history) <= 9, "extra post-C10_FINAL_CLOSEOUT commit")
+    base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
+    base.update(C10_STAGE_A_PATHS)
+    base.add(C10_STAGE_B_PATH)
+    require(
+        validate_c10_lifecycle(history[:7], set(), base) == "C10_REVIEW_READY",
+        "C10 closeout requires the complete development lifecycle",
+    )
+    require(
+        [row["sha"] for row in history[4:7]]
+        == [C10_CLOSEOUT_BOOTSTRAP_SHA, C10_CLOSEOUT_STAGE_A_SHA, C10_CLOSEOUT_REVIEW_READY_SHA],
+        "C10 closeout immutable development anchors drift",
+    )
+    for record in history[7:]:
+        require(set(record) == {"sha", "parents", "subject", "delta"}, "C10 closeout record shape")
+        require(
+            isinstance(record["sha"], str)
+            and re.fullmatch(r"[0-9a-f]{40}", record["sha"]) is not None
+            and record["sha"] != "0" * 40,
+            "invalid C10 closeout SHA",
+        )
+    require(len({row["sha"] for row in history}) == len(history), "duplicate C10 closeout SHA")
+    prep = history[7]
+    require(
+        prep["parents"] == [C10_CLOSEOUT_REVIEW_READY_SHA]
+        and prep["subject"] == C10_CLOSEOUT_PREP_SUBJECT
+        and prep["delta"] == {CLOSEOUT_VERIFIER_PATH: "M"},
+        "invalid exact C10 closeout Prep parent/subject/delta",
+    )
+    state, expected = "C10_CLOSEOUT_PREP_01", base.copy()
+    if len(history) == 9:
+        final = history[8]
+        require(
+            final["parents"] == [prep["sha"]]
+            and final["subject"] == C10_FINAL_CLOSEOUT_SUBJECT
+            and final["delta"] == dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "A"),
+            "invalid exact C10 final-closeout parent/subject/delta",
+        )
+        state = "C10_FINAL_CLOSEOUT"
+        expected.update(C10_FINAL_CLOSEOUT_PATHS)
+    require(changed == expected, "C10 closeout cumulative path-set drift")
+    require(not working, "uncommitted C10 closeout lifecycle delta")
+    return state
+
+
+def c10_closeout_prep_revision(repo: Path = ROOT) -> str | None:
+    """Derive a Prep only from the validated exact accepted development chain."""
+    revisions = (
+        git("rev-list", "--reverse", C10_ENTRY_SHA + ".." + w04_pr7_historical_tip(repo), repo=repo)
+        .decode()
+        .splitlines()
+    )
+    if len(revisions) <= 3:
+        return None
+    changed = set(git("diff", "--name-only", ENTRY, "--", repo=repo).decode().splitlines())
+    changed.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    state = closeout_lifecycle_guard(changed, repo=repo)
+    require(
+        state
+        in {
+            "C10_CLOSEOUT_PREP_01",
+            "C10_FINAL_CLOSEOUT",
+            "W04_SPRINT_CLOSEOUT_PREP_01",
+            "W04_SPRINT_FINAL_CLOSEOUT",
+            "W04_PR7_MERGE_REPAIR_01",
+            "W04_PR7_MERGED_MAIN",
+            "W04_POST_MERGE_INTEGRATED",
+        }
+        and 4 <= len(revisions) <= 7
+        and revisions[2] == C10_CLOSEOUT_REVIEW_READY_SHA,
+        "no validated C10 closeout Prep",
+    )
+    return revisions[3]
+
+
+def validate_c10_closeout_verifier_sources(review_ready: str, current: str) -> None:
+    """Preserve all accepted spans except four exact C10 closeout connectors."""
+    if "W04_SPRINT_ENTRY_SHA = " in current:
+        validate_w04_sprint_verifier_sources(review_ready, current)
+        return
+    accepted = git("show", C10_CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    validate_c10_verifier_sources(review_ready, accepted)
+    old_order, old = source_units(accepted)
+    new_order, new = source_units(current)
+    additions = set(C10_CLOSEOUT_SOURCE_ADDITIONS)
+    require(set(new) - set(old) == additions, "unauthorized C10 closeout unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions]
+        == list(C10_CLOSEOUT_SOURCE_ADDITIONS),
+        "C10 closeout source-unit order drift",
+    )
+    replacements = {
+        "validate_c10_lifecycle": [
+            (
+                b'    require(5 <= len(history) <= 7, "extra post-C10_REVIEW_READY commit")\n',
+                b"    if len(history) > 7:\n"
+                b"        return validate_c10_closeout_lifecycle(history, working, changed)\n"
+                b'    require(5 <= len(history) <= 7, "extra post-C10_REVIEW_READY commit")\n',
+            )
+        ],
+        "c10_bootstrap_revision": [
+            (
+                b'        state in {"C10_BOOTSTRAP_01", "C10_STAGE_A", "C10_REVIEW_READY"},\n',
+                b"        state\n"
+                b"        in {\n"
+                b'            "C10_BOOTSTRAP_01",\n'
+                b'            "C10_STAGE_A",\n'
+                b'            "C10_REVIEW_READY",\n'
+                b'            "C10_CLOSEOUT_PREP_01",\n'
+                b'            "C10_FINAL_CLOSEOUT",\n'
+                b"        },\n",
+            ),
+            (
+                b'    require(1 <= len(revisions) <= 3, "invalid C10 Bootstrap derivation")\n',
+                b'    require(1 <= len(revisions) <= 5, "invalid C10 Bootstrap derivation")\n',
+            ),
+        ],
+        "validate_c10_verifier_sources": [
+            (
+                b'    final = git("show", C10_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+                b'    if "C10_CLOSEOUT_REVIEW_READY_SHA = " in current:\n'
+                b"        validate_c10_closeout_verifier_sources(review_ready, current)\n"
+                b"        return\n"
+                b'    final = git("show", C10_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+            )
+        ],
+        "c10_verifier_blob_guard": [
+            (
+                b"    bootstrap = c10_bootstrap_revision(repo)\n",
+                b"    if c10_closeout_prep_revision(repo) is not None:\n"
+                b"        c10_closeout_verifier_blob_guard(repo)\n"
+                b"        return\n"
+                b"    bootstrap = c10_bootstrap_revision(repo)\n",
+            )
+        ],
+    }
+    for name in old_order:
+        expected = old[name][0].encode()
+        for before, after in replacements.get(name, []):
+            expected = replace_once(expected, before, after)
+        require(new[name][0].encode() == expected, f"unauthorized C10 closeout span: {name}")
+    prep = c10_closeout_prep_revision()
+    require(prep is not None, "C10 closeout source requires committed Prep")
+    committed_order, committed = source_units(
+        git("show", str(prep) + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    )
+    require(new_order == committed_order, "C10 Prep source-unit placement drift")
+    for name in C10_CLOSEOUT_SOURCE_ADDITIONS:
+        require(new[name][0] == committed[name][0], f"C10 Prep source-span drift: {name}")
+    constants: dict[str, object] = {
+        "C10_CLOSEOUT_REVIEW_READY_SHA": "250ea1b7476db61aba20b5d2fb11148ce8243678",
+        "C10_CLOSEOUT_BOOTSTRAP_SHA": "a34a84b97681f24bf6df1fed1a80825ae32decfa",
+        "C10_CLOSEOUT_STAGE_A_SHA": "59ec925122c1fdc5b76a3c22fc0ab60a785efb38",
+        "C10_CLOSEOUT_PREP_SUBJECT": "ci(w04-c10): admit bounded closeout lifecycle",
+        "C10_FINAL_CLOSEOUT_SUBJECT": "docs(w04-c10): close business acceptance checkpoint",
+        "C10_FINAL_CLOSEOUT_PATHS": (
+            "docs/w04/checkpoints/c10/W04_C10_GPT_INDEPENDENT_REVIEW_R1.md",
+            "docs/w04/checkpoints/c10/W04_C10_HUMAN_ACCEPTANCE.md",
+            "docs/w04/checkpoints/c10/W04_C10_CLOSEOUT_AUTHORIZATION.md",
+            "docs/w04/checkpoints/c10/W04_C10_CLOSEOUT_CONTEXT_LOCK.md",
+            "docs/w04/checkpoints/c10/W04_C10_FINAL_CLOSEOUT_REPORT.md",
+        ),
+        "C10_CLOSEOUT_SOURCE_ADDITIONS": (
+            "C10_CLOSEOUT_REVIEW_READY_SHA",
+            "C10_CLOSEOUT_BOOTSTRAP_SHA",
+            "C10_CLOSEOUT_STAGE_A_SHA",
+            "C10_CLOSEOUT_PREP_SUBJECT",
+            "C10_FINAL_CLOSEOUT_SUBJECT",
+            "C10_FINAL_CLOSEOUT_PATHS",
+            "C10_CLOSEOUT_SOURCE_ADDITIONS",
+            "validate_c10_closeout_lifecycle",
+            "c10_closeout_prep_revision",
+            "validate_c10_closeout_verifier_sources",
+            "c10_closeout_verifier_blob_guard",
+            "check_c10_closeout_lifecycle_controls",
+        ),
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "C10 closeout constant declaration drift")
+        require(
+            ast.literal_eval(cast(ast.Assign, node).value) == value, "C10 closeout constant drift"
+        )
+
+
+def c10_closeout_verifier_blob_guard(repo: Path = ROOT) -> None:
+    if w04_sprint_prep_revision(repo) is not None:
+        w04_sprint_verifier_blob_guard(repo)
+        return
+    prep = c10_closeout_prep_revision(repo)
+    require(prep is not None, "missing validated C10 closeout Prep")
+    require(
+        (repo / CLOSEOUT_VERIFIER_PATH).read_bytes()
+        == git("show", str(prep) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),
+        "C10 closeout verifier must remain byte-identical to Prep",
+    )
+    development_controls = check_c10_lifecycle_controls()
+    require(development_controls == 32, "C10 development adversarial control drift")
+    print(
+        json.dumps(
+            {
+                "c10_bootstrap_sha": C10_CLOSEOUT_BOOTSTRAP_SHA,
+                "c10_adversarial_controls": development_controls,
+            },
+            sort_keys=True,
+        )
+    )
+    controls = check_c10_closeout_lifecycle_controls()
+    print(
+        json.dumps(
+            {"c10_closeout_prep_sha": prep, "c10_closeout_adversarial_controls": controls},
+            sort_keys=True,
+        )
+    )
+
+
+def check_c10_closeout_lifecycle_controls() -> int:
+    revisions = (
+        CLOSEOUT_STAGE_A_SHA,
+        CLOSEOUT_REVIEW_READY_SHA,
+        C10_PREP_SHA,
+        C10_ENTRY_SHA,
+        C10_CLOSEOUT_BOOTSTRAP_SHA,
+        C10_CLOSEOUT_STAGE_A_SHA,
+        C10_CLOSEOUT_REVIEW_READY_SHA,
+    )
+    history: list[dict[str, Any]] = []
+    for revision in revisions:
+        parent = git("show", "-s", "--format=%P", revision).decode().split()
+        delta = {}
+        for row in (
+            git("diff", "--name-status", "--no-renames", parent[0], revision).decode().splitlines()
+        ):
+            status, path = row.split("\t")
+            delta[path] = status
+        history.append(
+            {
+                "sha": revision,
+                "parents": parent,
+                "subject": git("show", "-s", "--format=%s", revision).decode().strip(),
+                "delta": delta,
+            }
+        )
+    history.extend(
+        [
+            {
+                "sha": "f" * 40,
+                "parents": [C10_CLOSEOUT_REVIEW_READY_SHA],
+                "subject": C10_CLOSEOUT_PREP_SUBJECT,
+                "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+            },
+            {
+                "sha": "b" * 40,
+                "parents": ["f" * 40],
+                "subject": C10_FINAL_CLOSEOUT_SUBJECT,
+                "delta": dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "A"),
+            },
+        ]
+    )
+    base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS) | set(C10_STAGE_A_PATHS)
+    base.add(C10_STAGE_B_PATH)
+    changed_sets = {8: base, 9: base | set(C10_FINAL_CLOSEOUT_PATHS)}
+    for size, state in ((8, "C10_CLOSEOUT_PREP_01"), (9, "C10_FINAL_CLOSEOUT")):
+        require(
+            validate_closeout_lifecycle(history[:size], set(), changed_sets[size]) == state, state
+        )
+    mutations: list[tuple[str, int, int, str, Any]] = [
+        ("wrong C10 Prep parent", 8, 7, "parents", [C10_ENTRY_SHA]),
+        ("wrong C10 Prep subject", 8, 7, "subject", "ci: unapproved"),
+        ("extra C10 Prep path", 8, 7, "delta", {CLOSEOUT_VERIFIER_PATH: "M", "extra": "A"}),
+        ("missing C10 Prep verifier", 8, 7, "delta", {}),
+        ("added C10 Prep verifier", 8, 7, "delta", {CLOSEOUT_VERIFIER_PATH: "A"}),
+        ("merge C10 Prep", 8, 7, "parents", [C10_CLOSEOUT_REVIEW_READY_SHA, C10_ENTRY_SHA]),
+        ("wrong C10 Final parent", 9, 8, "parents", [C10_CLOSEOUT_REVIEW_READY_SHA]),
+        ("wrong C10 Final subject", 9, 8, "subject", "docs: unapproved"),
+        (
+            "missing C10 Final file",
+            9,
+            8,
+            "delta",
+            dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS[:-1], "A"),
+        ),
+        ("extra C10 Final file", 9, 8, "delta", {**history[8]["delta"], "extra": "A"}),
+        ("modified C10 Final file", 9, 8, "delta", dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "M")),
+        ("renamed C10 Final file", 9, 8, "delta", dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "R100")),
+        ("deleted C10 Final file", 9, 8, "delta", dict.fromkeys(C10_FINAL_CLOSEOUT_PATHS, "D")),
+        ("merge C10 Final", 9, 8, "parents", ["f" * 40, C10_CLOSEOUT_REVIEW_READY_SHA]),
+        (
+            "C10 Final verifier mutation",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], CLOSEOUT_VERIFIER_PATH: "M"},
+        ),
+        (
+            "mixed C10 Final/runtime",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], "src/flowlens/investigation/contracts.py": "M"},
+        ),
+        (
+            "mixed C10 Final/tests",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], "tests/test_investigation_replay.py": "M"},
+        ),
+        (
+            "mixed C10 Final/workflow",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], ".github/workflows/ci.yml": "M"},
+        ),
+        (
+            "mixed C10 Final/source manifest",
+            9,
+            8,
+            "delta",
+            {**history[8]["delta"], "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json": "M"},
+        ),
+        ("C09 protected file drift", 8, 3, "delta", {**history[3]["delta"], "extra": "M"}),
+        ("C10 Stage-A historical drift", 8, 5, "delta", dict.fromkeys(C10_STAGE_A_PATHS, "M")),
+        ("C10 Stage-B historical drift", 8, 6, "delta", {C10_STAGE_B_PATH: "M"}),
+        ("C10 Bootstrap SHA drift", 8, 4, "sha", "a" * 40),
+        ("C10 Stage-A SHA drift", 8, 5, "sha", "a" * 40),
+        ("C10 Review-Ready SHA drift", 8, 6, "sha", "a" * 40),
+        ("invalid C10 Prep SHA", 8, 7, "sha", "wrong"),
+        ("duplicate C10 Prep SHA", 8, 7, "sha", C10_ENTRY_SHA),
+        ("invalid C10 Final SHA", 9, 8, "sha", "0" * 40),
+        ("duplicate C10 Final SHA", 9, 8, "sha", "f" * 40),
+        ("C10 Prep record shape", 8, 7, "extra", True),
+        ("C10 Final record shape", 9, 8, "extra", True),
+    ]
+    for label, size, index, field, value in mutations:
+        damaged = copy.deepcopy(history[:size])
+        damaged[index][field] = value
+        rejected(
+            label,
+            lambda damaged=damaged, size=size: validate_closeout_lifecycle(
+                damaged, set(), changed_sets[size]
+            ),
+        )
+    cases = [
+        ("Final without C10 Prep", history[:7] + [history[8]], set(), changed_sets[9]),
+        ("extra post-C10 Final commit", history + [history[8]], set(), changed_sets[9]),
+        ("working C10 Prep verifier", history[:8], {CLOSEOUT_VERIFIER_PATH}, base),
+        ("working C10 Final governance", history, {C10_FINAL_CLOSEOUT_PATHS[0]}, changed_sets[9]),
+        ("extra cumulative C10 path", history, set(), changed_sets[9] | {"extra"}),
+    ]
+    for label, damaged, working, changed in cases:
+        rejected(
+            label,
+            lambda damaged=damaged, working=working, changed=changed: validate_closeout_lifecycle(
+                damaged, working, changed
+            ),
+        )
+    original = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    source = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    _, units = source_units(source)
+    for name in C10_CLOSEOUT_SOURCE_ADDITIONS:
+        text, node = units[name]
+        located = cast(ast.FunctionDef | ast.Assign, node)
+        lines = source.splitlines(keepends=True)
+        start, end = located.lineno - 1, cast(int, located.end_lineno)
+        damaged_source = "".join(lines[:start] + lines[end:])
+        rejected(
+            "removed closeout source " + name,
+            lambda damaged_source=damaged_source: validate_verifier_sources(
+                original, damaged_source
+            ),
+        )
+        damaged_source = "".join(lines[:start] + lines[end:]) + "\n" + text
+        rejected(
+            "reordered closeout source " + name,
+            lambda damaged_source=damaged_source: validate_verifier_sources(
+                original, damaged_source
+            ),
+        )
+    return len(mutations) + len(cases) + 2 * len(C10_CLOSEOUT_SOURCE_ADDITIONS)
+
+
+def validate_w04_sprint_lifecycle(
+    history: list[dict[str, Any]], working: set[str], changed: set[str]
+) -> str:
+    """Admit one verifier Prep and one exact eight-path sprint Final, then stop."""
+    if len(history) > 11:
+        return validate_w04_pr7_merge_repair_lifecycle(history, working, changed)
+    require(10 <= len(history) <= 11, "extra post-W04_SPRINT_FINAL_CLOSEOUT commit")
+    base = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
+    base.update(C10_STAGE_A_PATHS)
+    base.add(C10_STAGE_B_PATH)
+    base.update(C10_FINAL_CLOSEOUT_PATHS)
+    require(
+        validate_c10_closeout_lifecycle(history[:9], set(), base) == "C10_FINAL_CLOSEOUT"
+        and history[8]["sha"] == W04_SPRINT_ENTRY_SHA,
+        "sprint closeout requires the exact accepted C10 Final",
+    )
+    for record in history[9:]:
+        require(set(record) == {"sha", "parents", "subject", "delta"}, "sprint record shape")
+        require(
+            isinstance(record["sha"], str)
+            and re.fullmatch(r"[0-9a-f]{40}", record["sha"]) is not None
+            and record["sha"] != "0" * 40,
+            "invalid sprint closeout SHA",
+        )
+    require(len({row["sha"] for row in history}) == len(history), "duplicate sprint SHA")
+    prep = history[9]
+    require(
+        prep["parents"] == [W04_SPRINT_ENTRY_SHA]
+        and prep["subject"] == W04_SPRINT_CLOSEOUT_PREP_SUBJECT
+        and prep["delta"] == {CLOSEOUT_VERIFIER_PATH: "M"},
+        "invalid exact sprint Prep parent/subject/delta",
+    )
+    state, expected = "W04_SPRINT_CLOSEOUT_PREP_01", base.copy()
+    if len(history) == 11:
+        final = history[10]
+        delta = dict.fromkeys(W04_SPRINT_FINAL_MODIFIED_PATHS, "M")
+        delta.update(dict.fromkeys(W04_SPRINT_FINAL_ADDED_PATHS, "A"))
+        require(
+            final["parents"] == [prep["sha"]]
+            and final["subject"] == W04_SPRINT_FINAL_CLOSEOUT_SUBJECT
+            and final["delta"] == delta,
+            "invalid exact sprint Final parent/subject/delta",
+        )
+        state = "W04_SPRINT_FINAL_CLOSEOUT"
+        expected.update(delta)
+    require(changed == expected, "sprint cumulative path-set drift")
+    require(not working, "uncommitted sprint lifecycle delta")
+    return state
+
+
+def w04_sprint_prep_revision(repo: Path = ROOT) -> str | None:
+    """Derive Sprint Prep only from the validated single-parent accepted chain."""
+    revisions = git(
+        "rev-list", "--reverse", W04_SPRINT_ENTRY_SHA + ".." + w04_pr7_historical_tip(repo),
+        repo=repo,
+    )
+    rows = revisions.decode().splitlines()
+    if not rows:
+        return None
+    changed = set(git("diff", "--name-only", ENTRY, "--", repo=repo).decode().splitlines())
+    changed.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    state = closeout_lifecycle_guard(changed, repo=repo)
+    require(
+        state
+        in {
+            "W04_SPRINT_CLOSEOUT_PREP_01",
+            "W04_SPRINT_FINAL_CLOSEOUT",
+            "W04_PR7_MERGE_REPAIR_01",
+            "W04_PR7_MERGED_MAIN",
+            "W04_POST_MERGE_INTEGRATED",
+        }
+        and 1 <= len(rows) <= 2,
+        "no validated sprint Prep",
+    )
+    return rows[0]
+
+
+def validate_w04_sprint_verifier_sources(review_ready: str, current: str) -> None:
+    """Preserve every accepted source unit except five exact lifecycle connectors."""
+    if "W04_PR7_FINAL_SHA = " in current:
+        validate_w04_pr7_merge_verifier_sources(review_ready, current)
+        return
+    accepted = git("show", W04_SPRINT_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    validate_c10_closeout_verifier_sources(review_ready, accepted)
+    old_order, old = source_units(accepted)
+    new_order, new = source_units(current)
+    additions = set(W04_SPRINT_SOURCE_ADDITIONS)
+    require(set(new) == set(old) | additions, "unauthorized sprint source unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions] == list(W04_SPRINT_SOURCE_ADDITIONS),
+        "sprint source-unit order drift",
+    )
+    replacements = {
+        "validate_c10_closeout_lifecycle": [
+            (
+                b'    require(8 <= len(history) <= 9, "extra post-C10_FINAL_CLOSEOUT commit")\n',
+                b"    if len(history) > 9:\n"
+                b"        return validate_w04_sprint_lifecycle(history, workin"
+                b"g, changed)\n"
+                b'    require(8 <= len(history) <= 9, "extra post-C10_FINAL_CL'
+                b'OSEOUT commit")\n',
+            ),
+        ],
+        "c10_bootstrap_revision": [
+            (
+                b'            "C10_FINAL_CLOSEOUT",\n',
+                b'            "C10_FINAL_CLOSEOUT",\n'
+                b'            "W04_SPRINT_CLOSEOUT_PREP_01",\n'
+                b'            "W04_SPRINT_FINAL_CLOSEOUT",\n',
+            ),
+            (
+                b'    require(1 <= len(revisions) <= 5, "invalid C10 Bootstrap derivation")\n',
+                b'    require(1 <= len(revisions) <= 7, "invalid C10 Bootstrap derivation")\n',
+            ),
+        ],
+        "c10_closeout_prep_revision": [
+            (
+                b'        state in {"C10_CLOSEOUT_PREP_01", "C10_FINAL_CLOSEOU'
+                b'T"}\n'
+                b"        and 4 <= len(revisions) <= 5\n",
+                b"        state\n"
+                b"        in {\n"
+                b'            "C10_CLOSEOUT_PREP_01",\n'
+                b'            "C10_FINAL_CLOSEOUT",\n'
+                b'            "W04_SPRINT_CLOSEOUT_PREP_01",\n'
+                b'            "W04_SPRINT_FINAL_CLOSEOUT",\n'
+                b"        }\n"
+                b"        and 4 <= len(revisions) <= 7\n",
+            ),
+        ],
+        "validate_c10_closeout_verifier_sources": [
+            (
+                b'    accepted = git("show", C10_CLOSEOUT_REVIEW_READY_SHA + "'
+                b':" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+                b'    if "W04_SPRINT_ENTRY_SHA = " in current:\n'
+                b"        validate_w04_sprint_verifier_sources(review_ready, c"
+                b"urrent)\n"
+                b"        return\n"
+                b'    accepted = git("show", C10_CLOSEOUT_REVIEW_READY_SHA + "'
+                b':" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+            ),
+        ],
+        "c10_closeout_verifier_blob_guard": [
+            (
+                b"    prep = c10_closeout_prep_revision(repo)\n",
+                b"    if w04_sprint_prep_revision(repo) is not None:\n"
+                b"        w04_sprint_verifier_blob_guard(repo)\n"
+                b"        return\n"
+                b"    prep = c10_closeout_prep_revision(repo)\n",
+            ),
+        ],
+    }
+    for name in old_order:
+        expected = old[name][0].encode()
+        for before, after in replacements.get(name, []):
+            expected = replace_once(expected, before, after)
+        require(new[name][0].encode() == expected, f"unauthorized sprint source span: {name}")
+    prep = w04_sprint_prep_revision()
+    require(prep is not None, "sprint source requires committed Prep")
+    committed_order, committed = source_units(
+        git("show", str(prep) + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    )
+    require(new_order == committed_order, "sprint Prep source-unit placement drift")
+    for name in W04_SPRINT_SOURCE_ADDITIONS:
+        require(new[name][0] == committed[name][0], f"sprint Prep source-span drift: {name}")
+    constants: dict[str, object] = {
+        "W04_SPRINT_ENTRY_SHA": "232bfb390babce30417b8cdb9a6660663eb3c3f1",
+        "W04_SPRINT_CLOSEOUT_PREP_SUBJECT": "ci(w04): admit sprint closeout lifecycle",
+        "W04_SPRINT_FINAL_CLOSEOUT_SUBJECT": "docs(w04): close sprint and prepare PR #7 review",
+        "W04_SPRINT_FINAL_MODIFIED_PATHS": ("README.md", "AGENTS.md", "docs/CURRENT_STATE.md"),
+        "W04_SPRINT_FINAL_ADDED_PATHS": (
+            "docs/w04/W04_GPT_INDEPENDENT_DEEP_REVIEW_R1.md",
+            "docs/w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md",
+            "docs/w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md",
+            "docs/w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md",
+            "docs/w04/W04_PR7_READINESS_REPORT.md",
+        ),
+        "W04_SPRINT_SOURCE_ADDITIONS": (
+            "W04_SPRINT_ENTRY_SHA",
+            "W04_SPRINT_CLOSEOUT_PREP_SUBJECT",
+            "W04_SPRINT_FINAL_CLOSEOUT_SUBJECT",
+            "W04_SPRINT_FINAL_MODIFIED_PATHS",
+            "W04_SPRINT_FINAL_ADDED_PATHS",
+            "W04_SPRINT_SOURCE_ADDITIONS",
+            "validate_w04_sprint_lifecycle",
+            "w04_sprint_prep_revision",
+            "validate_w04_sprint_verifier_sources",
+            "w04_sprint_verifier_blob_guard",
+            "check_w04_sprint_controls",
+        ),
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "sprint constant declaration drift")
+        require(ast.literal_eval(cast(ast.Assign, node).value) == value, "sprint constant drift")
+
+
+def w04_sprint_verifier_blob_guard(repo: Path = ROOT) -> None:
+    if w04_pr7_merge_repair_revision(repo) is not None:
+        w04_pr7_merge_verifier_blob_guard(repo)
+        return
+    prep = w04_sprint_prep_revision(repo)
+    require(prep is not None, "missing validated sprint Prep")
+    require(
+        (repo / CLOSEOUT_VERIFIER_PATH).read_bytes()
+        == git("show", str(prep) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),
+        "sprint verifier must remain byte-identical to Prep",
+    )
+    development = check_c10_lifecycle_controls()
+    require(development == 32, "C10 development adversarial control drift")
+    print(
+        json.dumps(
+            {
+                "c10_bootstrap_sha": C10_CLOSEOUT_BOOTSTRAP_SHA,
+                "c10_adversarial_controls": development,
+            },
+            sort_keys=True,
+        )
+    )
+    closeout = check_c10_closeout_lifecycle_controls()
+    require(closeout == 60, "C10 closeout adversarial control drift")
+    c10_prep = c10_closeout_prep_revision(repo)
+    print(
+        json.dumps(
+            {"c10_closeout_prep_sha": c10_prep, "c10_closeout_adversarial_controls": closeout},
+            sort_keys=True,
+        )
+    )
+    controls = check_w04_sprint_controls()
+    print(
+        json.dumps(
+            {"w04_sprint_prep_sha": prep, "w04_sprint_adversarial_controls": controls},
+            sort_keys=True,
+        )
+    )
+
+
+def check_w04_sprint_controls() -> int:
+    """Exercise the two new states, exact deltas, preserved anchors and self-source denial."""
+    revisions = (
+        CLOSEOUT_STAGE_A_SHA,
+        CLOSEOUT_REVIEW_READY_SHA,
+        C10_PREP_SHA,
+        C10_ENTRY_SHA,
+        C10_CLOSEOUT_BOOTSTRAP_SHA,
+        C10_CLOSEOUT_STAGE_A_SHA,
+        C10_CLOSEOUT_REVIEW_READY_SHA,
+        "3d9c13f06e32b2cb75d258ed838ad0958d2f5803",
+        W04_SPRINT_ENTRY_SHA,
+    )
+    history: list[dict[str, Any]] = []
+    for revision in revisions:
+        parents = git("show", "-s", "--format=%P", revision).decode().split()
+        delta = {}
+        for row in (
+            git("diff", "--name-status", "--no-renames", parents[0], revision).decode().splitlines()
+        ):
+            status, path = row.split("\t")
+            delta[path] = status
+        history.append(
+            {
+                "sha": revision,
+                "parents": parents,
+                "subject": git("show", "-s", "--format=%s", revision).decode().strip(),
+                "delta": delta,
+            }
+        )
+    final_delta = dict.fromkeys(W04_SPRINT_FINAL_MODIFIED_PATHS, "M")
+    final_delta.update(dict.fromkeys(W04_SPRINT_FINAL_ADDED_PATHS, "A"))
+    history.extend(
+        [
+            {
+                "sha": "1" * 40,
+                "parents": [W04_SPRINT_ENTRY_SHA],
+                "subject": W04_SPRINT_CLOSEOUT_PREP_SUBJECT,
+                "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+            },
+            {
+                "sha": "2" * 40,
+                "parents": ["1" * 40],
+                "subject": W04_SPRINT_FINAL_CLOSEOUT_SUBJECT,
+                "delta": final_delta,
+            },
+        ]
+    )
+    base = (
+        set(STAGE_A)
+        | set(STAGE_B)
+        | set(CLOSEOUT_FINAL_PATHS)
+        | set(C10_STAGE_A_PATHS)
+        | set(C10_FINAL_CLOSEOUT_PATHS)
+    )
+    base.add(C10_STAGE_B_PATH)
+    sets = {10: base, 11: base | set(final_delta)}
+    for size, state in ((10, "W04_SPRINT_CLOSEOUT_PREP_01"), (11, "W04_SPRINT_FINAL_CLOSEOUT")):
+        require(validate_closeout_lifecycle(history[:size], set(), sets[size]) == state, state)
+    mutations: list[tuple[str, int, int, str, Any]] = [
+        ("wrong sprint Prep parent", 10, 9, "parents", [C10_CLOSEOUT_REVIEW_READY_SHA]),
+        ("merge sprint Prep", 10, 9, "parents", [W04_SPRINT_ENTRY_SHA, C10_ENTRY_SHA]),
+        ("wrong sprint Prep subject", 10, 9, "subject", "ci: unauthorized"),
+        ("extra sprint Prep path", 10, 9, "delta", {CLOSEOUT_VERIFIER_PATH: "M", "extra": "A"}),
+        ("missing sprint Prep verifier", 10, 9, "delta", {}),
+        ("added sprint Prep verifier", 10, 9, "delta", {CLOSEOUT_VERIFIER_PATH: "A"}),
+        ("wrong sprint Final parent", 11, 10, "parents", [W04_SPRINT_ENTRY_SHA]),
+        ("merge sprint Final", 11, 10, "parents", ["1" * 40, W04_SPRINT_ENTRY_SHA]),
+        ("wrong sprint Final subject", 11, 10, "subject", "docs: unauthorized"),
+        (
+            "missing sprint Final file",
+            11,
+            10,
+            "delta",
+            {k: v for k, v in final_delta.items() if k != "README.md"},
+        ),
+        ("extra sprint Final file", 11, 10, "delta", {**final_delta, "extra": "A"}),
+        ("renamed sprint Final file", 11, 10, "delta", {**final_delta, "README.md": "R100"}),
+        ("deleted sprint Final file", 11, 10, "delta", {**final_delta, "README.md": "D"}),
+        ("added existing sprint file", 11, 10, "delta", {**final_delta, "README.md": "A"}),
+        (
+            "modified new sprint file",
+            11,
+            10,
+            "delta",
+            {**final_delta, W04_SPRINT_FINAL_ADDED_PATHS[0]: "M"},
+        ),
+        (
+            "sprint Final verifier mutation",
+            11,
+            10,
+            "delta",
+            {**final_delta, CLOSEOUT_VERIFIER_PATH: "M"},
+        ),
+        ("wrong accepted C10 Final", 10, 8, "sha", "a" * 40),
+        ("historical C10 drift", 10, 7, "subject", "ci: unauthorized"),
+        ("invalid sprint SHA", 10, 9, "sha", "invalid"),
+        ("zero sprint SHA", 10, 9, "sha", "0" * 40),
+        ("duplicate sprint SHA", 10, 9, "sha", W04_SPRINT_ENTRY_SHA),
+    ]
+    for path in (
+        "src/unauthorized.py",
+        "tests/unauthorized.py",
+        ".github/workflows/ci.yml",
+        "pyproject.toml",
+        "uv.lock",
+        "migrations/unauthorized.py",
+        "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
+        "docs/w04/checkpoints/c10/W04_C10_FINAL_CLOSEOUT_REPORT.md",
+        ".gitattributes",
+    ):
+        mutations.append(
+            ("sprint Final protected delta " + path, 11, 10, "delta", {**final_delta, path: "M"})
+        )
+    for label, size, index, field, value in mutations:
+        damaged = copy.deepcopy(history[:size])
+        damaged[index][field] = value
+        rejected(
+            label,
+            lambda damaged=damaged, size=size: validate_closeout_lifecycle(
+                damaged, set(), sets[size]
+            ),
+        )
+    extra = {"sha": "3" * 40, "parents": ["2" * 40], "subject": "docs: extra", "delta": {}}
+    cases = [
+        ("extra post-sprint Final commit", [*history, extra], set(), sets[11]),
+        ("sprint Final without Prep", [*history[:9], history[10]], set(), sets[11]),
+        ("dirty sprint Prep", history[:10], {CLOSEOUT_VERIFIER_PATH}, sets[10]),
+        ("dirty sprint Final", history, {"README.md"}, sets[11]),
+        ("sprint cumulative missing path", history, set(), base),
+        ("sprint cumulative extra path", history, set(), sets[11] | {"extra"}),
+    ]
+    for label, rows, working, changed in cases:
+        rejected(
+            label,
+            lambda rows=rows, working=working, changed=changed: validate_closeout_lifecycle(
+                rows, working, changed
+            ),
+        )
+    current = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    original = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    _, units = source_units(current)
+    for name in (*W04_SPRINT_SOURCE_ADDITIONS, "require"):
+        text, node = units[name]
+        located = cast(ast.FunctionDef | ast.Assign, node)
+        lines = current.splitlines(keepends=True)
+        start, end = located.lineno - 1, cast(int, located.end_lineno)
+        require("".join(lines[start:end]) == text, "sprint adversary exact source span")
+        for replacement in (
+            [],
+            [lines[start].rstrip("\n") + " # unauthorized\n", *lines[start + 1 : end]],
+        ):
+            damaged_source = "".join([*lines[:start], *replacement, *lines[end:]])
+            rejected(
+                "sprint unauthorized source span " + name,
+                lambda damaged_source=damaged_source: validate_verifier_sources(
+                    original, damaged_source
+                ),
+            )
+    return len(mutations) + len(cases) + 2 * (len(W04_SPRINT_SOURCE_ADDITIONS) + 1)
+
+
+def validate_w04_pr7_merge_repair_lifecycle(
+    history: list[dict[str, Any]], working: set[str], changed: set[str]
+) -> str:
+    """Admit one verifier-only child of the exact accepted Sprint Final."""
+    require(len(history) == 12, "extra or missing PR7 merge-repair lifecycle commit")
+    expected = set(STAGE_A) | set(STAGE_B) | set(CLOSEOUT_FINAL_PATHS)
+    expected.update(C10_STAGE_A_PATHS)
+    expected.add(C10_STAGE_B_PATH)
+    expected.update(C10_FINAL_CLOSEOUT_PATHS)
+    expected.update(W04_SPRINT_FINAL_MODIFIED_PATHS)
+    expected.update(W04_SPRINT_FINAL_ADDED_PATHS)
+    require(
+        validate_w04_sprint_lifecycle(history[:11], set(), expected)
+        == "W04_SPRINT_FINAL_CLOSEOUT"
+        and history[10]["sha"] == W04_PR7_FINAL_SHA,
+        "PR7 repair requires the exact accepted Sprint Final and historical anchors",
+    )
+    repair = history[11]
+    require(set(repair) == {"sha", "parents", "subject", "delta"}, "PR7 repair record shape")
+    require(
+        isinstance(repair["sha"], str)
+        and re.fullmatch(r"[0-9a-f]{40}", repair["sha"]) is not None
+        and repair["sha"] != "0" * 40
+        and repair["sha"] not in {row["sha"] for row in history[:11]},
+        "invalid PR7 repair SHA",
+    )
+    require(
+        repair["parents"] == [W04_PR7_FINAL_SHA]
+        and repair["subject"] == W04_PR7_MERGE_REPAIR_SUBJECT
+        and repair["delta"] == {CLOSEOUT_VERIFIER_PATH: "M"},
+        "invalid exact PR7 merge-repair parent/subject/delta",
+    )
+    require(changed == expected, "PR7 repair cumulative path-set drift")
+    require(not working, "uncommitted PR7 merge-repair lifecycle delta")
+    return "W04_PR7_MERGE_REPAIR_01"
+
+
+def validate_w04_pr7_merge_topology(
+    head: str,
+    parents: list[str],
+    repair: str,
+    head_tree: bytes,
+    repair_tree: bytes,
+    second_parent_diff: bytes,
+    working: set[str],
+) -> str:
+    """Authorize only the terminal frozen-main/exact-repair merge, with no new bytes."""
+    require(
+        re.fullmatch(r"[0-9a-f]{40}", head) is not None
+        and re.fullmatch(r"[0-9a-f]{40}", repair) is not None
+        and head != "0" * 40
+        and repair != "0" * 40
+        and head != repair,
+        "invalid PR7 merged-main SHA",
+    )
+    require(
+        parents == [head, W04_PR7_MAIN_SHA, repair],
+        "PR7 merge requires ordered frozen-main and validated repair parents",
+    )
+    require(
+        re.fullmatch(rb"[0-9a-f]{40}", head_tree) is not None
+        and head_tree == repair_tree,
+        "PR7 merge tree differs from validated repair",
+    )
+    require(not second_parent_diff, "PR7 merge has a second-parent resolution delta")
+    require(not working, "uncommitted PR7 merged-main lifecycle delta")
+    return "W04_PR7_MERGED_MAIN"
+
+
+def w04_pr7_merged_main_guard(
+    history: list[dict[str, Any]],
+    changed: set[str],
+    head: str,
+    parents: list[str],
+    repo: Path = ROOT,
+) -> str:
+    """The historical loop delegates only its terminal two-parent revision here."""
+    working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).decode().splitlines())
+    working.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    require(
+        validate_closeout_lifecycle(history, working, changed) == "W04_PR7_MERGE_REPAIR_01",
+        "PR7 merge requires one validated repair before the terminal merge",
+    )
+    git(
+        "merge-base", "--is-ancestor", head,
+        git("rev-parse", "HEAD", repo=repo).decode().strip(), repo=repo
+    )
+    repair = cast(str, history[-1]["sha"])
+    return validate_w04_pr7_merge_topology(
+        head,
+        parents,
+        repair,
+        git("rev-parse", head + "^{tree}", repo=repo).strip(),
+        git("rev-parse", repair + "^{tree}", repo=repo).strip(),
+        git("diff", repair, head, "--", repo=repo),
+        working,
+    )
+
+
+def w04_pr7_repair_history(
+    repair: str, repo: Path = ROOT
+) -> tuple[list[dict[str, Any]], set[str]]:
+    """Read and validate the complete immutable lifecycle through the repair."""
+    raw = git(
+        "log", "--reverse", "--topo-order", "--format=%x1e%H%x00%P%x00%s",
+        "--name-status", "--no-renames", ENTRY + ".." + repair, "--", repo=repo
+    ).decode()
+    history: list[dict[str, Any]] = []
+    for record in raw.split("\x1e")[1:]:
+        lines = record.splitlines()
+        sha, parent_text, subject = lines[0].split("\x00")
+        parents = parent_text.split()
+        require(len(parents) == 1, "historical PR7 lifecycle merge/root forbidden")
+        delta: dict[str, str] = {}
+        for row in lines[1:]:
+            if not row:
+                continue
+            status, path = row.split("\t")
+            require(path not in delta, "duplicate PR7 historical delta")
+            delta[path] = status
+        history.append({"sha": sha, "parents": parents, "subject": subject, "delta": delta})
+    changed = set(git("diff", "--name-only", ENTRY, repair, "--", repo=repo).decode().splitlines())
+    require(
+        validate_w04_pr7_merge_repair_lifecycle(history, set(), changed)
+        == "W04_PR7_MERGE_REPAIR_01",
+        "invalid historical PR7 repair",
+    )
+    return history, changed
+
+
+def w04_pr7_pre_integration_guard(changed: set[str], repo: Path = ROOT) -> str | None:
+    """Keep every pre-integration state strict, including the one repair child."""
+    head = git("rev-parse", "HEAD", repo=repo).decode().strip()
+    rows = git(
+        "rev-list", "--reverse", W04_PR7_FINAL_SHA + ".." + head, repo=repo
+    ).decode().splitlines()
+    if not rows:
+        return None
+    require(rows == [head], "extra pre-integration PR7 repair history")
+    history, _ = w04_pr7_repair_history(head, repo)
+    working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).decode().splitlines())
+    working.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    return validate_w04_pr7_merge_repair_lifecycle(history, working, changed)
+
+
+def w04_pr7_integration_anchor(repo: Path = ROOT) -> str | None:
+    """Find the exact integration in ancestry, without interpreting its descendants."""
+    rows = [
+        row.split() for row in git(
+            "rev-list", "--parents", "--reverse", "--topo-order",
+            W04_PR7_FINAL_SHA + "..HEAD", repo=repo
+        ).decode().splitlines()
+    ]
+    records = {row[0]: row for row in rows}
+    anchors = []
+    for parents in rows:
+        if (
+            len(parents) != 3 or parents[1] != W04_PR7_MAIN_SHA
+            or records.get(parents[2]) != [parents[2], W04_PR7_FINAL_SHA]
+        ):
+            continue
+        merge, repair = parents[0], parents[2]
+        span = git(
+            "rev-list", "--reverse", "--topo-order",
+            W04_PR7_FINAL_SHA + ".." + merge, repo=repo
+        ).decode().splitlines()
+        require(span == [repair, merge], "extra pre-integration PR7 history")
+        history, changed = w04_pr7_repair_history(repair, repo)
+        require(
+            w04_pr7_merged_main_guard(history, changed, merge, parents, repo)
+            == "W04_PR7_MERGED_MAIN",
+            "invalid historical PR7 integration",
+        )
+        anchors.append(merge)
+    require(len(anchors) <= 1, "multiple PR7 integration anchors")
+    return anchors[0] if anchors else None
+
+
+def w04_pr7_historical_tip(repo: Path = ROOT) -> str:
+    """Keep historical source-layer derivations bounded to the accepted W04 Final."""
+    return W04_PR7_FINAL_SHA if w04_pr7_merge_repair_revision(repo) is not None else "HEAD"
+
+
+def w04_pr7_merge_repair_revision(repo: Path = ROOT) -> str | None:
+    """Derive an exact repair either before or after its validated integration."""
+    anchor = w04_pr7_integration_anchor(repo)
+    if anchor is not None:
+        return git("show", "-s", "--format=%P", anchor, repo=repo).decode().split()[1]
+    rows = (
+        git("rev-list", "--reverse", W04_PR7_FINAL_SHA + "..HEAD", repo=repo)
+        .decode().splitlines()
+    )
+    if not rows:
+        return None
+    require(len(rows) == 1, "extra pre-integration PR7 repair commit")
+    changed = set(git("diff", "--name-only", ENTRY, "--", repo=repo).decode().splitlines())
+    changed.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    require(
+        closeout_lifecycle_guard(changed, repo=repo) == "W04_PR7_MERGE_REPAIR_01",
+        "no validated PR7 merge repair",
+    )
+    return rows[0]
+
+
+def validate_w04_pr7_merge_verifier_sources(review_ready: str, current: str) -> None:
+    """Validate every accepted layer first, then only the exact seven repair connectors."""
+    accepted = git("show", W04_PR7_FINAL_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    validate_w04_sprint_verifier_sources(review_ready, accepted)
+    old_order, old = source_units(accepted)
+    new_order, new = source_units(current)
+    additions = set(W04_PR7_MERGE_SOURCE_ADDITIONS)
+    require(set(new) == set(old) | additions, "unauthorized PR7 source unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions]
+        == list(W04_PR7_MERGE_SOURCE_ADDITIONS),
+        "PR7 source-unit identity/order drift",
+    )
+    replacements = {
+        'validate_w04_sprint_lifecycle': [
+            (
+                '    require(10 <= len(history) <= 11, "extra post-W04_SPRINT_FINAL_CLOSEOUT '
+                'commit")\n',
+                '    if len(history) > 11:\n        return validate_w04_pr7_merge_repair_life'
+                'cycle(history, working, changed)\n    require(10 <= len(history) <= 11, "ext'
+                'ra post-W04_SPRINT_FINAL_CLOSEOUT commit")\n',
+            ),
+        ],
+        'c10_bootstrap_revision': [
+            (
+                '            "W04_SPRINT_FINAL_CLOSEOUT",\n',
+                '            "W04_SPRINT_FINAL_CLOSEOUT",\n            "W04_PR7_MERGE_REPAIR_'
+                '01",\n            "W04_PR7_MERGED_MAIN",\n            "W04_POST_MERGE_INTEGR'
+                'ATED",\n',
+            ),
+            (
+                '        git("rev-list", "--reverse", C10_ENTRY_SHA + "..HEAD", repo=repo).de'
+                'code().splitlines()\n',
+                '        git("rev-list", "--reverse", C10_ENTRY_SHA + ".." + w04_pr7_historic'
+                'al_tip(repo), repo=repo)\n        .decode()\n        .splitlines()\n',
+            ),
+        ],
+        'c10_closeout_prep_revision': [
+            (
+                '            "W04_SPRINT_FINAL_CLOSEOUT",\n',
+                '            "W04_SPRINT_FINAL_CLOSEOUT",\n            "W04_PR7_MERGE_REPAIR_'
+                '01",\n            "W04_PR7_MERGED_MAIN",\n            "W04_POST_MERGE_INTEGR'
+                'ATED",\n',
+            ),
+            (
+                '        git("rev-list", "--reverse", C10_ENTRY_SHA + "..HEAD", repo=repo).de'
+                'code().splitlines()\n',
+                '        git("rev-list", "--reverse", C10_ENTRY_SHA + ".." + w04_pr7_historic'
+                'al_tip(repo), repo=repo)\n        .decode()\n        .splitlines()\n',
+            ),
+        ],
+        'w04_sprint_prep_revision': [
+            (
+                '    revisions = git("rev-list", "--reverse", W04_SPRINT_ENTRY_SHA + "..HEAD"'
+                ', repo=repo)\n',
+                '    revisions = git(\n        "rev-list", "--reverse", W04_SPRINT_ENTRY_SHA '
+                '+ ".." + w04_pr7_historical_tip(repo),\n        repo=repo,\n    )\n',
+            ),
+            (
+                '        state in {"W04_SPRINT_CLOSEOUT_PREP_01", "W04_SPRINT_FINAL_CLOSEOUT"'
+                '}\n',
+                '        state\n        in {\n            "W04_SPRINT_CLOSEOUT_PREP_01",\n   '
+                '         "W04_SPRINT_FINAL_CLOSEOUT",\n            "W04_PR7_MERGE_REPAIR_01"'
+                ',\n            "W04_PR7_MERGED_MAIN",\n            "W04_POST_MERGE_INTEGRATE'
+                'D",\n        }\n',
+            ),
+        ],
+        'validate_w04_sprint_verifier_sources': [
+            (
+                '    accepted = git("show", W04_SPRINT_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PA'
+                'TH).decode()\n',
+                '    if "W04_PR7_FINAL_SHA = " in current:\n        validate_w04_pr7_merge_ve'
+                'rifier_sources(review_ready, current)\n        return\n    accepted = git("s'
+                'how", W04_SPRINT_ENTRY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+            ),
+        ],
+        'w04_sprint_verifier_blob_guard': [
+            (
+                '    prep = w04_sprint_prep_revision(repo)\n',
+                '    if w04_pr7_merge_repair_revision(repo) is not None:\n        w04_pr7_mer'
+                'ge_verifier_blob_guard(repo)\n        return\n    prep = w04_sprint_prep_rev'
+                'ision(repo)\n',
+            ),
+        ],
+        'closeout_lifecycle_guard': [
+            (
+                '    head = git("rev-parse", "HEAD", repo=repo).decode().strip()\n',
+                '    head = git("rev-parse", "HEAD", repo=repo).decode().strip()\n    integra'
+                'tion = w04_pr7_integration_anchor(repo)\n    if integration is not None:\n  '
+                '      working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).deco'
+                'de().splitlines())\n        working.update(\n            git("ls-files", "--'
+                'others", "--exclude-standard", repo=repo).decode().splitlines()\n        )\n'
+                '        require(not working, "uncommitted post-integration lifecycle delta")'
+                '\n        return "W04_PR7_MERGED_MAIN" if head == integration else "W04_POST'
+                '_MERGE_INTEGRATED"\n    repaired = w04_pr7_pre_integration_guard(changed, re'
+                'po)\n    if repaired is not None:\n        return repaired\n',
+            ),
+        ],
+    }
+    for name in old_order:
+        expected = old[name][0].encode()
+        for before, after in replacements.get(name, []):
+            expected = replace_once(expected, before.encode(), after.encode())
+        require(new[name][0].encode() == expected, f"unauthorized PR7 accepted source span: {name}")
+    repair = w04_pr7_merge_repair_revision()
+    require(repair is not None, "PR7 source requires committed validated repair")
+    committed_order, committed = source_units(
+        git("show", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    )
+    require(new_order == committed_order, "PR7 repair source-unit placement drift")
+    for name in W04_PR7_MERGE_SOURCE_ADDITIONS:
+        require(new[name][0] == committed[name][0], f"PR7 repair source-span drift: {name}")
+    constants: dict[str, object] = {
+        'W04_PR7_FINAL_SHA': '985f666e5ecfa5acd35565516e200c9b0e36c76b',
+        'W04_PR7_MAIN_SHA': 'af61bdfd5f7cf7961811c4c2dc8e554dd7eed509',
+        'W04_PR7_MERGE_REPAIR_SUBJECT': 'ci(w04): admit PR #7 merge commit lifecycle',
+        'W04_PR7_MERGE_SOURCE_ADDITIONS': (
+            'W04_PR7_FINAL_SHA',
+            'W04_PR7_MAIN_SHA',
+            'W04_PR7_MERGE_REPAIR_SUBJECT',
+            'W04_PR7_MERGE_SOURCE_ADDITIONS',
+            'validate_w04_pr7_merge_repair_lifecycle',
+            'validate_w04_pr7_merge_topology',
+            'w04_pr7_merged_main_guard',
+            'w04_pr7_repair_history',
+            'w04_pr7_pre_integration_guard',
+            'w04_pr7_integration_anchor',
+            'w04_pr7_historical_tip',
+            'w04_pr7_merge_repair_revision',
+            'validate_w04_pr7_merge_verifier_sources',
+            'w04_pr7_merge_verifier_blob_guard',
+            'check_w04_pr7_merge_controls',
+            'check_w04_pr7_post_integration_controls',
+        ),
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "PR7 constant declaration drift")
+        require(ast.literal_eval(cast(ast.Assign, node).value) == value, "PR7 constant drift")
+
+
+def w04_pr7_merge_verifier_blob_guard(repo: Path = ROOT) -> None:
+    repair = w04_pr7_merge_repair_revision(repo)
+    require(repair is not None, "missing validated PR7 merge repair")
+    validate_w04_pr7_merge_verifier_sources(
+        git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo).decode(),
+        (repo / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8"),
+    )
+    require(
+        (repo / CLOSEOUT_VERIFIER_PATH).read_bytes()
+        == git("show", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo)
+        and git("rev-parse", "HEAD:" + CLOSEOUT_VERIFIER_PATH, repo=repo)
+        == git("rev-parse", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),
+        "PR7 verifier must remain byte-identical to validated repair",
+    )
+    prep = w04_sprint_prep_revision(repo)
+    require(prep is not None, "missing accepted Sprint Prep")
+    development = check_c10_lifecycle_controls()
+    require(development == 32, "C10 development adversarial control drift")
+    print(
+        json.dumps(
+            {
+                "c10_bootstrap_sha": C10_CLOSEOUT_BOOTSTRAP_SHA,
+                "c10_adversarial_controls": development,
+            },
+            sort_keys=True,
+        )
+    )
+    closeout = check_c10_closeout_lifecycle_controls()
+    require(closeout == 60, "C10 closeout adversarial control drift")
+    c10_prep = c10_closeout_prep_revision(repo)
+    print(
+        json.dumps(
+            {"c10_closeout_prep_sha": c10_prep, "c10_closeout_adversarial_controls": closeout},
+            sort_keys=True,
+        )
+    )
+    controls = check_w04_sprint_controls()
+    print(
+        json.dumps(
+            {"w04_sprint_prep_sha": prep, "w04_sprint_adversarial_controls": controls},
+            sort_keys=True,
+        )
+    )
+    controls = check_w04_pr7_merge_controls()
+    post_controls = check_w04_pr7_post_integration_controls()
+    print(
+        json.dumps(
+            {
+                "w04_pr7_merge_repair_sha": repair,
+                "w04_pr7_merge_adversarial_controls": controls,
+                "w04_post_integration_controls": post_controls,
+                "w04_pr7_merge_source_guard": "PASS",
+            },
+            sort_keys=True,
+        )
+    )
+
+
+def check_w04_pr7_merge_controls() -> int:
+    """Execute accepted-Final, exact repair/merge positives and hostile lifecycle/source cases."""
+    revisions = [CLOSEOUT_STAGE_A_SHA, CLOSEOUT_REVIEW_READY_SHA]
+    revisions.extend(
+        git("rev-list", "--reverse", CLOSEOUT_REVIEW_READY_SHA + ".." + W04_PR7_FINAL_SHA)
+        .decode()
+        .splitlines()
+    )
+    history: list[dict[str, Any]] = []
+    for revision in revisions:
+        parents = git("show", "-s", "--format=%P", revision).decode().split()
+        require(len(parents) == 1, "accepted historical lifecycle merge/root")
+        delta = {}
+        for row in (
+            git("diff", "--name-status", "--no-renames", parents[0], revision).decode().splitlines()
+        ):
+            status, path = row.split("\t")
+            require(path not in delta, "duplicate accepted lifecycle path")
+            delta[path] = status
+        history.append(
+            {
+                "sha": revision,
+                "parents": parents,
+                "subject": git("show", "-s", "--format=%s", revision).decode().strip(),
+                "delta": delta,
+            }
+        )
+    changed = set(git("diff", "--name-only", ENTRY, W04_PR7_FINAL_SHA, "--").decode().splitlines())
+    require(
+        validate_closeout_lifecycle(history, set(), changed) == "W04_SPRINT_FINAL_CLOSEOUT",
+        "accepted W04 Sprint Final no longer valid",
+    )
+    repair, merge, tree = "a" * 40, "b" * 40, b"c" * 40
+    history.append(
+        {
+            "sha": repair,
+            "parents": [W04_PR7_FINAL_SHA],
+            "subject": W04_PR7_MERGE_REPAIR_SUBJECT,
+            "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+        }
+    )
+    require(
+        validate_closeout_lifecycle(history, set(), changed) == "W04_PR7_MERGE_REPAIR_01",
+        "valid PR7 merge-repair state rejected",
+    )
+    parents = [merge, W04_PR7_MAIN_SHA, repair]
+    require(
+        validate_w04_pr7_merge_topology(merge, parents, repair, tree, tree, b"", set())
+        == "W04_PR7_MERGED_MAIN",
+        "valid synthetic PR7 merge rejected",
+    )
+    lifecycle_mutations: list[tuple[str, int, str, Any]] = [
+        ("wrong repair parent", 11, "parents", ["d" * 40]),
+        ("merge repair", 11, "parents", [W04_PR7_FINAL_SHA, W04_PR7_MAIN_SHA]),
+        ("root repair", 11, "parents", []),
+        ("wrong repair subject", 11, "subject", "ci: unauthorized"),
+        ("extra repair path", 11, "delta", {CLOSEOUT_VERIFIER_PATH: "M", "README.md": "M"}),
+        ("added repair verifier", 11, "delta", {CLOSEOUT_VERIFIER_PATH: "A"}),
+        ("deleted repair verifier", 11, "delta", {CLOSEOUT_VERIFIER_PATH: "D"}),
+        ("renamed repair verifier", 11, "delta", {CLOSEOUT_VERIFIER_PATH: "R100"}),
+        ("invalid repair SHA", 11, "sha", "0" * 40),
+        ("historical lifecycle merge", 9, "parents", [W04_SPRINT_ENTRY_SHA, W04_PR7_MAIN_SHA]),
+        ("historical anchor mutation", 8, "sha", "d" * 40),
+        ("accepted Final mutation", 10, "sha", "e" * 40),
+    ]
+    for label, index, field, value in lifecycle_mutations:
+        damaged = copy.deepcopy(history)
+        damaged[index][field] = value
+        rejected(
+            label,
+            lambda damaged=damaged: validate_closeout_lifecycle(damaged, set(), changed),
+        )
+    for label, damaged, working, cumulative in (
+        ("extra Final-to-repair commit", history[:11] + [history[-1], history[-1]], set(), changed),
+        ("extra repair-to-merge commit", history + [history[-1]], set(), changed),
+        ("uncommitted repair", history, {CLOSEOUT_VERIFIER_PATH}, changed),
+        ("repair cumulative extra path", history, set(), changed | {"src/extra.py"}),
+    ):
+        rejected(
+            label,
+            lambda damaged=damaged, working=working, cumulative=cumulative:
+                validate_closeout_lifecycle(damaged, working, cumulative),
+        )
+    topology_mutations: list[tuple[str, str, list[str], bytes, bytes, bytes, set[str]]] = [
+        ("wrong main parent", merge, [merge, "d" * 40, repair], tree, tree, b"", set()),
+        (
+            "wrong feature parent", merge, [merge, W04_PR7_MAIN_SHA, "d" * 40],
+            tree, tree, b"", set(),
+        ),
+        ("reversed parents", merge, [merge, repair, W04_PR7_MAIN_SHA], tree, tree, b"", set()),
+        ("octopus merge", merge, parents + ["d" * 40], tree, tree, b"", set()),
+        ("root merge", merge, [merge], tree, tree, b"", set()),
+        ("arbitrary one-parent merge", merge, [merge, repair], tree, tree, b"", set()),
+        ("merge tree drift", merge, parents, b"d" * 40, tree, b"", set()),
+        ("second-parent resolution delta", merge, parents, tree, tree, b"changed", set()),
+        ("invalid merge tree", merge, parents, b"", b"", b"", set()),
+        ("uncommitted merge", merge, parents, tree, tree, b"", {"README.md"}),
+        ("nonterminal merge identity", "d" * 40, parents, tree, tree, b"", set()),
+    ]
+    for label, damaged_head, damaged_parents, head_tree, repair_tree, diff, working in (
+        topology_mutations
+    ):
+        rejected(
+            label,
+            lambda damaged_head=damaged_head, damaged_parents=damaged_parents,
+                head_tree=head_tree, repair_tree=repair_tree, diff=diff, working=working:
+                validate_w04_pr7_merge_topology(
+                    damaged_head, damaged_parents, repair, head_tree, repair_tree, diff, working
+                ),
+        )
+
+    def fake_git(*arguments: str, repo: Path = ROOT) -> bytes:
+        responses = {
+            ("diff", "--name-only", "HEAD", "--"): b"",
+            ("ls-files", "--others", "--exclude-standard"): b"",
+            ("rev-parse", "HEAD"): merge.encode(),
+            ("merge-base", "--is-ancestor", merge, merge): b"",
+            ("rev-parse", merge + "^{tree}"): tree,
+            ("rev-parse", repair + "^{tree}"): tree,
+            ("diff", repair, merge, "--"): b"",
+        }
+        require(arguments in responses, "unexpected merge-control Git command")
+        return responses[arguments]
+
+    with patch.dict(globals(), {"git": fake_git}):
+        require(
+            w04_pr7_merged_main_guard(history, changed, merge, parents) == "W04_PR7_MERGED_MAIN",
+            "terminal merge dispatch rejected valid topology",
+        )
+        rejected(
+            "direct Final-to-merge without repair",
+            lambda: w04_pr7_merged_main_guard(
+                history[:11], changed, merge, [merge, W04_PR7_MAIN_SHA, W04_PR7_FINAL_SHA]
+            ),
+        )
+    original = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    current = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    validate_w04_pr7_merge_verifier_sources(original, current)
+    _, units = source_units(current)
+    lines = current.splitlines(keepends=True)
+
+    def splice(name: str, replacement: str) -> str:
+        text, parsed = units[name]
+        node = cast(ast.stmt, parsed)
+        start, end = node.lineno - 1, cast(int, node.end_lineno)
+        require("".join(lines[start:end]) == text, "PR7 source adversary span mismatch")
+        return "".join(lines[:start]) + replacement + "".join(lines[end:])
+
+    name = "validate_w04_pr7_merge_topology"
+    unit = units[name][0]
+    source_mutations = [
+        splice(name, ""),
+        splice(name, unit.replace("def " + name + "(", "def renamed_pr7_topology(", 1)),
+        splice(name, "") + "\n" + unit,
+        splice(name, unit + "    pass\n"),
+        splice("require", units["require"][0] + "    pass\n"),
+        current + "\ndef unauthorized_pr7_unit():\n    pass\n",
+        splice(
+            "W04_PR7_MAIN_SHA",
+            'W04_PR7_MAIN_SHA = "' + "d" * 40 + '"\n',
+        ),
+        splice(
+            "closeout_lifecycle_guard",
+            units["closeout_lifecycle_guard"][0].replace(
+                "if integration is not None:", "if True:", 1
+            ),
+        ),
+    ]
+    for damaged_source in source_mutations:
+        require(damaged_source != current, "PR7 source adversary no-op")
+        rejected(
+            "unauthorized PR7 source deletion/rename/reorder/span/merge exception",
+            lambda damaged_source=damaged_source:
+                validate_w04_pr7_merge_verifier_sources(original, damaged_source),
+        )
+    return 4 + len(lifecycle_mutations) + 4 + len(topology_mutations) + 1 + len(source_mutations)
+
+
+def check_w04_pr7_post_integration_controls() -> int:
+    """Execute integration/descendant continuations and fail-closed anchor controls."""
+    repair = "a" * 40
+    merge = "b" * 40
+    doc = "c" * 40
+    later = "d" * 40
+    branch = "e" * 40
+    tree = b"f" * 40
+    actual = w04_pr7_merge_repair_revision()
+    require(actual is not None, "post-integration controls need a validated repair")
+    history, changed = w04_pr7_repair_history(cast(str, actual))
+    history[-1]["sha"] = repair
+    records = {
+        repair: [repair, W04_PR7_FINAL_SHA],
+        merge: [merge, W04_PR7_MAIN_SHA, repair],
+        doc: [doc, merge],
+        branch: [branch, doc],
+        later: [later, doc, branch],
+    }
+    state: dict[str, Any] = {
+        "head": merge, "working": set(), "tree": tree,
+        "diff": b"", "span": [repair, merge], "history": history,
+    }
+
+    def fake_history(revision: str, repo: Path = ROOT) -> tuple[list[dict[str, Any]], set[str]]:
+        require(revision == repair, "unexpected historical control revision")
+        validate_w04_pr7_merge_repair_lifecycle(state["history"], set(), changed)
+        return state["history"], changed
+
+    def fake_git(*arguments: str, repo: Path = ROOT) -> bytes:
+        if arguments == ("rev-parse", "HEAD"):
+            return cast(str, state["head"]).encode()
+        if arguments == (
+            "rev-list", "--parents", "--reverse", "--topo-order", W04_PR7_FINAL_SHA + "..HEAD"
+        ):
+            active = {merge: [repair, merge], doc: [repair, merge, doc],
+                      later: [repair, merge, doc, branch, later]}[state["head"]]
+            return "\n".join(" ".join(records[n]) for n in active).encode()
+        if arguments == (
+            "rev-list", "--reverse", "--topo-order", W04_PR7_FINAL_SHA + ".." + merge
+        ):
+            return "\n".join(state["span"]).encode()
+        if arguments == ("diff", "--name-only", "HEAD", "--"):
+            return "\n".join(sorted(state["working"])).encode()
+        if arguments == ("ls-files", "--others", "--exclude-standard"):
+            return b""
+        if arguments == ("merge-base", "--is-ancestor", merge, state["head"]):
+            return b""
+        if arguments == ("rev-parse", merge + "^{tree}"):
+            return cast(bytes, state["tree"])
+        if arguments == ("rev-parse", repair + "^{tree}"):
+            return tree
+        if arguments == ("diff", repair, merge, "--"):
+            return cast(bytes, state["diff"])
+        raise AssertionError("unexpected post-integration control Git command: " + repr(arguments))
+
+    with patch.dict(globals(), {"git": fake_git, "w04_pr7_repair_history": fake_history}):
+        for head, expected in (
+            (merge, "W04_PR7_MERGED_MAIN"),
+            (doc, "W04_POST_MERGE_INTEGRATED"),
+            (later, "W04_POST_MERGE_INTEGRATED"),
+        ):
+            state["head"] = head
+            require(closeout_lifecycle_guard(changed) == expected, "post-integration continuation")
+        for path in (CLOSEOUT_VERIFIER_PATH, "README.md", "src/extra.py", "extra-untracked"):
+            state["working"] = {path}
+            rejected("dirty historical mode", lambda: closeout_lifecycle_guard(changed))
+        state["working"] = set()
+        for key, value in (
+            ("tree", b"0" * 40), ("diff", b"changed"),
+            ("span", [repair, "0" * 40, merge]),
+            ("history", history[:11]),
+        ):
+            original = state[key]
+            state[key] = value
+            rejected(
+                "invalid historical integration proof", lambda: closeout_lifecycle_guard(changed)
+            )
+            state[key] = original
+        original = records[merge]
+        for parents in (
+            [merge, repair, W04_PR7_MAIN_SHA],
+            [merge, W04_PR7_MAIN_SHA, W04_PR7_FINAL_SHA],
+            [merge, W04_PR7_MAIN_SHA, repair, "0" * 40],
+        ):
+            records[merge] = parents
+            require(w04_pr7_integration_anchor() is None, "hostile topology became an anchor")
+        records[merge] = original
+    return 3 + 4 + 4 + 3
+
+
+
+def validate_changed_paths(
+    changed: set[str], subject: str = "", publication_delta: set[str] | None = None
+) -> None:
+    allowed = set(STAGE_A)
+    if changed & set(STAGE_B):
+        require(
+            subject == "docs(w04-c09): publish regression-hardening proof"
+            and publication_delta == set(STAGE_B),
+            "Stage-B report cannot be admitted into Stage A",
+        )
+        allowed.update(STAGE_B)
+    require(changed <= allowed, "W04_C09_SCOPE_VIOLATION")
+
+
+def validate_closeout_lifecycle(
+    history: list[dict[str, Any]], working: set[str], changed: set[str]
+) -> str:
+    """Admit only the two immutable anchors and their single Prep / Final children."""
+    if len(history) > 4:
+        return validate_c10_lifecycle(history, working, changed)
+    require(1 <= len(history) <= 4, "extra post-REVIEW_READY commit")
+    for record in history:
+        require(set(record) == {"sha", "parents", "subject", "delta"}, "lifecycle record shape")
+        require(
+            re.fullmatch(r"[0-9a-f]{40}", record["sha"]) is not None
+            and record["sha"] != "0" * 40,
+            "invalid lifecycle SHA",
+        )
+    require(len({r["sha"] for r in history}) == len(history), "duplicate lifecycle SHA")
+    first = history[0]
+    require(
+        first["sha"] == CLOSEOUT_STAGE_A_SHA
+        and first["parents"] == [ENTRY]
+        and first["subject"] == "ci(w04-c09): add investigation regression gate"
+        and set(first["delta"]) == set(STAGE_A),
+        "Stage-A immutable anchor drift",
+    )
+    state, expected = "STAGE_A", set(STAGE_A)
+    if len(history) >= 2:
+        publication = history[1]
+        require(
+            publication["sha"] == CLOSEOUT_REVIEW_READY_SHA
+            and publication["parents"] == [CLOSEOUT_STAGE_A_SHA]
+            and publication["subject"] == "docs(w04-c09): publish regression-hardening proof"
+            and publication["delta"] == {STAGE_B[0]: "A"},
+            "REVIEW_READY immutable publication anchor drift",
+        )
+        state = "REVIEW_READY"
+        expected.update(STAGE_B)
+    if len(history) >= 3:
+        prep = history[2]
+        require(
+            prep["parents"] == [CLOSEOUT_REVIEW_READY_SHA]
+            and prep["subject"] == CLOSEOUT_PREP_SUBJECT
+            and prep["delta"] == {CLOSEOUT_VERIFIER_PATH: "M"},
+            "invalid exact Closeout-Prep-01 parent/subject/delta",
+        )
+        state = "CLOSEOUT_PREP_01"
+    if len(history) == 4:
+        final = history[3]
+        require(
+            final["parents"] == [history[2]["sha"]]
+            and final["subject"] == CLOSEOUT_FINAL_SUBJECT
+            and final["delta"] == {path: "A" for path in CLOSEOUT_FINAL_PATHS},
+            "invalid exact final-closeout parent/subject/delta",
+        )
+        state = "FINAL_CLOSEOUT"
+        expected.update(CLOSEOUT_FINAL_PATHS)
+    require(changed == expected, "closeout cumulative path-set drift")
+    # The sole uncommitted development candidate is the authorized verifier at REVIEW_READY.
+    require(
+        working <= {CLOSEOUT_VERIFIER_PATH} if state == "REVIEW_READY" else not working,
+        "unauthorized working-tree lifecycle delta",
+    )
+    return state
+
+
+def closeout_lifecycle_guard(changed: set[str], repo: Path = ROOT) -> str:
+    head = git("rev-parse", "HEAD", repo=repo).decode().strip()
+    integration = w04_pr7_integration_anchor(repo)
+    if integration is not None:
+        working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).decode().splitlines())
+        working.update(
+            git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+        )
+        require(not working, "uncommitted post-integration lifecycle delta")
+        return "W04_PR7_MERGED_MAIN" if head == integration else "W04_POST_MERGE_INTEGRATED"
+    repaired = w04_pr7_pre_integration_guard(changed, repo)
+    if repaired is not None:
+        return repaired
+    revisions = [CLOSEOUT_STAGE_A_SHA]
+    if head != CLOSEOUT_STAGE_A_SHA:
+        git("merge-base", "--is-ancestor", CLOSEOUT_REVIEW_READY_SHA, head, repo=repo)
+        revisions.append(CLOSEOUT_REVIEW_READY_SHA)
+        revisions.extend(
+            git("rev-list", "--reverse", CLOSEOUT_REVIEW_READY_SHA + ".." + head, repo=repo)
+            .decode()
+            .splitlines()
+        )
+    require(revisions[-1] == head, "lifecycle HEAD mismatch")
+    history: list[dict[str, Any]] = []
+    for revision in revisions:
+        parents = git("rev-list", "--parents", "-n", "1", revision, repo=repo).decode().split()
+        require(len(parents) == 2 and parents[0] == revision, "lifecycle merge/root forbidden")
+        delta: dict[str, str] = {}
+        for row in (
+            git("diff", "--name-status", "--no-renames", parents[1], revision, repo=repo)
+            .decode()
+            .splitlines()
+        ):
+            status, path = row.split("\t")
+            require(path not in delta, "duplicate lifecycle delta path")
+            delta[path] = status
+        history.append(
+            {
+                "sha": revision,
+                "parents": parents[1:],
+                "subject": git("show", "-s", "--format=%s", revision, repo=repo).decode().strip(),
+                "delta": delta,
+            }
+        )
+    working = set(git("diff", "--name-only", "HEAD", "--", repo=repo).decode().splitlines())
+    working.update(
+        git("ls-files", "--others", "--exclude-standard", repo=repo).decode().splitlines()
+    )
+    return validate_closeout_lifecycle(history, working, changed)
+
+
+def validate_verifier_sources(review_ready: str, current: str) -> None:
+    """Preserve every legacy source span except two exact lifecycle call-site edits."""
+    if "C10_ENTRY_SHA = " in current:
+        validate_c10_verifier_sources(review_ready, current)
+        return
+    if current == review_ready:
+        return
+    old_order, old = source_units(review_ready)
+    new_order, new = source_units(current)
+    additions = {
+        "CLOSEOUT_STAGE_A_SHA",
+        "CLOSEOUT_REVIEW_READY_SHA",
+        "CLOSEOUT_VERIFIER_PATH",
+        "CLOSEOUT_PREP_SUBJECT",
+        "CLOSEOUT_FINAL_SUBJECT",
+        "CLOSEOUT_FINAL_PATHS",
+        "validate_closeout_lifecycle",
+        "closeout_lifecycle_guard",
+        "validate_verifier_sources",
+        "verifier_source_guard",
+        "check_closeout_lifecycle_controls",
+    }
+    require(set(new) - set(old) == additions, "unauthorized verifier top-level addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order,
+        "verifier legacy unit identity/order drift",
+    )
+    for name in old_order:
+        expected = old[name][0].encode()
+        if name == "verify_collection_and_scope":
+            expected = replace_once(
+                expected,
+                b"    validate_changed_paths(\n"
+                b"        changed,\n"
+                b'        git("log", "-1", "--pretty=%s").decode().strip(),\n'
+                b'        set(git("diff", "--name-only", "HEAD^", "HEAD").decode().splitlines()),\n'
+                b"    )\n",
+                b"    lifecycle = closeout_lifecycle_guard(changed)\n",
+            )
+            expected = replace_once(
+                expected,
+                b'        "shards": 7,\n',
+                b'        "shards": 7,\n        "lifecycle": lifecycle,\n',
+            )
+        elif name == "main":
+            expected = replace_once(
+                expected,
+                b"        workflow_guard()\n",
+                b"        verifier_source_guard()\n        workflow_guard()\n",
+            )
+            expected = replace_once(
+                expected,
+                b"        controls += 3\n",
+                b"        controls += 3\n        controls += check_closeout_lifecycle_controls()\n",
+            )
+            expected = replace_once(
+                expected,
+                b'                    "family_subprocess_isolation": "PASS",\n',
+                b'                    "family_subprocess_isolation": "PASS",\n'
+                b'                    "verifier_self_source_delta_guard": "PASS",\n'
+                b'                    "closeout_lifecycle": collection["lifecycle"],\n',
+            )
+        require(new[name][0].encode() == expected, f"unauthorized verifier source delta: {name}")
+    constants = {
+        "CLOSEOUT_STAGE_A_SHA": "3cd8023dbe79ca8360a3075dd3b169921e31f7a5",
+        "CLOSEOUT_REVIEW_READY_SHA": "f4c528e1daf86aa1a010bce82665e43c55560384",
+        "CLOSEOUT_VERIFIER_PATH": "scripts/ci/verify_w04_investigation_gate_contract.py",
+        "CLOSEOUT_PREP_SUBJECT": "ci(w04-c09): admit bounded closeout lifecycle",
+        "CLOSEOUT_FINAL_SUBJECT": "docs(w04-c09): close investigation regression gate",
+        "CLOSEOUT_FINAL_PATHS": (
+            "docs/w04/checkpoints/c09/W04_C09_GPT_INDEPENDENT_REVIEW_R1.md",
+            "docs/w04/checkpoints/c09/W04_C09_HUMAN_ACCEPTANCE.md",
+            "docs/w04/checkpoints/c09/W04_C09_CLOSEOUT_AUTHORIZATION.md",
+            "docs/w04/checkpoints/c09/W04_C09_CLOSEOUT_CONTEXT_LOCK.md",
+            "docs/w04/checkpoints/c09/W04_C09_FINAL_CLOSEOUT_REPORT.md",
+        ),
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "lifecycle constant declaration drift")
+        require(ast.literal_eval(cast(ast.Assign, node).value) == value, "lifecycle constant drift")
+
+
+def verifier_source_guard(repo: Path = ROOT) -> None:
+    current = (repo / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    c10_verifier_blob_guard(repo)
+    validate_verifier_sources(
+        git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo).decode(),
+        current,
+    )
+    subject = git("show", "-s", "--format=%s", "HEAD", repo=repo).decode().strip()
+    if subject == CLOSEOUT_FINAL_SUBJECT:
+        require(
+            git("show", "HEAD^:" + CLOSEOUT_VERIFIER_PATH, repo=repo).decode() == current,
+            "accepted Prep verifier must remain frozen in Final",
+        )
+
+
+def check_closeout_lifecycle_controls() -> int:
+    stage_a: dict[str, Any] = {
+        "sha": CLOSEOUT_STAGE_A_SHA,
+        "parents": [ENTRY],
+        "subject": "ci(w04-c09): add investigation regression gate",
+        "delta": dict.fromkeys(STAGE_A, "A"),
+    }
+    publication: dict[str, Any] = {
+        "sha": CLOSEOUT_REVIEW_READY_SHA,
+        "parents": [CLOSEOUT_STAGE_A_SHA],
+        "subject": "docs(w04-c09): publish regression-hardening proof",
+        "delta": {STAGE_B[0]: "A"},
+    }
+    prep: dict[str, Any] = {
+        "sha": "a" * 40,
+        "parents": [CLOSEOUT_REVIEW_READY_SHA],
+        "subject": CLOSEOUT_PREP_SUBJECT,
+        "delta": {CLOSEOUT_VERIFIER_PATH: "M"},
+    }
+    final: dict[str, Any] = {
+        "sha": "b" * 40,
+        "parents": [prep["sha"]],
+        "subject": CLOSEOUT_FINAL_SUBJECT,
+        "delta": dict.fromkeys(CLOSEOUT_FINAL_PATHS, "A"),
+    }
+    history = [stage_a, publication, prep, final]
+    base = set(STAGE_A) | set(STAGE_B)
+    complete = base | set(CLOSEOUT_FINAL_PATHS)
+    for size, state in enumerate(
+        ("STAGE_A", "REVIEW_READY", "CLOSEOUT_PREP_01", "FINAL_CLOSEOUT"), start=1
+    ):
+        changed = set(STAGE_A) if size == 1 else complete if size == 4 else base
+        require(validate_closeout_lifecycle(history[:size], set(), changed) == state, "valid state")
+    require(
+        validate_closeout_lifecycle(history[:2], {CLOSEOUT_VERIFIER_PATH}, base) == "REVIEW_READY",
+        "one-file local Prep candidate",
+    )
+    mutations: list[tuple[str, list[dict[str, Any]], set[str], set[str]]] = []
+    for label, index, field, value in (
+        ("wrong Prep parent", 2, "parents", [CLOSEOUT_STAGE_A_SHA]),
+        ("wrong Prep subject", 2, "subject", "ci: unauthorized"),
+        ("extra Prep path", 2, "delta", {CLOSEOUT_VERIFIER_PATH: "M", STAGE_A[0]: "M"}),
+        ("missing final document", 3, "delta", dict.fromkeys(CLOSEOUT_FINAL_PATHS[:-1], "A")),
+        (
+            "extra final document",
+            3,
+            "delta",
+            {**dict.fromkeys(CLOSEOUT_FINAL_PATHS, "A"), "docs/w04/extra.md": "A"},
+        ),
+        (
+            "mixed final delta",
+            3,
+            "delta",
+            {**dict.fromkeys(CLOSEOUT_FINAL_PATHS, "A"), CLOSEOUT_VERIFIER_PATH: "M"},
+        ),
+        ("wrong final subject", 3, "subject", "docs: unauthorized"),
+        ("final without exact Prep parent", 3, "parents", [CLOSEOUT_REVIEW_READY_SHA]),
+        ("merge Prep", 2, "parents", [CLOSEOUT_REVIEW_READY_SHA, CLOSEOUT_STAGE_A_SHA]),
+        ("non-new final document", 3, "delta", dict.fromkeys(CLOSEOUT_FINAL_PATHS, "M")),
+    ):
+        damaged = copy.deepcopy(history)
+        damaged[index][field] = value
+        mutations.append((label, damaged, set(), complete))
+    mutations.extend(
+        (
+            ("extra post-REVIEW_READY commit", [*history, copy.deepcopy(final)], set(), complete),
+            ("missing Prep state", [stage_a, publication, final], set(), complete),
+            ("unauthorized working delta", history, {STAGE_A[0]}, complete),
+            ("wrong cumulative paths", history, set(), complete | {"src/extra.py"}),
+        )
+    )
+    for label, damaged, working, changed in mutations:
+        rejected(
+            label,
+            lambda damaged=damaged, working=working, changed=changed: validate_closeout_lifecycle(
+                damaged, working, changed
+            ),
+        )
+    original = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+    current = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    validate_verifier_sources(original, current)
+    order, units = source_units(current)
+    mains = [
+        n for n in ast.parse(current).body if isinstance(n, ast.FunctionDef) and n.name == "main"
+    ]
+    require(len(mains) == 1 and "main" in units, "exactly one real top-level main required")
+    lines = current.splitlines(keepends=True)
+
+    def damage_unit(name: str, mutate: Any) -> str:
+        unit, parsed = units[name]
+        node = cast(ast.stmt, parsed)
+        changed_node = copy.deepcopy(node)
+        mutate(changed_node)
+        replacement = ast.unparse(ast.fix_missing_locations(changed_node)) + "\n"
+        decorators = getattr(node, "decorator_list", [])
+        start = min([node.lineno, *(d.lineno for d in decorators)]) - 1
+        require(node.end_lineno is not None, "missing source-unit end span")
+        end = node.end_lineno
+        require("".join(lines[start:end]) == unit, "source-unit span mismatch")
+        candidate = "".join(lines[:start]) + replacement + "".join(lines[end:])
+        replacement_order, _ = source_units(replacement)
+        require(len(replacement_order) == 1, "adversary must replace exactly one source unit")
+        target = replacement_order[0]
+        after_order, after = source_units(candidate)
+        require(
+            [key for key in after_order if key != target] == [key for key in order if key != name],
+            "adversary changed unrelated source-unit identities/order",
+        )
+        require(
+            all(after[key][0] == units[key][0] for key in order if key != name),
+            "adversary changed an unrelated source span",
+        )
+        require(after[target][0] != unit, "adversary did not change the target source unit")
+        if name == "main":
+            require(target == "main", "main adversary must preserve the actual function identity")
+        return candidate
+
+    def remove_main_workflow_call(node: ast.FunctionDef) -> None:
+        matches: list[tuple[list[ast.stmt], ast.stmt]] = []
+        for parent in ast.walk(node):
+            body = getattr(parent, "body", None)
+            if not isinstance(body, list):
+                continue
+            for statement in body:
+                if (
+                    isinstance(statement, ast.Expr)
+                    and isinstance(statement.value, ast.Call)
+                    and isinstance(statement.value.func, ast.Name)
+                    and statement.value.func.id == "workflow_guard"
+                ):
+                    matches.append((body, statement))
+        require(len(matches) == 1, "exactly one real main workflow_guard call required")
+        body, statement = matches[0]
+        body.remove(statement)
+
+    imports = [
+        key
+        for key, (_, node) in units.items()
+        if isinstance(node, ast.Import) and any(alias.name == "ast" for alias in node.names)
+    ]
+    require(len(imports) == 1, "exactly one structural ast import required")
+    source_mutations = (
+        damage_unit("require", lambda node: node.body.append(ast.Raise(exc=None, cause=None))),
+        current + "\ndef unauthorized_verifier_unit():\n    pass\n",
+        damage_unit(imports[0], lambda node: setattr(node.names[0], "asname", "unauthorized")),
+        damage_unit("main", lambda node: node.args.args.append(ast.arg(arg="unauthorized"))),
+        damage_unit("main", lambda node: node.decorator_list.append(ast.Name(id="unauthorized"))),
+        damage_unit("workflow_guard", lambda node: setattr(node, "name", "renamed_workflow_guard")),
+        damage_unit("main", remove_main_workflow_call),
+        damage_unit(
+            "CLOSEOUT_STAGE_A_SHA", lambda node: setattr(node, "value", ast.Constant("c" * 40))
+        ),
+    )
+    for damaged_source in source_mutations:
+        require(damaged_source != current, "verifier source adversary did not mutate")
+        rejected(
+            "unauthorized verifier top-level mutation",
+            lambda damaged_source=damaged_source: validate_verifier_sources(
+                original, damaged_source
+            ),
+        )
+    return len(mutations) + len(source_mutations)
+
+
+def verify_collection_and_scope() -> dict[str, object]:
+    paths = json.loads((ROOT / "docs/w04/checkpoints/c09/specs/authorized_paths.json").read_bytes())
+    require(
+        paths
+        == {
+            "schema_version": "w04-c09-authorized-paths-v1",
+            "checkpoint": "W04-C09",
+            "task_version": "V1.1",
+            "repair_01_sha256": REPAIR_01_SHA256,
+            "stage_a": list(STAGE_A),
+            "stage_b": list(STAGE_B),
+        },
+        "authorized-path sets drift",
+    )
+    changed = set(git("diff", "--name-only", ENTRY, "--").decode().splitlines())
+    changed.update(git("ls-files", "--others", "--exclude-standard").decode().splitlines())
+    lifecycle = closeout_lifecycle_guard(changed)
+    protected = (
+        "src",
+        "migrations",
+        "apps",
+        "pyproject.toml",
+        "uv.lock",
+        "docker-compose.yml",
+        "docs/w03",
+        "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
+        "docs/w04/devctrl",
+        "docs/w04/devctrl-02",
+        "docs/w04/devctrl-03",
+        *(f"docs/w04/checkpoints/c{i:02}" for i in range(1, 9)),
+        "scripts/ci/classify_change.py",
+        "scripts/ci/verify_publication.py",
+        "scripts/ci/plan_non_integration_shards.py",
+        "scripts/ci/pytest_outcome_receipt.py",
+        "scripts/ci/run_non_integration_shard.py",
+        "scripts/ci/verify_non_integration_shards.py",
+        "scripts/ci/run_w03_ai_loop_gate.py",
+        "scripts/ci/verify_w04_source_evolution.py",
+    )
+    require(not git("diff", ENTRY, "--", *protected), "W04_C09_PROTECTED_OBJECT_DRIFT")
+    raw = (ROOT / "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json").read_bytes()
+    require(
+        hashlib.sha256(raw).hexdigest()
+        == "d22a12306f8fe98952b9e35a5f166f29fee968c9aedcff27511da59889c20c2d",
+        "source manifest byte drift",
+    )
+    source = json.loads(raw)
+    require(
+        [c["checkpoint"] for c in source["checkpoints"]] == [f"W04-C{i:02}" for i in range(1, 9)]
+        and all(c["state"] == "CLOSED" for c in source["checkpoints"]),
+        "source lifecycle drift",
+    )
+    for c in source["checkpoints"]:
+        for file in c["files"]:
+            require(
+                git("rev-parse", "HEAD:" + file["path"]).decode().strip() == file["blob_oid"],
+                "closed source blob drift",
+            )
+    nodes = planner.collect_nodes(planner.MARKER)
+    files = sorted({n.split("::")[0] for n in nodes})
+    require(
+        len(nodes) == 2997
+        and planner.digest(nodes)
+        == "9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a",
+        "W04_C09_NODESET_DRIFT",
+    )
+    require(
+        len(files) == 63
+        and planner.digest(files)
+        == "890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7",
+        "DEVCTRL-03 file drift",
+    )
+    head = git("rev-parse", "HEAD").decode().strip()
+    weights = planner.read_json(planner.WEIGHTS)
+    plan = planner.build_plan(nodes, weights, planner.read_json(planner.BASELINE), head)
+    require(
+        plan["weights_sha256"] == "a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851"
+        and plan["schema_version"] == "w04-devctrl03-non-integration-plan-v1"
+        and len(plan["shards"]) == 7,
+        "DEVCTRL-03 active plan drift",
+    )
+    all_nodes = nodes + planner.collect_nodes("integration")
+    manifest = runner.load_manifest(MANIFEST)
+    for family in manifest.families:
+        selected = [
+            n
+            for n in all_nodes
+            if any(n == t.selector or n.startswith(t.selector + "[") for t in family.targets)
+        ]
+        runner.validate_collection(family, selected)
+    return {
+        "nodes": 2997,
+        "files": 63,
+        "node_digest": planner.digest(nodes),
+        "weights_digest": plan["weights_sha256"],
+        "shards": 7,
+        "lifecycle": lifecycle,
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.parse_args()
+    try:
+        raw = MANIFEST.read_bytes()
+        require(hashlib.sha256(raw).hexdigest() == RAW_DIGEST, "manifest raw identity")
+        require(
+            hashlib.sha256(runner.canonical(json.loads(raw))).hexdigest() == CONTENT_DIGEST,
+            "manifest content identity",
+        )
+        verifier_source_guard()
+        workflow_guard()
+        replay_source_guard()
+        meta_ci_source_guard()
+        with tempfile.TemporaryDirectory(prefix="w04-c09-contract-") as temporary:
+            directory = Path(temporary)
+            controls = check_manifest_controls(directory) + check_runner_controls(directory)
+            controls += check_actual_workers(directory)
+        controls += check_source_and_workflow_controls() + check_native_metadata_controls()
+        controls += check_meta_ci_source_controls()
+        validate_changed_paths(set(STAGE_A))
+        rejected(
+            "fifteenth Stage-A report path",
+            lambda: validate_changed_paths(set(STAGE_A) | set(STAGE_B)),
+        )
+        rejected(
+            "unauthorized path",
+            lambda: validate_changed_paths(set(STAGE_A) | {"src/unauthorized.py"}),
+        )
+        rejected(
+            "mixed publication delta",
+            lambda: validate_changed_paths(
+                set(STAGE_A) | set(STAGE_B),
+                "docs(w04-c09): publish regression-hardening proof",
+                set(STAGE_B) | {STAGE_A[0]},
+            ),
+        )
+        controls += 3
+        controls += check_closeout_lifecycle_controls()
+        truths = check_workflow_truth((ROOT / ".github/workflows/ci.yml").read_bytes())
+        collection = verify_collection_and_scope()
+        print(
+            json.dumps(
+                {
+                    "gate_contract": "PASS",
+                    "c08_replay_source_delta_guard": "PASS",
+                    "c09_meta_ci_delta_guard": "PASS",
+                    "family_subprocess_isolation": "PASS",
+                    "verifier_self_source_delta_guard": "PASS",
+                    "closeout_lifecycle": collection["lifecycle"],
+                    "adversarial_controls": controls,
+                    "actual_shell_truth_cases": truths,
+                    "collection": collection,
+                },
+                sort_keys=True,
+            )
+        )
+    except (OSError, ValueError, AssertionError, subprocess.CalledProcessError) as error:
+        print(f"W04_C09_GATE_CONTRACT_FAILED: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,406 +1,112 @@
 # FlowLens Industrial AI — AGENTS.md
-> Week 3 Repository Agent Router / W03 仓库级 Agent 执行路由
+> W04 Final Repository Execution Router
 
-**Activation:** This file becomes authoritative when the W03-G0 governance package is human-approved and published to the repository.
+This router records the Human-authorized W04 Sprint Final Closeout / PR #7 Readiness boundary. It grants no additional implementation or merge authority.
 
-This file is intentionally concise. It is a persistent execution router, not the full Week 3 architecture specification.
-
----
-
-## 1. Current Phase
+## 1. Current phase
 
 ```text
-PROJECT:
-FlowLens Industrial AI
-
-PHASE:
-Week 3 — Industrial AI Decision Loop Foundation
-
-PRIMARY LOOP:
-Order Delivery Risk Decision Loop
-
-MODE:
-OFFLINE / SHADOW / HUMAN-IN-THE-LOOP
-
-CORE:
-DETERMINISTIC-FIRST
-
-OPERATIONAL MUTATION:
-PROHIBITED
-
-RUNTIME HGT:
-PROHIBITED
-
-W03 IMPLEMENTATION / EVIDENCE WORK:
-COMPLETE
-
-GPT C10 REVIEW:
-PASS FOR HUMAN W03-C10 BUSINESS ACCEPTANCE REVIEW
-
-HUMAN C10 ACCEPTANCE:
-ACCEPTED
-
-W03 FINAL CLOSEOUT:
-EFFECTIVE
-
-W03:
-CLOSED / VERIFIED / GITHUB SYNCHRONIZED
-
-C10:
-CLOSED
-
-GPT MERGE REVIEW:
-PASS FOR HUMAN W03 PR #6 MERGE AUTHORIZATION
-
-HUMAN MERGE AUTHORIZATION:
-APPROVED — W03 PR #6 MERGE AUTHORIZATION: APPROVED
-
-POST-W03 IMPLEMENTATION:
-NOT AUTHORIZED
-
-PR #6 MERGE:
-AUTHORIZED / PENDING PRE-MERGE FULL PROOF
-
-MERGE METHOD:
-GITHUB MERGE COMMIT ONLY
-
-FEATURE BRANCH:
-RETAINED
-
-NEXT:
-PR #6 MERGE COMMIT + POST-MERGE MAIN VERIFICATION
+PROJECT = FlowLens Industrial AI
+CURRENT_PHASE = W04 SPRINT FINAL CLOSEOUT / PR #7 READINESS
+PRIMARY_LOOP = Order Delivery Risk Decision Loop + Evidence-grounded Investigation
+MODE = OFFLINE / SHADOW / HUMAN-IN-THE-LOOP
+CORE = DETERMINISTIC-FIRST
+W01 / W02 = CLOSED / VERIFIED
+W03 = MERGED / CLOSED / VERIFIED
+W03_MAIN_BASE = af61bdfd5f7cf7961811c4c2dc8e554dd7eed509
+W04_C01_C10 = CLOSED / VERIFIED
+W04_C10 = CLOSED / VERIFIED / GITHUB_SYNCHRONIZED
+HUMAN_W04_SPRINT_ACCEPTANCE = ACCEPTED
+SPRINT_CLOSEOUT_PREP = COMPLETE / OWN-SHA CI #146 SUCCESS / attempt 1
+SPRINT_FINAL_CLOSEOUT = EFFECTIVE ONLY AFTER THIS COMMIT'S OWN NATIVE CI AND FOUR-HEAD SYNCHRONIZATION PASS
+PR7 = W04 INTEGRATION PR
+PR7_READINESS = AUTHORIZED AFTER SPRINT FINAL OWN-SHA PROOF
+PR7_MERGE = NOT AUTHORIZED
+POST-W04_IMPLEMENTATION = NOT AUTHORIZED
+W05 = NOT AUTHORIZED
+FLOWLENS_V1_0 = NOT RELEASED
+FEATURE_BRANCH = feat/w04-evidence-investigation / RETAINED
 ```
 
-Week 1 and Week 2 are closed baselines.
+The generated Sprint Final SHA/native run and actual PR Ready transition are recorded after proof in the final handoff and PR metadata. Pre-commit conditional fields are not permission to infer a successful run or a merge.
 
-Do not reopen or silently reinterpret accepted W1/W2 contracts, history, schema, hashing, scenario semantics, or HGT isolation.
+## 2. Repository source of truth and authority
 
----
+The Git repository is the source of truth. Read the current explicitly authorized task first. The active closeout contract is W04-SPRINT-FINAL-CLOSEOUT-PR7-READINESS-V1, continued by RESUME_FROM_PREP146_TASK_V1. Original Human authority is preserved in `docs/w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md`; a resume prompt does not replace it.
 
-## 2. Repository Source of Truth
+Apply this order within the frozen W1/W2/W3 architecture and safety invariants:
 
-The Git repository is the source of truth.
+1. Current authorized task contract and explicit Human authority, including its exact scope, hashes and stop conditions.
+2. Frozen upstream contracts: `docs/w03/AI_LOOP_CONSTITUTION.md`, `docs/sprints/W03_ai_decision_loop.md`, semantic trust, context/material, prompt/tool, loop state-machine, failure/degradation and harness/reporting contracts, plus frozen W1/W2 contracts.
+3. W04 checkpoint authorization/contracts and accepted Human decisions; `docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json` binds closed C01-C08 source identities. C09/C10 have no runtime source-evolution entry by design.
+4. W04 C10 final closeout records under `docs/w04/checkpoints/c10/`, including its independent review, Human acceptance, authorization, context lock and final report.
+5. `docs/w04/W04_GPT_INDEPENDENT_DEEP_REVIEW_R1.md`, the original Human sprint authority record and `docs/w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md`.
+6. `docs/w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md` and `docs/w04/W04_PR7_READINESS_REPORT.md`, interpreted with their own-SHA proof conditions.
+7. The current top projection of `docs/CURRENT_STATE.md` and README. Historical sections, reports and chat remain historical evidence.
 
-For W03 work, read the current authorized task contract first, then the following control documents as applicable:
+Lower-authority material cannot silently weaken an invariant or grant new checkpoint/merge authority. Project skills are procedural automation, not architectural truth; see `skills/SKILL_ADMISSION_POLICY.md`. No skill may change permissions, admit runtime HGT or self-approve review/acceptance/closeout.
 
-```text
-docs/w03/AI_LOOP_CONSTITUTION.md
-docs/sprints/W03_ai_decision_loop.md
-docs/w03/SEMANTIC_TRUST_CONTRACT.md
-docs/w03/CONTEXT_AND_MATERIAL_MANAGEMENT.md
-docs/w03/PROMPT_AND_TOOL_EXECUTION_CONTRACT.md
-docs/w03/LOOP_EXECUTION_STATE_MACHINE.md
-docs/w03/FAILURE_AND_DEGRADATION_POLICY.md
-docs/w03/AI_LOOP_HARNESS_AND_REPORTING_SPEC.md
-docs/context/CONTEXT_INDEX.md
-docs/context/MATERIAL_REGISTRY.md
-LOOP.md
-```
-
-Frozen W1/W2 upstream contracts remain authoritative unless an explicitly authorized W03 architecture decision changes them.
-
-Repository control documents outrank chat history.
-
----
-
-## 3. Authority Hierarchy
-
-```text
-1. Current authorized task contract
-2. AI_LOOP_CONSTITUTION.md
-3. W03_ai_decision_loop.md
-4. SEMANTIC_TRUST_CONTRACT.md
-5. CONTEXT_AND_MATERIAL_MANAGEMENT.md
-6. PROMPT_AND_TOOL_EXECUTION_CONTRACT.md
-7. LOOP_EXECUTION_STATE_MACHINE.md
-8. FAILURE_AND_DEGRADATION_POLICY.md
-9. AI_LOOP_HARNESS_AND_REPORTING_SPEC.md
-10. Frozen W1/W2 contracts
-11. CURRENT_STATE.md
-12. Most recent closed W03 Round Report
-13. Historical reports / chat
-```
-
-A lower-authority source may narrow a task but may not silently weaken a higher-authority invariant.
-
----
-
-## 4. W03 Frozen Invariants
-
-Always preserve:
+## 3. Frozen rules
 
 ```text
 CONTRACT FIRST
 ONE CHECKPOINT AT A TIME
-
-DEVELOPMENT CONTEXT != RUNTIME CONTEXT
 CONTEXT LOCK BEFORE IMPLEMENTATION
-
+DEVELOPMENT CONTEXT != RUNTIME CONTEXT
 SNAPSHOT BEFORE REASONING
 ONE RUN = ONE IMMUTABLE SNAPSHOT
-
 EVIDENCE BEFORE CLAIM
 ASSOCIATION != CAUSALITY
 UNKNOWN IS VALID
-
-TOOLS DENY BY DEFAULT
-MODEL EXPLAINS, SYSTEM DECIDES
-
-NO RUNTIME HGT
 NO FUTURE LEAKAGE
+NO RUNTIME HGT
+HUMAN AUTHORITY
+MODEL EXPLAINS, SYSTEM DECIDES
+LLM PRESENTATION AUTHORITY ONLY / BOUNDED PRESENTATION
 NO OPERATIONAL MUTATION
-
-HUMAN DECISION AUTHORITY
-
+TOOLS DENY BY DEFAULT
+FAIL CLOSED
 HARNESS = DETECTION + ENFORCEMENT + EVIDENCE
-
 REPORT BEFORE REVIEW
 REVIEW BEFORE ACCEPTANCE
 ACCEPTANCE BEFORE CLOSEOUT
-NO CHECKPOINT AUTO-ADVANCE
+NO AUTO-ADVANCE
 ```
 
----
+Human notes are HUMAN_NOTE_NON_EVIDENCE. Findings are not causal truth; review events are not operational authorization. Replay does not refresh evidence. Technical readiness does not substitute for Human business acceptance.
 
-## 5. W1/W2 Baseline Protection
+## 4. Runtime and LLM boundary
 
-Do not silently change:
+The accepted runtime may read authorized operational facts through bounded builders, freeze decision-time snapshots, derive deterministic evidence/signals, simulate isolated counterfactuals, freeze recommendations, explain frozen DecisionPackets, bind/plan/navigate/review/summarize investigations, record bounded append-only audit events and perform protected offline evaluation/replay.
 
-```text
-W2 operational schema
-Alembic migration semantics
-canonical dataset hash semantics
-deterministic generator semantics
-Supplier scenario semantics
-Quality scenario semantics
-Capacity scenario semantics
-HGT identity/isolation
-accepted Week 2 historical evidence
-```
+It may not write operational truth or SO / WO / PO / Delivery, schedule production, procure, replace suppliers, release quality, use future evidence, read runtime HGT, invent intervention candidates or declare unsupported causal truth.
 
-If implementation appears to require one of these changes:
+The LLM has bounded explanation/presentation authority only. It has no candidate, recommendation, decision, tool-execution, database, HGT or operational-write authority. Recommendation and deterministic investigation authority are frozen before presentation. Provider failure or unsafe output fails closed to the accepted deterministic fallback.
 
-```text
-STOP
-REPORT CONTRACT CONFLICT
-WAIT FOR AUTHORIZATION
-```
+## 5. Baseline and current-task freeze
 
----
+Do not reopen W01/W02/W03 or C01-C10. Preserve operational schema, Alembic semantics, canonical dataset hashes, deterministic generator semantics, Supplier/Quality/Capacity scenario semantics, HGT identity/isolation and accepted historical evidence.
 
-## 6. Runtime AI Boundary
+For this Sprint Final task, only the exact eight documentation paths in `W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md` may change. Preserve all src, tests, workflows, scripts/ci, dependencies/lock, migrations/schema, source-evolution manifest, C01-C10 evidence, C10 closeout files and .gitattributes. The successful Prep verifier is frozen. Do not create another Prep or rerun #146 as substitute proof.
 
-W03 v0 Runtime AI may:
+A contract conflict, semantic/product decision, protected baseline change, possible live secret/private key, HGT/future leakage, operational mutation or unauthorized action requires STOP and a separate GPT/Human decision. Under the current task, a failed candidate or native gate also requires STOP; no automatic repair, replacement Final or rerun-as-proof is authorized.
 
-```text
-READ authorized operational facts through bounded builders
-BUILD decision-time snapshots
-DERIVE deterministic evidence/signals
-SIMULATE isolated counterfactuals
-RECOMMEND for human review
-EXPLAIN frozen DecisionPackets
-RECORD HumanDecisionEvent
-EVALUATE offline in the protected evaluation plane
-```
-
-W03 v0 Runtime AI may not:
-
-```text
-write operational truth
-modify SO / WO / PO / Delivery
-schedule production automatically
-procure automatically
-replace suppliers automatically
-release quality automatically
-read runtime HGT
-use future evidence
-invent intervention candidates
-invent causal truth
-```
-
----
-
-## 7. LLM Boundary
-
-For W03 v0:
-
-```text
-LLM ROLE:
-EXPLAINER ONLY
-
-LLM TOOL ACCESS:
-NONE
-
-LLM DATABASE ACCESS:
-NONE
-
-LLM HGT ACCESS:
-NONE
-
-LLM CANDIDATE AUTHORITY:
-NONE
-
-LLM RECOMMENDATION AUTHORITY:
-NONE
-
-LLM OPERATIONAL WRITE:
-NONE
-```
-
-Recommendation must be frozen before LLM explanation.
-
----
-
-## 8. Codex Development Workflow
-
-For each implementation checkpoint:
-
-```text
-AUTHORIZED TASK CONTRACT
-↓
-PRE-FLIGHT / BASELINE CHECK
-↓
-CONTEXT LOCK
-↓
-IMPLEMENT ONLY AUTHORIZED SCOPE
-↓
-FOCUSED TESTS
-↓
-AUTO-REPAIR TYPE-A IMPLEMENTATION FAILURES ONLY
-↓
-INTEGRATION / REGRESSION
-↓
-SEMANTIC + SAFETY HARNESS
-↓
-IMPLEMENTATION COMMIT
-↓
-NORMAL PUSH
-↓
-EXACT-SHA CI
-↓
-DEVELOPMENT ROUND REPORT
-↓
-STOP AT REVIEW_READY
-```
-
-Codex must not self-authorize the next checkpoint.
-
----
-
-## 9. Failure Handling
-
-### AUTO-REPAIR ALLOWED
-
-```text
-ordinary implementation bug
-typing error
-serialization defect
-test defect
-bounded CI/config defect
-```
-
-### STOP / ESCALATE
-
-```text
-contract conflict
-semantic/product decision
-schema/migration change requirement
-canonical hash change requirement
-scenario semantic change requirement
-new dependency outside authorization
-```
-
-### IMMEDIATE ABORT
-
-```text
-HGT runtime leakage
-future leakage
-operational mutation
-protected material exposure
-unauthorized tool/action
-```
-
----
-
-## 10. Git Rules
-
-Unless the current task explicitly authorizes otherwise:
+## 6. Git, verification and completion
 
 ```text
 NO DIRECT MAIN WRITE
 NO FORCE PUSH
 NO HISTORY REWRITE
-NO W2 BRANCH REUSE FOR W3
+NO AMEND / REBASE / DESTRUCTIVE RESET
+NO MERGE / AUTO-MERGE / MERGE QUEUE
+NO FEATURE-BRANCH DELETION
 NO CHECKPOINT AUTO-ADVANCE
 ```
 
-W03 implementation branch:
+The existing Prep is `c8b29cbcffe1886412de4a31b75905f6397043fb`, native #146 / 38735686969, C / FULL_EXACT_SHA, attempt 1 SUCCESS. Final must be its single-parent child with subject `docs(w04): close sprint and prepare PR #7 review`, exactly three modified and five added authorized paths, and committed-head `W04_SPRINT_FINAL_CLOSEOUT`.
 
-```text
-feat/w03-ai-decision-loop
-```
+Require a disposable full-history LF candidate, exact frozen bytes/scope, Ruff, strict mypy, whitespace/security proof and unchanged source evolution before primary application. Apply only proven bytes, create one normal Final commit and push once. Its own attempt-1 UNKNOWN / FULL_EXACT_SHA run must prove 2997/2994/3 with zero adverse outcomes, no-loss/exact-union/exact-once, Integration 70, W03 38/85, W04 9/67/81 and every shard job/pytest <3300s. Classifier, topology, weights and timeouts remain frozen.
 
-may be created only after G0 Human Approval and repository publication authorization.
+After native success, require clean local/tracking/direct-origin/PR heads equal to Final, 0/0 and unchanged main/base. Only then update PR #7 title/body and Draft -> Ready. Keep it OPEN / UNMERGED, auto-merge absent/disabled and the feature branch retained.
 
----
-
-## 11. Skills Policy
-
-Project-local `skills/` content is procedural automation, not architectural truth.
-
-Rules:
-
-```text
-NO SKILL MAY OVERRIDE A CONTRACT
-NO SKILL MAY CHANGE TOOL PERMISSIONS
-NO SKILL MAY READ RUNTIME HGT
-NO SKILL MAY AUTHORIZE A CHECKPOINT
-NO SKILL MAY SELF-APPROVE REVIEW/CLOSEOUT
-```
-
-During G0:
-
-```text
-NO EXECUTABLE PROJECT SKILL IS REQUIRED
-```
-
-Skill candidates may be evaluated after repeated C01/C02 workflows demonstrate stable repetition.
-
-See:
-
-```text
-skills/README.md
-skills/SKILL_ADMISSION_POLICY.md
-```
-
----
-
-## 12. Completion Boundary
-
-Codex final implementation-round status is at most:
-
-```text
-IMPLEMENTATION: COMPLETE
-HARNESS: PASS
-CI: PASS
-CHATGPT REVIEW: PENDING
-HUMAN ACCEPTANCE: PENDING
-CHECKPOINT CLOSED: NO
-STATUS: REVIEW_READY
-```
-
-A task is not closed until independent GPT review and Human acceptance are recorded.
-
----
-
-## 13. When in Doubt
-
-```text
-DO NOT GUESS THE CONTRACT
-DO NOT REPAIR SEMANTICS SILENTLY
-DO NOT EXPAND SCOPE
-
-STOP
-SURFACE THE CONFLICT
-ASK FOR ARCHITECTURE / PRODUCT DECISION
-```
+Stop at W04_SPRINT_FINAL_CLOSEOUT_COMPLETE + PR #7 READY FOR HUMAN MERGE REVIEW. PR merge requires a separate independent GPT merge review and explicit Human authorization. POST-W04 IMPLEMENTATION and W05 remain NOT AUTHORIZED.

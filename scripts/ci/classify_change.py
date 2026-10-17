@@ -1,4 +1,4 @@
-"""Classify the exact source-head delta for the W03 development proof gate.
+"""Classify the exact source-head delta for the W03/W04 development proof gate.
 
 Only a verified pull_request/synchronize before/after boundary can use the
 publication path. Every other event or ambiguous boundary selects full proof.
@@ -16,6 +16,10 @@ from typing import Any, TypeGuard
 FULL = "FULL_EXACT_SHA"
 PUBLICATION = "PUBLICATION_EXACT_SHA"
 SHA = re.compile(r"[0-9a-fA-F]{40}\Z")
+W04_PUBLICATION_BASENAME = re.compile(
+    r".+_(?:R_DEVELOPMENT_ROUND_REPORT|GPT_INDEPENDENT(?:_DEEP)?_REVIEW_R[0-9]+"
+    r"|FINAL_CLOSEOUT_REPORT)\.md"
+)
 CONTROL_TESTS = {
     "tests/test_ci_change_classifier.py",
     "tests/test_ci_publication_gate.py",
@@ -39,6 +43,12 @@ def valid_sha(value: object) -> TypeGuard[str]:
 def is_publication_path(path: str) -> bool:
     return path == "docs/CURRENT_STATE.md" or (
         path.startswith("docs/w03/reports/") and len(path) > len("docs/w03/reports/")
+    ) or (
+        path.startswith("docs/w04/")
+        and "\\" not in path
+        and "\x00" not in path
+        and not any(part in {"", ".", ".."} for part in path.split("/"))
+        and W04_PUBLICATION_BASENAME.fullmatch(PurePosixPath(path).name) is not None
     )
 
 
@@ -53,6 +63,10 @@ def classify_path(path: str) -> str:
     ):
         return "UNKNOWN"
     name = PurePosixPath(path).name
+    if path.startswith("docs/w04/"):
+        return "P" if is_publication_path(path) else "C"
+    if path.startswith("src/flowlens/investigation/"):
+        return "I"
     if path.startswith("migrations/") or name in FOUNDATION_NAMES or name.startswith("Dockerfile"):
         return "F"
     if is_publication_path(path):
