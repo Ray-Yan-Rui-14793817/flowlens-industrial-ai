@@ -1,7 +1,7 @@
 # FlowLens Industrial AI — AGENTS.md
 > Post-W04 Stabilization Repository Execution Router
 
-This router records the bounded Human-authorized POST_W04_P2_03_STABILIZATION_R1
+This router records the bounded Human-authorized POST_W04_P2_03_STABILIZATION_RECOVERY_R2
 scope. W04 integration is complete. This task grants no stabilization PR merge,
 W05 implementation or FlowLens v1.0 release authority.
 
@@ -9,7 +9,7 @@ W05 implementation or FlowLens v1.0 release authority.
 
 ~~~text
 PROJECT = FlowLens Industrial AI
-CURRENT_PHASE = POST-W04 STABILIZATION / P2-03 GOVERNANCE HARDENING
+CURRENT_PHASE = POST-W04 STABILIZATION / P2-03 R2 RECOVERY
 PRIMARY_LOOP = Order Delivery Risk Decision Loop + Evidence-grounded Investigation
 MODE = OFFLINE / SHADOW / HUMAN-IN-THE-LOOP
 CORE = DETERMINISTIC-FIRST
@@ -26,7 +26,14 @@ PR7_POST_MERGE_CI = #149 / 39008095313 / attempt 1 / SUCCESS
 PR7_POST_MERGE_ROUTE = UNKNOWN / FULL_EXACT_SHA
 P2_01 = ACCEPTED_LIMITATION / RESOLVED THREAD
 P2_02 = ACCEPTED_LIMITATION / RESOLVED THREAD
-P2_03 = HARDENING PRESENT IN CURRENT TREE
+P2_03 = R1 HARDENING PRESERVED / R2 REPAIR IN CURRENT TREE
+PR8 = OPEN / READY / UNMERGED
+R1_HARDENING_SHA = e2606585829153a2f69c9628c916cf42dcc1b926
+R1_DOC_SYNC_SHA = ca2506115b282d9569c3f7c35da266927a39520f
+CI150 = #150 / 39017960719 / attempt 1 / FAILURE
+CI150_FAILURE = stale C09 publication-verifier historical freeze / nonintegration shard 5
+R2_P1_TOPOLOGY_FINDING = OPEN / repair in current R2 tree
+R2_REPAIR = separately Human-authorized recovery / native proof pending
 P2_03_CLOSURE = REQUIRES STABILIZATION PR PROOF AND LATER MERGE / POST-MERGE PROOF
 STABILIZATION_BRANCH = fix/post-w04-p2-03-stabilization / RETAINED
 STABILIZATION_PR_MERGE = NOT AUTHORIZED
@@ -46,9 +53,14 @@ review thread does not itself establish completion of this stabilization.
 
 The Git repository is the source of truth. Read the current explicitly authorized
 task and active Human request first. The active task is
-POST_W04_P2_03_STABILIZATION_R1, based on exact main
-b2b582541d38180c3bf8360699e6df271979829a. Its exact two-commit scope supersedes
-the historical Sprint Final documentation-only scope for this task alone.
+POST_W04_P2_03_STABILIZATION_RECOVERY_R2, based on exact main
+b2b582541d38180c3bf8360699e6df271979829a and entry PR #8 head
+ca2506115b282d9569c3f7c35da266927a39520f. NEW separate Human authorization
+supersedes R1's "no repair after push" stop boundary solely for this exact recovery.
+R1 CI #150 remains attempt-1 FAILURE; R2 does not retroactively change its evidence.
+The known P1 thread PRRT_kwDOT4LAIc6teu85 remains unresolved pending independent
+review. This authorization permits one evidence reply after native success,
+but grants no thread-resolution or merge authority.
 Original W04 Human authority remains preserved in
 docs/w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md; historical closeout,
 readiness and review records remain immutable.
@@ -120,75 +132,78 @@ semantics, canonical dataset hashes, deterministic generator semantics,
 Supplier/Quality/Capacity scenario semantics, HGT identity/isolation and accepted
 historical evidence.
 
-Only the following two single-parent commits are authorized above exact entry
-main b2b582541d38180c3bf8360699e6df271979829a:
+Preserve the exact two immutable R1 commits above main:
+e2606585829153a2f69c9628c916cf42dcc1b926 (five-file hardening) followed by
+ca2506115b282d9569c3f7c35da266927a39520f (three-document synchronization).
 
-1. Subject: ci(post-w04): harden publication deletion governance. Parent: exact
-   entry main. Exactly five modified paths: scripts/ci/classify_change.py;
-   scripts/ci/verify_publication.py;
-   scripts/ci/verify_w04_investigation_gate_contract.py;
-   tests/test_ci_change_classifier.py; tests/test_ci_publication_gate.py.
-2. Subject: docs: synchronize W04 merged state. Parent: the validated hardening
-   commit. Exactly three modified paths: README.md; AGENTS.md;
-   docs/CURRENT_STATE.md.
+R2 authorizes exactly one single-parent child of ca250611, subject
+ci(post-w04): repair stabilization proof closure, with exactly four M paths:
+scripts/ci/verify_w04_investigation_gate_contract.py;
+tests/test_c09_ci_gate.py; AGENTS.md; docs/CURRENT_STATE.md.
 
-Classifier/publication changes admit only verified synchronize publication A/M
-status to light proof; all non-A/M publication deltas route full and missing
-head content is rejected. W04 governance first validates the historical source
-chain, admits the exact five-file hardening child and freezes those five blobs
-for descendants. The test-source evolution is limited to the four task-named
-existing function bodies; names, signatures, decorators, parameter lists and
-all other top-level source spans remain fixed. No new pytest node is authorized.
+The sole C09 test-body evolution is
+test_classifier_publication_and_runtime_frozen_materials_unchanged. Keep its
+name/signature/decorators, pyproject/lock/Compose historical freezes,
+migrations/apps no-drift and source-evolution proof. Pin publication verifier
+to exact e260. Classifier, publication verifier and their two R1 test files
+remain byte-identical to e260.
 
-Preserve all runtime src, dependencies/lock, migrations/schema, workflow,
-W03/W04 runners, W04 gate manifest, source-evolution manifest, C01-C10 evidence,
-historical closeout files, dataset and .gitattributes. No broad protected-path
-exemption is permitted.
+Validate the entire ordered post-base history: exact hardening, optionally exact
+ca250 documentation child, optionally the single exact R2 repair child. Reject
+every other descendant, wrong metadata or non-M path status. Preserve the
+historical verifier-source chain, original 93 P2 controls and frozen test nodes.
+After R2, freeze the four repair paths to its validated committed revision.
+
+Preserve runtime src, dependencies/lock, migrations/schema, workflow, W03/W04
+runners, gate/source-evolution manifests, C01-C10 evidence, historical closeout
+files, dataset, README and .gitattributes. No broad source exemption is authorized.
 
 A contract conflict, semantic/product decision, extra tracked path, possible live
 secret/private key, HGT/future leakage, operational mutation or unauthorized
-action requires STOP and a separate GPT/Human decision. Local candidates may be
-iterated only before their required freeze. After push, native failure or a new
-P0/P1 finding requires STOP; no automatic repair, rerun-as-proof or scope expansion.
+action requires STOP and a separate GPT/Human decision. Local R2 candidates may
+be rebuilt before freeze/push. After push, failed native proof or a NEW P0/P1
+finding requires STOP; no automatic further repair or rerun-as-proof.
 
 ## 6. Git, verification and completion
 
 ~~~text
 NO DIRECT MAIN WRITE
 NO FORCE PUSH
-NO DESTRUCTIVE RESET OF HUMAN WORK
-NO AMEND / REBASE AFTER FREEZE
+NO R1 HISTORY REWRITE
+NO AMEND / REBASE AFTER R2 FREEZE
 NO STABILIZATION PR MERGE / AUTO-MERGE / MERGE QUEUE
+NO P1 THREAD RESOLUTION
 NO FEATURE-BRANCH DELETION
 NO CHECKPOINT AUTO-ADVANCE
 ~~~
 
-Use a new clean full-history LF clone/worktree rooted at exact entry main and the
-required stabilization branch. Preserve the retained W04 feature branch. Require
-focused classifier/publication tests, Ruff, strict mypy, lock consistency,
-whitespace/scope checks, full W04 governance, W04 9/67/81 semantic proof and the
-frozen 2997-node / 63-file / 7-shard plan at the required commit boundaries.
-Freeze the hardening SHA after Commit-1 proof, then freeze the final SHA after
-Commit-2 proof. The final history contains exactly those two commits.
+Resume the clean full-history LF stabilization workspace at ca250611. Preserve
+the retained W04 branch. Require the formerly failing C09 selector, all three
+focused governance test files, Ruff, strict mypy, lock consistency, diff/scope
+checks, full committed-head W04 governance, original 93 plus deterministic R2
+controls and frozen W04 9/67/81 semantic proof.
 
-The frozen node digest is
-9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a;
-the frozen weights digest is
+The collection remains 2997 nodes / 63 files / 7 shards. Node digest:
+9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a.
+Weights digest:
 a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851.
-Classifier/publication source guards evolve only within this authorized task;
-workflow topology, weights, timeouts and semantic manifests remain fixed.
+Workflow topology, weights, timeouts and semantic manifests remain fixed.
 
-After complete local proof, push once normally and create one Ready PR to main.
-Its first exact final-head pull_request/opened run must be attempt 1,
-UNKNOWN / FULL_EXACT_SHA and SUCCESS: all mandatory jobs, 2997/2994/3 with zero
-failed/error/xfail/xpass, no-loss / exact union / exact once, Integration 70,
-W03 38/85, W04 9/67/81, and the exact hardening SHA plus actual P2-03 control
-count. An earlier green SHA or a rerun cannot substitute for this proof.
+Freeze the repair SHA after complete local proof. Push the one exact child once
+normally to existing PR #8. Its FIRST exact repair-head pull_request/synchronize
+run must be attempt 1, I / FULL_EXACT_SHA, SUCCESS; Publication proof SKIPPED.
+Require all mandatory jobs, 2997/2994/3 with zero adverse outcomes, entry no-loss /
+exact union / exact once, Integration 70, W03 38/85, W04 9/67/81, original
+93 P2 controls/e260 and new R2 controls/exact repair SHA. Do not rerun CI #150
+or substitute a rerun of a failed repair-head run.
 
-Finally require unchanged main at b2b582541d38180c3bf8360699e6df271979829a,
-clean synchronized local/tracking/direct-origin/PR final heads, branch retained,
+Only after native success, synchronize PR metadata preserving #150 failure and
+reply once with evidence to the known P1 thread. Leave it unresolved for NEW
+independent review. Require clean synchronized local/tracking/direct-origin/PR
+heads, unchanged main b2b582541d38180c3bf8360699e6df271979829a, retained branches
 and PR OPEN / READY / UNMERGED with auto-merge absent. Package evidence outside
-the repository. Stop at implemented/proven awaiting independent review. Any
-stabilization merge requires new explicit Human authorization. W05 additionally
-requires completed stabilization proof/merge and separate explicit authorization;
-FlowLens v1.0 remains NOT RELEASED.
+the repository and stop at repaired/proven awaiting independent review.
+
+Stabilization merge requires new explicit Human authorization. W05 requires
+completed stabilization proof/merge and separate authorization. FlowLens v1.0
+remains NOT RELEASED.

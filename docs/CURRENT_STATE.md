@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-10-17 (Asia/Shanghai)
 
-**Sprint / Current Project Phase:** POST-W04 STABILIZATION / P2-03 GOVERNANCE HARDENING
+**Sprint / Current Project Phase:** POST-W04 STABILIZATION / P2-03 R2 RECOVERY
 
 **Product mode:** OFFLINE / SHADOW / HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST / NO OPERATIONAL MUTATION
 
@@ -24,7 +24,15 @@
 
 **P2-03:** Accepted for PR #7 merge with post-merge repair required before W05; resolved review thread. Hardening is present in this tree: only publication A/M synchronize deltas retain light proof; deletion/type-change/rename/mixed add-delete route UNKNOWN / FULL_EXACT_SHA; missing head publication content fails closed even under a classifier-regression control. W04 historical source guards remain active and the validated hardening blobs become the protected descendant baseline. Closure requires stabilization PR proof and later merge/post-merge proof.
 
-**Active bounded task:** POST_W04_P2_03_STABILIZATION_R1 on fix/post-w04-p2-03-stabilization. Exactly one five-file hardening commit directly on the merge baseline, followed by one three-document synchronization commit. Local proof, the first final-SHA native run and fresh PR metadata are recorded in the external handoff after they exist; this projection does not predeclare their outcomes. Stabilization PR merge is NOT AUTHORIZED by this task.
+**PR #8:** OPEN / READY / UNMERGED; merge NOT AUTHORIZED. Pre-R2 head ca2506115b282d9569c3f7c35da266927a39520f; exact R1 hardening e2606585829153a2f69c9628c916cf42dcc1b926 and docs synchronization remain immutable.
+
+**First R1 native CI:** [#150 / 39017960719](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/39017960719), attempt 1 FAILURE, UNKNOWN / FULL_EXACT_SHA. Non-integration shard 5: 687 collected / 686 passed / 1 failed at tests/test_c09_ci_gate.py::test_classifier_publication_and_runtime_frozen_materials_unchanged. Its publication-verifier assertion still used the historical gate.ENTRY instead of the accepted e260 hardening. #150 is historical failure and will not be rerun.
+
+**Important partial #150 proof:** Static and plan PASS; Integration 70 PASS; W03 38/85 PASS; W04 9/67/81 PASS; lifecycle W04_POST_MERGE_INTEGRATED; original 172 adversarial controls and 223 shell cases; P2-03 original 93 controls/e260 PASS. These partial results do not constitute complete R1 native proof.
+
+**Known P1 review finding:** PRRT_kwDOT4LAIc6teu85, unresolved. The R1 history validator accepted unrelated descendants by scanning only for the hardening anchor. R2 implements strict complete ordered history validation in the current tree; independent review is required before resolution.
+
+**Active bounded task:** POST_W04_P2_03_STABILIZATION_RECOVERY_R2, a NEW separately Human-authorized recovery after R1's stop condition. It authorizes one four-path repair child of ca250611, one normal push, metadata update and one evidence reply after native success. It does not retroactively convert #150 into success. The stale C09 assertion evolves only within its existing function body; historical pyproject/lock/Compose and runtime freezes remain. The new native R2 proof is pending; P2-03 is not fully closed.
 
 **Source and collection freeze:** Runtime, dependencies/lock, workflow, W03/W04 runners and semantic manifests unchanged. W04 source-evolution raw SHA-256 d22a12306f8fe98952b9e35a5f166f29fee968c9aedcff27511da59889c20c2d; C01-C08 remain CLOSED. C09/C10 have no runtime source-evolution entry. Non-integration collection remains 2997 nodes / 63 files / 7 shards; node digest 9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a; weights digest a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851.
 
@@ -40,7 +48,7 @@
 
 **FlowLens v1.0:** NOT RELEASED.
 
-**Next authorized action:** Complete the stabilization's required local proof, push its exact two commits once, create one Ready PR, reconstruct its first exact final-SHA native proof and stop awaiting independent review. A later merge requires new Human authorization and later post-merge proof before P2-03 closure.
+**Next authorized action:** Complete R2 local proof, freeze/push its sole four-path repair child once, reconstruct the first exact repair-head native attempt-1 I / FULL_EXACT_SHA proof, update PR #8 evidence and reply to the known P1 thread while leaving it unresolved. Stop for NEW independent review. A later merge requires new Human authorization and post-merge proof before P2-03 closure.
 
 ---
 
