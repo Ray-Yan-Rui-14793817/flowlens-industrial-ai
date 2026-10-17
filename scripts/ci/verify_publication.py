@@ -49,7 +49,7 @@ def verify_publication(
     for path in paths:
         tree_entry = git(repo, "ls-tree", "-z", head, "--", path)
         if not tree_entry:
-            continue  # A deleted publication document has no head content to scan.
+            raise ValueError(f"missing publication file at verified head: {path}")
         entries = tree_entry.rstrip(b"\x00").split(b"\x00")
         if len(entries) != 1 or not entries[0].endswith(b"\t" + path.encode("utf-8")):
             raise ValueError(f"ambiguous tree entry: {path}")

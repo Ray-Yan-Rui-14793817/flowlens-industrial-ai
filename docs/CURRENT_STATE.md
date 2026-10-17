@@ -1,50 +1,58 @@
 # FlowLens Industrial AI — Current State / 当前状态
 
-**Last Updated:** 2026-10-16 (Asia/Shanghai)
+**Last Updated:** 2026-10-17 (Asia/Shanghai)
 
-**Sprint / Current Project Phase:** W04 SPRINT FINAL CLOSEOUT / PR #7 READINESS
+**Sprint / Current Project Phase:** POST-W04 STABILIZATION / P2-03 R2 RECOVERY
 
 **Product mode:** OFFLINE / SHADOW / HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST / NO OPERATIONAL MUTATION
 
-**W01 / W02:** CLOSED / VERIFIED; frozen schema, hashing, generator/scenario semantics and HGT isolation retained.
+**W01 / W02:** CLOSED / VERIFIED; frozen schema, hashes, generator/scenario semantics and HGT isolation retained.
 
-**W03:** MERGED / CLOSED / VERIFIED via PR #6; main/base `af61bdfd5f7cf7961811c4c2dc8e554dd7eed509`; post-merge exact-SHA CI #86 / 37261505402 PASS.
+**W03:** MERGED / CLOSED / VERIFIED via PR #6; historical main/base af61bdfd5f7cf7961811c4c2dc8e554dd7eed509; post-merge exact-SHA CI #86 / 37261505402 PASS.
 
-**W04 C01-C10:** CLOSED / VERIFIED. C07 summary, C08 protected replay, C09 semantic/meta-CI hardening and C10 Human business acceptance are complete within the accepted offline/shadow scope.
+**W04:** MERGED / CLOSED / VERIFIED. C01-C10 implementation, independent review, Human acceptance and closeout are complete within the accepted offline/shadow scope.
 
-**W04 C10:** CLOSED / VERIFIED / GITHUB_SYNCHRONIZED at `232bfb390babce30417b8cdb9a6660663eb3c3f1`; native CI #145 / 38709171796, C / FULL_EXACT_SHA, attempt 1 SUCCESS. Its checkpoint/closeout records remain immutable.
+**PR #7:** CLOSED / MERGED at b2b582541d38180c3bf8360699e6df271979829a. Its separately authorized merge used a merge commit; feat/w04-evidence-investigation is retained at ecd591fb00d00e8b84a5546cabe9dcd5ec5aec5c.
 
-**Independent W04 Sprint Review:** PASS; supplied review raw SHA-256 `061fc3f41659499fc7e1069345abe7b1d0feeab65504eb79e48b6a929665de59`; Human Sprint acceptance ACCEPTED; Sprint closeout and PR readiness authorizations APPROVED.
+**Main post-merge CI:** [#149 / 39008095313](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/39008095313), attempt 1 SUCCESS at the exact merge SHA; UNKNOWN / FULL_EXACT_SHA. All mandatory jobs SUCCESS; Publication proof SKIPPED.
 
-**Original Human authority:** Preserved in [W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md](w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md), original raw SHA-256 `e165fa2945ce0cf0c8fc230cb5faf5f65d7ce3021af8817bd0830168a61a3f5d`. The resume request continues that authority without replacing it.
+**Reconstructed native merge proof:** 2997 selected / 2994 passed / 3 accepted Linux skips; failed/error/xfail/xpass = 0. Entry no-loss, exact union and exact once PASS. Integration 70; W03 38 selectors / 85 cases; W04 9 families / 67 selectors / 81 cases PASS. W04 lifecycle W04_PR7_MERGED_MAIN; frozen node/weights identities preserved.
 
-**Sprint Closeout Prep:** COMPLETE at `c8b29cbcffe1886412de4a31b75905f6397043fb`; native CI #146 / 38735686969, C / FULL_EXACT_SHA, attempt 1 SUCCESS; lifecycle W04_SPRINT_CLOSEOUT_PREP_01. No second Prep, verifier change, Prep push or #146 rerun is authorized.
+**P2-01:** ACCEPTED_LIMITATION / resolved thread. Missing actual-start evidence remains an accepted PR #7 limitation; this task does not change runtime interpretation.
 
-**Reconstructed Prep proof:** 2997 selected / 2994 passed / 3 accepted Linux skipped; zero failed/error/xfail/xpass; entry no-loss, exact union and exact once PASS. Integration 70; W03 38 selectors / 85 cases; W04 9 families / 67 selectors / 81 cases PASS. All shard job and pytest durations <3300s; source evolution and exact identities preserved.
+**P2-02:** ACCEPTED_LIMITATION / resolved thread. Parent-directory fsync remains an accepted PR #7 limitation; this task does not change audit persistence.
 
-**W04 Sprint Final Closeout:** Effective only after this documentation commit's own attempt-1 UNKNOWN / FULL_EXACT_SHA native CI succeeds and fresh four-head synchronization passes. Its future Final SHA/run are not yet generated in this pre-commit projection; actual identities and completion belong in the post-CI handoff and PR body.
+**P2-03:** Accepted for PR #7 merge with post-merge repair required before W05; resolved review thread. Hardening is present in this tree: only publication A/M synchronize deltas retain light proof; deletion/type-change/rename/mixed add-delete route UNKNOWN / FULL_EXACT_SHA; missing head publication content fails closed even under a classifier-regression control. W04 historical source guards remain active and the validated hardening blobs become the protected descendant baseline. Closure requires stabilization PR proof and later merge/post-merge proof.
 
-**PR #7:** W04 integration PR targeting main. Entry is OPEN / DRAFT / UNMERGED, mergeable TRUE. The exact title/body update and Draft -> Ready transition are post-Final-CI actions. Readiness does not grant merge authority.
+**PR #8:** OPEN / READY / UNMERGED; merge NOT AUTHORIZED. Pre-R2 head ca2506115b282d9569c3f7c35da266927a39520f; exact R1 hardening e2606585829153a2f69c9628c916cf42dcc1b926 and docs synchronization remain immutable.
 
-**Security readiness:** PASS / NO LIVE SECRET IDENTIFIED by the repeated read-only current-tree/reachable-history audit. Known local/test PostgreSQL fallback is DEVELOPMENT_TEST_DEFAULT / NON-EXTERNAL; synthetic sentinel/redaction fixtures are not live credentials. No secret-history rewrite or dependency addition occurred.
+**First R1 native CI:** [#150 / 39017960719](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/39017960719), attempt 1 FAILURE, UNKNOWN / FULL_EXACT_SHA. Non-integration shard 5: 687 collected / 686 passed / 1 failed at tests/test_c09_ci_gate.py::test_classifier_publication_and_runtime_frozen_materials_unchanged. Its publication-verifier assertion still used the historical gate.ENTRY instead of the accepted e260 hardening. #150 is historical failure and will not be rerun.
 
-**Source-evolution manifest:** Byte-identical at raw SHA-256 `d22a12306f8fe98952b9e35a5f166f29fee968c9aedcff27511da59889c20c2d`; C01-C08 source identities remain CLOSED. C09/C10 have no runtime source-evolution entry by design.
+**Important partial #150 proof:** Static and plan PASS; Integration 70 PASS; W03 38/85 PASS; W04 9/67/81 PASS; lifecycle W04_POST_MERGE_INTEGRATED; original 172 adversarial controls and 223 shell cases; P2-03 original 93 controls/e260 PASS. These partial results do not constitute complete R1 native proof.
 
-**Execution router / reports:** [AGENTS.md](../AGENTS.md), [Sprint context lock](w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md), [Sprint final report](w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md) and [PR #7 readiness report](w04/W04_PR7_READINESS_REPORT.md).
+**Known P1 review finding:** PRRT_kwDOT4LAIc6teu85, unresolved. The R1 history validator accepted unrelated descendants by scanning only for the hardening anchor. R2 implements strict complete ordered history validation in the current tree; independent review is required before resolution.
 
-**Deferred / non-blocking:** NB-C09-01; NB-C10-ENV-01; NB-W04-CI-01; NB-W04-GOV-01; NB-W04-PR-SIZE-01; NB-W04-CI-02. No repair is included here.
+**Active bounded task:** POST_W04_P2_03_STABILIZATION_RECOVERY_R2, a NEW separately Human-authorized recovery after R1's stop condition. It authorizes one four-path repair child of ca250611, one normal push, metadata update and one evidence reply after native success. It does not retroactively convert #150 into success. The stale C09 assertion evolves only within its existing function body; historical pyproject/lock/Compose and runtime freezes remain. The new native R2 proof is pending; P2-03 is not fully closed.
 
-**PR #7 merge / auto-merge / merge queue / branch deletion / main write:** NOT AUTHORIZED.
+**Source and collection freeze:** Runtime, dependencies/lock, workflow, W03/W04 runners and semantic manifests unchanged. W04 source-evolution raw SHA-256 d22a12306f8fe98952b9e35a5f166f29fee968c9aedcff27511da59889c20c2d; C01-C08 remain CLOSED. C09/C10 have no runtime source-evolution entry. Non-integration collection remains 2997 nodes / 63 files / 7 shards; node digest 9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a; weights digest a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851.
 
-**Post-W04 implementation / W05:** NOT AUTHORIZED.
+**Historical W04 proof identities:** C10 final 232bfb390babce30417b8cdb9a6660663eb3c3f1 / CI #145; Sprint Prep c8b29cbcffe1886412de4a31b75905f6397043fb / CI #146; Sprint Final 985f666e5ecfa5acd35565516e200c9b0e36c76b / CI #147; PR #7 governance repair ecd591fb00d00e8b84a5546cabe9dcd5ec5aec5c / CI #148. Historical reports retain their original conditional/pre-merge fields and are not current status.
+
+**Original W04 Human authority and immutable evidence:** [Human acceptance/authorization](w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md), [Sprint independent review](w04/W04_GPT_INDEPENDENT_DEEP_REVIEW_R1.md), [Sprint context lock](w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md), [Sprint final report](w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md), [PR #7 readiness report](w04/W04_PR7_READINESS_REPORT.md) and C01-C10 evidence remain preserved. The explicit current Human request authorizes only this bounded post-W04 stabilization.
+
+**Execution router:** [AGENTS.md](../AGENTS.md). No direct main write, force push, stabilization merge, auto-merge, merge queue, branch deletion, automatic checkpoint advance or scope expansion is authorized.
+
+**Other recorded non-blocking limitations:** NB-C09-01; NB-C10-ENV-01; NB-W04-CI-01; NB-W04-GOV-01; NB-W04-PR-SIZE-01; NB-W04-CI-02. Their dispositions remain in immutable checkpoint evidence.
+
+**W05:** NOT AUTHORIZED. Separate explicit Human authorization is required after stabilization proof and merge.
 
 **FlowLens v1.0:** NOT RELEASED.
 
-**Next authorized action:** Complete this commit's own native proof and synchronization; only then normalize PR #7 metadata and mark Ready for Human merge review. Stop after W04_SPRINT_FINAL_CLOSEOUT_COMPLETE + PR #7 READY FOR HUMAN MERGE REVIEW.
+**Next authorized action:** Complete R2 local proof, freeze/push its sole four-path repair child once, reconstruct the first exact repair-head native attempt-1 I / FULL_EXACT_SHA proof, update PR #8 evidence and reply to the known P1 thread while leaving it unresolved. Stop for NEW independent review. A later merge requires new Human authorization and post-merge proof before P2-03 closure.
 
 ---
 
-The numbered W01-W03 sections below are preserved historical snapshots. Their original phase labels, pre-merge projections and acceptance history are not current execution authority; the W04 projection above and the current authorized task govern this closeout.
+The numbered W01-W03 sections below are preserved historical snapshots. Their original phase labels, pre-merge projections and acceptance history are historical evidence; the post-W04 projection above and the current authorized task govern this stabilization.
 
 ## 1. 当前已冻结内容 / Frozen Control-State Decisions
 

@@ -206,6 +206,814 @@ W04_PR7_MERGE_SOURCE_ADDITIONS = (
 
 
 
+W04_POST_MERGE_BASE_SHA = "b2b582541d38180c3bf8360699e6df271979829a"
+
+W04_P2_03_HARDENING_SUBJECT = "ci(post-w04): harden publication deletion governance"
+
+W04_P2_03_HARDENING_PATHS = (
+    "scripts/ci/classify_change.py",
+    "scripts/ci/verify_publication.py",
+    "scripts/ci/verify_w04_investigation_gate_contract.py",
+    "tests/test_ci_change_classifier.py",
+    "tests/test_ci_publication_gate.py",
+)
+
+W04_P2_03_TEST_FUNCTIONS = {
+    "tests/test_ci_change_classifier.py": (
+        "test_w04_current_git_delta_routes_each_class",
+        "test_shadow_workflow_requires_equivalence_and_preserves_classification",
+    ),
+    "tests/test_ci_publication_gate.py": (
+        "test_report_and_state_pass_exact_publication_proof",
+        "test_w04_narrow_report_grammars_pass_exact_publication",
+    ),
+}
+
+W04_P2_03_CI_EDITS = {
+    "scripts/ci/classify_change.py": (
+        (
+            "\ndef changed_paths(",
+            "\n"
+            "def changed_entries(repo: Path, base: str, head: str) "
+            "-> list[tuple[str, str]]:\n"
+            '    """Read exact status/path pairs; malformed Git '
+            'output cannot grant light proof."""\n'
+            "    raw = subprocess.run(\n"
+            '        ["git", "diff", "--name-status", '
+            '"--no-renames", "-z", base, head, "--"],\n'
+            "        cwd=repo,\n"
+            "        check=True,\n"
+            "        capture_output=True,\n"
+            "    ).stdout\n"
+            "    if not raw:\n"
+            "        return []\n"
+            '    if not raw.endswith(b"\\x00"):\n'
+            '        raise ValueError("unterminated Git status/path '
+            'delta")\n'
+            '    fields = raw[:-1].split(b"\\x00")\n'
+            "    if len(fields) % 2:\n"
+            '        raise ValueError("malformed Git status/path '
+            'delta")\n'
+            "    entries = []\n"
+            "    for status_raw, path_raw in zip(fields[::2], "
+            "fields[1::2], strict=True):\n"
+            '        status = status_raw.decode("ascii", '
+            'errors="strict")\n'
+            '        path = path_raw.decode("utf-8", '
+            'errors="strict")\n'
+            '        if re.fullmatch(r"[ACDMRTUXB]", status) is None '
+            "or not path:\n"
+            '            raise ValueError("invalid Git status/path '
+            'entry")\n'
+            "        entries.append((status, path))\n"
+            "    if len({path for _, path in entries}) != "
+            "len(entries):\n"
+            '        raise ValueError("duplicate Git delta path")\n'
+            "    return sorted(entries, key=lambda entry: entry[1])\n"
+            "\n"
+            "\n"
+            "def changed_paths(",
+        ),
+        (
+            "        paths = changed_paths(repo, base, head)\n"
+            "        change_class = classify_paths(paths)\n",
+            "        entries = changed_entries(repo, base, head)\n"
+            "        paths = [path for _, path in entries]\n"
+            "        change_class = classify_paths(paths)\n"
+            '        if change_class == "P" and any(status not in '
+            '{"A", "M"} for status, _ in entries):\n'
+            '            return result("UNKNOWN", base, head, paths, '
+            '"publication_non_add_modify_delta")\n',
+        ),
+    ),
+    "scripts/ci/verify_publication.py": (
+        (
+            "        if not tree_entry:\n"
+            "            continue  # A deleted publication "
+            "document has no head content to scan.\n",
+            "        if not tree_entry:\n"
+            '            raise ValueError(f"missing publication '
+            'file at verified head: {path}")\n',
+        ),
+    ),
+}
+
+W04_P2_03_CONNECTORS = {
+    "validate_w04_pr7_merge_verifier_sources": (
+        (
+            '    accepted = git("show", W04_PR7_FINAL_SHA '
+            '+ ":" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+            '    if "W04_POST_MERGE_BASE_SHA = " in '
+            "current:\n"
+            "        "
+            "validate_w04_p2_03_verifier_sources(review_ready, "
+            "current)\n"
+            "        return\n"
+            '    accepted = git("show", W04_PR7_FINAL_SHA '
+            '+ ":" + CLOSEOUT_VERIFIER_PATH).decode()\n',
+        ),
+    ),
+    "w04_pr7_merge_verifier_blob_guard": (
+        (
+            '    require(repair is not None, "missing validated PR7 merge repair")\n',
+            '    require(repair is not None, "missing validated '
+            'PR7 merge repair")\n'
+            "    frozen = w04_p2_03_hardening_revision(repo) or "
+            "repair\n",
+        ),
+        (
+            '        == git("show", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo)\n',
+            '        == git("show", str(frozen) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo)\n',
+        ),
+        (
+            '        == git("rev-parse", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),\n',
+            '        == git("rev-parse", str(frozen) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),\n',
+        ),
+        (
+            "    print(\n"
+            "        json.dumps(\n"
+            "            {\n"
+            '                "w04_pr7_merge_repair_sha": '
+            "repair,\n"
+            "                "
+            '"w04_pr7_merge_adversarial_controls": controls,\n'
+            '                "w04_post_integration_controls": '
+            "post_controls,\n"
+            '                "w04_pr7_merge_source_guard": '
+            '"PASS",\n'
+            "            },\n"
+            "            sort_keys=True,\n"
+            "        )\n"
+            "    )\n",
+            "    print(\n"
+            "        json.dumps(\n"
+            "            {\n"
+            '                "w04_pr7_merge_repair_sha": '
+            "repair,\n"
+            "                "
+            '"w04_pr7_merge_adversarial_controls": controls,\n'
+            '                "w04_post_integration_controls": '
+            "post_controls,\n"
+            '                "w04_pr7_merge_source_guard": '
+            '"PASS",\n'
+            "            },\n"
+            "            sort_keys=True,\n"
+            "        )\n"
+            "    )\n"
+            "    if frozen != repair:\n"
+            "        hardening_controls = "
+            "check_w04_p2_03_controls()\n"
+            "        print(\n"
+            "            json.dumps(\n"
+            "                {\n"
+            "                    "
+            '"w04_post_merge_p2_03_hardening": "PASS",\n'
+            '                    "w04_p2_03_hardening_sha": '
+            "frozen,\n"
+            '                    "w04_p2_03_controls": '
+            "hardening_controls,\n"
+            "                },\n"
+            "                sort_keys=True,\n"
+            "            )\n"
+            "        )\n",
+        ),
+    ),
+    "meta_ci_source_guard": (
+        ("        validate_meta_ci_sources(\n", "        validate_w04_p2_03_meta_ci_sources(\n"),
+        (
+            '            (repo / path).read_text(encoding="utf-8"),\n',
+            '            (repo / path).read_text(encoding="utf-8"),\n            repo=repo,\n',
+        ),
+    ),
+    "check_meta_ci_source_controls": (
+        (
+            "        validate_meta_ci_sources(path, entry, current)\n",
+            "        validate_w04_p2_03_meta_ci_sources(path, entry, current)\n",
+        ),
+        (
+            "                lambda damaged=damaged, path=path, "
+            "entry=entry: validate_meta_ci_sources(\n",
+            "                lambda damaged=damaged, path=path, "
+            "entry=entry: validate_w04_p2_03_meta_ci_sources(\n",
+        ),
+    ),
+    "verify_collection_and_scope": (
+        (
+            '        "scripts/ci/classify_change.py",\n'
+            '        "scripts/ci/verify_publication.py",\n',
+            "",
+        ),
+        (
+            '    require(not git("diff", ENTRY, "--", *protected), '
+            '"W04_C09_PROTECTED_OBJECT_DRIFT")\n',
+            "    w04_p2_03_protected_source_guard()\n"
+            '    require(not git("diff", ENTRY, "--", *protected), '
+            '"W04_C09_PROTECTED_OBJECT_DRIFT")\n',
+        ),
+    ),
+}
+
+W04_P2_03_CONTROL_LABELS = (
+    "w04-add",
+    "w04-modify",
+    "state-add",
+    "state-modify",
+    "w04-delete",
+    "w04-delete-defense",
+    "state-delete",
+    "state-delete-defense",
+    "push-delete",
+    "publication-rename",
+    "mixed-add-delete",
+    "routing-C",
+    "routing-I",
+    "routing-F",
+    "routing-UNKNOWN",
+    "parser-no-nul",
+    "parser-odd",
+    "parser-status",
+    "parser-empty-status",
+    "parser-empty-path",
+    "parser-utf8",
+    "parser-status-utf8",
+    "parser-duplicate",
+    "parser-type-change",
+    "publication-type-change",
+    "history-hardening",
+    "history-before",
+    "history-docs",
+    "history-parent",
+    "history-merge-parent",
+    "history-root-parent",
+    "history-subject",
+    "history-sha",
+    "history-extra-path",
+    "history-missing:scripts/ci/classify_change.py",
+    "history-A:scripts/ci/classify_change.py",
+    "history-D:scripts/ci/classify_change.py",
+    "history-R100:scripts/ci/classify_change.py",
+    "history-missing:scripts/ci/verify_publication.py",
+    "history-A:scripts/ci/verify_publication.py",
+    "history-D:scripts/ci/verify_publication.py",
+    "history-R100:scripts/ci/verify_publication.py",
+    "history-missing:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "history-A:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "history-D:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "history-R100:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "history-missing:tests/test_ci_change_classifier.py",
+    "history-A:tests/test_ci_change_classifier.py",
+    "history-D:tests/test_ci_change_classifier.py",
+    "history-R100:tests/test_ci_change_classifier.py",
+    "history-missing:tests/test_ci_publication_gate.py",
+    "history-A:tests/test_ci_publication_gate.py",
+    "history-D:tests/test_ci_publication_gate.py",
+    "history-R100:tests/test_ci_publication_gate.py",
+    "history-multiple",
+    "history-duplicate",
+    "ci-drift:scripts/ci/classify_change.py",
+    "ci-drift:scripts/ci/verify_publication.py",
+    "test-unrelated:tests/test_ci_change_classifier.py",
+    "test-extra:tests/test_ci_change_classifier.py",
+    "test-body:test_w04_current_git_delta_routes_each_class",
+    "test-signature:test_w04_current_git_delta_routes_each_class",
+    "test-decorator:test_w04_current_git_delta_routes_each_class",
+    "test-body:test_shadow_workflow_requires_equivalence_and_preserves_classification",
+    "test-signature:test_shadow_workflow_requires_equivalence_and_preserves_classification",
+    "test-decorator:test_shadow_workflow_requires_equivalence_and_preserves_classification",
+    "test-parametrization:tests/test_ci_change_classifier.py",
+    "test-unrelated:tests/test_ci_publication_gate.py",
+    "test-extra:tests/test_ci_publication_gate.py",
+    "test-body:test_report_and_state_pass_exact_publication_proof",
+    "test-signature:test_report_and_state_pass_exact_publication_proof",
+    "test-decorator:test_report_and_state_pass_exact_publication_proof",
+    "test-body:test_w04_narrow_report_grammars_pass_exact_publication",
+    "test-signature:test_w04_narrow_report_grammars_pass_exact_publication",
+    "test-decorator:test_w04_narrow_report_grammars_pass_exact_publication",
+    "test-parametrization:tests/test_ci_publication_gate.py",
+    "verifier-constant",
+    "verifier-legacy",
+    "verifier-extra",
+    "verifier-admitted",
+    "verifier-order",
+    "git-hardening-freeze",
+    "git-protected:scripts/ci/classify_change.py",
+    "git-protected:scripts/ci/verify_publication.py",
+    "git-protected:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "git-protected:tests/test_ci_change_classifier.py",
+    "git-protected:tests/test_ci_publication_gate.py",
+    "git-frozen:.github/workflows/ci.yml",
+    "git-frozen:docs/w04/checkpoints/c09/specs/c09_gate_manifest.json",
+    "git-frozen:src/flowlens/investigation/__init__.py",
+    "git-multiple-anchors",
+    "git-wrong-subject",
+    "git-wrong-parent",
+)
+
+W04_P2_03_SOURCE_ADDITIONS = (
+    "W04_POST_MERGE_BASE_SHA",
+    "W04_P2_03_HARDENING_SUBJECT",
+    "W04_P2_03_HARDENING_PATHS",
+    "W04_P2_03_TEST_FUNCTIONS",
+    "W04_P2_03_CI_EDITS",
+    "W04_P2_03_CONNECTORS",
+    "W04_P2_03_CONTROL_LABELS",
+    "W04_P2_03_SOURCE_ADDITIONS",
+    "validate_w04_p2_03_history",
+    "w04_p2_03_commit_record",
+    "w04_p2_03_hardening_revision",
+    "validate_w04_p2_03_ci_sources",
+    "validate_w04_p2_03_test_sources",
+    "validate_w04_p2_03_meta_ci_sources",
+    "w04_p2_03_protected_source_guard",
+    "validate_w04_p2_03_verifier_sources",
+    "check_w04_p2_03_controls",
+)
+
+
+W04_P2_03_HARDENING_SHA = "e2606585829153a2f69c9628c916cf42dcc1b926"
+
+W04_P2_03_DOC_SYNC_SHA = "ca2506115b282d9569c3f7c35da266927a39520f"
+
+W04_P2_03_DOC_SYNC_SUBJECT = "docs: synchronize W04 merged state"
+
+W04_P2_03_DOC_SYNC_PATHS = ("README.md", "AGENTS.md", "docs/CURRENT_STATE.md")
+
+W04_P2_03_R2_REPAIR_SUBJECT = "ci(post-w04): repair stabilization proof closure"
+
+W04_P2_03_R2_REPAIR_PATHS = (
+    "scripts/ci/verify_w04_investigation_gate_contract.py",
+    "tests/test_c09_ci_gate.py",
+    "AGENTS.md",
+    "docs/CURRENT_STATE.md",
+)
+
+W04_P2_03_R2_C09_TARGET = "test_classifier_publication_and_runtime_frozen_materials_unchanged"
+
+W04_P2_03_R2_CONNECTORS = {
+    "validate_w04_p2_03_history": (
+        (
+            "def validate_w04_p2_03_history(history: list[dict[str, "
+            "Any]]) -> str | None:\n"
+            '    """Discover one exact direct child; suspicious '
+            'near-matches never disappear."""\n'
+            "    anchors: list[str] = []\n"
+            "    seen: set[str] = set()\n"
+            "    for row in history:\n"
+            '        require(set(row) == {"sha", "parents", '
+            '"subject", "delta"}, "P2_03 record shape")\n'
+            '        revision = row["sha"]\n',
+            "def validate_w04_p2_03_history(history: list[dict[str, "
+            "Any]]) -> str | None:\n"
+            '    """Validate every ordered post-base row; no '
+            'descendant may disappear."""\n'
+            "    # The unchanged merge baseline precedes the "
+            "separately authorized hardening.\n"
+            "    if not history:\n"
+            "        return None\n"
+            '    require(1 <= len(history) <= 3, "P2_03 '
+            'unauthorized post-base history length")\n'
+            "    seen: set[str] = set()\n"
+            "    expected = (\n"
+            "        (\n"
+            "            W04_P2_03_HARDENING_SHA,\n"
+            "            W04_POST_MERGE_BASE_SHA,\n"
+            "            W04_P2_03_HARDENING_SUBJECT,\n"
+            "            W04_P2_03_HARDENING_PATHS,\n"
+            "        ),\n"
+            "        (\n"
+            "            W04_P2_03_DOC_SYNC_SHA,\n"
+            "            W04_P2_03_HARDENING_SHA,\n"
+            "            W04_P2_03_DOC_SYNC_SUBJECT,\n"
+            "            W04_P2_03_DOC_SYNC_PATHS,\n"
+            "        ),\n"
+            "        (\n"
+            "            None,\n"
+            "            W04_P2_03_DOC_SYNC_SHA,\n"
+            "            W04_P2_03_R2_REPAIR_SUBJECT,\n"
+            "            W04_P2_03_R2_REPAIR_PATHS,\n"
+            "        ),\n"
+            "    )\n"
+            "    for row, (frozen, parent, subject, paths) in zip(\n"
+            "        history, expected[: len(history)], "
+            "strict=True\n"
+            "    ):\n"
+            "        require(\n"
+            "            isinstance(row, dict) and set(row) == "
+            '{"sha", "parents", "subject", "delta"},\n'
+            '            "P2_03 record shape",\n'
+            "        )\n"
+            '        revision = row["sha"]\n',
+        ),
+        (
+            "        seen.add(revision)\n"
+            '        parents, subject, delta = row["parents"], '
+            'row["subject"], row["delta"]\n'
+            "        require(\n"
+            "            isinstance(parents, list)\n"
+            "            and all(isinstance(parent, str) for parent "
+            "in parents)\n"
+            "            and isinstance(subject, str)\n"
+            "            and isinstance(delta, dict),\n"
+            '            "P2_03 invalid revision metadata",\n'
+            "        )\n"
+            "        if subject == W04_P2_03_HARDENING_SUBJECT or "
+            "(\n"
+            "            parents == [W04_POST_MERGE_BASE_SHA]\n"
+            "            and "
+            "set(delta).intersection(W04_P2_03_HARDENING_PATHS)\n"
+            "        ):\n"
+            "            require(\n"
+            "                parents == [W04_POST_MERGE_BASE_SHA]\n"
+            "                and subject == "
+            "W04_P2_03_HARDENING_SUBJECT\n"
+            '                and delta == {path: "M" for path in '
+            "W04_P2_03_HARDENING_PATHS},\n"
+            '                "P2_03 hardening '
+            'parent/subject/exact-five-M delta",\n'
+            "            )\n"
+            "            anchors.append(revision)\n"
+            '    require(len(anchors) <= 1, "P2_03 multiple '
+            'hardening anchors")\n'
+            "    return anchors[0] if anchors else None",
+            "        seen.add(revision)\n"
+            "        require(\n"
+            "            (frozen is None or revision == frozen)\n"
+            '            and row["parents"] == [parent]\n'
+            '            and row["subject"] == subject\n'
+            '            and row["delta"] == {path: "M" for path in '
+            "paths},\n"
+            '            "P2_03 exact ordered '
+            'SHA/parent/subject/M-delta",\n'
+            "        )\n"
+            "    return W04_P2_03_HARDENING_SHA",
+        ),
+    ),
+    "w04_p2_03_protected_source_guard": (
+        (
+            '            not git("diff", '
+            'W04_POST_MERGE_BASE_SHA, "--", '
+            "*W04_P2_03_CI_EDITS, repo=repo),\n"
+            '            "P2_03 CI source changed before '
+            'validated hardening",\n'
+            "        )\n"
+            "        return\n"
+            "    for path in W04_P2_03_HARDENING_PATHS:\n"
+            "        require(\n"
+            "            (repo / path).read_bytes() == "
+            'git("show", anchor + ":" + path, repo=repo)\n'
+            '            and git("ls-tree", "HEAD", "--", '
+            "path, repo=repo)\n"
+            '            == git("ls-tree", anchor, "--", '
+            "path, repo=repo),\n"
+            '            "P2_03 protected source drift: " + '
+            "path,\n"
+            "        )\n"
+            "    require(\n"
+            '        not git("diff", anchor, "--", '
+            "*W04_P2_03_HARDENING_PATHS, repo=repo),\n"
+            '        "P2_03 protected working-tree/mode '
+            'drift",\n'
+            "    )\n"
+            "    for path in W04_P2_03_CI_EDITS:\n"
+            "        validate_w04_p2_03_ci_sources(\n"
+            "            path,\n"
+            '            git("show", W04_POST_MERGE_BASE_SHA '
+            '+ ":" + path, repo=repo).decode("utf-8"),\n',
+            '            not git("diff", '
+            'W04_POST_MERGE_BASE_SHA, "--", '
+            "*W04_P2_03_CI_EDITS, repo=repo),\n"
+            '            "P2_03 CI source changed before '
+            'validated hardening",\n'
+            "        )\n"
+            "        return\n"
+            "    repair = w04_p2_03_r2_repair_revision(repo)\n"
+            "    frozen_paths = {path: anchor for path in "
+            "W04_P2_03_HARDENING_PATHS}\n"
+            "    if repair is not None:\n"
+            "        frozen_paths.update({path: repair for "
+            "path in W04_P2_03_R2_REPAIR_PATHS})\n"
+            "    for path, frozen in frozen_paths.items():\n"
+            "        require(\n"
+            "            (repo / path).read_bytes() == "
+            'git("show", frozen + ":" + path, repo=repo)\n'
+            '            and git("ls-tree", "HEAD", "--", '
+            "path, repo=repo)\n"
+            '            == git("ls-tree", frozen, "--", '
+            "path, repo=repo)\n"
+            '            and not git("diff", frozen, "--", '
+            "path, repo=repo),\n"
+            '            "P2_03 protected source drift: " + '
+            "path,\n"
+            "        )\n"
+            "    for path in W04_P2_03_CI_EDITS:\n"
+            "        validate_w04_p2_03_ci_sources(\n"
+            "            path,\n"
+            '            git("show", W04_POST_MERGE_BASE_SHA '
+            '+ ":" + path, repo=repo).decode("utf-8"),\n',
+        ),
+        (
+            "        validate_w04_p2_03_test_sources(\n"
+            "            path,\n"
+            '            git("show", W04_POST_MERGE_BASE_SHA '
+            '+ ":" + path, repo=repo).decode("utf-8"),\n'
+            "            (repo / "
+            'path).read_text(encoding="utf-8"),\n'
+            "        )",
+            "        validate_w04_p2_03_test_sources(\n"
+            "            path,\n"
+            '            git("show", W04_POST_MERGE_BASE_SHA '
+            '+ ":" + path, repo=repo).decode("utf-8"),\n'
+            "            (repo / "
+            'path).read_text(encoding="utf-8"),\n'
+            "        )\n"
+            "    if repair is not None:\n"
+            "        validate_w04_p2_03_r2_test_sources(\n"
+            '            git("show", W04_P2_03_DOC_SYNC_SHA + '
+            '":tests/test_c09_ci_gate.py", '
+            "repo=repo).decode(\n"
+            '                "utf-8"\n'
+            "            ),\n"
+            "            (repo / "
+            '"tests/test_c09_ci_gate.py").read_text(encoding="utf-8"),\n'
+            "            repo=repo,\n"
+            "        )",
+        ),
+    ),
+    "validate_w04_pr7_merge_verifier_sources": (
+        (
+            '    """Validate every accepted layer '
+            "first, then only the exact seven repair "
+            'connectors."""\n'
+            '    if "W04_POST_MERGE_BASE_SHA = " in '
+            "current:\n",
+            '    """Validate every accepted layer '
+            "first, then only the exact seven repair "
+            'connectors."""\n'
+            '    if "W04_P2_03_HARDENING_SHA = " in '
+            "current:\n"
+            "        "
+            "validate_w04_p2_03_r2_verifier_sources(review_ready, "
+            "current)\n"
+            "        return\n"
+            '    if "W04_POST_MERGE_BASE_SHA = " in '
+            "current:\n",
+        ),
+    ),
+    "validate_w04_p2_03_meta_ci_sources": (
+        (
+            "        validate_w04_p2_03_test_sources(path, accepted, current)\n    else:\n",
+            "        validate_w04_p2_03_test_sources(path, "
+            "accepted, current)\n"
+            '    elif path == "tests/test_c09_ci_gate.py" '
+            "and w04_p2_03_r2_repair_revision(repo):\n"
+            "        validate_w04_p2_03_r2_test_sources(\n"
+            '            git("show", W04_P2_03_DOC_SYNC_SHA '
+            '+ ":" + path, repo=repo).decode("utf-8"),\n'
+            "            current,\n"
+            "            repo=repo,\n"
+            "        )\n"
+            "    else:\n",
+        ),
+    ),
+    "w04_pr7_merge_verifier_blob_guard": (
+        (
+            '    require(repair is not None, "missing '
+            'validated PR7 merge repair")\n'
+            "    frozen = w04_p2_03_hardening_revision(repo) "
+            "or repair\n"
+            "    validate_w04_pr7_merge_verifier_sources(\n",
+            '    require(repair is not None, "missing '
+            'validated PR7 merge repair")\n'
+            "    hardening = "
+            "w04_p2_03_hardening_revision(repo)\n"
+            "    r2_repair = "
+            "w04_p2_03_r2_repair_revision(repo)\n"
+            "    frozen = r2_repair or hardening or repair\n"
+            "    validate_w04_pr7_merge_verifier_sources(\n",
+        ),
+        (
+            "                    "
+            '"w04_post_merge_p2_03_hardening": "PASS",\n'
+            '                    "w04_p2_03_hardening_sha": '
+            "frozen,\n"
+            '                    "w04_p2_03_controls": '
+            "hardening_controls,\n",
+            "                    "
+            '"w04_post_merge_p2_03_hardening": "PASS",\n'
+            '                    "w04_p2_03_hardening_sha": '
+            "hardening,\n"
+            '                    "w04_p2_03_controls": '
+            "hardening_controls,\n",
+        ),
+        (
+            "            )\n        )",
+            "            )\n"
+            "        )\n"
+            "    if r2_repair is not None:\n"
+            "        r2_controls = "
+            "check_w04_p2_03_r2_controls()\n"
+            "        print(\n"
+            "            json.dumps(\n"
+            "                {\n"
+            '                    "w04_p2_03_r2_repair": '
+            '"PASS",\n'
+            '                    "w04_p2_03_r2_repair_sha": '
+            "r2_repair,\n"
+            '                    "w04_p2_03_r2_controls": '
+            "r2_controls,\n"
+            "                },\n"
+            "                sort_keys=True,\n"
+            "            )\n"
+            "        )",
+        ),
+    ),
+    "check_w04_p2_03_controls": (
+        (
+            '        yes("history-before", '
+            "validate_w04_p2_03_history([]) is None)\n"
+            "        doc = {\n"
+            '            "sha": "d" * 40,\n'
+            '            "parents": [hardening],\n'
+            '            "subject": "docs: fixture",\n'
+            '            "delta": {"README.md": "M"},\n'
+            "        }\n"
+            '        yes("history-docs", '
+            "validate_w04_p2_03_history([valid, doc]) == hardening)\n",
+            '        yes("history-before", '
+            "validate_w04_p2_03_history([]) is None)\n"
+            "        doc = "
+            "w04_p2_03_commit_record(W04_P2_03_DOC_SYNC_SHA)\n"
+            '        yes("history-docs", '
+            "validate_w04_p2_03_history([valid, doc]) == "
+            "hardening)\n",
+        ),
+        (
+            '                "verifier-" + label,\n'
+            "                lambda damaged=damaged: "
+            "validate_w04_p2_03_verifier_sources(review, damaged),\n"
+            '                "P2_03",\n',
+            '                "verifier-" + label,\n'
+            "                lambda damaged=damaged: "
+            "validate_w04_pr7_merge_verifier_sources(review, "
+            "damaged),\n"
+            '                "P2_03",\n',
+        ),
+        (
+            "                lambda: "
+            "w04_p2_03_protected_source_guard(fixture),\n"
+            '                "P2_03 protected source drift",\n'
+            "            )\n",
+            "                lambda: "
+            "w04_p2_03_protected_source_guard(fixture),\n"
+            '                "P2_03",\n'
+            "            )\n",
+        ),
+        (
+            "            else:\n"
+            '                with patch.dict(globals(), {"ROOT": '
+            'fixture, "git": fixture_git}):\n'
+            "                    no(\n",
+            "            else:\n"
+            "                with patch.dict(\n"
+            "                    globals(),\n"
+            "                    {\n"
+            '                        "ROOT": fixture,\n'
+            '                        "git": fixture_git,\n'
+            "                        "
+            '"w04_p2_03_protected_source_guard": lambda: None,\n'
+            "                    },\n"
+            "                ):\n"
+            "                    no(\n",
+        ),
+        (
+            "            lambda: "
+            "w04_p2_03_hardening_revision(fixture),\n"
+            '            "P2_03 multiple hardening anchors",\n'
+            "        )\n",
+            "            lambda: "
+            "w04_p2_03_hardening_revision(fixture),\n"
+            '            "P2_03",\n'
+            "        )\n",
+        ),
+    ),
+}
+
+W04_P2_03_R2_CONTROL_LABELS = (
+    "state-1",
+    "state-2",
+    "state-3",
+    "arbitrary-third",
+    "arbitrary-fourth",
+    "0-sha",
+    "0-invalid-sha",
+    "0-parent",
+    "0-root",
+    "0-merge",
+    "0-subject",
+    "0-missing-path",
+    "0-extra-path",
+    "1-sha",
+    "1-invalid-sha",
+    "1-parent",
+    "1-root",
+    "1-merge",
+    "1-subject",
+    "1-missing-path",
+    "1-extra-path",
+    "2-sha",
+    "2-invalid-sha",
+    "2-parent",
+    "2-root",
+    "2-merge",
+    "2-subject",
+    "2-missing-path",
+    "2-extra-path",
+    "0-unpinned-sha",
+    "1-unpinned-sha",
+    "reordered",
+    "duplicate",
+    "record-shape",
+    "repair-missing:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "repair-A:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "repair-D:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "repair-R:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "repair-T:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "repair-missing:tests/test_c09_ci_gate.py",
+    "repair-A:tests/test_c09_ci_gate.py",
+    "repair-D:tests/test_c09_ci_gate.py",
+    "repair-R:tests/test_c09_ci_gate.py",
+    "repair-T:tests/test_c09_ci_gate.py",
+    "repair-missing:AGENTS.md",
+    "repair-A:AGENTS.md",
+    "repair-D:AGENTS.md",
+    "repair-R:AGENTS.md",
+    "repair-T:AGENTS.md",
+    "repair-missing:docs/CURRENT_STATE.md",
+    "repair-A:docs/CURRENT_STATE.md",
+    "repair-D:docs/CURRENT_STATE.md",
+    "repair-R:docs/CURRENT_STATE.md",
+    "repair-T:docs/CURRENT_STATE.md",
+    "c09-stale-publication-freeze-removed",
+    "c09-historical:pyproject.toml",
+    "c09-historical:uv.lock",
+    "c09-historical:docker-compose.yml",
+    "c09-publication-e260",
+    "c09-unrelated",
+    "c09-extra",
+    "c09-rename",
+    "c09-signature",
+    "c09-decorator",
+    "c09-import",
+    "c09-body",
+    "verifier:require",
+    "verifier:validate_w04_p2_03_history",
+    "verifier:w04_p2_03_r2_repair_revision",
+    "verifier-extra",
+    "e260-freeze:scripts/ci/classify_change.py",
+    "e260-freeze:scripts/ci/verify_publication.py",
+    "e260-freeze:tests/test_ci_change_classifier.py",
+    "e260-freeze:tests/test_ci_publication_gate.py",
+    "git-doc-discovery",
+    "git-doc-no-repair",
+    "git-old-finding-reproduced",
+    "git-old-protected-escape-reproduced",
+    "git-third-rejected",
+    "git-third-protected-rejected",
+    "git-r2-discovery",
+    "git-r2-protected",
+    "git-working-drift:scripts/ci/classify_change.py",
+    "git-working-drift:scripts/ci/verify_publication.py",
+    "git-working-drift:scripts/ci/verify_w04_investigation_gate_contract.py",
+    "git-working-drift:tests/test_ci_change_classifier.py",
+    "git-working-drift:tests/test_ci_publication_gate.py",
+    "git-working-drift:tests/test_c09_ci_gate.py",
+    "git-working-drift:AGENTS.md",
+    "git-working-drift:docs/CURRENT_STATE.md",
+    "git-fourth-rejected",
+    "git-fourth-repair-rejected",
+    "git-frozen:.github/workflows/ci.yml",
+    "git-frozen:docs/w04/checkpoints/c09/specs/c09_gate_manifest.json",
+    "git-frozen:src/flowlens/investigation/__init__.py",
+)
+
+W04_P2_03_R2_SOURCE_ADDITIONS = (
+    "W04_P2_03_HARDENING_SHA",
+    "W04_P2_03_DOC_SYNC_SHA",
+    "W04_P2_03_DOC_SYNC_SUBJECT",
+    "W04_P2_03_DOC_SYNC_PATHS",
+    "W04_P2_03_R2_REPAIR_SUBJECT",
+    "W04_P2_03_R2_REPAIR_PATHS",
+    "W04_P2_03_R2_C09_TARGET",
+    "W04_P2_03_R2_CONNECTORS",
+    "W04_P2_03_R2_CONTROL_LABELS",
+    "W04_P2_03_R2_SOURCE_ADDITIONS",
+    "w04_p2_03_r2_repair_revision",
+    "validate_w04_p2_03_r2_test_sources",
+    "validate_w04_p2_03_r2_verifier_sources",
+    "check_w04_p2_03_r2_controls",
+)
+
+
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(message)
@@ -466,10 +1274,11 @@ def validate_meta_ci_sources(path: str, entry: str, current: str) -> None:
 
 def meta_ci_source_guard(repo: Path = ROOT) -> None:
     for path in AUTHORIZED_META_CI_FUNCTIONS:
-        validate_meta_ci_sources(
+        validate_w04_p2_03_meta_ci_sources(
             path,
             git("show", ENTRY + ":" + path, repo=repo).decode(),
             (repo / path).read_text(encoding="utf-8"),
+            repo=repo,
         )
 
 
@@ -477,7 +1286,7 @@ def check_meta_ci_source_controls() -> int:
     for path, allowed in AUTHORIZED_META_CI_FUNCTIONS.items():
         entry = git("show", ENTRY + ":" + path).decode()
         current = (ROOT / path).read_text(encoding="utf-8")
-        validate_meta_ci_sources(path, entry, current)
+        validate_w04_p2_03_meta_ci_sources(path, entry, current)
         _, units = source_units(current)
         unrelated = next(name for name in units if name.startswith("test_") and name not in allowed)
         unit = units[unrelated][0]
@@ -501,7 +1310,7 @@ def check_meta_ci_source_controls() -> int:
             require(damaged != current, "meta-CI adversary did not mutate source")
             rejected(
                 "meta-CI source mutation",
-                lambda damaged=damaged, path=path, entry=entry: validate_meta_ci_sources(
+                lambda damaged=damaged, path=path, entry=entry: validate_w04_p2_03_meta_ci_sources(
                     path, entry, damaged
                 ),
             )
@@ -2366,6 +3175,12 @@ def w04_pr7_merge_repair_revision(repo: Path = ROOT) -> str | None:
 
 def validate_w04_pr7_merge_verifier_sources(review_ready: str, current: str) -> None:
     """Validate every accepted layer first, then only the exact seven repair connectors."""
+    if "W04_P2_03_HARDENING_SHA = " in current:
+        validate_w04_p2_03_r2_verifier_sources(review_ready, current)
+        return
+    if "W04_POST_MERGE_BASE_SHA = " in current:
+        validate_w04_p2_03_verifier_sources(review_ready, current)
+        return
     accepted = git("show", W04_PR7_FINAL_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
     validate_w04_sprint_verifier_sources(review_ready, accepted)
     old_order, old = source_units(accepted)
@@ -2509,15 +3324,18 @@ def validate_w04_pr7_merge_verifier_sources(review_ready: str, current: str) -> 
 def w04_pr7_merge_verifier_blob_guard(repo: Path = ROOT) -> None:
     repair = w04_pr7_merge_repair_revision(repo)
     require(repair is not None, "missing validated PR7 merge repair")
+    hardening = w04_p2_03_hardening_revision(repo)
+    r2_repair = w04_p2_03_r2_repair_revision(repo)
+    frozen = r2_repair or hardening or repair
     validate_w04_pr7_merge_verifier_sources(
         git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo).decode(),
         (repo / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8"),
     )
     require(
         (repo / CLOSEOUT_VERIFIER_PATH).read_bytes()
-        == git("show", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo)
+        == git("show", str(frozen) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo)
         and git("rev-parse", "HEAD:" + CLOSEOUT_VERIFIER_PATH, repo=repo)
-        == git("rev-parse", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),
+        == git("rev-parse", str(frozen) + ":" + CLOSEOUT_VERIFIER_PATH, repo=repo),
         "PR7 verifier must remain byte-identical to validated repair",
     )
     prep = w04_sprint_prep_revision(repo)
@@ -2562,6 +3380,30 @@ def w04_pr7_merge_verifier_blob_guard(repo: Path = ROOT) -> None:
             sort_keys=True,
         )
     )
+    if frozen != repair:
+        hardening_controls = check_w04_p2_03_controls()
+        print(
+            json.dumps(
+                {
+                    "w04_post_merge_p2_03_hardening": "PASS",
+                    "w04_p2_03_hardening_sha": hardening,
+                    "w04_p2_03_controls": hardening_controls,
+                },
+                sort_keys=True,
+            )
+        )
+    if r2_repair is not None:
+        r2_controls = check_w04_p2_03_r2_controls()
+        print(
+            json.dumps(
+                {
+                    "w04_p2_03_r2_repair": "PASS",
+                    "w04_p2_03_r2_repair_sha": r2_repair,
+                    "w04_p2_03_r2_controls": r2_controls,
+                },
+                sort_keys=True,
+            )
+        )
 
 
 def check_w04_pr7_merge_controls() -> int:
@@ -2832,6 +3674,1079 @@ def check_w04_pr7_post_integration_controls() -> int:
         records[merge] = original
     return 3 + 4 + 4 + 3
 
+
+
+def validate_w04_p2_03_history(history: list[dict[str, Any]]) -> str | None:
+    """Validate every ordered post-base row; no descendant may disappear."""
+    # The unchanged merge baseline precedes the separately authorized hardening.
+    if not history:
+        return None
+    require(1 <= len(history) <= 3, "P2_03 unauthorized post-base history length")
+    seen: set[str] = set()
+    expected = (
+        (
+            W04_P2_03_HARDENING_SHA,
+            W04_POST_MERGE_BASE_SHA,
+            W04_P2_03_HARDENING_SUBJECT,
+            W04_P2_03_HARDENING_PATHS,
+        ),
+        (
+            W04_P2_03_DOC_SYNC_SHA,
+            W04_P2_03_HARDENING_SHA,
+            W04_P2_03_DOC_SYNC_SUBJECT,
+            W04_P2_03_DOC_SYNC_PATHS,
+        ),
+        (
+            None,
+            W04_P2_03_DOC_SYNC_SHA,
+            W04_P2_03_R2_REPAIR_SUBJECT,
+            W04_P2_03_R2_REPAIR_PATHS,
+        ),
+    )
+    for row, (frozen, parent, subject, paths) in zip(
+        history, expected[: len(history)], strict=True
+    ):
+        require(
+            isinstance(row, dict) and set(row) == {"sha", "parents", "subject", "delta"},
+            "P2_03 record shape",
+        )
+        revision = row["sha"]
+        require(
+            isinstance(revision, str)
+            and re.fullmatch(r"[0-9a-f]{40}", revision) is not None
+            and revision != "0" * 40
+            and revision not in seen,
+            "P2_03 invalid/duplicate revision",
+        )
+        seen.add(revision)
+        require(
+            (frozen is None or revision == frozen)
+            and row["parents"] == [parent]
+            and row["subject"] == subject
+            and row["delta"] == {path: "M" for path in paths},
+            "P2_03 exact ordered SHA/parent/subject/M-delta",
+        )
+    return W04_P2_03_HARDENING_SHA
+
+
+def w04_p2_03_commit_record(revision: str, repo: Path = ROOT) -> dict[str, Any]:
+    parents = git("show", "-s", "--format=%P", revision, repo=repo).decode("ascii").split()
+    require(bool(parents), "P2_03 root revision forbidden")
+    raw = git("diff", "--name-status", "--no-renames", "-z", parents[0], revision, "--", repo=repo)
+    require(not raw or raw.endswith(b"\x00"), "P2_03 unterminated Git delta")
+    fields = raw[:-1].split(b"\x00") if raw else []
+    require(len(fields) % 2 == 0, "P2_03 malformed Git delta")
+    delta: dict[str, str] = {}
+    for status_raw, path_raw in zip(fields[::2], fields[1::2], strict=True):
+        status = status_raw.decode("ascii", errors="strict")
+        path = path_raw.decode("utf-8", errors="strict")
+        require(bool(path) and path not in delta, "P2_03 duplicate/empty Git path")
+        require(re.fullmatch(r"[ACDMRTUXB]", status) is not None, "P2_03 invalid Git status")
+        delta[path] = status
+    return {
+        "sha": revision,
+        "parents": parents,
+        "subject": git("show", "-s", "--format=%s", revision, repo=repo)
+        .decode("utf-8")
+        .rstrip("\r\n"),
+        "delta": delta,
+    }
+
+
+def w04_p2_03_hardening_revision(repo: Path = ROOT) -> str | None:
+    integration = w04_pr7_integration_anchor(repo)
+    if integration is None:
+        return None
+    require(integration == W04_POST_MERGE_BASE_SHA, "P2_03 historical integration anchor drift")
+    revisions = (
+        git("rev-list", "--reverse", "--topo-order", W04_POST_MERGE_BASE_SHA + "..HEAD", repo=repo)
+        .decode("ascii")
+        .splitlines()
+    )
+    return validate_w04_p2_03_history(
+        [w04_p2_03_commit_record(revision, repo) for revision in revisions]
+    )
+
+
+def validate_w04_p2_03_ci_sources(path: str, entry: str, current: str) -> None:
+    require(path in W04_P2_03_CI_EDITS, "P2_03 unauthorized CI source path")
+    require(
+        entry == git("show", W04_POST_MERGE_BASE_SHA + ":" + path).decode("utf-8"),
+        "P2_03 CI baseline identity",
+    )
+    expected = entry.encode("utf-8")
+    for before, after in W04_P2_03_CI_EDITS[path]:
+        expected = replace_once(expected, before.encode("utf-8"), after.encode("utf-8"))
+    require(current.encode("utf-8") == expected, "P2_03 unauthorized CI source evolution: " + path)
+
+
+def validate_w04_p2_03_test_sources(path: str, entry: str, current: str) -> None:
+    require(path in W04_P2_03_TEST_FUNCTIONS, "P2_03 unauthorized test source path")
+    require(
+        entry == git("show", W04_POST_MERGE_BASE_SHA + ":" + path).decode("utf-8"),
+        "P2_03 test baseline identity",
+    )
+    anchor = w04_p2_03_hardening_revision()
+    require(anchor is not None, "P2_03 test evolution requires committed hardening")
+    old_order, old = source_units(entry)
+    new_order, new = source_units(current)
+    _, frozen = source_units(git("show", str(anchor) + ":" + path).decode("utf-8"))
+    require(old_order == new_order, "P2_03 test unit/name/order drift")
+    old_lines, new_lines = entry.splitlines(keepends=True), current.splitlines(keepends=True)
+    for name in old_order:
+        if name not in W04_P2_03_TEST_FUNCTIONS[path]:
+            require(old[name][0] == new[name][0], "P2_03 unrelated test source drift: " + name)
+            continue
+        a, b = old[name][1], new[name][1]
+        require(
+            isinstance(a, ast.FunctionDef) and isinstance(b, ast.FunctionDef), "P2_03 test kind"
+        )
+        a, b = cast(ast.FunctionDef, a), cast(ast.FunctionDef, b)
+        left, right = copy.deepcopy(a), copy.deepcopy(b)
+        left.body, right.body = [], []
+        require(
+            ast.dump(left, include_attributes=False) == ast.dump(right, include_attributes=False),
+            "P2_03 test signature/decorator/parameter drift: " + name,
+        )
+        a_start = min([a.lineno, *(d.lineno for d in a.decorator_list)]) - 1
+        b_start = min([b.lineno, *(d.lineno for d in b.decorator_list)]) - 1
+        require(
+            old_lines[a_start : a.body[0].lineno - 1] == new_lines[b_start : b.body[0].lineno - 1],
+            "P2_03 test declaration source drift: " + name,
+        )
+        require(new[name][0] == frozen[name][0], "P2_03 committed test body drift: " + name)
+
+
+def validate_w04_p2_03_meta_ci_sources(
+    path: str, entry: str, current: str, repo: Path = ROOT
+) -> None:
+    anchor = w04_p2_03_hardening_revision(repo)
+    if anchor is None:
+        validate_meta_ci_sources(path, entry, current)
+        return
+    accepted = git("show", W04_POST_MERGE_BASE_SHA + ":" + path, repo=repo).decode("utf-8")
+    validate_meta_ci_sources(path, entry, accepted)
+    if path in W04_P2_03_TEST_FUNCTIONS:
+        validate_w04_p2_03_test_sources(path, accepted, current)
+    elif path == "tests/test_c09_ci_gate.py" and w04_p2_03_r2_repair_revision(repo):
+        validate_w04_p2_03_r2_test_sources(
+            git("show", W04_P2_03_DOC_SYNC_SHA + ":" + path, repo=repo).decode("utf-8"),
+            current,
+            repo=repo,
+        )
+    else:
+        require(current == accepted, "P2_03 unchanged legacy meta-CI source drift")
+
+
+def w04_p2_03_protected_source_guard(repo: Path = ROOT) -> None:
+    anchor = w04_p2_03_hardening_revision(repo)
+    if anchor is None:
+        require(
+            not git("diff", W04_POST_MERGE_BASE_SHA, "--", *W04_P2_03_CI_EDITS, repo=repo),
+            "P2_03 CI source changed before validated hardening",
+        )
+        return
+    repair = w04_p2_03_r2_repair_revision(repo)
+    frozen_paths = {path: anchor for path in W04_P2_03_HARDENING_PATHS}
+    if repair is not None:
+        frozen_paths.update({path: repair for path in W04_P2_03_R2_REPAIR_PATHS})
+    for path, frozen in frozen_paths.items():
+        require(
+            (repo / path).read_bytes() == git("show", frozen + ":" + path, repo=repo)
+            and git("ls-tree", "HEAD", "--", path, repo=repo)
+            == git("ls-tree", frozen, "--", path, repo=repo)
+            and not git("diff", frozen, "--", path, repo=repo),
+            "P2_03 protected source drift: " + path,
+        )
+    for path in W04_P2_03_CI_EDITS:
+        validate_w04_p2_03_ci_sources(
+            path,
+            git("show", W04_POST_MERGE_BASE_SHA + ":" + path, repo=repo).decode("utf-8"),
+            (repo / path).read_text(encoding="utf-8"),
+        )
+    for path in W04_P2_03_TEST_FUNCTIONS:
+        validate_w04_p2_03_test_sources(
+            path,
+            git("show", W04_POST_MERGE_BASE_SHA + ":" + path, repo=repo).decode("utf-8"),
+            (repo / path).read_text(encoding="utf-8"),
+        )
+    if repair is not None:
+        validate_w04_p2_03_r2_test_sources(
+            git("show", W04_P2_03_DOC_SYNC_SHA + ":tests/test_c09_ci_gate.py", repo=repo).decode(
+                "utf-8"
+            ),
+            (repo / "tests/test_c09_ci_gate.py").read_text(encoding="utf-8"),
+            repo=repo,
+        )
+
+
+def validate_w04_p2_03_verifier_sources(review_ready: str, current: str) -> None:
+    accepted = git("show", W04_POST_MERGE_BASE_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode("utf-8")
+    validate_w04_pr7_merge_verifier_sources(review_ready, accepted)
+    old_order, old = source_units(accepted)
+    new_order, new = source_units(current)
+    additions = set(W04_P2_03_SOURCE_ADDITIONS)
+    require(set(new) == set(old) | additions, "P2_03 verifier unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions] == list(W04_P2_03_SOURCE_ADDITIONS),
+        "P2_03 verifier source-unit identity/order drift",
+    )
+    for name in old_order:
+        expected = old[name][0].encode("utf-8")
+        for before, after in W04_P2_03_CONNECTORS.get(name, ()):
+            expected = replace_once(expected, before.encode("utf-8"), after.encode("utf-8"))
+        require(new[name][0].encode("utf-8") == expected, "P2_03 unrelated verifier span: " + name)
+    anchor = w04_p2_03_hardening_revision()
+    require(anchor is not None, "P2_03 source requires committed exact hardening")
+    committed_order, committed = source_units(
+        git("show", str(anchor) + ":" + CLOSEOUT_VERIFIER_PATH).decode("utf-8")
+    )
+    require(new_order == committed_order, "P2_03 verifier committed unit placement")
+    for name in W04_P2_03_SOURCE_ADDITIONS:
+        require(new[name][0] == committed[name][0], "P2_03 admitted source span drift: " + name)
+    constants: dict[str, object] = {
+        "W04_POST_MERGE_BASE_SHA": "b2b582541d38180c3bf8360699e6df271979829a",
+        "W04_P2_03_HARDENING_SUBJECT": "ci(post-w04): harden publication deletion governance",
+        "W04_P2_03_HARDENING_PATHS": W04_P2_03_HARDENING_PATHS,
+        "W04_P2_03_TEST_FUNCTIONS": W04_P2_03_TEST_FUNCTIONS,
+        "W04_P2_03_CI_EDITS": W04_P2_03_CI_EDITS,
+        "W04_P2_03_CONNECTORS": W04_P2_03_CONNECTORS,
+        "W04_P2_03_CONTROL_LABELS": W04_P2_03_CONTROL_LABELS,
+        "W04_P2_03_SOURCE_ADDITIONS": W04_P2_03_SOURCE_ADDITIONS,
+    }
+    for name, value in constants.items():
+        node = new[name][1]
+        require(isinstance(node, ast.Assign), "P2_03 constant declaration drift")
+        require(
+            ast.literal_eval(cast(ast.Assign, node).value) == value, "P2_03 constant value drift"
+        )
+
+
+def check_w04_p2_03_controls() -> int:
+    """Exercise real Git routing, publication defense and exact history/source admission."""
+    import classify_change as classifier
+    import verify_publication as publication
+
+    completed: list[str] = []
+
+    def done(label: str) -> None:
+        require(
+            label in W04_P2_03_CONTROL_LABELS and label not in completed, "P2_03 control identity"
+        )
+        completed.append(label)
+
+    def yes(label: str, condition: bool) -> None:
+        require(condition, "P2_03 positive control failed: " + label)
+        done(label)
+
+    def no(label: str, action: Any, message: str | None = None) -> None:
+        try:
+            action()
+        except (
+            ValueError,
+            AssertionError,
+            OSError,
+            UnicodeError,
+            subprocess.CalledProcessError,
+        ) as error:
+            require(message is None or message in str(error), "P2_03 wrong rejection: " + label)
+            done(label)
+            return
+        raise ValueError("P2_03 negative control admitted: " + label)
+
+    with tempfile.TemporaryDirectory(prefix="w04-p203-") as temporary:
+        directory = Path(temporary)
+        route = directory / "routing"
+        route.mkdir()
+        git("init", "-q", "-b", "main", repo=route)
+        git("config", "user.email", "ci@example.test", repo=route)
+        git("config", "user.name", "CI Test", repo=route)
+        git("config", "core.autocrlf", "false", repo=route)
+        (route / "README.md").write_text("fixture\n", encoding="utf-8", newline="\n")
+        for path in W04_P2_03_CI_EDITS:
+            target = route / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((ROOT / path).read_bytes())
+
+        def commit_route() -> str:
+            git("add", "-A", repo=route)
+            git("commit", "-q", "-m", "P2-03 behavior fixture", repo=route)
+            return git("rev-parse", "HEAD", repo=route).decode("ascii").strip()
+
+        def event(before: str, head: str) -> dict[str, Any]:
+            return {
+                "action": "synchronize",
+                "before": before,
+                "after": head,
+                "pull_request": {"head": {"sha": head}},
+            }
+
+        def changed(before: str, head: str) -> dict[str, Any]:
+            return classifier.classify_event(event(before, head), "pull_request", head, route)
+
+        def positive(label: str, before: str, head: str, path: str) -> None:
+            actual = changed(before, head)
+            proof = publication.verify_publication(event(before, head), "pull_request", head, route)
+            yes(
+                label,
+                actual == proof
+                and actual["class"] == "P"
+                and actual["gate"] == "PUBLICATION_EXACT_SHA"
+                and actual["changed_paths"] == [path],
+            )
+
+        def full(label: str, before: str, head: str, paths: list[str]) -> None:
+            actual = changed(before, head)
+            yes(
+                label,
+                actual["class"] == "UNKNOWN"
+                and actual["gate"] == "FULL_EXACT_SHA"
+                and actual["changed_paths"] == sorted(paths)
+                and "publication_non_add_modify_delta" in actual["reason_codes"],
+            )
+
+        before = commit_route()
+        report = "docs/w04/checkpoints/fixture/W04_FIXTURE_FINAL_CLOSEOUT_REPORT.md"
+        state = "docs/CURRENT_STATE.md"
+        for path, label in ((report, "w04-add"), (state, "state-add")):
+            target = route / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("# Report\n", encoding="utf-8", newline="\n")
+            head = commit_route()
+            positive(label, before, head, path)
+            before = head
+            target.write_text("# Modified\n", encoding="utf-8", newline="\n")
+            head = commit_route()
+            positive(label.replace("add", "modify"), before, head, path)
+            before = head
+        for path, label in ((report, "w04-delete"), (state, "state-delete")):
+            deleted_base = before
+            (route / path).unlink()
+            head = commit_route()
+            full(label, before, head, [path])
+            weakened = classifier.result("P", before, head, [path], "regression-control")
+            with patch.object(publication, "classify_event", return_value=weakened):
+                no(
+                    label + "-defense",
+                    lambda before=before, head=head: publication.verify_publication(
+                        event(before, head), "pull_request", head, route
+                    ),
+                    "missing publication file at verified head:",
+                )
+            before = head
+        push = classifier.classify_event(event(deleted_base, head), "push", head, route)
+        yes(
+            "push-delete",
+            push["class"] == "UNKNOWN"
+            and push["gate"] == "FULL_EXACT_SHA"
+            and push["reason_codes"] == ["push_full"],
+        )
+        (route / report).write_text("# Restored\n", encoding="utf-8", newline="\n")
+        before = commit_route()
+        renamed = report.replace("FIXTURE_", "RENAMED_")
+        git("mv", report, renamed, repo=route)
+        head = commit_route()
+        full("publication-rename", before, head, [report, renamed])
+        (route / renamed).unlink()
+        (route / report).write_text("# New report\n", encoding="utf-8", newline="\n")
+        before, head = head, commit_route()
+        full("mixed-add-delete", before, head, [report, renamed])
+        for path, expected in (
+            ("docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json", "C"),
+            ("src/flowlens/investigation/fixture.py", "I"),
+            ("uv.lock", "F"),
+            ("unknown/fixture.txt", "UNKNOWN"),
+        ):
+            target = route / path
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("fixture\n", encoding="utf-8", newline="\n")
+            before, head = head, commit_route()
+            actual = changed(before, head)
+            yes(
+                "routing-" + expected,
+                actual["class"] == expected and actual["gate"] == "FULL_EXACT_SHA",
+            )
+        malformed = {
+            "no-nul": b"M\x00docs/CURRENT_STATE.md",
+            "odd": b"M\x00path\x00A\x00",
+            "status": b"Q\x00path\x00",
+            "empty-status": b"\x00path\x00",
+            "empty-path": b"M\x00\x00",
+            "utf8": b"M\x00\xff\x00",
+            "status-utf8": b"\xff\x00path\x00",
+            "duplicate": b"A\x00path\x00M\x00path\x00",
+        }
+        for label, payload in malformed.items():
+            with patch.object(
+                subprocess, "run", return_value=subprocess.CompletedProcess([], 0, stdout=payload)
+            ):
+                no("parser-" + label, lambda: classifier.changed_entries(route, "base", "head"))
+        with patch.object(
+            subprocess,
+            "run",
+            return_value=subprocess.CompletedProcess(
+                [], 0, stdout=b"T\x00docs/CURRENT_STATE.md\x00"
+            ),
+        ):
+            yes(
+                "parser-type-change",
+                classifier.changed_entries(route, "base", "head")
+                == [("T", "docs/CURRENT_STATE.md")],
+            )
+        # Use a real committed type transition without creating a host symlink.
+        (route / state).write_text("# State\n", encoding="utf-8", newline="\n")
+        before = commit_route()
+        blob = (
+            subprocess.run(
+                ["git", "hash-object", "-w", "--stdin"],
+                cwd=route,
+                check=True,
+                input=b"target\n",
+                capture_output=True,
+            )
+            .stdout.decode()
+            .strip()
+        )
+        git("update-index", "--cacheinfo", "120000," + blob + "," + state, repo=route)
+        git("commit", "-q", "-m", "P2-03 type fixture", repo=route)
+        head = git("rev-parse", "HEAD", repo=route).decode().strip()
+        full("publication-type-change", before, head, [state])
+
+        hardening = w04_p2_03_hardening_revision()
+        require(hardening is not None, "P2_03 controls require the committed hardening")
+        hardening = cast(str, hardening)
+        valid = w04_p2_03_commit_record(hardening)
+        yes("history-hardening", validate_w04_p2_03_history([valid]) == hardening)
+        yes("history-before", validate_w04_p2_03_history([]) is None)
+        doc = w04_p2_03_commit_record(W04_P2_03_DOC_SYNC_SHA)
+        yes("history-docs", validate_w04_p2_03_history([valid, doc]) == hardening)
+        mutations: list[tuple[str, str, Any]] = [
+            ("parent", "parents", [W04_PR7_FINAL_SHA]),
+            ("merge-parent", "parents", [W04_POST_MERGE_BASE_SHA, hardening]),
+            ("root-parent", "parents", []),
+            ("subject", "subject", "ci: unauthorized"),
+            ("sha", "sha", "0" * 40),
+            ("extra-path", "delta", {**valid["delta"], "README.md": "M"}),
+        ]
+        for path in W04_P2_03_HARDENING_PATHS:
+            mutations.append(
+                ("missing:" + path, "delta", {p: s for p, s in valid["delta"].items() if p != path})
+            )
+            for status in ("A", "D", "R100"):
+                mutations.append((status + ":" + path, "delta", {**valid["delta"], path: status}))
+        for label, key, value in mutations:
+            damaged_record = copy.deepcopy(valid)
+            damaged_record[key] = value
+            no(
+                "history-" + label,
+                lambda damaged_record=damaged_record: validate_w04_p2_03_history([damaged_record]),
+                "P2_03",
+            )
+        second = {**valid, "sha": "e" * 40}
+        no("history-multiple", lambda: validate_w04_p2_03_history([valid, second]), "P2_03")
+        no("history-duplicate", lambda: validate_w04_p2_03_history([valid, valid]), "P2_03")
+
+        for path in W04_P2_03_CI_EDITS:
+            baseline = git("show", W04_POST_MERGE_BASE_SHA + ":" + path).decode("utf-8")
+            current = (ROOT / path).read_text(encoding="utf-8")
+            no(
+                "ci-drift:" + path,
+                lambda path=path, baseline=baseline, current=current: validate_w04_p2_03_ci_sources(
+                    path, baseline, current + "\n# drift\n"
+                ),
+                "P2_03",
+            )
+        for path, names in W04_P2_03_TEST_FUNCTIONS.items():
+            baseline = git("show", W04_POST_MERGE_BASE_SHA + ":" + path).decode("utf-8")
+            current = (ROOT / path).read_text(encoding="utf-8")
+            _, units = source_units(current)
+            unrelated = next(n for n in units if n.startswith("test_") and n not in names)
+            damaged = current.replace(units[unrelated][0], units[unrelated][0] + "    pass\n", 1)
+            no(
+                "test-unrelated:" + path,
+                lambda path=path, baseline=baseline, damaged=damaged: (
+                    validate_w04_p2_03_test_sources(path, baseline, damaged)
+                ),
+                "P2_03",
+            )
+            no(
+                "test-extra:" + path,
+                lambda path=path, baseline=baseline, current=current: (
+                    validate_w04_p2_03_test_sources(
+                        path, baseline, current + "\ndef test_unapproved():\n    pass\n"
+                    )
+                ),
+                "P2_03",
+            )
+            for name in names:
+                unit = units[name][0]
+                for label, replacement in (
+                    ("body", unit + "    pass\n"),
+                    ("signature", unit.replace("def " + name + "(", "def renamed(", 1)),
+                    ("decorator", '@pytest.mark.usefixtures("unapproved")\n' + unit),
+                ):
+                    damaged = current.replace(unit, replacement, 1)
+                    no(
+                        "test-" + label + ":" + name,
+                        lambda path=path, baseline=baseline, damaged=damaged: (
+                            validate_w04_p2_03_test_sources(path, baseline, damaged)
+                        ),
+                        "P2_03",
+                    )
+            parametrized = next(n for n in names if "@pytest.mark.parametrize" in units[n][0])
+            damaged = current.replace(
+                units[parametrized][0],
+                units[parametrized][0].replace('"P"', '"UNKNOWN"', 1)
+                if '"P"' in units[parametrized][0].split("def ")[0]
+                else units[parametrized][0].replace(
+                    "W04_FIXTURE_FINAL_CLOSEOUT_REPORT.md",
+                    "W04_CHANGED_FINAL_CLOSEOUT_REPORT.md",
+                    1,
+                ),
+                1,
+            )
+            require(damaged != current, "P2_03 parameter adversary did not mutate")
+            no(
+                "test-parametrization:" + path,
+                lambda path=path, baseline=baseline, damaged=damaged: (
+                    validate_w04_p2_03_test_sources(path, baseline, damaged)
+                ),
+                "P2_03",
+            )
+
+        review = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode()
+        current = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+        _, units = source_units(current)
+        verifier_mutations = {
+            "constant": current.replace(
+                units["W04_POST_MERGE_BASE_SHA"][0],
+                'W04_POST_MERGE_BASE_SHA = "' + "e" * 40 + '"\n',
+                1,
+            ),
+            "legacy": current.replace(units["require"][0], units["require"][0] + "    pass\n", 1),
+            "extra": current + "\ndef unapproved_p2_unit():\n    pass\n",
+            "admitted": current.replace(
+                units["w04_p2_03_hardening_revision"][0],
+                units["w04_p2_03_hardening_revision"][0] + "    pass\n",
+                1,
+            ),
+            "order": current.replace(units["w04_p2_03_commit_record"][0], "", 1)
+            + "\n"
+            + units["w04_p2_03_commit_record"][0],
+        }
+        for label, damaged in verifier_mutations.items():
+            require(damaged != current, "P2_03 verifier adversary did not mutate")
+            no(
+                "verifier-" + label,
+                lambda damaged=damaged: validate_w04_pr7_merge_verifier_sources(review, damaged),
+                "P2_03",
+            )
+
+        fixture = directory / "source"
+        git(
+            "clone",
+            "--quiet",
+            "--no-hardlinks",
+            "--no-checkout",
+            str(ROOT),
+            str(fixture),
+            repo=directory,
+        )
+        git("config", "user.email", "ci@example.test", repo=fixture)
+        git("config", "user.name", "CI Test", repo=fixture)
+        git("config", "core.autocrlf", "false", repo=fixture)
+        git("checkout", "-q", "--detach", hardening, repo=fixture)
+        w04_p2_03_protected_source_guard(fixture)
+        done("git-hardening-freeze")
+        for path in W04_P2_03_HARDENING_PATHS:
+            target = fixture / path
+            target.write_bytes(target.read_bytes() + b"\n# unauthorized drift\n")
+            git("add", "--", path, repo=fixture)
+            git("commit", "-q", "-m", "fixture protected drift", repo=fixture)
+            no(
+                "git-protected:" + path,
+                lambda: w04_p2_03_protected_source_guard(fixture),
+                "P2_03",
+            )
+            git("checkout", "-q", "--detach", hardening, repo=fixture)
+        real_git = git
+
+        def fixture_git(*arguments: str, repo: Path = ROOT) -> bytes:
+            return real_git(*arguments, repo=fixture)
+
+        for path in (
+            ".github/workflows/ci.yml",
+            "docs/w04/checkpoints/c09/specs/c09_gate_manifest.json",
+            "src/flowlens/investigation/__init__.py",
+        ):
+            target = fixture / path
+            target.write_bytes(target.read_bytes() + b"\n# unauthorized drift\n")
+            git("add", "--", path, repo=fixture)
+            git("commit", "-q", "-m", "fixture frozen drift", repo=fixture)
+            if path == ".github/workflows/ci.yml":
+                no("git-frozen:" + path, lambda: workflow_guard(fixture))
+            elif path == "docs/w04/checkpoints/c09/specs/c09_gate_manifest.json":
+                no("git-frozen:" + path, lambda path=path: runner.load_manifest(fixture / path))
+            else:
+                with patch.dict(
+                    globals(),
+                    {
+                        "ROOT": fixture,
+                        "git": fixture_git,
+                        "w04_p2_03_protected_source_guard": lambda: None,
+                    },
+                ):
+                    no(
+                        "git-frozen:" + path,
+                        verify_collection_and_scope,
+                        "W04_C09_PROTECTED_OBJECT_DRIFT",
+                    )
+            git("checkout", "-q", "--detach", hardening, repo=fixture)
+        tree = git("rev-parse", hardening + "^{tree}", repo=fixture).decode().strip()
+        duplicate = (
+            git(
+                "commit-tree",
+                tree,
+                "-p",
+                W04_POST_MERGE_BASE_SHA,
+                "-m",
+                W04_P2_03_HARDENING_SUBJECT,
+                "-m",
+                "second control anchor",
+                repo=fixture,
+            )
+            .decode()
+            .strip()
+        )
+        merged = (
+            git(
+                "commit-tree",
+                tree,
+                "-p",
+                hardening,
+                "-p",
+                duplicate,
+                "-m",
+                "control merge",
+                repo=fixture,
+            )
+            .decode()
+            .strip()
+        )
+        git("checkout", "-q", "--detach", merged, repo=fixture)
+        no(
+            "git-multiple-anchors",
+            lambda: w04_p2_03_hardening_revision(fixture),
+            "P2_03",
+        )
+        wrong = (
+            git(
+                "commit-tree",
+                tree,
+                "-p",
+                W04_POST_MERGE_BASE_SHA,
+                "-m",
+                "ci: wrong hardening subject",
+                repo=fixture,
+            )
+            .decode()
+            .strip()
+        )
+        git("checkout", "-q", "--detach", wrong, repo=fixture)
+        no("git-wrong-subject", lambda: w04_p2_03_hardening_revision(fixture), "P2_03")
+        documentation = (
+            git(
+                "commit-tree",
+                W04_POST_MERGE_BASE_SHA + "^{tree}",
+                "-p",
+                W04_POST_MERGE_BASE_SHA,
+                "-m",
+                "docs: control parent",
+                repo=fixture,
+            )
+            .decode()
+            .strip()
+        )
+        wrong = (
+            git(
+                "commit-tree",
+                tree,
+                "-p",
+                documentation,
+                "-m",
+                W04_P2_03_HARDENING_SUBJECT,
+                repo=fixture,
+            )
+            .decode()
+            .strip()
+        )
+        git("checkout", "-q", "--detach", wrong, repo=fixture)
+        no("git-wrong-parent", lambda: w04_p2_03_hardening_revision(fixture), "P2_03")
+    require(
+        len(completed) == len(W04_P2_03_CONTROL_LABELS)
+        and set(completed) == set(W04_P2_03_CONTROL_LABELS),
+        "P2_03 deterministic control coverage/count drift",
+    )
+    return len(completed)
+
+def w04_p2_03_r2_repair_revision(repo: Path = ROOT) -> str | None:
+    """Discover the sole repair only after validating the complete ordered history."""
+    if w04_p2_03_hardening_revision(repo) is None:
+        return None
+    revisions = (
+        git("rev-list", "--reverse", "--topo-order", W04_POST_MERGE_BASE_SHA + "..HEAD", repo=repo)
+        .decode("ascii")
+        .splitlines()
+    )
+    return revisions[2] if len(revisions) == 3 else None
+
+
+def validate_w04_p2_03_r2_test_sources(entry: str, current: str, repo: Path = ROOT) -> None:
+    path = "tests/test_c09_ci_gate.py"
+    require(
+        entry == git("show", W04_P2_03_DOC_SYNC_SHA + ":" + path, repo=repo).decode("utf-8"),
+        "P2_03 R2 C09 baseline identity",
+    )
+    repair = w04_p2_03_r2_repair_revision(repo)
+    require(repair is not None, "P2_03 R2 C09 requires exact committed repair")
+    old_order, old = source_units(entry)
+    new_order, new = source_units(current)
+    _, frozen = source_units(git("show", str(repair) + ":" + path, repo=repo).decode("utf-8"))
+    require(old_order == new_order, "P2_03 R2 C09 unit/name/order drift")
+    old_lines, new_lines = entry.splitlines(keepends=True), current.splitlines(keepends=True)
+    for name in old_order:
+        if name != W04_P2_03_R2_C09_TARGET:
+            require(old[name][0] == new[name][0], "P2_03 R2 unrelated C09 span: " + name)
+            continue
+        a, b = old[name][1], new[name][1]
+        require(
+            isinstance(a, ast.FunctionDef) and isinstance(b, ast.FunctionDef),
+            "P2_03 R2 C09 function kind",
+        )
+        a, b = cast(ast.FunctionDef, a), cast(ast.FunctionDef, b)
+        left, right = copy.deepcopy(a), copy.deepcopy(b)
+        left.body, right.body = [], []
+        require(
+            ast.dump(left, include_attributes=False) == ast.dump(right, include_attributes=False),
+            "P2_03 R2 C09 signature/decorator/parameter drift",
+        )
+        a_start = min([a.lineno, *(d.lineno for d in a.decorator_list)]) - 1
+        b_start = min([b.lineno, *(d.lineno for d in b.decorator_list)]) - 1
+        require(
+            old_lines[a_start : a.body[0].lineno - 1] == new_lines[b_start : b.body[0].lineno - 1],
+            "P2_03 R2 C09 declaration source drift",
+        )
+        require(new[name][0] == frozen[name][0], "P2_03 R2 C09 committed target body drift")
+    require(
+        current.encode("utf-8") == git("show", str(repair) + ":" + path, repo=repo),
+        "P2_03 R2 C09 committed bytes drift",
+    )
+
+
+def validate_w04_p2_03_r2_verifier_sources(review_ready: str, current: str) -> None:
+    """Execute the accepted R1 chain, then admit only literal R2 connectors/additions."""
+    accepted = git("show", W04_P2_03_DOC_SYNC_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode("utf-8")
+    validate_w04_p2_03_verifier_sources(review_ready, accepted)
+    old_order, old = source_units(accepted)
+    new_order, new = source_units(current)
+    additions = set(W04_P2_03_R2_SOURCE_ADDITIONS)
+    require(set(new) == set(old) | additions, "P2_03 R2 verifier unit addition/removal")
+    require(
+        [name for name in new_order if name not in additions] == old_order
+        and [name for name in new_order if name in additions]
+        == list(W04_P2_03_R2_SOURCE_ADDITIONS),
+        "P2_03 R2 verifier unit order",
+    )
+    require(
+        set(W04_P2_03_R2_CONNECTORS)
+        == {
+            "validate_w04_pr7_merge_verifier_sources",
+            "w04_pr7_merge_verifier_blob_guard",
+            "validate_w04_p2_03_history",
+            "validate_w04_p2_03_meta_ci_sources",
+            "w04_p2_03_protected_source_guard",
+            "check_w04_p2_03_controls",
+        },
+        "P2_03 R2 connector authority drift",
+    )
+    for name in old_order:
+        expected = old[name][0].encode("utf-8")
+        for before, after in W04_P2_03_R2_CONNECTORS.get(name, ()):
+            expected = replace_once(expected, before.encode("utf-8"), after.encode("utf-8"))
+        require(
+            new[name][0].encode("utf-8") == expected, "P2_03 R2 unrelated verifier span: " + name
+        )
+        if name in W04_P2_03_R2_CONNECTORS:
+            a, b = copy.deepcopy(old[name][1]), copy.deepcopy(new[name][1])
+            require(
+                isinstance(a, ast.FunctionDef) and isinstance(b, ast.FunctionDef),
+                "P2_03 R2 connector function kind",
+            )
+            a, b = cast(ast.FunctionDef, a), cast(ast.FunctionDef, b)
+            a.body, b.body = [], []
+            require(
+                ast.dump(a, include_attributes=False) == ast.dump(b, include_attributes=False),
+                "P2_03 R2 connector signature/decorator drift",
+            )
+    repair = w04_p2_03_r2_repair_revision()
+    require(repair is not None, "P2_03 R2 source requires exact repair")
+    frozen_source = git("show", str(repair) + ":" + CLOSEOUT_VERIFIER_PATH).decode("utf-8")
+    frozen_order, frozen = source_units(frozen_source)
+    require(new_order == frozen_order, "P2_03 R2 committed unit order")
+    for name in W04_P2_03_R2_SOURCE_ADDITIONS:
+        require(new[name][0] == frozen[name][0], "P2_03 R2 admitted span drift: " + name)
+    require(
+        current.encode("utf-8") == frozen_source.encode("utf-8")
+        and git("ls-tree", "HEAD", "--", CLOSEOUT_VERIFIER_PATH)
+        == git("ls-tree", str(repair), "--", CLOSEOUT_VERIFIER_PATH),
+        "P2_03 R2 committed verifier bytes/tree drift",
+    )
+
+
+def check_w04_p2_03_r2_controls() -> int:
+    """Prove the reported real-Git escape and every narrow recovery boundary."""
+    completed: list[str] = []
+
+    def yes(label: str, condition: bool) -> None:
+        require(condition, "P2_03 R2 positive control failed: " + label)
+        require(
+            label in W04_P2_03_R2_CONTROL_LABELS and label not in completed,
+            "P2_03 R2 control identity",
+        )
+        completed.append(label)
+
+    def no(label: str, action: Any) -> None:
+        rejected("P2_03 R2 " + label, action)
+        yes(label, True)
+
+    hardening = w04_p2_03_commit_record(W04_P2_03_HARDENING_SHA)
+    docs = w04_p2_03_commit_record(W04_P2_03_DOC_SYNC_SHA)
+    repair_sha = w04_p2_03_r2_repair_revision()
+    require(repair_sha is not None, "P2_03 R2 controls require committed repair")
+    repair_sha = cast(str, repair_sha)
+    repair = w04_p2_03_commit_record(repair_sha)
+    history = [hardening, docs, repair]
+    for length in (1, 2, 3):
+        yes(
+            "state-" + str(length),
+            validate_w04_p2_03_history(history[:length]) == W04_P2_03_HARDENING_SHA,
+        )
+    extra = {
+        "sha": "f" * 40,
+        "parents": [W04_P2_03_DOC_SYNC_SHA],
+        "subject": "docs: arbitrary EXTRA",
+        "delta": {"EXTRA.md": "A"},
+    }
+    no("arbitrary-third", lambda: validate_w04_p2_03_history([hardening, docs, extra]))
+    no("arbitrary-fourth", lambda: validate_w04_p2_03_history(history + [extra]))
+    for index, record in enumerate(history):
+        for label, key, value in (
+            ("sha", "sha", "0" * 40),
+            ("invalid-sha", "sha", "g" * 40),
+            ("parent", "parents", [W04_PR7_MAIN_SHA]),
+            ("root", "parents", []),
+            ("merge", "parents", [*record["parents"], "e" * 40]),
+            ("subject", "subject", "ci: unauthorized"),
+            ("missing-path", "delta", {}),
+            ("extra-path", "delta", {**record["delta"], "EXTRA.md": "M"}),
+        ):
+            damaged_history = copy.deepcopy(history)
+            damaged_history[index][key] = value
+            no(
+                str(index) + "-" + label,
+                lambda damaged_history=damaged_history: validate_w04_p2_03_history(damaged_history),
+            )
+    for index in (0, 1):
+        damaged_history = copy.deepcopy(history)
+        damaged_history[index]["sha"] = "a" * 40
+        no(
+            str(index) + "-unpinned-sha",
+            lambda damaged_history=damaged_history: validate_w04_p2_03_history(damaged_history),
+        )
+    no("reordered", lambda: validate_w04_p2_03_history([docs, hardening, repair]))
+    no("duplicate", lambda: validate_w04_p2_03_history([hardening, docs, docs]))
+    no("record-shape", lambda: validate_w04_p2_03_history([{**hardening, "extra": True}]))
+    for path in W04_P2_03_R2_REPAIR_PATHS:
+        damaged_history = copy.deepcopy(history)
+        damaged_history[2]["delta"].pop(path)
+        no(
+            "repair-missing:" + path,
+            lambda damaged_history=damaged_history: validate_w04_p2_03_history(damaged_history),
+        )
+        for status in ("A", "D", "R", "T"):
+            damaged_history = copy.deepcopy(history)
+            damaged_history[2]["delta"][path] = status
+            no(
+                "repair-" + status + ":" + path,
+                lambda damaged_history=damaged_history: validate_w04_p2_03_history(damaged_history),
+            )
+    path = "tests/test_c09_ci_gate.py"
+    entry = git("show", W04_P2_03_DOC_SYNC_SHA + ":" + path).decode("utf-8")
+    current = (ROOT / path).read_text(encoding="utf-8")
+    validate_w04_p2_03_r2_test_sources(entry, current)
+    _, units = source_units(current)
+    target = units[W04_P2_03_R2_C09_TARGET][0]
+    yes(
+        "c09-stale-publication-freeze-removed",
+        '"scripts/ci/verify_publication.py",\n' not in target,
+    )
+    for frozen in ("pyproject.toml", "uv.lock", "docker-compose.yml"):
+        yes(
+            "c09-historical:" + frozen,
+            '"' + frozen + '"' in target and 'git("show", f"{gate.ENTRY}:{path}")' in target,
+        )
+    yes(
+        "c09-publication-e260",
+        '"e2606585829153a2f69c9628c916cf42dcc1b926"' in target
+        and "assert hardening == W04_P2_03_HARDENING_SHA" in target
+        and 'git("show", f"{hardening}:{path}").encode("utf-8")' in target
+        and "assert (ROOT / path).read_bytes() == expected" in target,
+    )
+    unrelated = next(
+        name for name in units if name.startswith("test_") and name != W04_P2_03_R2_C09_TARGET
+    )
+    import_unit = next(text for text, node in units.values() if isinstance(node, ast.Import))
+    name = W04_P2_03_R2_C09_TARGET
+    mutations = {
+        "unrelated": current.replace(units[unrelated][0], units[unrelated][0] + "    pass\n", 1),
+        "extra": current + "\ndef test_r2_unapproved():\n    pass\n",
+        "rename": current.replace("def " + name + "(", "def renamed(", 1),
+        "signature": current.replace("def " + name + "()", "def " + name + "(extra)", 1),
+        "decorator": current.replace(
+            "def " + name + "(", "@pytest.mark.skip\ndef " + name + "(", 1
+        ),
+        "import": current.replace(import_unit, "import fractions\n", 1),
+        "body": current.replace(target, target + "    pass\n", 1),
+    }
+    for label, damaged in mutations.items():
+        require(damaged != current, "P2_03 R2 C09 adversary did not mutate")
+        no(
+            "c09-" + label,
+            lambda damaged=damaged: validate_w04_p2_03_r2_test_sources(entry, damaged),
+        )
+    review = git("show", CLOSEOUT_REVIEW_READY_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode("utf-8")
+    source = (ROOT / CLOSEOUT_VERIFIER_PATH).read_text(encoding="utf-8")
+    validate_w04_p2_03_r2_verifier_sources(review, source)
+    _, source_spans = source_units(source)
+    for name in ("require", "validate_w04_p2_03_history", "w04_p2_03_r2_repair_revision"):
+        damaged = source.replace(source_spans[name][0], source_spans[name][0] + "    pass\n", 1)
+        no(
+            "verifier:" + name,
+            lambda damaged=damaged: validate_w04_p2_03_r2_verifier_sources(review, damaged),
+        )
+    no(
+        "verifier-extra",
+        lambda: validate_w04_p2_03_r2_verifier_sources(
+            review, source + "\ndef unapproved():\n    pass\n"
+        ),
+    )
+    for frozen in W04_P2_03_HARDENING_PATHS:
+        if frozen == CLOSEOUT_VERIFIER_PATH:
+            continue
+        yes(
+            "e260-freeze:" + frozen,
+            (ROOT / frozen).read_bytes() == git("show", W04_P2_03_HARDENING_SHA + ":" + frozen),
+        )
+    with tempfile.TemporaryDirectory(prefix="w04-p203-r2-") as temporary:
+        directory = Path(temporary)
+        fixture = directory / "repo"
+        git(
+            "clone",
+            "--quiet",
+            "--no-hardlinks",
+            "--no-checkout",
+            str(ROOT),
+            str(fixture),
+            repo=directory,
+        )
+        git("config", "core.autocrlf", "false", repo=fixture)
+        git("config", "user.name", "CI Test", repo=fixture)
+        git("config", "user.email", "ci@example.test", repo=fixture)
+        git("checkout", "-q", "--detach", W04_P2_03_DOC_SYNC_SHA, repo=fixture)
+        yes("git-doc-discovery", w04_p2_03_hardening_revision(fixture) == W04_P2_03_HARDENING_SHA)
+        yes("git-doc-no-repair", w04_p2_03_r2_repair_revision(fixture) is None)
+        # Execute the exact accepted R1 validator, not a simulated approximation.
+        legacy_source = git("show", W04_P2_03_DOC_SYNC_SHA + ":" + CLOSEOUT_VERIFIER_PATH).decode(
+            "utf-8"
+        )
+        legacy: dict[str, Any] = {
+            "__name__": "accepted_r1_control",
+            "__file__": str(ROOT / CLOSEOUT_VERIFIER_PATH),
+        }
+        exec(compile(legacy_source, "<accepted-ca250-verifier>", "exec"), legacy)
+        (fixture / "EXTRA.md").write_text(
+            "# Unauthorized descendant\n", encoding="utf-8", newline="\n"
+        )
+        git("add", "--", "EXTRA.md", repo=fixture)
+        git("commit", "-q", "-m", "docs: arbitrary EXTRA", repo=fixture)
+        yes(
+            "git-old-finding-reproduced",
+            legacy["w04_p2_03_hardening_revision"](fixture) == W04_P2_03_HARDENING_SHA,
+        )
+        legacy["w04_p2_03_protected_source_guard"](fixture)
+        yes("git-old-protected-escape-reproduced", True)
+        no("git-third-rejected", lambda: w04_p2_03_hardening_revision(fixture))
+        no("git-third-protected-rejected", lambda: w04_p2_03_protected_source_guard(fixture))
+        git("checkout", "-q", "--detach", repair_sha, repo=fixture)
+        yes("git-r2-discovery", w04_p2_03_r2_repair_revision(fixture) == repair_sha)
+        w04_p2_03_protected_source_guard(fixture)
+        yes("git-r2-protected", True)
+        frozen_paths = tuple(
+            dict.fromkeys((*W04_P2_03_HARDENING_PATHS, *W04_P2_03_R2_REPAIR_PATHS))
+        )
+        for frozen in frozen_paths:
+            target_path = fixture / frozen
+            original = target_path.read_bytes()
+            target_path.write_bytes(original + b"\n# unauthorized R2 drift\n")
+            no("git-working-drift:" + frozen, lambda: w04_p2_03_protected_source_guard(fixture))
+            target_path.write_bytes(original)
+        (fixture / "EXTRA.md").write_text("# Unauthorized fourth\n", encoding="utf-8", newline="\n")
+        git("add", "--", "EXTRA.md", repo=fixture)
+        git("commit", "-q", "-m", "docs: arbitrary fourth", repo=fixture)
+        no("git-fourth-rejected", lambda: w04_p2_03_hardening_revision(fixture))
+        no("git-fourth-repair-rejected", lambda: w04_p2_03_r2_repair_revision(fixture))
+        git("checkout", "-q", "--detach", repair_sha, repo=fixture)
+        real_git = git
+
+        def fixture_git(*arguments: str, repo: Path = ROOT) -> bytes:
+            return real_git(*arguments, repo=fixture)
+
+        for frozen in (
+            ".github/workflows/ci.yml",
+            "docs/w04/checkpoints/c09/specs/c09_gate_manifest.json",
+            "src/flowlens/investigation/__init__.py",
+        ):
+            target_path = fixture / frozen
+            original = target_path.read_bytes()
+            target_path.write_bytes(original + b"\n# unauthorized frozen drift\n")
+            if frozen == ".github/workflows/ci.yml":
+                no("git-frozen:" + frozen, lambda: workflow_guard(fixture))
+            elif frozen.endswith("c09_gate_manifest.json"):
+                no(
+                    "git-frozen:" + frozen,
+                    lambda target_path=target_path: runner.load_manifest(target_path),
+                )
+            else:
+                git("add", "--", frozen, repo=fixture)
+                git("commit", "-q", "-m", "fixture frozen runtime drift", repo=fixture)
+                # Isolate the unchanged historical runtime guard from the topology guard.
+                with patch.dict(
+                    globals(),
+                    {
+                        "ROOT": fixture,
+                        "git": fixture_git,
+                        "w04_p2_03_protected_source_guard": lambda: None,
+                    },
+                ):
+                    no("git-frozen:" + frozen, verify_collection_and_scope)
+            target_path.write_bytes(original)
+    require(
+        len(completed) == len(W04_P2_03_R2_CONTROL_LABELS)
+        and set(completed) == set(W04_P2_03_R2_CONTROL_LABELS),
+        "P2_03 R2 deterministic control coverage/count drift",
+    )
+    return len(completed)
 
 
 def validate_changed_paths(
@@ -3254,8 +5169,6 @@ def verify_collection_and_scope() -> dict[str, object]:
         "docs/w04/devctrl-02",
         "docs/w04/devctrl-03",
         *(f"docs/w04/checkpoints/c{i:02}" for i in range(1, 9)),
-        "scripts/ci/classify_change.py",
-        "scripts/ci/verify_publication.py",
         "scripts/ci/plan_non_integration_shards.py",
         "scripts/ci/pytest_outcome_receipt.py",
         "scripts/ci/run_non_integration_shard.py",
@@ -3263,6 +5176,7 @@ def verify_collection_and_scope() -> dict[str, object]:
         "scripts/ci/run_w03_ai_loop_gate.py",
         "scripts/ci/verify_w04_source_evolution.py",
     )
+    w04_p2_03_protected_source_guard()
     require(not git("diff", ENTRY, "--", *protected), "W04_C09_PROTECTED_OBJECT_DRIFT")
     raw = (ROOT / "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json").read_bytes()
     require(

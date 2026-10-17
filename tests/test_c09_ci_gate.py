@@ -574,12 +574,21 @@ def test_verification_runs_actual_shell_truth_table() -> None:
 
 def test_classifier_publication_and_runtime_frozen_materials_unchanged() -> None:
     for path in (
-        "scripts/ci/verify_publication.py",
         "pyproject.toml",
         "uv.lock",
         "docker-compose.yml",
     ):
         assert (ROOT / path).read_text(encoding="utf-8") == git("show", f"{gate.ENTRY}:{path}")
+    from verify_w04_investigation_gate_contract import (
+        W04_P2_03_HARDENING_SHA,
+    )
+
+    assert W04_P2_03_HARDENING_SHA == "e2606585829153a2f69c9628c916cf42dcc1b926"
+    hardening = W04_P2_03_HARDENING_SHA
+    assert hardening == W04_P2_03_HARDENING_SHA
+    path = "scripts/ci/verify_publication.py"
+    expected = git("show", f"{hardening}:{path}").encode("utf-8")
+    assert (ROOT / path).read_bytes() == expected
     # DEVCTRL-01 evolves authorized additions through the versioned manifest
     # while retaining all W03 source and every closed checkpoint's Git blobs.
     from verify_w04_source_evolution import verify_source_evolution

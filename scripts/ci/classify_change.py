@@ -104,6 +104,33 @@ def git(repo: Path, *args: str) -> bytes:
     ).stdout.strip()
 
 
+def changed_entries(repo: Path, base: str, head: str) -> list[tuple[str, str]]:
+    """Read exact status/path pairs; malformed Git output cannot grant light proof."""
+    raw = subprocess.run(
+        ["git", "diff", "--name-status", "--no-renames", "-z", base, head, "--"],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+    ).stdout
+    if not raw:
+        return []
+    if not raw.endswith(b"\x00"):
+        raise ValueError("unterminated Git status/path delta")
+    fields = raw[:-1].split(b"\x00")
+    if len(fields) % 2:
+        raise ValueError("malformed Git status/path delta")
+    entries = []
+    for status_raw, path_raw in zip(fields[::2], fields[1::2], strict=True):
+        status = status_raw.decode("ascii", errors="strict")
+        path = path_raw.decode("utf-8", errors="strict")
+        if re.fullmatch(r"[ACDMRTUXB]", status) is None or not path:
+            raise ValueError("invalid Git status/path entry")
+        entries.append((status, path))
+    if len({path for _, path in entries}) != len(entries):
+        raise ValueError("duplicate Git delta path")
+    return sorted(entries, key=lambda entry: entry[1])
+
+
 def changed_paths(repo: Path, base: str, head: str) -> list[str]:
     raw = subprocess.run(
         ["git", "diff", "--name-only", "--no-renames", "-z", base, head, "--"],
@@ -165,8 +192,11 @@ def classify_event(
         if git(repo, "cat-file", "-t", head) != b"commit":
             return result("UNKNOWN", base, head, [], "invalid_head_object")
         git(repo, "merge-base", "--is-ancestor", base, head)
-        paths = changed_paths(repo, base, head)
+        entries = changed_entries(repo, base, head)
+        paths = [path for _, path in entries]
         change_class = classify_paths(paths)
+        if change_class == "P" and any(status not in {"A", "M"} for status, _ in entries):
+            return result("UNKNOWN", base, head, paths, "publication_non_add_modify_delta")
         reason = (
             "verified_source_head_delta" if change_class != "UNKNOWN" else "unknown_or_empty_delta"
         )
