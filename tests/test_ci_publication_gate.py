@@ -61,6 +61,22 @@ def test_report_and_state_pass_exact_publication_proof(tmp_path: Path) -> None:
     result = verify_publication(event(base, head), "pull_request", head, repo)
     assert result["class"] == "P"
     assert result["head_sha"] == head
+    (repo / "docs/CURRENT_STATE.md").unlink()
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "delete current state")
+    deleted = git(repo, "rev-parse", "HEAD")
+    with pytest.raises(ValueError, match="not publication-only"):
+        verify_publication(event(head, deleted), "pull_request", deleted, repo)
+    from unittest.mock import patch
+
+    weakened = dict(
+        result, base_sha=head, head_sha=deleted, changed_paths=["docs/CURRENT_STATE.md"]
+    )
+    with (
+        patch("verify_publication.classify_event", return_value=weakened),
+        pytest.raises(ValueError, match="missing publication file at verified head:"),
+    ):
+        verify_publication(event(head, deleted), "pull_request", deleted, repo)
 
 
 @pytest.mark.parametrize(
@@ -80,6 +96,20 @@ def test_w04_narrow_report_grammars_pass_exact_publication(tmp_path: Path, name:
     assert result["class"] == "P" and result["gate"] == "PUBLICATION_EXACT_SHA"
     assert result["base_sha"] == base and result["head_sha"] == head
     assert result["changed_paths"] == [path]
+    (repo / path).unlink()
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "delete W04 report")
+    deleted = git(repo, "rev-parse", "HEAD")
+    with pytest.raises(ValueError, match="not publication-only"):
+        verify_publication(event(head, deleted), "pull_request", deleted, repo)
+    from unittest.mock import patch
+
+    weakened = dict(result, base_sha=head, head_sha=deleted, changed_paths=[path])
+    with (
+        patch("verify_publication.classify_event", return_value=weakened),
+        pytest.raises(ValueError, match="missing publication file at verified head:"),
+    ):
+        verify_publication(event(head, deleted), "pull_request", deleted, repo)
 
 
 @pytest.mark.parametrize(
