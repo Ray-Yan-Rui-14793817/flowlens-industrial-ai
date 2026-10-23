@@ -3,7 +3,7 @@
 Last Updated: 2026-10-22 (Asia/Shanghai)
 
 ~~~text
-CURRENT_PHASE = POST-W04 STABILIZATION CLOSED / W05-G0 SUCCESSOR GOVERNANCE NEXT
+CURRENT_PHASE = W05 / SUCCESSOR GOVERNANCE ACTIVE
 POST_W04_STABILIZATION = CLOSED
 POST_MERGE_DOC_SYNC = COMPLETE
 PR8 = MERGED / CLOSED / VERIFIED
@@ -13,8 +13,9 @@ PR8_POST_MERGE_CI = #153 / 39142499049 / attempt 1 / SUCCESS
 P2_03 = MERGED_NATIVE_PROVEN_CLOSED
 MR8_P1_01 = CLOSED / R4 V2 REPAIR AND MERGE NATIVE PROOF
 W04_HISTORICAL_GOVERNANCE_ANCHOR = 2f1627342ff2b04d8324fbffec3db2e230b302e0
-W05_SUCCESSOR_GOVERNANCE = NEXT / NOT ACTIVE
-W05_G0 = AUTHORIZED / IMPLEMENTATION NEXT
+W05_ACTIVE_PLAN = w05-active-non-integration-plan-v1
+W05_SUCCESSOR_GOVERNANCE = IMPLEMENTED / FIRST EXACT-HEAD NATIVE PROOF REQUIRED
+W05_G0 = IMPLEMENTED / AWAITING LOCAL AND FIRST NATIVE PROOF
 W05_C01 = NOT AUTHORIZED BY THIS TASK
 W05_C02 = NOT AUTHORIZED
 W05_PRODUCT_API = NOT IMPLEMENTED
@@ -40,8 +41,8 @@ Weights digest: a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851
 
 The current authorization is W05_G0_SUCCESSOR_GOVERNANCE_BOOTSTRAP_R1.
 Commit A synchronizes exactly README, AGENTS and this current projection.
-Commit B alone may activate the bounded successor governance. This commit does
-not claim that successor code or native proof exists. The historical anchor and
+Commit B implements the bounded successor governance. Native proof remains
+conditional until this exact commit's first attempt succeeds. The historical anchor and
 all historical W04 evidence remain unchanged.
 
 The numbered W01-W03 sections below are preserved historical snapshots.
@@ -4547,3 +4548,16 @@ STATUS: W03_MERGE_PREPARATION_PENDING_FULL_PROOF
 Only after merge and exact main CI PASS may final handoff state
 W03_MERGED_POST_MERGE_VERIFIED. Next: GPT POST-W03 CAPABILITY-GAP /
 SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW; no next phase is selected here.
+
+## Commit B proof condition
+
+The active successor implementation exists in this branch. Native success is
+not available at document authoring time. Only after all required local gates
+and this exact Commit B's first attempt-1 full native CI succeed does its
+effective projection become:
+W05_SUCCESSOR_GOVERNANCE = IMPLEMENTED / NATIVE-PROVEN / AWAITING INDEPENDENT REVIEW.
+Generated SHA/run IDs and the effective verdict belong in PR metadata and the
+external Development Report. Until then no native-proven or C01-ready claim is
+made. Main remains at the historical anchor until a separately authorized merge.
+
+The implemented contract is docs/w05/governance/W05_G0_SUCCESSOR_GOVERNANCE_CONTRACT.md.

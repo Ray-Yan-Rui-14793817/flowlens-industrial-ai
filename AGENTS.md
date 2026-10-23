@@ -4,8 +4,8 @@
 ## 1. Current phase and authority
 
 ~~~text
-CURRENT_PHASE = POST-W04 STABILIZATION CLOSED / W05-G0 SUCCESSOR GOVERNANCE NEXT
-TASK_ID = W05_G0_SUCCESSOR_GOVERNANCE_BOOTSTRAP_R1
+CURRENT_PHASE = W05 / SUCCESSOR GOVERNANCE ACTIVE
+TASK_ID = W05_G0_SUCCESSOR_GOVERNANCE_RECOVERY_R2
 POST_W04_STABILIZATION = CLOSED
 POST_MERGE_DOC_SYNC = COMPLETE
 PR8 = MERGED / CLOSED / VERIFIED
@@ -14,8 +14,9 @@ MR8_P1_01 = CLOSED / R4 V2 REPAIR AND MERGE NATIVE PROOF
 W04_HISTORICAL_GOVERNANCE_ANCHOR = 2f1627342ff2b04d8324fbffec3db2e230b302e0
 PR8_FEATURE_HEAD = bd29242f8e21ba31bc7782e0c98e1a8aed3641f8
 PR8_POST_MERGE_CI = #153 / 39142499049 / attempt 1 / SUCCESS
-W05_SUCCESSOR_GOVERNANCE = NEXT / NOT ACTIVE
-W05_G0 = AUTHORIZED / IMPLEMENTATION NEXT
+W05_ACTIVE_PLAN = w05-active-non-integration-plan-v1
+W05_SUCCESSOR_GOVERNANCE = IMPLEMENTED / FIRST EXACT-HEAD NATIVE PROOF REQUIRED
+W05_G0 = IMPLEMENTED / AWAITING LOCAL AND FIRST NATIVE PROOF
 W05_C01 = NOT AUTHORIZED BY THIS TASK
 W05_C02 = NOT AUTHORIZED
 W05_PRODUCT_API = NOT IMPLEMENTED
@@ -38,7 +39,8 @@ authority and source identities remain in docs/w04; accepted historical reports
 are not rewritten. Skills are procedural only (skills/SKILL_ADMISSION_POLICY.md).
 
 Use feat/w05-g0-successor-governance from exact main
-2f1627342ff2b04d8324fbffec3db2e230b302e0, in a fresh full-history worktree.
+2f1627342ff2b04d8324fbffec3db2e230b302e0. Recover the existing full-history
+worktree under R2; preserve the exact existing Commit A.
 
 Commit A: docs: synchronize PR #8 merged state
 Exactly README.md, AGENTS.md and docs/CURRENT_STATE.md.
@@ -115,3 +117,16 @@ The accepted runtime may read authorized operational facts through bounded build
 It may not write operational truth or SO / WO / PO / Delivery, schedule production, procure, replace suppliers, release quality, use future evidence, read runtime HGT, invent intervention candidates or declare unsupported causal truth.
 
 The LLM has bounded explanation/presentation authority only. It has no candidate, recommendation, decision, tool-execution, database, HGT or operational-write authority. Recommendation and deterministic investigation authority are frozen before presentation. Provider failure or unsafe output fails closed to the accepted deterministic fallback.
+
+## Commit B proof condition
+
+The active successor implementation exists in this branch. Native success is
+not available at document authoring time. Only after all required local gates
+and this exact Commit B's first attempt-1 full native CI succeed does its
+effective projection become:
+W05_SUCCESSOR_GOVERNANCE = IMPLEMENTED / NATIVE-PROVEN / AWAITING INDEPENDENT REVIEW.
+Generated SHA/run IDs and the effective verdict belong in PR metadata and the
+external Development Report. Until then no native-proven or C01-ready claim is
+made. Main remains at the historical anchor until a separately authorized merge.
+
+The implemented contract is docs/w05/governance/W05_G0_SUCCESSOR_GOVERNANCE_CONTRACT.md.
