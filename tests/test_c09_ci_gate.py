@@ -425,6 +425,7 @@ def test_workflow_one_job_exact_schedule_source_manifest_and_environment() -> No
         "integration-and-data",
         "non-integration",
         "non-integration-aggregate",
+        "w05-successor-governance",
     }
     job = current["w03-ai-loop-gate"]
     assert "name: W03 AI loop gate" in job
@@ -518,7 +519,7 @@ def test_verification_runs_actual_shell_truth_table() -> None:
     assert (
         "needs: [classify-change, static-and-plan, integration-and-data, "
         "non-integration-aggregate, quality, compose-smoke, publication-proof, "
-        "w03-ai-loop-gate, w04-investigation-gate]" in verification
+        "w03-ai-loop-gate, w04-investigation-gate, w05-successor-governance]" in verification
     )
     assert "if: always()" in verification and "timeout-minutes: 5" in verification
     assert "W03_RESULT: ${{ needs['w03-ai-loop-gate'].result }}" in verification
@@ -552,6 +553,7 @@ def test_verification_runs_actual_shell_truth_table() -> None:
             "COMPOSE_RESULT": "skipped" if change == "P" else "success",
             "W03_RESULT": "skipped" if change == "P" else "success",
             "W04_RESULT": "skipped" if change == "P" else "success",
+            "W05_RESULT": "skipped" if change == "P" else "success",
             "PUBLICATION_RESULT": "success" if change == "P" else "skipped",
             "STATIC_RESULT": "skipped" if change == "P" else "success",
             "INTEGRATION_RESULT": "skipped" if change == "P" else "success",
@@ -573,12 +575,15 @@ def test_verification_runs_actual_shell_truth_table() -> None:
 
 
 def test_classifier_publication_and_runtime_frozen_materials_unchanged() -> None:
-    for path in (
-        "pyproject.toml",
-        "uv.lock",
-        "docker-compose.yml",
-    ):
-        assert (ROOT / path).read_text(encoding="utf-8") == git("show", f"{gate.ENTRY}:{path}")
+    from verify_w05_successor_governance import (
+        verify_anchor,
+        verify_protected_material,
+        verify_surfaces,
+    )
+
+    verify_anchor(ROOT)
+    verify_surfaces(ROOT)
+    verify_protected_material(ROOT)
     from verify_w04_investigation_gate_contract import (
         W04_P2_03_HARDENING_SHA,
     )

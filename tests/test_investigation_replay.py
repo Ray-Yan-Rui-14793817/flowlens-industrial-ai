@@ -11,7 +11,6 @@ import io
 import json
 import os
 import random
-import re
 import secrets
 import socket
 import sqlite3
@@ -1177,12 +1176,24 @@ def test_r39_r40_r42_live_external_traps_no_refresh_or_operational_mutation(
 
 
 def _devctrl03_workflow_delta_guard() -> None:
-    """Enforce the exact C09-authorized workflow evolution from the pinned C09 entry."""
-    from verify_w04_investigation_gate_contract import workflow_guard
+    """Historical bytes remain anchored; current workflow has successor obligations."""
+    from verify_w05_successor_governance import (
+        verify_anchor,
+        verify_docs,
+        verify_protected_material,
+        verify_surfaces,
+    )
 
-    assert re.fullmatch(r"[0-9a-f]{40}", C09_ENTRY_SHA)
-    assert C09_ENTRY_SHA == "1fa841f2ee0d6612774c9f0ced204289df86e7a1"
-    workflow_guard(ROOT)
+    verify_anchor(ROOT)
+    verify_docs(ROOT)
+    verify_surfaces(ROOT)
+    verify_protected_material(ROOT)
+    historical = _git("show", planner.HISTORICAL_ANCHOR + ":.github/workflows/ci.yml")
+    assert "verify_w04_investigation_gate_contract.py" in historical
+    current = (ROOT / ".github/workflows/ci.yml").read_text(encoding="utf-8")
+    assert "W05 successor governance" in current
+    assert "W05_RESULT" in current
+    assert "Replay historical W04 governance at exact anchor" in current
 
 def test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchanged() -> None:
     manifest = json.loads((ROOT / "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json").read_bytes())
@@ -1232,9 +1243,6 @@ def test_r43_authorized_two_source_paths_and_every_closed_upstream_object_unchan
         "uv.lock",
         "docker-compose.yml",
         "scripts/ci/verify_w04_source_evolution.py",
-        "scripts/ci/pytest_outcome_receipt.py",
-        "scripts/ci/run_non_integration_shard.py",
-        "scripts/ci/verify_non_integration_shards.py",
         "tests/test_investigation_summary.py",
         "tests/test_investigation_summary_provider.py",
     ):
@@ -1258,6 +1266,7 @@ FULL_JOBS = frozenset(
         "Docker Compose smoke",
         "W03 AI loop gate",
         "W04 investigation gate",
+        "W05 successor governance",
         "Verification gate",
     }
 )
@@ -1457,8 +1466,9 @@ def test_r46_stage_b_exact_sha_full_native_ci(tmp_path: Path) -> None:
         )
     }
     expected_artifact_names.add(f"w04-c09-gate-{head}")
+    expected_artifact_names.add(f"w05-successor-governance-{head}")
     assert {a["name"] for a in proof["artifacts"]} == expected_artifact_names
-    assert len(proof["artifacts"]) == 11
+    assert len(proof["artifacts"]) == 12
     for artifact in proof["artifacts"]:
         assert artifact["head_sha"] == head and artifact["run_id"] == proof["run"]["id"]
         assert (
@@ -1475,37 +1485,22 @@ def test_r46_stage_b_exact_sha_full_native_ci(tmp_path: Path) -> None:
     _validate_w04_c09_gate_summary(summary, head, raw)
     assert summary == proof["w04"]
     assert hashlib.sha256(raw).hexdigest() == proof["w04_summary_raw_sha256"]
-    from verify_w04_investigation_gate_contract import replay_source_guard
-
-    replay_source_guard(ROOT)
+    _devctrl03_workflow_delta_guard()
     plan = planner.read_json(directory / "plan/plan.json")
     weights = planner.read_json(planner.WEIGHTS)
     baseline = planner.read_json(planner.BASELINE)
     planner.validate_plan(plan, weights, baseline, head)
     current = planner.collect_nodes(planner.MARKER)
     assert current == plan["collected_nodeids"]
-    assert len(current) == 2997
-    assert set(baseline["sorted_nodeids"]) <= set(current)
-    assert {n.split("::", 1)[0] for n in set(current) - set(baseline["sorted_nodeids"])} <= {
-        "tests/test_investigation_replay.py",
-        "tests/test_ci_test_sharding.py",
-    }
-    assert len(plan["files"]) == 63
-    assert plan["schema_version"] == "w04-devctrl03-non-integration-plan-v1"
-    assert planner.WEIGHTS.relative_to(ROOT).as_posix() == (
-        "docs/w04/devctrl-03/W04_DEVCTRL_03_MEASURED_SHARD_WEIGHTS.json"
-    )
-    assert (
-        weights["weights_sha256"]
-        == planner.MEASURED_WEIGHTS_DIGEST
-        == plan["weights_sha256"]
-        == plan["measured_weights_sha256"]
-    )
-    measured = planner.validate_weights(weights, {file["file"] for file in plan["files"]})
-    assert len(measured) == 63 and sum(measured.values()) == 9645665
-    assert plan["measured_file_weights_sha256"] == planner.MEASURED_EFFECTIVE_WEIGHTS_DIGEST
-    assert plan["measured_total_weight_milliseconds"] == 9645665
-    assert not {"base_weights_sha256", "bootstrap_weights_sha256"} & set(plan)
+    historical = planner.read_json(planner.HISTORICAL_BASELINE)
+    planner.enforce_historical(current, historical)
+    assert len(current) == plan["current_node_count"]
+    assert len(plan["files"]) == plan["current_file_count"]
+    assert plan["schema_version"] == "w05-active-non-integration-plan-v1"
+    assert plan["historical_nodeids_sha256"] == planner.CURRENT_NODES_DIGEST
+    assert weights["weights_sha256"] == planner.MEASURED_WEIGHTS_DIGEST == plan["weights_sha256"]
+    assert plan["current_nodeids_sha256"] == planner.digest(current)
+    assert set(baseline["sorted_nodeids"]) <= set(historical["nodeids"]) <= set(current)
     rebuilt = verifier.aggregate(
         plan, directory / "shards", "nonint-shard", tmp_path / "reaggregated"
     )

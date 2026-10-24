@@ -1,69 +1,63 @@
 # FlowLens Industrial AI — Current State / 当前状态
 
-**Last Updated:** 2026-10-17 (Asia/Shanghai)
-
-**Sprint / Current Project Phase:** POST-W04 STABILIZATION / PR #8 MERGE-LIFECYCLE REPAIR R4 V2
-
-**Product mode:** OFFLINE / SHADOW / HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST / NO OPERATIONAL MUTATION
-
-**W01 / W02:** CLOSED / VERIFIED; frozen schema, hashes, generator/scenario semantics and HGT isolation retained.
-
-**W03:** MERGED / CLOSED / VERIFIED via PR #6; historical main/base af61bdfd5f7cf7961811c4c2dc8e554dd7eed509; post-merge exact-SHA CI #86 / 37261505402 PASS.
-
-**W04:** MERGED / CLOSED / VERIFIED. C01-C10 implementation, independent review, Human acceptance and closeout are complete within accepted offline/shadow scope.
-
-**PR #7:** CLOSED / MERGED at b2b582541d38180c3bf8360699e6df271979829a. Its separately authorized merge used a merge commit; feat/w04-evidence-investigation is retained at ecd591fb00d00e8b84a5546cabe9dcd5ec5aec5c.
-
-**Historical main proof:** CI #149 / 39008095313, attempt 1 SUCCESS, exact PR #7 merge SHA, UNKNOWN / FULL_EXACT_SHA. 2997/2994/3, zero adverse outcomes, no-loss/exact-union/exact-once PASS; Integration 70, W03 38/85, W04 9/67/81 PASS.
-
-**Accepted limitations:** P2-01 missing actual-start evidence and P2-02 parent-directory fsync remain accepted PR #7 limitations with resolved threads. Runtime interpretation and audit persistence are unchanged.
-
-**P2-03 functional behavior:** R1 hardening e2606585829153a2f69c9628c916cf42dcc1b926 remains intact. Only verified publication A/M synchronize deltas retain light proof; deletion/type-change/rename/mixed add-delete route UNKNOWN / FULL_EXACT_SHA. Missing head publication content fails closed even under classifier regression. R2 preserves the C09 repair and validates every ordered source row. Closure still requires the separately reviewed/authorized stabilization merge and later post-merge proof.
-
-**Immutable source history:** b2b582541d38180c3bf8360699e6df271979829a → e2606585829153a2f69c9628c916cf42dcc1b926 → ca2506115b282d9569c3f7c35da266927a39520f → e706e1f8ed920af0e840fbb9e97725d47d79a2c6. R4 V2 authorizes one exact three-path child of e706 with subject ci(post-w04): admit PR #8 merge lifecycle.
-
-**Historical CI #150:** 39017960719 / attempt 1 FAILURE at ca250. Shard 5 had one stale historical publication-verifier freeze in test_classifier_publication_and_runtime_frozen_materials_unchanged (687 collected / 686 passed / 1 failed). #150 was not rerun; R2 repaired the assertion. Its partial successes remain historical, not complete final-head proof.
-
-**Completed R2 native proof:** [CI #151 / 39030171133](https://github.com/Ray-Yan-Rui-14793817/flowlens-industrial-ai/actions/runs/39030171133), attempt 1 SUCCESS at exact e706; I / FULL_EXACT_SHA. All mandatory jobs SUCCESS, Publication proof SKIPPED. Original artifact reconstruction: 2997 collected / 2994 passed / 3 accepted Linux skips; zero failed/error/xfail/xpass; entry no-loss/exact-union/exact-once PASS. Integration 70; W03 38/85; W04 9/67/81; original P2 93 and R2 95 controls PASS, historical 172 adversarial controls / 223 shell cases preserved. After R4, this remains exact-e706 historical evidence, not the new current-head proof.
-
-**R3 disposition:** COMPLETE, metadata-only, no source/commit/push/rerun. PRRT_kwDOT4LAIc6teu85 resolved as valid/repaired-by-R2/native-proven; PRRT_kwDOT4LAIc6tf4bs resolved as not reproducible on published e706 / review-environment topology mismatch. Cited c89efeb was absent from published source ancestry and actual native execution. Those dispositions do not dispose the separate MR8-P1-01 finding.
-
-**MR8-P1-01:** VALID / P1 / MERGE BLOCKER. A normal two-parent merge of e706 adds one revision to b2b582..HEAD and triggers the old strict max-three-row check. Do not merge e706. R4 V2 addresses this lifecycle defect without changing classifier/publication/runtime semantics.
-
-**Active bounded task:** POST_W04_P2_03_PR8_MERGE_LIFECYCLE_REPAIR_R4_V2, superseding the earlier R4 design. Exact M paths: W04 governance verifier, AGENTS.md and this current projection. Explicit-tip strict source history pins e260/ca250/e706 and admits only State 4's exact repair shape. Independent anchor discovery validates main-first/R4-second parents, identical trees, empty feature-to-merge diff, reachability and uniqueness; it does not pin merge subject or recurse through hardening discovery.
-
-**Integration semantics:** Before integration source tip is HEAD. After a validated PR #8 merge, source tip remains the anchor second parent, and later history length does not add feature-source rows. Existing W04 lifecycle remains W04_POST_MERGE_INTEGRATED. Separate P2 states are P2_03_PR8_PREMERGE_REPAIR, P2_03_PR8_MERGED_MAIN and P2_03_POST_PR8_INTEGRATED. Non-protected descendants remain topologically admissible; historical/runtime/CI guards continue to enforce their own boundaries.
-
-**Protected assets through PR #8 closure:** Classifier/publication and their R1 tests match e260; C09 test matches e706; verifier matches validated R4. Before integration AGENTS/CURRENT_STATE also match R4; tree equality preserves them at merge. After validated integration README/AGENTS/CURRENT_STATE may evolve. Every unrelated verifier unit/span and the complete historical source-validation chain remain protected.
-
-**R4 proof status:** This commit's own local governance, frozen W04 9/67/81, disposable normal-merge/docs-descendant/later-benign-docs-merge simulations, future-compatibility audit and first exact R4 native CI are required before declaring R4 proven. Native R4 proof is pending at document authoring time. Final generated SHA/run/evidence belong in the external handoff and synchronized PR body; conditional text is not a successful-run claim.
-
-**Future W05 boundary:** R4 fixes merge topology only. Current legacy W04 CI still pins 2997 exact nodes, 63 exact files, 7 shards and node/file/weights identities; build_plan() fails closed on collection drift. C09 still freezes pyproject.toml, uv.lock, docker-compose.yml, migrations and apps. A separately Human-authorized successor contract must preserve old SHA evidence/history, prove replacement guards and record a new baseline/version before evolving those assets. They are not declared impossible to evolve; R4 does not perform the transition or claim unrestricted W05 readiness.
+Last Updated: 2026-10-24 (Asia/Shanghai)
 
 ~~~text
-W05_SUCCESSOR_GOVERNANCE_REQUIRED = YES
-W05_CI_PLANNER_EVOLUTION_REQUIRED_IF_TEST_COLLECTION_CHANGES = YES
-W05_DEPENDENCY_MIGRATION_FREEZE_EVOLUTION_REQUIRED_IF_CHANGED = YES
-R4_CLAIMS_W05_READY = NO
+CURRENT_PHASE = W05 / SUCCESSOR GOVERNANCE ACTIVE
+TASK_ID = W05_G0_SUCCESSOR_GOVERNANCE_SCOPE_EXPANSION_RECOVERY_R5
+POST_W04_STABILIZATION = CLOSED
+POST_MERGE_DOC_SYNC = COMPLETE
+PR8 = MERGED / CLOSED / VERIFIED
+PR8_MERGE_SHA = 2f1627342ff2b04d8324fbffec3db2e230b302e0
+PR8_FEATURE_HEAD = bd29242f8e21ba31bc7782e0c98e1a8aed3641f8
+PR8_POST_MERGE_CI = #153 / 39142499049 / attempt 1 / SUCCESS
+P2_03 = MERGED_NATIVE_PROVEN_CLOSED
+MR8_P1_01 = CLOSED / R4 V2 REPAIR AND MERGE NATIVE PROOF
+W04_HISTORICAL_GOVERNANCE_ANCHOR = 2f1627342ff2b04d8324fbffec3db2e230b302e0
+W05_ACTIVE_PLAN = w05-active-non-integration-plan-v1
+W05_SUCCESSOR_GOVERNANCE = IMPLEMENTED / R4 NATIVE FAILED / CORRECTED-HEAD PROOF REQUIRED
+W05_G0 = R5 NARROW RECOVERY / LOCAL AND FIRST CORRECTED-HEAD NATIVE PROOF PENDING
+W05_C01 = NOT AUTHORIZED BY THIS TASK
+W05_C02 = NOT AUTHORIZED
+W05_PRODUCT_API = NOT IMPLEMENTED
+W05_UI = NOT IMPLEMENTED
+W06 = NOT AUTHORIZED
+MERGE_AUTHORITY = NO
+FLOWLENS_V1_0 = NOT RELEASED
 ~~~
 
-**Legacy identities preserved for R4:** node digest 9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a; file digest 890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7; weights digest a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851. Workflow, planner, runtime, dependencies, migrations/apps and W04 semantic/source-evolution manifests remain unchanged. Source-evolution raw SHA-256 d22a12306f8fe98952b9e35a5f166f29fee968c9aedcff27511da59889c20c2d; C01-C08 CLOSED, no C09/C10 runtime evolution entry.
+W01/W02 remain CLOSED / VERIFIED; W03 and W04 remain MERGED / CLOSED / VERIFIED.
+W04 C01-C10, accepted P2-01/P2-02 limitations, frozen runtime/schema/data and HGT
+isolation are preserved. Product mode remains OFFLINE / SHADOW /
+HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST / NO OPERATIONAL MUTATION.
 
-**Immutable historical proof:** C10 final 232bfb390babce30417b8cdb9a6660663eb3c3f1 / #145; Sprint Prep c8b29cbcffe1886412de4a31b75905f6397043fb / #146; Sprint Final 985f666e5ecfa5acd35565516e200c9b0e36c76b / #147; PR #7 governance repair ecd591fb00d00e8b84a5546cabe9dcd5ec5aec5c / #148. Historical reports keep original conditional/pre-merge fields.
+PR #8's actual merge and first exact-main native CI #153 completed the P2-03
+closure. Historical evidence proves 2997/2994/3, 63 files, 7 shards, zero adverse
+outcomes, no-loss/exact-union/exact-once; Integration 70; W03 38/85; W04 9/67/81;
+governance 172/223/93/95/98. Its feature head and the W04 branch remain retained.
 
-**Original Human authority/evidence:** [Human acceptance/authorization](w04/W04_SPRINT_HUMAN_ACCEPTANCE_AND_AUTHORIZATION.md), [independent review](w04/W04_GPT_INDEPENDENT_DEEP_REVIEW_R1.md), [context lock](w04/W04_SPRINT_CLOSEOUT_CONTEXT_LOCK.md), [Sprint final report](w04/W04_SPRINT_FINAL_CLOSEOUT_REPORT.md), [PR #7 readiness report](w04/W04_PR7_READINESS_REPORT.md), C01-C10 evidence and other recorded non-blocking limitations remain preserved.
+Node digest: 9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a.
+File digest: 890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7.
+Weights digest: a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851.
 
-**PR #8 / authority:** OPEN / READY / UNMERGED; merge NOT AUTHORIZED. No direct main write, force push, auto-merge/queue, branch deletion, checkpoint auto-advance or scope expansion. Stabilization branch and retained W04 branch remain. R4 local candidates may be rebuilt before freeze; no amend/rebase after freeze. Failed synthetic merge or first native R4 proof, or NEW P0/P1, requires STOP without automatic repair/rerun-as-proof.
+The current authorization is W05_G0_SUCCESSOR_GOVERNANCE_SCOPE_EXPANSION_RECOVERY_R5.
+Exact Commit A e61c7b1139e5bf3020f0d79994a3be0aea8072b5 remains preserved.
+R4 failed B 372e7516ddb112135b499979d8071a17c9b7ded2 / PR #9 / CI #154
+(run 39992193579, attempt 1 FAILURE) are sealed immutable failed history; PR #9
+remains unmerged. R5 cannot mutate PR #9, rewrite B or rerun B as acceptance.
+The new recovery branch feat/w05-g0-successor-governance-r5 starts from exact A.
+Corrected B' remains the sole second task commit and its generated identity,
+new PR and first exact-head native proof remain pending until they exist.
+Only the seven authorized R5 paths may differ from failed B: the classifier
+meta-test, successor verifier and existing tests, AGENTS, this current projection,
+and the successor contract/checklist. The workflow remains failed-B-identical.
+The classifier is the fourth admitted legacy meta-test; other protection remains.
+No native-proven or C01-ready claim exists before exact B' attempt 1 success.
+The historical anchor and all historical W04 evidence remain unchanged.
 
-**Next authorized action:** Complete R4's committed-head local gates, full disposable merge/descendant simulations and compatibility audit; freeze its sole three-path child, push once, reconstruct FIRST exact R4 native attempt-1 C / FULL_EXACT_SHA proof, then synchronize PR body. Stop for a new final independent merge review and explicit Human merge authorization.
-
-**W05:** NOT AUTHORIZED. Separate successor-governance and implementation authorization are required after stabilization closure.
-
-**FlowLens v1.0:** NOT RELEASED.
+The numbered W01-W03 sections below are preserved historical snapshots.
 
 ---
-
-The numbered W01-W03 sections below are preserved historical snapshots. Their original phase labels, pre-merge projections and acceptance history are historical evidence; the post-W04 projection above and the current authorized task govern this stabilization.
 
 ## 1. 当前已冻结内容 / Frozen Control-State Decisions
 
@@ -4564,3 +4558,16 @@ STATUS: W03_MERGE_PREPARATION_PENDING_FULL_PROOF
 Only after merge and exact main CI PASS may final handoff state
 W03_MERGED_POST_MERGE_VERIFIED. Next: GPT POST-W03 CAPABILITY-GAP /
 SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW; no next phase is selected here.
+
+## Corrected Commit B' proof condition
+
+The active successor implementation exists in this branch. Native success is
+not available at document authoring time. Only after all required local gates
+and this exact corrected B's first attempt-1 full native CI succeed does its
+effective projection become:
+W05_SUCCESSOR_GOVERNANCE = IMPLEMENTED / NATIVE-PROVEN / AWAITING INDEPENDENT REVIEW.
+Generated SHA/run IDs and the effective verdict belong in PR metadata and the
+external Development Report. Until then no native-proven or C01-ready claim is
+made. Main remains at the historical anchor until a separately authorized merge.
+
+The implemented contract is docs/w05/governance/W05_G0_SUCCESSOR_GOVERNANCE_CONTRACT.md.
