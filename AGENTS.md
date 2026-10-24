@@ -1,11 +1,11 @@
 # FlowLens Industrial AI — AGENTS.md
-> W05-G0 Successor Governance Bootstrap Execution Router
+> W05-G0 R5 Narrow Successor-Admission Recovery Execution Router
 
 ## 1. Current phase and authority
 
 ~~~text
-CURRENT_PHASE = POST-W04 STABILIZATION CLOSED / W05-G0 SUCCESSOR GOVERNANCE NEXT
-TASK_ID = W05_G0_SUCCESSOR_GOVERNANCE_BOOTSTRAP_R1
+CURRENT_PHASE = W05 / SUCCESSOR GOVERNANCE ACTIVE
+TASK_ID = W05_G0_SUCCESSOR_GOVERNANCE_SCOPE_EXPANSION_RECOVERY_R5
 POST_W04_STABILIZATION = CLOSED
 POST_MERGE_DOC_SYNC = COMPLETE
 PR8 = MERGED / CLOSED / VERIFIED
@@ -14,8 +14,9 @@ MR8_P1_01 = CLOSED / R4 V2 REPAIR AND MERGE NATIVE PROOF
 W04_HISTORICAL_GOVERNANCE_ANCHOR = 2f1627342ff2b04d8324fbffec3db2e230b302e0
 PR8_FEATURE_HEAD = bd29242f8e21ba31bc7782e0c98e1a8aed3641f8
 PR8_POST_MERGE_CI = #153 / 39142499049 / attempt 1 / SUCCESS
-W05_SUCCESSOR_GOVERNANCE = NEXT / NOT ACTIVE
-W05_G0 = AUTHORIZED / IMPLEMENTATION NEXT
+W05_ACTIVE_PLAN = w05-active-non-integration-plan-v1
+W05_SUCCESSOR_GOVERNANCE = IMPLEMENTED / R4 NATIVE FAILED / CORRECTED-HEAD PROOF REQUIRED
+W05_G0 = R5 NARROW RECOVERY / LOCAL AND FIRST CORRECTED-HEAD NATIVE PROOF PENDING
 W05_C01 = NOT AUTHORIZED BY THIS TASK
 W05_C02 = NOT AUTHORIZED
 W05_PRODUCT_API = NOT IMPLEMENTED
@@ -25,9 +26,9 @@ MERGE_AUTHORITY = NO
 FLOWLENS_V1_0 = NOT RELEASED
 ~~~
 
-The explicit Human W05-G0 authorization supersedes the former R4 execution
-boundary only for this exact two-commit governance transition. W01/W02, W03 and
-W04 C01-C10 remain closed. Runtime authority and frozen invariants below persist.
+The explicit Human R5 authorization supersedes failed-B scope wording only for
+the exact seven-path recovery delta. W01/W02, W03 and W04 C01-C10 remain closed.
+Runtime authority and frozen invariants below persist.
 
 ## 2. Contract, scope and proof
 
@@ -37,22 +38,32 @@ HGT contracts. The Git repository is the source of truth. Original W04 Human
 authority and source identities remain in docs/w04; accepted historical reports
 are not rewritten. Skills are procedural only (skills/SKILL_ADMISSION_POLICY.md).
 
-Use feat/w05-g0-successor-governance from exact main
-2f1627342ff2b04d8324fbffec3db2e230b302e0, in a fresh full-history worktree.
+Use the new feat/w05-g0-successor-governance-r5 worktree from exact Commit A
+e61c7b1139e5bf3020f0d79994a3be0aea8072b5, whose parent is exact main
+2f1627342ff2b04d8324fbffec3db2e230b302e0. Preserve A and the failed worktree.
+Failed B 372e7516ddb112135b499979d8071a17c9b7ded2, PR #9 and native CI #154 /
+39992193579 attempt 1 FAILURE are immutable failed predecessor history.
+R5 may not mutate PR #9, rewrite B or rerun B as acceptance proof.
 
 Commit A: docs: synchronize PR #8 merged state
 Exactly README.md, AGENTS.md and docs/CURRENT_STATE.md.
 
-Commit B: ci(w05): activate successor governance baseline
+Corrected Commit B': ci(w05): activate successor governance baseline
 Only .github/workflows/ci.yml; scripts/ci/{plan_non_integration_shards.py,
-pytest_outcome_receipt.py,run_non_integration_shard.py,
-verify_non_integration_shards.py,verify_w05_successor_governance.py};
-tests/{test_ci_test_sharding.py,test_c09_ci_gate.py,test_investigation_replay.py,
+pytest_outcome_receipt.py,verify_non_integration_shards.py,
+verify_w05_successor_governance.py};
+tests/{test_ci_change_classifier.py,test_ci_test_sharding.py,test_c09_ci_gate.py,
+test_investigation_replay.py,
 test_w05_successor_governance.py}; docs/w05/governance/
 {W05_G0_W04_HISTORICAL_BASELINE.json,W05_G0_ACTIVE_POLICY.json,
 W05_G0_SURFACE_BASELINE.json,W05_G0_SUCCESSOR_GOVERNANCE_CONTRACT.md,
 W05_G0_GPT_REVIEW_CHECKLIST.md}; AGENTS.md; docs/CURRENT_STATE.md.
-No third commit. No README change in B.
+B' has exactly 17 paths relative to A and is the sole second task commit.
+No third commit. No README change in B'. The R5 delta from failed B is exactly
+the classifier test, successor verifier, existing successor tests, this router,
+CURRENT_STATE and the successor contract/checklist. The verifier admits only the
+classifier as the fourth legacy meta-test; other historical protection remains.
+The workflow and all failed-B paths outside that seven-path delta remain exact.
 
 Do not modify src, W03/W04 runners, the W04 governance verifier, historical
 docs/w03 or docs/w04 evidence, pyproject.toml, uv.lock, Compose, migrations, apps,
@@ -68,7 +79,7 @@ exact union/once. Current W03 38/85 and W04 9/67/81 remain semantic regressions.
 
 Ruff, strict mypy, lock, focused controls, current semantic gates, historical
 governance replay and active plan proof precede the sole push. First exact
-Commit-B native CI attempt 1 must pass. Native IDs belong in PR/external
+corrected-B' native CI attempt 1 must pass. Native IDs belong in PR/external
 evidence after they exist. Readiness does not grant C01 or merge authority.
 
 Stop on changed entry main, required extra path, contract conflict, protected
@@ -115,3 +126,16 @@ The accepted runtime may read authorized operational facts through bounded build
 It may not write operational truth or SO / WO / PO / Delivery, schedule production, procure, replace suppliers, release quality, use future evidence, read runtime HGT, invent intervention candidates or declare unsupported causal truth.
 
 The LLM has bounded explanation/presentation authority only. It has no candidate, recommendation, decision, tool-execution, database, HGT or operational-write authority. Recommendation and deterministic investigation authority are frozen before presentation. Provider failure or unsafe output fails closed to the accepted deterministic fallback.
+
+## Corrected Commit B' proof condition
+
+The active successor implementation exists in this branch. Native success is
+not available at document authoring time. Only after all required local gates
+and this exact corrected B's first attempt-1 full native CI succeed does its
+effective projection become:
+W05_SUCCESSOR_GOVERNANCE = IMPLEMENTED / NATIVE-PROVEN / AWAITING INDEPENDENT REVIEW.
+Generated SHA/run IDs and the effective verdict belong in PR metadata and the
+external Development Report. Until then no native-proven or C01-ready claim is
+made. Main remains at the historical anchor until a separately authorized merge.
+
+The implemented contract is docs/w05/governance/W05_G0_SUCCESSOR_GOVERNANCE_CONTRACT.md.
