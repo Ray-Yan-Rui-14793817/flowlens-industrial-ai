@@ -1,20 +1,21 @@
 # FlowLens Industrial AI — Current State / 当前状态
 
-Last Updated: 2026-10-22 (Asia/Shanghai)
+Last Updated: 2026-10-26 (Asia/Shanghai)
 
 ~~~text
-CURRENT_PHASE = POST-W04 STABILIZATION CLOSED / W05-G0 SUCCESSOR GOVERNANCE NEXT
+CURRENT_PHASE = W05 / SUCCESSOR GOVERNANCE ACTIVE
+TASK_ID = W05_G0_SUCCESSOR_GOVERNANCE_POST_NATIVE_REVIEW_REPAIR_R2
 POST_W04_STABILIZATION = CLOSED
 POST_MERGE_DOC_SYNC = COMPLETE
 PR8 = MERGED / CLOSED / VERIFIED
-PR8_MERGE_SHA = 2f1627342ff2b04d8324fbffec3db2e230b302e0
-PR8_FEATURE_HEAD = bd29242f8e21ba31bc7782e0c98e1a8aed3641f8
-PR8_POST_MERGE_CI = #153 / 39142499049 / attempt 1 / SUCCESS
 P2_03 = MERGED_NATIVE_PROVEN_CLOSED
 MR8_P1_01 = CLOSED / R4 V2 REPAIR AND MERGE NATIVE PROOF
 W04_HISTORICAL_GOVERNANCE_ANCHOR = 2f1627342ff2b04d8324fbffec3db2e230b302e0
-W05_SUCCESSOR_GOVERNANCE = NEXT / NOT ACTIVE
-W05_G0 = AUTHORIZED / IMPLEMENTATION NEXT
+PR8_FEATURE_HEAD = bd29242f8e21ba31bc7782e0c98e1a8aed3641f8
+PR8_POST_MERGE_CI = #153 / 39142499049 / attempt 1 / SUCCESS
+W05_ACTIVE_PLAN = w05-active-non-integration-plan-v1
+W05_SUCCESSOR_GOVERNANCE = R5 NATIVE PROVEN / INDEPENDENT REVIEW BLOCKED / R2 PROOF PENDING
+W05_G0 = POST-NATIVE REVIEW REPAIR R2 / LOCAL AND FIRST EXACT-HEAD NATIVE PROOF PENDING
 W05_C01 = NOT AUTHORIZED BY THIS TASK
 W05_C02 = NOT AUTHORIZED
 W05_PRODUCT_API = NOT IMPLEMENTED
@@ -26,23 +27,44 @@ FLOWLENS_V1_0 = NOT RELEASED
 
 W01/W02 remain CLOSED / VERIFIED; W03 and W04 remain MERGED / CLOSED / VERIFIED.
 W04 C01-C10, accepted P2-01/P2-02 limitations, frozen runtime/schema/data and HGT
-isolation are preserved. Product mode remains OFFLINE / SHADOW /
+isolation remain preserved. Product mode stays OFFLINE / SHADOW /
 HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST / NO OPERATIONAL MUTATION.
 
-PR #8's actual merge and first exact-main native CI #153 completed the P2-03
-closure. Historical evidence proves 2997/2994/3, 63 files, 7 shards, zero adverse
-outcomes, no-loss/exact-union/exact-once; Integration 70; W03 38/85; W04 9/67/81;
-governance 172/223/93/95/98. Its feature head and the W04 branch remain retained.
+PR #8 merge and first exact-main CI #153 completed P2-03 closure. Its frozen
+historical proof remains 2997/2994/3, 63 files, 7 shards; zero adverse outcomes;
+no-loss/union/once; Integration 70; W03 38/85; W04 9/67/81; controls 172/223/93/95/98.
+Historical nodes: 9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a.
+Historical files: 890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7.
+Historical weights: a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851.
 
-Node digest: 9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a.
-File digest: 890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7.
-Weights digest: a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851.
+Failed B 372e7516ddb112135b499979d8071a17c9b7ded2 / PR #9 / CI #154
+(39992193579 attempt 1 FAILURE) remains immutable failed unmerged history.
+R5 B' d043030325d2a63f45990a23b7cd656129ae6f33 / PR #10 / CI #155
+(40072765844 attempt 1 SUCCESS) has original native receipt/aggregate proof but
+remains independent-review blocked. PR #10 P1 is mis-scoped: the historical
+ancestry guard is not a permanent exact-parent lifecycle guard. Task evidence
+separately proves G0's exact two-commit topology. P2 is a valid current Git mode
+gap; the same root affects non-admitted historical protected material.
 
-The current authorization is W05_G0_SUCCESSOR_GOVERNANCE_BOOTSTRAP_R1.
-Commit A synchronizes exactly README, AGENTS and this current projection.
-Commit B alone may activate the bounded successor governance. This commit does
-not claim that successor code or native proof exists. The historical anchor and
-all historical W04 evidence remain unchanged.
+The Human R2 task authorizes a new feat/w05-g0-successor-governance-review-r2
+worktree from exact A e61c7b1139e5bf3020f0d79994a3be0aea8072b5 and one B'' child.
+Only six paths differ from B': successor verifier/tests and four current
+governance documents. B'' remains 17 paths versus A; its new PR remains 18 unique
+paths versus exact entry main. Workflow, planner/receipt/aggregate, classifier
+and other legacy meta-tests, baselines, runtime and closed W01-W04 stay frozen.
+R2 strengthens committed blob/mode plus working-byte enforcement for surfaces
+and protected non-MUTABLE_CI material without broadening admission.
+
+HISTORICAL_ANCESTRY_GUARD remains in verify_anchor; G0_TASK_TOPOLOGY_PROOF is task
+Git-object/pre-freeze/final-inventory evidence. A new versioned lifecycle guard
+requires separate explicit authority. Both predecessor PRs/worktrees are retained.
+
+R2 must preserve 39/91 test identities, execute 479 focused cases, current W03/W04,
+real-Git mode controls, a fresh full isolated local historical replay, and exact
+active-plan proof before freeze. Local proof, generated B'' identity, first
+exact-B'' native attempt 1 and final review are pending until executed and sealed.
+No native-proven/review-clean/C01-ready claim is made in advance. Technical
+readiness cannot authorize C01/C02, merge, W06 or release.
 
 The numbered W01-W03 sections below are preserved historical snapshots.
 
@@ -4547,3 +4569,16 @@ STATUS: W03_MERGE_PREPARATION_PENDING_FULL_PROOF
 Only after merge and exact main CI PASS may final handoff state
 W03_MERGED_POST_MERGE_VERIFIED. Next: GPT POST-W03 CAPABILITY-GAP /
 SPRINT-SELECTION / ARCHITECTURE CONTRACT REVIEW; no next phase is selected here.
+
+## Corrected Commit B' proof condition
+
+The active successor implementation exists in this branch. Native success is
+not available at document authoring time. Only after all required local gates
+and this exact corrected B's first attempt-1 full native CI succeed does its
+effective projection become:
+W05_SUCCESSOR_GOVERNANCE = IMPLEMENTED / NATIVE-PROVEN / AWAITING INDEPENDENT REVIEW.
+Generated SHA/run IDs and the effective verdict belong in PR metadata and the
+external Development Report. Until then no native-proven or C01-ready claim is
+made. Main remains at the historical anchor until a separately authorized merge.
+
+The implemented contract is docs/w05/governance/W05_G0_SUCCESSOR_GOVERNANCE_CONTRACT.md.
