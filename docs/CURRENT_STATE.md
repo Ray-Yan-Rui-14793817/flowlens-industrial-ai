@@ -4,7 +4,8 @@ Last Updated: 2026-10-26 (Asia/Shanghai)
 
 ~~~text
 CURRENT_PHASE = W05 / SUCCESSOR GOVERNANCE ACTIVE
-TASK_ID = W05_G0_SUCCESSOR_GOVERNANCE_POST_NATIVE_REVIEW_REPAIR_R2
+TASK_ID = W05_G0_FINAL_CLOSEOUT_R1
+RESUME_ID = W05_G0_FINAL_CLOSEOUT_R1_RESUME_R1
 POST_W04_STABILIZATION = CLOSED
 POST_MERGE_DOC_SYNC = COMPLETE
 PR8 = MERGED / CLOSED / VERIFIED
@@ -14,8 +15,16 @@ W04_HISTORICAL_GOVERNANCE_ANCHOR = 2f1627342ff2b04d8324fbffec3db2e230b302e0
 PR8_FEATURE_HEAD = bd29242f8e21ba31bc7782e0c98e1a8aed3641f8
 PR8_POST_MERGE_CI = #153 / 39142499049 / attempt 1 / SUCCESS
 W05_ACTIVE_PLAN = w05-active-non-integration-plan-v1
-W05_SUCCESSOR_GOVERNANCE = R5 NATIVE PROVEN / INDEPENDENT REVIEW BLOCKED / R2 PROOF PENDING
-W05_G0 = POST-NATIVE REVIEW REPAIR R2 / LOCAL AND FIRST EXACT-HEAD NATIVE PROOF PENDING
+W05_SUCCESSOR_GOVERNANCE = COMPLETE_TECHNICALLY / LONG_LIVED_GUARD_ACTIVE
+W05_G0 = HUMAN_ACCEPTED / CLOSEOUT_AUTHORIZED / EFFECTIVE_CLOSURE_REQUIRES_OWN_SHA_NATIVE_SUCCESS
+W05_G0_GPT_INDEPENDENT_REVIEW = PASS_FOR_HUMAN_G0_ACCEPTANCE
+W05_G0_HUMAN_ACCEPTANCE = ACCEPTED
+W05_G0_CLOSEOUT_AUTHORIZATION = APPROVED
+W05_G0_CLOSEOUT_EFFECTIVE = ONLY_AFTER_THIS_CLOSEOUT_COMMIT_OWN_SHA_NATIVE_SUCCESS_AND_FINAL_SYNC
+W05_C01_ENTRY_READY = YES
+W05_C01_AUTHORIZATION = NO
+IMPLEMENTATION_TOPOLOGY = main -> A -> B_DOUBLE_PRIME
+CLOSEOUT_TOPOLOGY = main -> A -> B_DOUBLE_PRIME -> C
 W05_C01 = NOT AUTHORIZED BY THIS TASK
 W05_C02 = NOT AUTHORIZED
 W05_PRODUCT_API = NOT IMPLEMENTED
@@ -26,45 +35,45 @@ FLOWLENS_V1_0 = NOT RELEASED
 ~~~
 
 W01/W02 remain CLOSED / VERIFIED; W03 and W04 remain MERGED / CLOSED / VERIFIED.
-W04 C01-C10, accepted P2-01/P2-02 limitations, frozen runtime/schema/data and HGT
-isolation remain preserved. Product mode stays OFFLINE / SHADOW /
-HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST / NO OPERATIONAL MUTATION.
+Frozen runtime/schema/data, historical snapshots and HGT isolation remain preserved.
+Product mode stays OFFLINE / SHADOW / HUMAN-IN-THE-LOOP / DETERMINISTIC-FIRST /
+NO OPERATIONAL MUTATION.
 
-PR #8 merge and first exact-main CI #153 completed P2-03 closure. Its frozen
-historical proof remains 2997/2994/3, 63 files, 7 shards; zero adverse outcomes;
-no-loss/union/once; Integration 70; W03 38/85; W04 9/67/81; controls 172/223/93/95/98.
-Historical nodes: 9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a.
-Historical files: 890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7.
-Historical weights: a4558bd57d259a573cf305fd03dc1968fe6c5ac98b7b280c328332ac3816a851.
+Failed B / PR #9 / CI #154 remains failed unmerged history. R5 B-prime / PR #10 /
+CI #155 remains native-success, review-blocked predecessor history. Neither PR
+or predecessor worktree is changed or closed. Main remains the exact W04 anchor.
 
-Failed B 372e7516ddb112135b499979d8071a17c9b7ded2 / PR #9 / CI #154
-(39992193579 attempt 1 FAILURE) remains immutable failed unmerged history.
-R5 B' d043030325d2a63f45990a23b7cd656129ae6f33 / PR #10 / CI #155
-(40072765844 attempt 1 SUCCESS) has original native receipt/aggregate proof but
-remains independent-review blocked. PR #10 P1 is mis-scoped: the historical
-ancestry guard is not a permanent exact-parent lifecycle guard. Task evidence
-separately proves G0's exact two-commit topology. P2 is a valid current Git mode
-gap; the same root affects non-admitted historical protected material.
+Accepted implementation B-double-prime 8d522145846db9e68524a7e447c4b4de5b2b1222
+(tree 79ee2e270869a412346c88a9135851e82412ffc4) directly parents exact A
+e61c7b1139e5bf3020f0d79994a3be0aea8072b5, whose parent is exact entry main.
+R2 local proof, fresh isolated historical replay and original CI #156 / run
+40263098371 attempt 1 pass. Its original seven receipts/aggregate prove all 3036
+current nodes exactly once, with 3033 passes and only three frozen native skips;
+shard 5 passes 1103/1103. W03 38/85, W04 9/67/81, successor, historical controls
+172/223/93/95/98 and current committed surface/protected modes pass. The accepted
+R2 evidence and quota/stop chronology remain immutable.
 
-The Human R2 task authorizes a new feat/w05-g0-successor-governance-review-r2
-worktree from exact A e61c7b1139e5bf3020f0d79994a3be0aea8072b5 and one B'' child.
-Only six paths differ from B': successor verifier/tests and four current
-governance documents. B'' remains 17 paths versus A; its new PR remains 18 unique
-paths versus exact entry main. Workflow, planner/receipt/aggregate, classifier
-and other legacy meta-tests, baselines, runtime and closed W01-W04 stay frozen.
-R2 strengthens committed blob/mode plus working-byte enforcement for surfaces
-and protected non-MUTABLE_CI material without broadening admission.
+Independent GPT review passes for Human G0 acceptance, and the exact review is
+published unchanged. Its earlier Human-pending statement remains historical.
+Later Human G0 acceptance is ACCEPTED and closeout authorization is APPROVED,
+bound to the original launch/block hashes in the acceptance/authorization records.
 
-HISTORICAL_ANCESTRY_GUARD remains in verify_anchor; G0_TASK_TOPOLOGY_PROOF is task
-Git-object/pre-freeze/final-inventory evidence. A new versioned lifecycle guard
-requires separate explicit authority. Both predecessor PRs/worktrees are retained.
+The old R2 NO THIRD TASK COMMIT rule governed main -> A -> B_DOUBLE_PRIME.
+This separate closeout permits one post-acceptance documentation child C, yielding
+main -> A -> B_DOUBLE_PRIME -> C. C is not B-triple-prime, R3, an implementation
+change or a repair. Exactly seven documentation paths are admitted; all workflow,
+classifier, verifier, tests, contract/checklist, baselines and runtime stay frozen.
 
-R2 must preserve 39/91 test identities, execute 479 focused cases, current W03/W04,
-real-Git mode controls, a fresh full isolated local historical replay, and exact
-active-plan proof before freeze. Local proof, generated B'' identity, first
-exact-B'' native attempt 1 and final review are pending until executed and sealed.
-No native-proven/review-clean/C01-ready claim is made in advance. Technical
-readiness cannot authorize C01/C02, merge, W06 or release.
+At authoring, C and its own native run are not yet generated. Effective G0 closure
+requires that C's first exact-SHA attempt-1 UNKNOWN / FULL_EXACT_SHA native route
+passes all required jobs, original artifacts/receipts/aggregate and final review
+and synchronization. Failure stops without repair, replacement or rerun-as-proof.
+The repository records remain conditional; external evidence and PR metadata
+record actual generated identities and outcomes.
+
+Technical C01 entry readiness does not authorize implementation. C01 remains a
+separate future authorization/contract checkpoint. C01/C02, merge/auto-merge/queue,
+branch deletion, W06, release and operational mutation remain unauthorized.
 
 The numbered W01-W03 sections below are preserved historical snapshots.
 

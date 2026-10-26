@@ -1,0 +1,99 @@
+# W05-G0 Final Closeout Context Lock
+
+The predecessor stop is preserved; its missing review input is now supplied exactly. This context lock is read back before changing the router/state projection.
+
+```json
+{
+  "TASK_ID": "W05_G0_FINAL_CLOSEOUT_R1",
+  "RESUME_ID": "W05_G0_FINAL_CLOSEOUT_R1_RESUME_R1",
+  "LOCK_RECORDED_AT_UTC": "2026-10-26T08:33:30.085570+00:00",
+  "HUMAN_AUTHORITY_SOURCE": "C:/Users/C/.codex/attachments/63e618f5-fb2e-4c7c-b469-040f7cdae32c/已粘贴的文本.txt",
+  "HUMAN_LAUNCH_SHA256": "e7085619e2ee0511401517c5231c27ea849670f81de8cf84f00782914c440fe8",
+  "EXACT_HUMAN_AUTHORITY_BLOCK_SHA256": "16b94e4b0be06325cfac79d56efaf1eb697f636cb44730b4c059be6acf7aa2b8",
+  "ORIGINAL_CLOSEOUT_TASK_SHA256": "24030df30afe1aae445b98a7fd24238b8a5707d2116233bde77ea216a5b29889",
+  "PREDECESSOR_STOP_REPORT_SHA256": "a9a8285b06162ee42d85a5b7c3b1cae0797cce3b3b9aa55cdbf1ba16ebf0c0d6",
+  "PREDECESSOR_STOP_ZIP_SHA256": "7dcd8f1b310d2c073ca384b3f92d0ba290a9814c982c553fb2155cdd9e28bca5",
+  "PREDECESSOR_STOP_MANIFEST": "43/43 PASS",
+  "GPT_REVIEW_SHA256": "b4db206be68c11d8fd1516ac7123739d91d969459582810b15fc6e276555e2ed",
+  "ACCEPTED_R2_ARTIFACTS": [
+    {
+      "path": "C:\\Users\\C\\.codex\\visualizations\\2026\\10\\21\\01a15d82-cca6-7301-a83c-402bd52fbbbf\\W05_G0_POST_NATIVE_REVIEW_R2_ROLLING_EVIDENCE\\W05_G0_R2_COMPLETED_CONTENT_REPORT.md",
+      "sha256": "152ad9b83579810e0440ee85896743ca08b922fbdaba2cfedf94d71b5e65eff8",
+      "bytes": 291191
+    },
+    {
+      "path": "C:\\Users\\C\\.codex\\visualizations\\2026\\10\\21\\01a15d82-cca6-7301-a83c-402bd52fbbbf\\W05_G0_POST_NATIVE_REVIEW_R2_ROLLING_EVIDENCE\\W05_G0_SUCCESSOR_GOVERNANCE_POST_NATIVE_REVIEW_REPAIR_R2_DEVELOPMENT_REPORT.md",
+      "sha256": "005e852af9c6b1393264ef7a40b55a1633b717d1e7bb8b39d3facfe9c63eed7a",
+      "bytes": 291211
+    },
+    {
+      "path": "C:\\Users\\C\\.codex\\visualizations\\2026\\10\\21\\01a15d82-cca6-7301-a83c-402bd52fbbbf\\W05_G0_SUCCESSOR_GOVERNANCE_POST_NATIVE_REVIEW_REPAIR_R2_EVIDENCE.zip",
+      "sha256": "7a4acb99308e6a7de521255b3b5c556ea964572874214c4bcc7534b133f48f7d",
+      "bytes": 18547005
+    }
+  ],
+  "ACCEPTED_HISTORICAL_REPLAY_SHA256": "516001c9cb47222a73b105006edeec5d109860f12ab85c543a706e4870ecbae6",
+  "ENTRY_MAIN": "2f1627342ff2b04d8324fbffec3db2e230b302e0",
+  "COMMIT_A": "e61c7b1139e5bf3020f0d79994a3be0aea8072b5",
+  "COMMIT_A_TREE": "7801c144812c6cf77637fd6a799d19c27b0c6041",
+  "COMMIT_A_PARENT": "2f1627342ff2b04d8324fbffec3db2e230b302e0",
+  "B_DOUBLE_PRIME": "8d522145846db9e68524a7e447c4b4de5b2b1222",
+  "B_DOUBLE_PRIME_TREE": "79ee2e270869a412346c88a9135851e82412ffc4",
+  "B_DOUBLE_PRIME_PARENT": "e61c7b1139e5bf3020f0d79994a3be0aea8072b5",
+  "BRANCH": "feat/w05-g0-successor-governance-review-r2",
+  "PR_NUMBER": 11,
+  "PR_STATE": "OPEN_READY_UNMERGED",
+  "PR_HEAD": "8d522145846db9e68524a7e447c4b4de5b2b1222",
+  "PR_BASE": "2f1627342ff2b04d8324fbffec3db2e230b302e0",
+  "PR_COMMITS": 2,
+  "PR_CHANGED_FILES": 18,
+  "AUTO_MERGE": "ABSENT",
+  "MERGE_QUEUE": "ABSENT",
+  "ACCEPTED_NATIVE_RUN": 40263098371,
+  "ACCEPTED_NATIVE_NUMBER": 156,
+  "ACCEPTED_NATIVE_ATTEMPT": 1,
+  "ACCEPTED_NATIVE_RESULT": "SUCCESS / 17 REQUIRED JOBS PASS / PUBLICATION SKIPPED",
+  "PR11_P1": "RESOLVED / INVALID_FOR_CURRENT_PUBLISHED_OBJECT / REVIEW_OBJECT_MISMATCH",
+  "EXACT_CLOSEOUT_ALLOWLIST": [
+    "AGENTS.md",
+    "docs/CURRENT_STATE.md",
+    "docs/w05/governance/W05_G0_CLOSEOUT_AUTHORIZATION.md",
+    "docs/w05/governance/W05_G0_CLOSEOUT_CONTEXT_LOCK.md",
+    "docs/w05/governance/W05_G0_FINAL_CLOSEOUT_REPORT.md",
+    "docs/w05/governance/W05_G0_GPT_INDEPENDENT_ACCEPTANCE_REVIEW_R1.md",
+    "docs/w05/governance/W05_G0_HUMAN_ACCEPTANCE.md"
+  ],
+  "FORBIDDEN_MUTATIONS": [
+    ".github/**",
+    "scripts/**",
+    "src/**",
+    "tests/**",
+    "migrations/**",
+    "apps/**",
+    "pyproject.toml",
+    "uv.lock",
+    "docker-compose.yml",
+    "README.md",
+    "LOOP.md",
+    "docs/w03/**",
+    "docs/w04/**",
+    "successor contract/checklist",
+    "active policy/surface/historical baselines",
+    "runtime/product/HGT/operational data"
+  ],
+  "IMPLEMENTATION_TOPOLOGY": "main -> A -> B_DOUBLE_PRIME",
+  "CLOSEOUT_TOPOLOGY": "main -> A -> B_DOUBLE_PRIME -> C",
+  "HUMAN_G0_ACCEPTANCE": "ACCEPTED",
+  "W05_G0_CLOSEOUT_AUTHORIZATION": "APPROVED",
+  "C_PARENT": "8d522145846db9e68524a7e447c4b4de5b2b1222",
+  "C_SUBJECT": "docs(w05-g0): close successor governance",
+  "C_MAX_COUNT": 1,
+  "W05_C01_AUTHORIZATION": "NO",
+  "W05_C02_AUTHORIZATION": "NO",
+  "MERGE_AUTHORITY": "NO",
+  "W06_AUTHORIZATION": "NO",
+  "FLOWLENS_V1_0_RELEASE": "NO",
+  "EFFECTIVE_CLOSEOUT": "ONLY_AFTER_C_FIRST_EXACT_SHA_ATTEMPT1_FULL_ROUTE_NATIVE_SUCCESS_ORIGINAL_ARTIFACT_PROOF_AND_FINAL_SYNC",
+  "NEW_SOURCE_REPAIR": "NOT_AUTHORIZED"
+}
+```
