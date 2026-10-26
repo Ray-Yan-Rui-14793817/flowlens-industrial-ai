@@ -1,0 +1,51 @@
+{
+  "entries": {
+    "apps/api/Dockerfile": {
+      "git_blob_oid": "7c4e8b12670a5ae9cac21f1f415b9a9b42c9a438",
+      "mode": "100644"
+    },
+    "apps/worker/Dockerfile": {
+      "git_blob_oid": "d4cb27f8a68ef5fc6590a4f7ae0d3d681715e61f",
+      "mode": "100644"
+    },
+    "docker-compose.yml": {
+      "git_blob_oid": "5a0b6e8486edc69f9f79c7e1345a842aa412983c",
+      "mode": "100644"
+    },
+    "migrations/env.py": {
+      "git_blob_oid": "30187ca05861b84ff58b8b881ba26f1d4068e9f5",
+      "mode": "100644"
+    },
+    "migrations/script.py.mako": {
+      "git_blob_oid": "c29be774c8c65ba3464423ddab9e87bbe67185c2",
+      "mode": "100644"
+    },
+    "migrations/versions/0001_enable_pgvector.py": {
+      "git_blob_oid": "b70aec9f28d6c9c5d708fc5fb36b67fae73294c1",
+      "mode": "100644"
+    },
+    "migrations/versions/0002_industrial_data_foundation.py": {
+      "git_blob_oid": "5ef85012978ba9a6b6ea2662a0872b1366194012",
+      "mode": "100644"
+    },
+    "pyproject.toml": {
+      "git_blob_oid": "318bbc0a858f760e6c4d7a2d3fdbfcc111febb77",
+      "mode": "100644"
+    },
+    "uv.lock": {
+      "git_blob_oid": "619cf0cea7d476c1ad5b3d9fb8c77f91d44f2d0a",
+      "mode": "100644"
+    }
+  },
+  "future_evolution": "EXPLICIT_VERSIONED_SUCCESSOR_ADMISSION_REQUIRED",
+  "historical_anchor_sha": "2f1627342ff2b04d8324fbffec3db2e230b302e0",
+  "schema_version": "w05-g0-surface-baseline-v1",
+  "scopes": [
+    "pyproject.toml",
+    "uv.lock",
+    "docker-compose.yml",
+    "migrations",
+    "apps"
+  ],
+  "surface_sha256": "c0010e65beac4d47dec106d350353fc1508a1260b99d5607114fc083617cb189"
+}
