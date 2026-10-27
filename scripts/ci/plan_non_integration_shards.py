@@ -26,7 +26,13 @@ BASELINE = ROOT / "docs/w04/checkpoints/c08/W04_C08_ENTRY_TEST_BASELINE.json"
 HISTORICAL_WEIGHTS = ROOT / "docs/w04/devctrl-02/W04_CI_TEST_SHARD_WEIGHTS.json"
 WEIGHTS = ROOT / "docs/w04/devctrl-03/W04_DEVCTRL_03_MEASURED_SHARD_WEIGHTS.json"
 BOOTSTRAP = ROOT / "docs/w04/checkpoints/c08/W04_C08_CI_BOOTSTRAP_WEIGHTS.json"
-PLAN_SCHEMA = "w04-devctrl03-non-integration-plan-v1"
+PLAN_SCHEMA = "w05-active-non-integration-plan-v1"
+HISTORICAL_ANCHOR = "2f1627342ff2b04d8324fbffec3db2e230b302e0"
+HISTORICAL_BASELINE = ROOT / "docs/w05/governance/W05_G0_W04_HISTORICAL_BASELINE.json"
+ACTIVE_POLICY = ROOT / "docs/w05/governance/W05_G0_ACTIVE_POLICY.json"
+HISTORICAL_BASELINE_SEAL = "5206202d3e1a1334dcab742310ca031665f90d1fe02725b61a02e59d4e92a8ef"
+ACTIVE_POLICY_SEAL = "895a009f9f780e70621248737c67b40dc323c84a37ea4630ba0a70cd16598b6c"
+# These legacy names identify frozen W04 evidence, never the current W05 collection.
 CURRENT_NODE_COUNT = 2997
 CURRENT_NODES_DIGEST = "9d0d6fad74a8336b6dfd32004eb13e71409f1649f1422a866cb77c13842a2a6a"
 CURRENT_FILES_DIGEST = "890fdd5c30c7e2a1e90da8cb8b7123937d3356f1d519f82dff4a941f13659fd7"
@@ -482,6 +488,80 @@ def collect_nodes(marker: str, repo: Path = ROOT, files: list[str] | None = None
         return nodes(read_json(output)["nodeids"], repo, sorted_required=False)
 
 
+def validate_w04_baseline(value: dict[str, Any]) -> list[str]:
+    """Admit only the exact sealed historical merge evidence, even after resealing."""
+    check_seal(value, "baseline_sha256")
+    selected = nodes(value.get("nodeids"))
+    files = sorted({node.split("::", 1)[0] for node in selected})
+    if (
+        value["baseline_sha256"] != HISTORICAL_BASELINE_SEAL
+        or value.get("schema_version") != "w05-g0-w04-historical-baseline-v1"
+        or value.get("historical_anchor_sha") != HISTORICAL_ANCHOR
+        or value.get("node_count") != CURRENT_NODE_COUNT
+        or len(selected) != CURRENT_NODE_COUNT
+        or value.get("nodeids_sha256") != digest(selected)
+        or digest(selected) != CURRENT_NODES_DIGEST
+        or value.get("files") != files
+        or value.get("file_count") != len(files)
+        or len(files) != 63
+        or value.get("files_sha256") != CURRENT_FILES_DIGEST
+        or digest(files) != CURRENT_FILES_DIGEST
+        or value.get("shard_count") != 7
+    ):
+        raise ProofError("wrong historical baseline seal, anchor or identity")
+    return selected
+
+
+def validate_active_policy(value: dict[str, Any]) -> None:
+    check_seal(value, "policy_sha256")
+    if (
+        value["policy_sha256"] != ACTIVE_POLICY_SEAL
+        or value.get("schema_version") != "w05-active-governance-policy-v1"
+        or value.get("plan_schema") != PLAN_SCHEMA
+        or value.get("historical_anchor_sha") != HISTORICAL_ANCHOR
+        or value.get("shard_count") != SHARD_COUNT
+        or SHARD_COUNT != 7
+        or value.get("runtime_hgt_access") != "FORBIDDEN"
+        or value.get("operational_mutation") != "FORBIDDEN"
+        or value.get("future_leakage") != "FORBIDDEN"
+    ):
+        raise ProofError("wrong active policy or protected-material admission")
+
+
+def enforce_historical(selected: list[str], baseline: dict[str, Any]) -> None:
+    historical = set(validate_w04_baseline(baseline))
+    if not historical <= set(nodes(selected)):
+        raise ProofError("historical no-loss guard: missing or renamed W04 node")
+
+
+def active_file_weights(
+    weights: dict[str, Any], grouped: dict[str, list[str]], historical: list[str]
+) -> tuple[dict[str, int], dict[str, dict[str, Any]]]:
+    measured = validate_weights(weights)
+    fallback = integer(max(measured.values()), "conservative fallback weight", 1)
+    old: dict[str, list[str]] = {}
+    for node in historical:
+        old.setdefault(node.split("::", 1)[0], []).append(node)
+    result: dict[str, int] = {}
+    metadata: dict[str, dict[str, Any]] = {}
+    for file in sorted(grouped):
+        historical_file = file in old
+        changed = old.get(file) != grouped[file]
+        # Human R2 clarification: historical zero measurements remain immutable,
+        # but active scheduling uses the same positive conservative fallback.
+        use_fallback = changed or measured[file] == 0
+        basis = "CONSERVATIVE_MAX_HISTORICAL_WEIGHT" if use_fallback else "HISTORICAL_MEASURED"
+        result[file] = fallback if use_fallback else measured[file]
+        integer(result[file], "active file weight", 1)
+        metadata[file] = {
+            "weight_milliseconds": result[file],
+            "weight_basis": basis,
+            "historical_file": historical_file,
+            "collection_changed": changed,
+        }
+    return result, metadata
+
+
 def build_plan(
     selected: list[str],
     weights: dict[str, Any],
@@ -491,16 +571,19 @@ def build_plan(
 ) -> dict[str, Any]:
     sha(head, 40)
     selected = nodes(selected, repo)
-    enforce_entry(selected, baseline)
-    if len(selected) != CURRENT_NODE_COUNT or digest(selected) != CURRENT_NODES_DIGEST:
-        raise ProofError("DEVCTRL-03 exact collection mismatch: added/removed/renamed node")
+    validate_baseline(baseline)  # Preserve independently verifiable C08 evidence.
+    historical_document = read_json(HISTORICAL_BASELINE)
+    historical = validate_w04_baseline(historical_document)
+    policy = read_json(ACTIVE_POLICY)
+    validate_active_policy(policy)
+    enforce_historical(selected, historical_document)
     grouped: dict[str, list[str]] = {}
     for node in selected:
         grouped.setdefault(node.split("::", 1)[0], []).append(node)
-    by_weight = effective_file_weights(weights, set(grouped))
+    by_weight, metadata = active_file_weights(weights, grouped, historical)
     effective = [
-        {"file": file, "weight_milliseconds": milliseconds}
-        for file, milliseconds in sorted(by_weight.items())
+        {"file": file, **metadata[file]}
+        for file in sorted(grouped)
     ]
     loads = [0] * SHARD_COUNT
     assignments: dict[str, int] = {}
@@ -511,6 +594,7 @@ def build_plan(
     files = [
         {
             "file": file,
+            **metadata[file],
             "weight_seconds": by_weight[file] / 1000,
             "node_count": len(grouped[file]),
             "nodeids": grouped[file],
@@ -540,13 +624,32 @@ def build_plan(
         {
             "schema_version": PLAN_SCHEMA,
             "head_sha": head,
+            "historical_anchor_sha": HISTORICAL_ANCHOR,
+            "historical_baseline_sha256": historical_document["baseline_sha256"],
+            "historical_node_count": len(historical),
+            "historical_nodeids_sha256": digest(historical),
+            "active_policy_sha256": policy["policy_sha256"],
+            "current_node_count": len(selected),
+            "current_nodeids": selected,
+            "current_nodeids_sha256": digest(selected),
+            "current_file_count": len(grouped),
+            "current_files_sha256": digest(sorted(grouped)),
+            "addition_node_count": len(set(selected) - set(historical)),
+            "addition_file_count": len(set(grouped) - set(historical_document["files"])),
+            "weight_policy": {
+                "unchanged_historical": "HISTORICAL_MEASURED",
+                "changed_or_new": "CONSERVATIVE_MAX_HISTORICAL_WEIGHT",
+                "historical_zero": "CONSERVATIVE_MAX_HISTORICAL_WEIGHT",
+                "fallback_weight_milliseconds": max(validate_weights(weights).values()),
+            },
+            "effective_weights_sha256": digest(effective),
+            "effective_total_weight_milliseconds": sum(by_weight.values()),
             "marker_expression": MARKER,
             "pytest_version": pytest.__version__,
             "shard_count": SHARD_COUNT,
             "weights_sha256": weights["weights_sha256"],
             "measured_weights_sha256": weights["weights_sha256"],
-            "measured_file_weights_sha256": digest(effective),
-            "measured_total_weight_milliseconds": sum(by_weight.values()),
+            # Historical transport fields retain their original meanings.
             "entry_baseline_nodeids_sha256": baseline["nodeids_sha256"],
             "collected_node_count": len(selected),
             "collected_nodeids": selected,
@@ -589,15 +692,26 @@ def plan_summary(plan: dict[str, Any]) -> dict[str, Any]:
             "head_sha",
             "plan_sha256",
             "measured_weights_sha256",
-            "measured_file_weights_sha256",
-            "measured_total_weight_milliseconds",
+            "effective_weights_sha256",
+            "effective_total_weight_milliseconds",
+            "historical_anchor_sha",
+            "historical_node_count",
+            "historical_nodeids_sha256",
+            "current_node_count",
+            "current_file_count",
+            "current_nodeids_sha256",
+            "current_files_sha256",
+            "addition_node_count",
+            "addition_file_count",
             "weights_sha256",
             "entry_baseline_nodeids_sha256",
             "collected_node_count",
             "collected_nodeids_sha256",
         )
     } | {
-        "entry_no_loss": "PASS",
+        "HISTORICAL_NO_LOSS": "PASS",
+        "EXACT_CURRENT_UNION": "PASS",
+        "EXACT_CURRENT_ONCE": "PASS",
         "selected_file_count": len(plan["files"]),
         "shards": [
             {

@@ -1,0 +1,23 @@
+{
+  "accepted_skips": "EXACT_FROZEN_LINUX_JUNCTION_CASES_ONLY",
+  "additive_files": "ALLOWED",
+  "additive_nodes": "ALLOWED",
+  "algorithm": "LPT_WEIGHT_DESC_PATH_ASC_LOWEST_LOAD_THEN_SHARD_ID",
+  "changed_or_new_file_weight": "CONSERVATIVE_MAX_HISTORICAL_WEIGHT",
+  "fallback_derivation": "MAX_ACCEPTED_HISTORICAL_MEASURED_FILE_WEIGHT_MILLISECONDS",
+  "file_atomic": true,
+  "future_leakage": "FORBIDDEN",
+  "historical_anchor_sha": "2f1627342ff2b04d8324fbffec3db2e230b302e0",
+  "historical_baseline_sha256": "5206202d3e1a1334dcab742310ca031665f90d1fe02725b61a02e59d4e92a8ef",
+  "historical_no_loss": "REQUIRED",
+  "operational_mutation": "FORBIDDEN",
+  "plan_schema": "w05-active-non-integration-plan-v1",
+  "policy_sha256": "895a009f9f780e70621248737c67b40dc323c84a37ea4630ba0a70cd16598b6c",
+  "runtime_hgt_access": "FORBIDDEN",
+  "schema_version": "w05-active-governance-policy-v1",
+  "shard_count": 7,
+  "surface_baseline_sha256": "c0010e65beac4d47dec106d350353fc1508a1260b99d5607114fc083617cb189",
+  "surface_evolution": "EXPLICIT_VERSIONED_SUCCESSOR_ADMISSION_REQUIRED",
+  "unchanged_historical_weight": "HISTORICAL_MEASURED",
+  "zero_historical_weight": "CONSERVATIVE_MAX_HISTORICAL_WEIGHT"
+}

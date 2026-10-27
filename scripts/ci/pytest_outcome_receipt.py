@@ -32,7 +32,7 @@ from plan_non_integration_shards import (
     write_json,
 )
 
-RECEIPT_SCHEMA = "w04-devctrl02-pytest-outcome-receipt-v1"
+RECEIPT_SCHEMA = "w05-active-pytest-outcome-receipt-v1"
 OUTCOMES = ("passed", "skipped", "xfail", "xpass", "failed", "error")
 SHARD_ROLES = {"shadow-shard", "nonint-shard"}
 NONINT_ROLES = SHARD_ROLES | {"legacy-nonint", "shadow-nonint-aggregate", "nonint-aggregate"}
@@ -147,6 +147,9 @@ def make_receipt(
         "marker_expression": marker,
         "shard_id": shard_id,
         "plan_sha256": plan["plan_sha256"],
+        "historical_anchor_sha": plan["historical_anchor_sha"],
+        "historical_nodeids_sha256": plan["historical_nodeids_sha256"],
+        "current_plan_nodeids_sha256": plan["current_nodeids_sha256"],
         "weights_sha256": plan["weights_sha256"],
         "entry_baseline_nodeids_sha256": plan["entry_baseline_nodeids_sha256"],
         "pytest_version": pytest.__version__,
@@ -182,6 +185,9 @@ def validate_receipt(
             "marker_expression",
             "shard_id",
             "plan_sha256",
+            "historical_anchor_sha",
+            "historical_nodeids_sha256",
+            "current_plan_nodeids_sha256",
             "weights_sha256",
             "entry_baseline_nodeids_sha256",
             "pytest_version",
@@ -213,6 +219,9 @@ def validate_receipt(
     if (
         value["schema_version"] != RECEIPT_SCHEMA
         or value["head_sha"] != plan["head_sha"]
+        or value["historical_anchor_sha"] != plan["historical_anchor_sha"]
+        or value["historical_nodeids_sha256"] != plan["historical_nodeids_sha256"]
+        or value["current_plan_nodeids_sha256"] != plan["current_nodeids_sha256"]
         or value["proof_role"] != role
         or value["marker_expression"] != marker
         or value["shard_id"] != shard_id
@@ -286,6 +295,9 @@ def receipt_summary(value: dict[str, Any]) -> dict[str, Any]:
             "proof_role",
             "shard_id",
             "plan_sha256",
+            "historical_anchor_sha",
+            "historical_nodeids_sha256",
+            "current_plan_nodeids_sha256",
             "weights_sha256",
             "entry_baseline_nodeids_sha256",
             "collected_node_count",
