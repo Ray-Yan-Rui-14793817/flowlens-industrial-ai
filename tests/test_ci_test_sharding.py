@@ -51,9 +51,10 @@ def _current_nodes() -> tuple[str, ...]:
 
 
 def _plan_nodes(baseline: dict[str, Any]) -> list[str]:
-    # The active measured contract admits exactly the real 2997-node collection.
+    # Current W05 admits additions over the exact historical 2997-node floor.
     selected = list(_current_nodes())
-    planner.enforce_entry(selected, baseline)
+    planner.validate_baseline(baseline)
+    planner.enforce_historical(selected, planner.read_json(planner.HISTORICAL_BASELINE))
     return selected
 
 
@@ -241,23 +242,35 @@ def test_malformed_weight_or_shifted_duration_rejected(
 def test_lpt_deterministic_four_shards_file_atomic_exact_union(
     plan: dict[str, Any], baseline: dict[str, Any], weights: dict[str, Any]
 ) -> None:
+    active = plan
+    historical = planner.validate_w04_baseline(planner.read_json(planner.HISTORICAL_BASELINE))
+    assert set(historical) <= set(active["current_nodeids"])
+    assert active["current_node_count"] == len(active["current_nodeids"])
+    plan = planner.build_plan(historical, weights, baseline, planner.ENTRY_SHA)
     again = planner.build_plan(plan["collected_nodeids"], weights, baseline, planner.ENTRY_SHA)
     assert plan == again
     assert planner.SHARD_COUNT == plan["shard_count"] == 7
     assert [s["shard_id"] for s in plan["shards"]] == list(range(7))
     assert [s["estimated_weight_seconds"] for s in plan["shards"]] == [
-        2040.544, 1784.313, 1624.916, 1056.117, 1046.586, 1046.586, 1046.603,
+        2040.544, 2040.544, 2040.544, 1901.280, 1901.280, 1901.279, 1901.282,
     ]
-    assert [s["files"] for s in plan["shards"][:4]] == [
+    assert [s["files"] for s in plan["shards"][:3]] == [
         [f"tests/{name}.py"] for name in (
-            "test_investigation_replay", "test_investigation_human_store",
-            "test_investigation_summary", "test_investigation_findings",
+            "test_c06_policy", "test_c08_prompt", "test_investigation_replay",
         )
     ]
-    assert sum(round(s["estimated_weight_seconds"] * 1000) for s in plan["shards"]) == 9645665
-    assert plan["measured_total_weight_milliseconds"] == 9645665
+    assert sum(round(s["estimated_weight_seconds"] * 1000) for s in plan["shards"]) == (
+        9645665 + 2 * 2040544
+    )
+    assert plan["effective_total_weight_milliseconds"] == 9645665 + 2 * 2040544
     assert plan["measured_weights_sha256"] == planner.MEASURED_WEIGHTS_DIGEST
-    assert plan["measured_file_weights_sha256"] == planner.MEASURED_EFFECTIVE_WEIGHTS_DIGEST
+    assert plan["effective_weights_sha256"] == (
+        "f68a6529ea9cd01bde26bec94ca7672e9ec260ee343c283a891657bfdea9ec08"
+    )
+    assert planner.digest([
+        {"file": name, "weight_milliseconds": milliseconds}
+        for name, milliseconds in sorted(planner.validate_weights(weights).items())
+    ]) == planner.MEASURED_EFFECTIVE_WEIGHTS_DIGEST
     assert not {"base_weights_sha256", "bootstrap_weights_sha256"} & set(plan)
     files = [file for shard in plan["shards"] for file in shard["files"]]
     nodeids = [node for shard in plan["shards"] for node in shard["nodeids"]]
@@ -284,8 +297,12 @@ def test_lpt_path_then_lowest_shard_tie_break(
 ) -> None:
     monkeypatch.setattr(
         planner,
-        "effective_file_weights",
-        lambda value, selected_files: {file: 1000 for file in selected_files},
+        "active_file_weights",
+        lambda value, grouped, historical: (
+            {file: 1000 for file in grouped},
+            {file: {"weight_milliseconds": 1000, "weight_basis": "FIXTURE",
+                    "historical_file": True, "collection_changed": False} for file in grouped},
+        ),
     )
     result = planner.build_plan(_plan_nodes(baseline), weights, baseline, planner.ENTRY_SHA)
     assert [file["shard_id"] for file in result["files"]] == [
@@ -872,14 +889,15 @@ def test_c08_r45_sealed_bootstrap_effective_weights_and_no_mutation(
         {"file": file, "weight_milliseconds": ms}
         for file, ms in sorted(historical_effective.items())
     ]) == planner.EFFECTIVE_WEIGHTS_DIGEST
-    result = planner.effective_file_weights(weights, {item["file"] for item in plan["files"]})
+    historical_files = set(planner.read_json(planner.HISTORICAL_BASELINE)["files"])
+    result = planner.effective_file_weights(weights, historical_files)
     assert result == planner.validate_weights(weights)
     assert len(result) == 63 and sum(result.values()) == 9645665
     assert result["tests/test_investigation_replay.py"] == 2040544
     assert planner.canonical(weights) == before
     assert planner.canonical(historical) == saved_historical
     assert planner.canonical(bootstrap) == saved_bootstrap
-    assert plan["schema_version"] == "w04-devctrl03-non-integration-plan-v1"
+    assert plan["schema_version"] == "w05-active-non-integration-plan-v1"
     assert plan["weights_sha256"] == plan["measured_weights_sha256"] == weights["weights_sha256"]
     assert plan["entry_baseline_nodeids_sha256"] == planner.ENTRY_DIGEST
     for evidence_path in (planner.HISTORICAL_WEIGHTS, planner.BOOTSTRAP):
@@ -953,7 +971,7 @@ def test_c08_r45_only_exact_two_files_may_add_nodes(
 def test_c08_r45_effective_selection_fails_closed(
     weights: dict[str, Any], plan: dict[str, Any], damage: str
 ) -> None:
-    selected = {item["file"] for item in plan["files"]}
+    selected = set(planner.read_json(planner.HISTORICAL_BASELINE)["files"])
     if damage == "missing_bootstrap":
         selected.remove("tests/test_investigation_replay.py")
     elif damage == "extra_file":
@@ -970,28 +988,24 @@ def test_c08_r45_effective_selection_fails_closed(
 def test_c08_r45_actual_collection_has_no_loss_and_only_two_added_node_files(
     baseline: dict[str, Any], weights: dict[str, Any]
 ) -> None:
+    # Retain the historical node identity; its successor assertion is additive.
     current = planner.collect_nodes(planner.MARKER)
-    entry = set(planner.validate_baseline(baseline))
-    planner.enforce_entry(current, baseline)
-    assert entry <= set(current)
-    assert {node.split("::", 1)[0] for node in set(current) - entry} <= {
-        "tests/test_investigation_replay.py", "tests/test_ci_test_sharding.py"
-    }
+    historical_document = planner.read_json(planner.HISTORICAL_BASELINE)
+    historical = planner.validate_w04_baseline(historical_document)
+    planner.enforce_historical(current, historical_document)
+    assert set(planner.validate_baseline(baseline)) <= set(historical) <= set(current)
     head = subprocess.run(
         ["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True,
     ).stdout.strip()
     current_plan = planner.build_plan(current, weights, baseline, head)
-    assert len(current_plan["files"]) == 63
+    assert current_plan["schema_version"] == planner.PLAN_SCHEMA
+    assert current_plan["current_file_count"] == len({n.split("::", 1)[0] for n in current})
     assert sorted(n for shard in current_plan["shards"] for n in shard["nodeids"]) == current
-    assert len(current) == 2997
-    assert current_plan["collected_nodeids_sha256"] == planner.digest(current) == (
-        planner.CURRENT_NODES_DIGEST
-    )
-    for changed in (
-        sorted(current + ["tests/test_ci_test_sharding.py::unapproved_node"]),
-        [n for n in current if not n.startswith("tests/test_investigation_replay.py::")],
-    ):
-        with pytest.raises(planner.ProofError):
-            planner.build_plan(changed, weights, baseline, head)
-    assert current_plan["measured_file_weights_sha256"] == planner.MEASURED_EFFECTIVE_WEIGHTS_DIGEST
+    assert current_plan["current_node_count"] == len(current)
+    assert current_plan["current_nodeids_sha256"] == planner.digest(current)
+    assert current_plan["historical_nodeids_sha256"] == planner.CURRENT_NODES_DIGEST
+    added = sorted(current + ["tests/test_ci_test_sharding.py::successor_addition_control"])
+    assert planner.build_plan(added, weights, baseline, head)["current_node_count"] == len(added)
+    with pytest.raises(planner.ProofError, match="historical no-loss"):
+        planner.build_plan([n for n in current if n != historical[0]], weights, baseline, head)
     assert len(planner.collect_nodes("integration")) == 70
