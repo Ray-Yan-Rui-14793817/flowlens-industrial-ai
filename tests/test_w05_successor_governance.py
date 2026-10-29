@@ -430,10 +430,18 @@ uv() {
 set -euo pipefail
 test "$PWD" = "$RUNNER_TEMP/w05-historical"
 test "$PYTHONPATH" = "$RUNNER_TEMP/w05-historical/src"
-test "$*" = "-B scripts/ci/verify_w04_investigation_gate_contract.py"
-if [[ "$FAILURE" == verifier ]]; then exit 93; fi
-touch "$RUNNER_TEMP/verified"
-printf 'fixture replay completed\n'
+case "$*" in
+  "-B -m alembic upgrade head") exit 0;;
+  "-B scripts/ci/verify_w04_investigation_gate_contract.py")
+    if [[ "$FAILURE" == verifier ]]; then exit 93; fi
+    touch "$RUNNER_TEMP/verified"
+    printf 'fixture governance replay completed\n';;
+  "-B scripts/ci/run_w04_investigation_gate.py "*)
+    test -f "$RUNNER_TEMP/verified"
+    [[ "$*" == *"--expected-head ANCHOR"* ]]
+    printf 'fixture semantic replay completed\n';;
+  *) exit 94;;
+esac
 PYTHON_FIXTURE
   chmod +x "$UV_PROJECT_ENVIRONMENT/bin/python"
 }

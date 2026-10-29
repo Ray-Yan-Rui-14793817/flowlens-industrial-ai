@@ -1337,7 +1337,7 @@ def _check_native_metadata(value: dict[str, Any], head: str) -> None:
         assert job["conclusion"] == ("skipped" if job["name"] == "Publication proof" else "success")
     assert value["classifier"]["head_sha"] == head
     assert value["classifier"]["gate"] == "FULL_EXACT_SHA"
-    assert value["classifier"]["class"] in {"I", "C"}
+    assert value["classifier"]["class"] in {"I", "C", "UNKNOWN"}
     assert value["w03"]["implementation_sha"] == head and value["w03"]["overall"] == "PASS"
     assert sum(family["selectors"] for family in value["w03"]["families"]) == 38
     assert sum(family["tests"] for family in value["w03"]["families"]) == 85

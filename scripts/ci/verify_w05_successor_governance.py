@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import argparse
+import ast
+import copy
 import hashlib
 import json
 import os
@@ -14,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 import plan_non_integration_shards as planner
+import verify_w05_post_w04_source_compatibility as compatibility
 
 ROOT = Path(__file__).resolve().parents[2]
 SURFACE_BASELINE = ROOT / "docs/w05/governance/W05_G0_SURFACE_BASELINE.json"
@@ -62,8 +65,7 @@ def git_tree_entry(repo: Path, revision: str, name: str) -> dict[str, str]:
     metadata, actual_name = rows[0].split(b"\t", 1)
     mode, kind, oid = metadata.decode().split()
     require(actual_name.decode() == name, "wrong committed entry: " + name)
-    require(kind == "blob" and mode in {"100644", "100755"},
-            "nonregular committed entry: " + name)
+    require(kind == "blob" and mode in {"100644", "100755"}, "nonregular committed entry: " + name)
     return {"git_blob_oid": oid, "mode": mode}
 
 
@@ -105,8 +107,10 @@ def validate_surface_baseline(value: dict[str, Any]) -> None:
 def regular_bytes(repo: Path, name: str) -> bytes:
     path = repo / name
     require(
-        not path.is_symlink() and not path.is_junction()
-        and path.is_file() and path.resolve().is_relative_to(repo.resolve()),
+        not path.is_symlink()
+        and not path.is_junction()
+        and path.is_file()
+        and path.resolve().is_relative_to(repo.resolve()),
         "missing/nonregular protected surface: " + name,
     )
     for parent in path.parents:
@@ -131,14 +135,21 @@ def git_surface_entries(repo: Path, revision: str) -> dict[str, dict[str, str]]:
             name = raw_name.decode("utf-8")
         except UnicodeError as error:
             raise planner.ProofError("malformed committed surface encoding") from error
-        require(kind == "blob" and mode in {"100644", "100755"},
-                "nonregular committed surface: " + name)
-        require(re.fullmatch(r"[0-9a-f]{40}", oid) is not None,
-                "malformed committed surface object: " + name)
-        require(bool(name) and not name.startswith("/") and "\\" not in name
-                and all(part not in {"", ".", ".."} for part in name.split("/"))
-                and (name in SURFACES or name.startswith(("migrations/", "apps/"))),
-                "malformed/out-of-scope committed surface path")
+        require(
+            kind == "blob" and mode in {"100644", "100755"}, "nonregular committed surface: " + name
+        )
+        require(
+            re.fullmatch(r"[0-9a-f]{40}", oid) is not None,
+            "malformed committed surface object: " + name,
+        )
+        require(
+            bool(name)
+            and not name.startswith("/")
+            and "\\" not in name
+            and all(part not in {"", ".", ".."} for part in name.split("/"))
+            and (name in SURFACES or name.startswith(("migrations/", "apps/"))),
+            "malformed/out-of-scope committed surface path",
+        )
         require(name not in entries, "ambiguous committed surface path: " + name)
         entries[name] = {"git_blob_oid": oid, "mode": mode}
     return entries
@@ -156,11 +167,16 @@ def surface_names(repo: Path) -> set[str]:
                 "working surface inventory unreadable: " + str(path)
             ) from error
         attributes = getattr(info, "st_file_attributes", 0) or 0
-        require(not stat.S_ISLNK(info.st_mode) and not path.is_junction()
-                and not attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400),
-                "nonregular working surface: " + str(path))
-        require(stat.S_ISREG(info.st_mode) or stat.S_ISDIR(info.st_mode),
-                "nonregular working surface: " + str(path))
+        require(
+            not stat.S_ISLNK(info.st_mode)
+            and not path.is_junction()
+            and not attributes & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400),
+            "nonregular working surface: " + str(path),
+        )
+        require(
+            stat.S_ISREG(info.st_mode) or stat.S_ISDIR(info.st_mode),
+            "nonregular working surface: " + str(path),
+        )
         return info.st_mode
 
     def walk(directory: Path, cache: bool = False) -> None:
@@ -196,36 +212,222 @@ def verify_surfaces(repo: Path = ROOT, baseline: dict[str, Any] | None = None) -
     require(set(current_entries) == set(value["entries"]), "committed surface path set drift")
     for name, expected in value["entries"].items():
         current = current_entries[name]
-        require(current["git_blob_oid"] == expected["git_blob_oid"],
-                "surface committed content drift: " + name)
+        require(
+            current["git_blob_oid"] == expected["git_blob_oid"],
+            "surface committed content drift: " + name,
+        )
         require(current["mode"] == expected["mode"], "surface mode drift: " + name)
     require(surface_names(repo) == set(value["entries"]), "working surface path set drift")
     for name, expected in value["entries"].items():
-        require(blob_oid(regular_bytes(repo, name)) == expected["git_blob_oid"],
-                "surface content drift: " + name)
+        require(
+            blob_oid(regular_bytes(repo, name)) == expected["git_blob_oid"],
+            "surface content drift: " + name,
+        )
+
+
+EVOLVED_TESTS = {
+    "tests/test_investigation_case_binding.py": (
+        "test_b36_c01_frozen_blobs_and_committed_source_governance_pass",
+        "1de8de47568c7df789cde60d7ffa079721fe5147",
+    ),
+    "tests/test_investigation_replay.py": (
+        "_check_native_metadata",
+        "7c3e0bfdced89654f758c1920bd85cdf4a65117d",
+    ),
+}
+
+
+def validate_test_source_unit(baseline: bytes, current: bytes, symbol: str) -> dict[str, str]:
+    """The two reviewed lifecycle seams; no other source unit is mutable."""
+    before_text, after_text = baseline.decode("utf-8"), current.decode("utf-8")
+    before_tree, after_tree = ast.parse(before_text), ast.parse(after_text)
+    before = [n for n in before_tree.body if isinstance(n, ast.FunctionDef) and n.name == symbol]
+    after = [n for n in after_tree.body if isinstance(n, ast.FunctionDef) and n.name == symbol]
+    require(len(before) == len(after) == 1, "missing/renamed/duplicate evolved test symbol")
+    left, right = before[0], after[0]
+    require(
+        [ast.dump(n, include_attributes=False) for n in before_tree.body if n is not left]
+        == [ast.dump(n, include_attributes=False) for n in after_tree.body if n is not right],
+        "non-authorized top-level source unit changed",
+    )
+    require(before_tree.body.index(left) == after_tree.body.index(right), "source unit order drift")
+    before_lines, after_lines = (
+        before_text.splitlines(keepends=True),
+        after_text.splitlines(keepends=True),
+    )
+    left_start = min([left.lineno, *(n.lineno for n in left.decorator_list)]) - 1
+    right_start = min([right.lineno, *(n.lineno for n in right.decorator_list)]) - 1
+    require(
+        before_lines[:left_start] == after_lines[:right_start]
+        and before_lines[left.end_lineno :] == after_lines[right.end_lineno :],
+        "non-authorized source bytes changed",
+    )
+    require(
+        before_lines[left_start : left.lineno] == after_lines[right_start : right.lineno],
+        "evolved function header/decorators changed",
+    )
+    expected = copy.deepcopy(left)
+    if symbol == "_check_native_metadata":
+        sets = [
+            n
+            for n in ast.walk(expected)
+            if isinstance(n, ast.Set)
+            and all(isinstance(e, ast.Constant) for e in n.elts)
+            and {ast.literal_eval(e) for e in n.elts} == {"I", "C"}
+        ]
+        require(len(sets) == 1, "wrong native metadata baseline")
+        sets[0].elts.append(ast.Constant(value="UNKNOWN"))
+    else:
+        require(
+            symbol == EVOLVED_TESTS["tests/test_investigation_case_binding.py"][0],
+            "unauthorized second source unit",
+        )
+        replacements = 0
+        for node in ast.walk(expected):
+            if (
+                isinstance(node, ast.Constant)
+                and node.value == "scripts/ci/verify_w04_source_evolution.py"
+            ):
+                node.value = "scripts/ci/verify_w05_post_w04_source_compatibility.py"
+                replacements += 1
+            if isinstance(node, ast.List):
+                positions = [
+                    i
+                    for i, e in enumerate(node.elts)
+                    if isinstance(e, ast.Constant) and e.value == "--manifest"
+                ]
+                if positions:
+                    require(len(positions) == 1, "ambiguous B36 baseline arguments")
+                    index = positions[0]
+                    require(
+                        ast.literal_eval(node.elts[index + 1])
+                        == "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
+                        "wrong B36 baseline manifest",
+                    )
+                    del node.elts[index : index + 2]
+        require(replacements == 1, "wrong B36 source-authority baseline")
+        expected.body.append(
+            ast.parse(
+                'assert proof["SOURCE_ADMISSION_STATE"] in '
+                '{"ADMISSION_STAGED", "BOOTSTRAP_MATERIALIZED"}'
+            ).body[0]
+        )
+    require(
+        ast.dump(right, include_attributes=False) == ast.dump(expected, include_attributes=False),
+        "source unit exceeds exact reviewed lifecycle evolution",
+    )
+    return {
+        "symbol": symbol,
+        "evolution": "EXACT_ONE_SOURCE_UNIT",
+        "baseline_sha256": hashlib.sha256(baseline).hexdigest(),
+        "current_sha256": hashlib.sha256(current).hexdigest(),
+    }
+
+
+def verify_evolved_tests(repo: Path = ROOT) -> dict[str, Any]:
+    head = git(repo, "rev-parse", "HEAD").decode().strip()
+    source = compatibility.verify_source_compatibility(repo, head)
+    intro = str(source["policy_introduction_sha"])
+    result: dict[str, Any] = {}
+    for name, (symbol, baseline_oid) in EVOLVED_TESTS.items():
+        require(
+            git_tree_entry(repo, compatibility.ENTRY, name)
+            == {"git_blob_oid": baseline_oid, "mode": "100644"},
+            "wrong C2 test baseline",
+        )
+        introduced = git_tree_entry(repo, intro, name)
+        require(introduced["mode"] == "100644", "evolved test mode drift")
+        require(
+            git_tree_entry(repo, "HEAD", name) == introduced,
+            "evolved test changed after governance introduction",
+        )
+        raw = regular_bytes(repo, name)
+        require(blob_oid(raw) == introduced["git_blob_oid"], "evolved test working bytes drift")
+        unit = validate_test_source_unit(git(repo, "cat-file", "blob", baseline_oid), raw, symbol)
+        result[name] = unit | {
+            "baseline_git_blob_oid": baseline_oid,
+            "frozen_git_blob_oid": introduced["git_blob_oid"],
+            "mode": introduced["mode"],
+            "frozen_at_commit": intro,
+        }
+    return result
+
+
+def validate_historical_semantic_summary(path: Path) -> dict[str, Any]:
+    value = planner.read_json(path)
+    manifest_path = ROOT / "docs/w04/checkpoints/c09/specs/c09_gate_manifest.json"
+    raw = manifest_path.read_bytes()
+    require(
+        hashlib.sha256(raw).hexdigest()
+        == "d7526f78b3301332983e626dd102f3f57f52f2926d3130741b6e8a447bf0bbd1",
+        "historical semantic manifest identity drift",
+    )
+    manifest = planner.read_json(manifest_path)
+    expected = planner.sealed(
+        {
+            "schema_version": "w04-c09-gate-summary-v1",
+            "gate_version": "w04-c09-investigation-gate-v1",
+            "implementation_sha": planner.HISTORICAL_ANCHOR,
+            "manifest_sha256": hashlib.sha256(raw).hexdigest(),
+            "manifest_content_sha256": planner.digest(manifest),
+            "total_families": 9,
+            "total_selectors": 67,
+            "total_tests": 81,
+            "families": [
+                {
+                    "id": row["id"],
+                    "status": "PASS",
+                    "selectors": len(row["targets"]),
+                    "tests": row["expected_cases"],
+                }
+                for row in manifest["families"]
+            ],
+            "overall": "PASS",
+        },
+        "summary_sha256",
+    )
+    require(value == expected, "historical W04 semantic summary drift or incomplete evidence")
+    return value
 
 
 def verify_protected_material(repo: Path = ROOT) -> None:
     """Keep closed runtime, historical evidence and non-admitted controls intact."""
     original = tree_entries(repo, PROTECTED_ROOTS)
+    evolved = verify_evolved_tests(repo) if set(original) & set(EVOLVED_TESTS) else {}
     for name, expected in original.items():
+        if name in evolved:
+            continue
         if name not in MUTABLE_CI:
             current = git_tree_entry(repo, "HEAD", name)
-            require(current["git_blob_oid"] == expected["git_blob_oid"],
-                    "protected material committed content drift: " + name)
+            require(
+                current["git_blob_oid"] == expected["git_blob_oid"],
+                "protected material committed content drift: " + name,
+            )
             require(current["mode"] == expected["mode"], "protected material mode drift: " + name)
-            require(blob_oid(regular_bytes(repo, name)) == expected["git_blob_oid"],
-                    "protected material drift: " + name)
+            require(
+                blob_oid(regular_bytes(repo, name)) == expected["git_blob_oid"],
+                "protected material drift: " + name,
+            )
     # New tests and upstream packages need later checkpoint authority; additions inside
     # a closed runtime package or historical evidence plane are never admitted here.
     closed = sorted(
         {"/".join(name.split("/")[:3]) for name in original if name.startswith("src/flowlens/")}
     )
     tracked = {
-        name.decode() for name in git(
-            repo, "ls-files", "-z", "--cached", "--others", "--exclude-standard",
-            "--", "src", "docs/w03", "docs/w04",
-        ).split(b"\0") if name
+        name.decode()
+        for name in git(
+            repo,
+            "ls-files",
+            "-z",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "--",
+            "src",
+            "docs/w03",
+            "docs/w04",
+        ).split(b"\0")
+        if name
     }
     for name in tracked - set(original):
         require(
@@ -267,13 +469,17 @@ def verify_current(plan: dict[str, Any], head: str, repo: Path = ROOT) -> dict[s
         "surface baseline does not describe exact historical tree",
     )
     verify_surfaces(repo)
+    source = compatibility.verify_source_compatibility(repo, head)
+    evolved = verify_evolved_tests(repo)
     verify_protected_material(repo)
     verify_docs(repo)
     planner.validate_plan(
         plan, planner.read_json(planner.WEIGHTS), planner.read_json(planner.BASELINE), head, repo
     )
-    require(planner.collect_nodes(planner.MARKER, repo) == plan["current_nodeids"],
-            "active plan is not exact current collection")
+    require(
+        planner.collect_nodes(planner.MARKER, repo) == plan["current_nodeids"],
+        "active plan is not exact current collection",
+    )
     flattened = [node for shard in plan["shards"] for node in shard["nodeids"]]
     require(sorted(flattened) == plan["current_nodeids"], "current union mismatch")
     require(len(flattened) == len(set(flattened)), "duplicate current node assignment")
@@ -286,6 +492,17 @@ def verify_current(plan: dict[str, Any], head: str, repo: Path = ROOT) -> dict[s
             "plan_sha256": plan["plan_sha256"],
             "historical_baseline_sha256": historical["baseline_sha256"],
             "surface_baseline_sha256": SURFACE_SEAL,
+            "POST_W04_SOURCE_COMPATIBILITY": "PASS",
+            "SOURCE_ADMISSION_POLICY": "PASS",
+            "SOURCE_ADMISSION_STATE": source["SOURCE_ADMISSION_STATE"],
+            "PRODUCT_SOURCE_PRESENT": source["PRODUCT_SOURCE_PRESENT"],
+            "B36_SUCCESSOR_EVOLUTION": "PASS",
+            "R46_HELPER_SUCCESSOR_EVOLUTION": "PASS",
+            "W04_VERIFIER_HISTORICAL_IDENTITY": "PASS",
+            "PROTECTED_MATERIAL": "PASS",
+            "PHASE_PROJECTION": "PASS",
+            "source_compatibility": source,
+            "evolved_test_files": evolved,
             "HISTORICAL_NO_LOSS": "PASS",
             "EXACT_CURRENT_UNION": "PASS",
             "EXACT_CURRENT_ONCE": "PASS",
@@ -296,9 +513,9 @@ def verify_current(plan: dict[str, Any], head: str, repo: Path = ROOT) -> dict[s
             "phase_projection": "PASS",
             "overall": "PASS",
             "current_plan": planner.plan_summary(plan),
-        }, "proof_sha256"
+        },
+        "proof_sha256",
     )
-
 
 
 def validate_historical_log(path: Path) -> dict[str, Any]:
@@ -324,7 +541,8 @@ def validate_historical_log(path: Path) -> dict[str, Any]:
     )
     collection = gate["collection"]
     require(
-        collection.get("nodes") == 2997 and collection.get("files") == 63
+        collection.get("nodes") == 2997
+        and collection.get("files") == 63
         and collection.get("shards") == 7
         and collection.get("node_digest") == planner.CURRENT_NODES_DIGEST
         and collection.get("weights_digest") == planner.MEASURED_WEIGHTS_DIGEST,
@@ -350,21 +568,33 @@ def validate_historical_log(path: Path) -> dict[str, Any]:
         "overall": "PASS",
     }
 
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--expected-head", required=True)
     parser.add_argument("--plan", type=Path, required=True)
     parser.add_argument("--output-json", type=Path, required=True)
     parser.add_argument("--historical-log", type=Path, required=True)
+    parser.add_argument("--historical-semantic-summary", type=Path, required=True)
     args = parser.parse_args()
     try:
         # No external-provider/database credentials are read or needed.
         os.environ["PYTHONDONTWRITEBYTECODE"] = "1"
         result = verify_current(planner.read_json(args.plan), args.expected_head)
         historical = validate_historical_log(args.historical_log)
+        semantic = validate_historical_semantic_summary(args.historical_semantic_summary)
         result = planner.sealed(
             {key: value for key, value in result.items() if key != "proof_sha256"}
-            | {"historical_w04_replay": historical}, "proof_sha256"
+            | {
+                "historical_w04_replay": historical,
+                "historical_w04_semantic_replay": semantic,
+                "HISTORICAL_W04_GOVERNANCE": "PASS",
+                "HISTORICAL_W04_SEMANTIC_REPLAY": "PASS",
+                "HISTORICAL_W04_FAMILIES": 9,
+                "HISTORICAL_W04_SELECTORS": 67,
+                "HISTORICAL_W04_CASES": 81,
+            },
+            "proof_sha256",
         )
         planner.write_json(planner.outside_repository(args.output_json), result)
         print(json.dumps(result, sort_keys=True))
@@ -376,4 +606,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -816,7 +816,24 @@ jobs:
     if: ${{ always() && !cancelled() && (needs['classify-change'].result != 'success' || needs['classify-change'].outputs.change_class != 'P') }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.6-pg17-bookworm
+        env:
+          POSTGRES_DB: flowlens_w05_historical_w04_test
+          POSTGRES_USER: flowlens_ci
+          POSTGRES_PASSWORD: flowlens_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowlens_ci -d flowlens_w05_historical_w04_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
     env:
+      FLOWLENS_APP_ENVIRONMENT: test
+      FLOWLENS_DATABASE_URL: postgresql+psycopg://flowlens_ci:flowlens_ci@127.0.0.1:5432/flowlens_w05_historical_w04_test
       EXPECTED_HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
 
     steps:
@@ -863,7 +880,12 @@ jobs:
             test "$(git rev-parse HEAD)" = 2f1627342ff2b04d8324fbffec3db2e230b302e0
             test -z "$(git status --porcelain)"
             UV_PROJECT_ENVIRONMENT="$HISTORICAL_VENV" uv sync --frozen
+            PYTHONPATH="$HISTORICAL/src" "$HISTORICAL_VENV/bin/python" -B -m alembic upgrade head
             PYTHONPATH="$HISTORICAL/src" "$HISTORICAL_VENV/bin/python" -B scripts/ci/verify_w04_investigation_gate_contract.py
+            PYTHONPATH="$HISTORICAL/src" "$HISTORICAL_VENV/bin/python" -B scripts/ci/run_w04_investigation_gate.py \
+              --manifest docs/w04/checkpoints/c09/specs/c09_gate_manifest.json \
+              --expected-head 2f1627342ff2b04d8324fbffec3db2e230b302e0 \
+              --output-json "$RUNNER_TEMP/w05-governance/historical-w04-semantic-summary.json"
             test -z "$(git status --porcelain)"
           ) | tee "$RUNNER_TEMP/w05-governance/historical-w04.log"
 
@@ -873,6 +895,7 @@ jobs:
             --expected-head "$EXPECTED_HEAD" \
             --plan "$RUNNER_TEMP/devctrl02-plan/plan.json" \
             --historical-log "$RUNNER_TEMP/w05-governance/historical-w04.log" \
+            --historical-semantic-summary "$RUNNER_TEMP/w05-governance/historical-w04-semantic-summary.json" \
             --output-json "$RUNNER_TEMP/w05-governance/successor-proof.json"
 
       - name: Upload W05 governance exact-SHA evidence

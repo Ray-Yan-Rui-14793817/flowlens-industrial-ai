@@ -1202,9 +1202,7 @@ def test_b35_planning_artifact_constructors_are_denied(monkeypatch: pytest.Monke
 
 
 def test_b36_c01_frozen_blobs_and_committed_source_governance_pass() -> None:
-    # This exact-HEAD proof intentionally fails while source is uncommitted.
-    # Precommit implementation checks exclude only this selector; final committed
-    # execution and native CI must execute it and require actual verifier PASS.
+    # Current source authority is the separately staged W05 admission epoch.
     expected = {
         "src/flowlens/investigation/__init__.py": "c23929f85dccd78bc72ef3b2b1415c6e8eaf0452",
         "src/flowlens/investigation/contracts.py": "0f66bd9a0b2f063b318bd6b9dcc47d63b9c83e7e",
@@ -1233,9 +1231,7 @@ def test_b36_c01_frozen_blobs_and_committed_source_governance_pass() -> None:
         [
             sys.executable,
             "-B",
-            str(ROOT / "scripts/ci/verify_w04_source_evolution.py"),
-            "--manifest",
-            "docs/w04/W04_SOURCE_EVOLUTION_MANIFEST.json",
+            str(ROOT / "scripts/ci/verify_w05_post_w04_source_compatibility.py"),
             "--expected-head",
             head,
             "--repo",
@@ -1252,3 +1248,4 @@ def test_b36_c01_frozen_blobs_and_committed_source_governance_pass() -> None:
     assert set(expected) | {"src/flowlens/investigation/c02_binding.py"} <= set(
         proof["actual_added_source_paths"]
     )
+    assert proof["SOURCE_ADMISSION_STATE"] in {"ADMISSION_STAGED", "BOOTSTRAP_MATERIALIZED"}
