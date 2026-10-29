@@ -1,30 +1,41 @@
-# AGENTS - R3-A1 governance architecture
+# AGENTS - C01 recovery R3 A1
 
 ~~~text
-CURRENT_ARCHITECTURE_TASK = W05_C01_POST_W04_SUCCESSOR_COMPATIBILITY_ARCHITECTURE_R3
-CURRENT_AMENDMENT_TASK = W05_C01_POST_W04_SUCCESSOR_COMPATIBILITY_ARCHITECTURE_R3_A1
-R3_A1_HUMAN_ACCEPTANCE = ACCEPTED
-R3_A1_EXECUTION_AUTHORIZATION = APPROVED_FOR_THIS_TASK_ONLY
-R1_W04_COMPATIBILITY_REPAIR = SEALED_NOT_ACCEPTED
-R2_W04_COMPATIBILITY_REPAIR = SEALED_FORMAL_FAILURE_NOT_ACCEPTED
-R3_PREAUTHORING_BLOCK = PRESERVED_RESOLVED_BY_A1
-W04_HISTORICAL_VERIFIER = IMMUTABLE
-W04_R43 = PRESERVED
-W04_R46_TEST_BODY = PRESERVED
-W04_R46_NATIVE_METADATA_HELPER = BOUNDED_A1_EVOLUTION_AUTHORIZED
-W04_B36 = CURRENT_SUCCESSOR_EVOLUTION_AUTHORIZED_BY_R3
-POST_W04_SOURCE_ADMISSION = C01_PRODUCT_ROOT_BOOTSTRAP_STAGED
-C01_PRESERVED_CANDIDATE = SEALED_15_PATHS_UNCOMMITTED
-C01_RECOVERY_EXECUTION = NO
+CURRENT_WORKSTREAM = W05-C01 / PRODUCT SURFACE CONTRACT RECOVERY
+CURRENT_TASK = W05_C01_PREFREEZE_STOP_RECOVERY_RESUME_R3_TASK_AMENDMENT_A1
+CURRENT_TASK_PARENT = W05_C01_PREFREEZE_STOP_RECOVERY_RESUME_R3
+C01_RECOVERY_ENTRY_G3 = 01be49cf51a45b8ea1b0910cb8c615a1dfc441c5
+C01_RECOVERY_ENTRY_G3_TREE = 5e47b452d57be9de0bc138fe019b76598c0a2c37
+C01_RECOVERY_EXECUTION = AUTHORIZED_BY_CURRENT_TASK
+C01_SOURCE_ADMISSION_AT_PARENT = ADMISSION_STAGED
+C01_TARGET_SOURCE_ADMISSION = BOOTSTRAP_MATERIALIZED
+C01_CLOSEOUT_AUTHORIZATION = NO
 C02_AUTHORIZATION = NO
 MERGE_AUTHORITY = NO
+W06_AUTHORIZATION = NO
+FLOWLENS_V1_0_RELEASE_AUTHORITY = NO
+HUMAN_DISPOSITION = PASS
+A1_HUMAN_ACCEPTANCE = ACCEPTED
+C01_RECOVERY_R3_A1_EXECUTION_AUTHORIZATION = APPROVED_FOR_THIS_TASK_ONLY
+CURRENT_C01_IMPLEMENTATION_TECHNICAL_STATE = PENDING_CANDIDATE_PROOF
+CURRENT_C01_HTTP_API = NOT_IMPLEMENTED
+CURRENT_C01_UI = NOT_IMPLEMENTED
+C01_PRESERVED_CANDIDATE = SEALED_15_PATHS_UNCOMMITTED_PREDECESSOR
+OLD_C01_R1 = STOPPED_PREFREEZE_W04_INVARIANT_FAILURE
+PARENT_R3_REVIEW_R1 = PASS_REVOKED_BY_NEW_EVIDENCE
+DEEP_REVIEW_R2 = CONTROLLING_FINDING_SOURCE
 ~~~
 
-Current Human task is the exact A1 amendment; read context lock/contract. Committed authoring remains conditional: formal/shadow/actual/native/review proof is pending, not completion or implementation acceptance. G3 contains no product implementation.
+The current Human-authorized task is the exact A1 C01 recovery/materialization contract.
+Read docs/w05/c01/W05_C01_AUTHORIZATION_CONTRACT.md and W05_C01_CONTEXT_LOCK.md before work.
+This frozen source projection records authorization and proof requirements at authoring time;
+actual shadow, exact-head, native and terminal-review results belong to external evidence.
+They are pending here. No implementation completion, Human implementation acceptance or closeout
+is inferred from this document. Preserve the old C01 candidate/worktree and all failed history.
 
 ## Frozen G0 projection
 
-THIS TASK below refers to preserved G0, not the separate current A1 architecture.
+THIS TASK below refers to preserved G0, not the current C01 recovery task.
 ~~~text
 CURRENT_PHASE = W05 / SUCCESSOR GOVERNANCE ACTIVE
 POST_W04_STABILIZATION = CLOSED
@@ -40,45 +51,59 @@ W06 = NOT AUTHORIZED
 FLOWLENS_V1_0 = NOT RELEASED
 ~~~
 
-G0 effective external closure from C2 CI159 attempt1/terminal reviews is preserved. PR12/PR13 stay open/ready/unmerged.
+## Preserved G0 and G3 chronology
 
-Only B36 current source unit evolves; same nodeid/signature/decorators/annotation, preserving historical
-investigation blobs/manifest/C02 path checks while delegating current source authority to W05.
-Only _check_native_metadata evolves in replay tests: accepted classes I/C/UNKNOWN with FULL_EXACT_SHA;
-all other checks identical. R43, R46 test body and fixture remain source-exact C2. Complete evolved
-file blobs/modes freeze at policy-introduction G3; neither file gets broad continuing mutability.
+G0 effective external closure from C2 CI159 attempt1 and terminal reviews is preserved.
+PR12/PR13 remain ready/open/unmerged. G3 is the sole child of C2, tree
+5e47b452d57be9de0bc138fe019b76598c0a2c37, PR14 ready/open/unmerged, four commits/31 files.
+G3 CI160 run40827247539 attempt1 SUCCESS and measured UNKNOWN/FULL_EXACT_SHA R46 PASS are
+predecessor evidence, not substitutes for C01-I proof. R1/R2 compatibility repairs and earlier
+R3/A1 STOP records remain sealed and unaccepted. The separate G3 proof-controller recovery
+completed native proof and review with the invalid false-ancestry P1 preserved unedited.
 
-Policy v2 admits exactly __init__.py/contracts.py/projection.py under src/flowlens/product,100644,
-one initial materialization only, separate C01 content authority and immutable policy. Introduction
-must be a sole child of exact C2 with no admitted source. G3 state ADMISSION_STAGED. Future separately
-authorized materialization requires a prior exact policy/no source, exact three-file src delta,
-then source/policy freeze for descendants. All other roots, wrong modes/nonregular Git/FS entries,
-uncommitted drift, same-commit self-authorization, policy/authority/W04 drift fail.
+## Current bounded execution
 
-Current W04 job/block remains unchanged/current-head9/67/81. Only existing W05 job gains isolated
-_test PostgreSQL and exact-main historical migrations/governance/semantic9/67/81. Existing action/image
-pins, job/artifact names, verification dependencies and publication route remain stable.
+Exactly15 repository paths may change from G3: eight verified recovered bytes and seven rebased
+governance files. Product source/tests and the three semantic documents never change after recovery.
+The seven governance documents may be corrected only before freeze. No sixteenth path is authorized.
+G3 policy v2 preexists with no product source. It admits exactly100644 __init__.py/contracts.py/
+projection.py under src/flowlens/product in one initial materialization. The policy, compatibility
+verifier, W05 successor verifier, B36 file and R46 replay file stay exact G3 blobs/modes; R43,
+the R46 test body/fixture and all historical W04/W03/runtime objects remain unchanged.
+Source must move from staged at G3 to BOOTSTRAP_MATERIALIZED at each exact committed proof head.
+No same-commit self-authorization, fourth source path, policy drift or uncommitted source drift.
 
-Before formal proof: author only14 paths, quality/scope/frozen identities; all proof DBs _test,
-roles isolated; inherited GIT_CONFIG overrides absent; command-local controller git -c only.
-All candidate/docs/policy/harness bytes freeze when FORMAL_PROOF_WINDOW opens. First material formal
-acceptance failure STOP; no inline correction/retry/rerun-as-proof or second implementation commit.
+Proof order: product-only prefreeze quality/schema/six vectors/capability and dual-plane checks;
+freeze all candidate/docs/harness bytes; create disposable SHADOW_C01_I with sole G3 parent;
+full shadow proof; one actual C01-I with exact shadow tree and sole G3 parent; fresh exact-head
+proof; one normal push/new ready PR to main; first exact-C01-I opened nativeattempt1; measured
+R46 on original C01-I archives; reports before terminal review; zero unresolved VALID findings.
+Do not run committed-source W04/B36 acceptance against the uncommitted candidate. First material
+formal failure after freeze requires sealed STOP, no patch/retry, replacement or second commit.
+External infrastructure interruption may resume only with the same frozen bytes.
 
-After formal freeze create disposable committed SHADOW_G3 with C2 parent/exact frozen candidate tree.
-Its history never enters project. Full W04 source127/current W04 9/67/81/B36/R43/R46 fixture+A1 controls/
-classifier91/W03 38/85/fresh main governance+semantic9/67/81/source adversaries/W05 successor all pass.
-Generate dynamic active plan65 files/+2 vs W04; all historical nodes retained, positive weights,
-exact union/once. Only after full shadow PASS create one actual G3 whose tree equals shadow tree.
-No amend/rebase/rewrite/replacement. Full exact-G3 reproof and recollection must match shadow
-collection/weights/shards (plan head/seal binds each distinct commit). Opened classifier UNKNOWN/
-FULL_EXACT_SHA/ambiguous_event; one normal push/new ready unmerged PRmain4commits31files.
-Only FIRST exact-G3 opened nativeattempt1,17required jobsSUCCESS/PublicationSKIPPED,12 original archives,
-7 receipt/JUnit partitions/exact aggregate, exactly3 frozen Linux junction skips and no R3 skips/adverse
-outcomes. Native current/historical W04 both9/67/81 and W03 38/85. Measured original UNKNOWN/FULL native
-metadata must pass unchanged R46 test body. Terminal review zero unresolved VALID findings required.
+Each complete raw plan validates its own exact head/seal. For comparison remove exactly head_sha
+and plan_sha256; every other field, including complete files/shards/weights/collections, must equal.
+Rebind materialization_sha/expected_head/head_sha/proof_sha256 truthfully to each validated head.
+Do not require raw seals or shadow/actual SHAs to equal or differ. Successor and current-plan counts
+are measured dynamically. Product126/126 has zero skip/xfail/xpass; classifier91, W03 38/85,
+current and historical W04 9/67/81 remain mandatory. Native17 required jobs SUCCESS, Publication
+SKIPPED; seven partitions/exact aggregate and exactly the three frozen global Linux junction skips.
+Actual UNKNOWN/FULL_EXACT_SHA/ambiguous_event remains truthful, with new measured GITHUB_NATIVE R46.
 
-All formal/native/review proof pending at authoring. C01 recovery execution/closeout/C02/main-write/
-merge/auto-merge/queue/branch-delete/predecessor-mutation/W06/release/operational mutation remainNO.
-Success only enables external C01 recovery entry; no product implementation or auto-advance.
+All proof databases must be isolated task-owned _test databases; no inherited GIT_CONFIG overrides.
+Use only command-local controller Git configuration. No HTTP/UI/application service/DB persistence,
+provider/network/file/environment/random/wall-clock/runtime HGT or operational action in product code.
+ProductCaseView is an immutable transport-neutral read model. Production / Delivery Operations
+Manager; offline/shadow/human-in-loop; separate Decision/Investigation Human review planes;
+HUMAN_NOTE_NON_EVIDENCE; canonical schema/vectors; no inferred causal/probability/risk authority.
 
-CONTRACT FIRST. SNAPSHOT BEFORE REASONING. ONE RUN=ONE IMMUTABLE SNAPSHOT. EVIDENCE BEFORE CLAIM. ASSOCIATION != CAUSALITY. UNKNOWN IS VALID. NO FUTURE LEAKAGE. NO RUNTIME HGT. HUMAN AUTHORITY. MODEL EXPLAINS, SYSTEM DECIDES. LLM PRESENTATION AUTHORITY ONLY. NO OPERATIONAL MUTATION. TOOLS DENY BY DEFAULT. FAIL CLOSED. HARNESS=DETECTION+ENFORCEMENT+EVIDENCE. REPORT BEFORE REVIEW. REVIEW BEFORE ACCEPTANCE. ACCEPTANCE BEFORE CLOSEOUT. NO AUTO-ADVANCE. Human notes remain HUMAN_NOTE_NON_EVIDENCE.
+No predecessor PR mutation, main write, merge, auto-merge, queue, branch deletion, C01 closeout,
+C02, W06, release or automatic advancement. Success enables C01 closeout design/review entry only.
+
+CONTRACT FIRST. SNAPSHOT BEFORE REASONING. ONE RUN=ONE IMMUTABLE SNAPSHOT. EVIDENCE BEFORE CLAIM.
+ASSOCIATION != CAUSALITY. UNKNOWN IS VALID. NO FUTURE LEAKAGE. NO RUNTIME HGT. HUMAN AUTHORITY.
+MODEL EXPLAINS, SYSTEM DECIDES. LLM PRESENTATION AUTHORITY ONLY. NO OPERATIONAL MUTATION.
+TOOLS DENY BY DEFAULT. FAIL CLOSED. HARNESS=DETECTION+ENFORCEMENT+EVIDENCE. REPORT BEFORE REVIEW.
+REVIEW BEFORE ACCEPTANCE. ACCEPTANCE BEFORE CLOSEOUT. NO AUTO-ADVANCE.
+Human notes remain HUMAN_NOTE_NON_EVIDENCE.
