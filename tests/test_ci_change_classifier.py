@@ -302,7 +302,7 @@ def test_workflow_routes_all_classes_to_a_stable_fail_closed_gate() -> None:
         "name: Verification gate",
         "needs: [classify-change, static-and-plan, integration-and-data, "
         "non-integration-aggregate, quality, compose-smoke, publication-proof, "
-        "w03-ai-loop-gate, w04-investigation-gate]",
+        "w03-ai-loop-gate, w04-investigation-gate, w05-successor-governance]",
         "if: always()",
         '--event-path "$GITHUB_EVENT_PATH"',
         'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"',
@@ -315,6 +315,25 @@ def test_workflow_routes_all_classes_to_a_stable_fail_closed_gate() -> None:
         'test "$COMPOSE_RESULT" = success',
     ):
         assert required in workflow
+    gate = workflow.split("\n  verification-gate:\n", 1)[1]
+    expected_needs = (
+        "needs: [classify-change, static-and-plan, integration-and-data, "
+        "non-integration-aggregate, quality, compose-smoke, publication-proof, "
+        "w03-ai-loop-gate, w04-investigation-gate, w05-successor-governance]"
+    )
+    assert [line.strip() for line in gate.splitlines() if line.startswith("    needs:")] == [
+        expected_needs
+    ]
+    assert "    if: always()\n" in gate
+    assert "          W05_RESULT: ${{ needs['w05-successor-governance'].result }}\n" in gate
+    publication, full = gate.split('if [[ "$CHANGE_CLASS" == P ]]; then\n', 1)[1].split(
+        "\n          else\n", 1
+    )
+    full = full.split("\n          fi\n", 1)[0]
+    assert 'test "$W05_RESULT" = skipped' in publication
+    assert 'test "$W05_RESULT" = success' not in publication
+    assert 'test "$W05_RESULT" = success' in full
+    assert 'test "$W05_RESULT" = skipped' not in full
     assert '--role integration-data --marker "integration"' in workflow
     assert "--role nonint-shard" in workflow
     assert "uv run python scripts/ci/run_non_integration_shard.py" in workflow

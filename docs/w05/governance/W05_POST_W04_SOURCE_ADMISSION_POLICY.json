@@ -1,0 +1,25 @@
+{
+  "schema_version": "w05-post-w04-source-admission-v2",
+  "authority_entry_sha": "2af8fcd9c3f2fce5121b1b7a3ecead6067eb8aec",
+  "owner_checkpoint": "W05-C01",
+  "admission_epoch": "C01_PRODUCT_ROOT_BOOTSTRAP",
+  "admission_kind": "INITIAL_MATERIALIZATION_ONLY",
+  "admitted_root": "src/flowlens/product",
+  "implementation_may_mutate_policy": false,
+  "content_authority": "SEPARATE_C01_CONTRACT",
+  "admitted_paths": [
+    {
+      "path": "src/flowlens/product/__init__.py",
+      "mode": "100644"
+    },
+    {
+      "path": "src/flowlens/product/contracts.py",
+      "mode": "100644"
+    },
+    {
+      "path": "src/flowlens/product/projection.py",
+      "mode": "100644"
+    }
+  ],
+  "policy_sha256": "2911ec2274c7f6710fb2d3425831a26549c9e93c9abfa280031d6393461e3568"
+}

@@ -12,12 +12,13 @@ from typing import Any
 
 from plan_non_integration_shards import (
     BASELINE,
+    HISTORICAL_BASELINE,
     MARKER,
     SHARD_COUNT,
     WEIGHTS,
     ProofError,
     collect_nodes,
-    enforce_entry,
+    enforce_historical,
     outside_repository,
     read_json,
     validate_plan,
@@ -53,6 +54,7 @@ def aggregate(plan: dict[str, Any], receipts_dir: Path, role: str, output: Path)
         != {f"shard-{i}" for i in range(SHARD_COUNT)}
     ):
         raise ProofError("missing, duplicate or unexpected shard artifact")
+    validate_plan(plan, read_json(WEIGHTS), read_json(BASELINE), plan["head_sha"])
     all_nodes: list[str] = []
     outcomes: dict[str, list[str]] = {key: [] for key in OUTCOMES}
     suites = ET.Element("testsuites")
@@ -76,7 +78,7 @@ def aggregate(plan: dict[str, Any], receipts_dir: Path, role: str, output: Path)
         summaries.append(receipt_summary(receipt))
     if len(all_nodes) != len(set(all_nodes)) or sorted(all_nodes) != plan["collected_nodeids"]:
         raise ProofError("missing, duplicate or unexpected node across shards")
-    enforce_entry(sorted(all_nodes), read_json(BASELINE))
+    enforce_historical(sorted(all_nodes), read_json(HISTORICAL_BASELINE))
     output = outside_repository(output)
     if output.exists():
         raise ProofError("refuse stale aggregate directory")
@@ -106,7 +108,9 @@ def aggregate(plan: dict[str, Any], receipts_dir: Path, role: str, output: Path)
             | {
                 "exact_union": "PASS",
                 "exact_once": "PASS",
-                "entry_no_loss": "PASS",
+                "HISTORICAL_NO_LOSS": "PASS",
+                "EXACT_CURRENT_UNION": "PASS",
+                "EXACT_CURRENT_ONCE": "PASS",
                 "shards": summaries,
             },
             sort_keys=True,
@@ -152,7 +156,7 @@ def equivalence(
         validate_receipt(receipt, plan, role, None, assigned, junit)
         require_success(receipt, junit)
         receipts.append(receipt)
-    enforce_entry(plan["collected_nodeids"], read_json(BASELINE))
+    enforce_historical(plan["collected_nodeids"], read_json(HISTORICAL_BASELINE))
     compare_outcomes(receipts[0], receipts[1])
     compare_outcomes(receipts[2], receipts[3])
     result = {
